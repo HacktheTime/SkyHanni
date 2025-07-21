@@ -24,6 +24,7 @@ import io.github.notenoughupdates.moulconfig.observer.Property
 import org.lwjgl.input.Keyboard
 
 class MiscConfig {
+
     @Expose
     @Category(name = "Pets", desc = "Pets Settings")
     val pets: PetConfig = PetConfig()
@@ -502,4 +503,7 @@ class MiscConfig {
     @ConfigOption(name = "Abiphone Hotkey", desc = "Answer incoming abiphone calls with a hotkey.")
     @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NONE)
     var abiphoneAcceptKey: Int = Keyboard.KEY_NONE
+
+
+    val hidePartyMessagesConfig: HidePartyMessagesConfig = HidePartyMessagesConfig()
 }
