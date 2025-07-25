@@ -1,7 +1,5 @@
 package at.hannibal2.skyhanni.utils
 
-//#if MC < 1.21
-//#endif
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.core.config.KeyBind
@@ -11,7 +9,9 @@ import at.hannibal2.skyhanni.data.ChatManager.editChatLine
 import at.hannibal2.skyhanni.events.MessageSendToServerEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.mixins.hooks.ChatLineData
+//#if MC < 1.21
 import at.hannibal2.skyhanni.mixins.transformers.AccessorMixinGuiNewChat
+//#endif
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.SkyHanniDebugsAndTests
 import at.hannibal2.skyhanni.utils.ChatUtils.CHAT_PREFIX
@@ -63,8 +63,7 @@ object ChatUtils {
         message: String,
         replaceSameMessage: Boolean = false,
     ) {
-        val debug = SkyHanniDebugsAndTests.enabled
-        if (debug && internalChat(DEBUG_PREFIX + message, replaceSameMessage)) {
+        if (SkyBlockUtils.debug && internalChat(DEBUG_PREFIX + message, replaceSameMessage)) {
             consoleLog("[Debug] $message")
         }
     }

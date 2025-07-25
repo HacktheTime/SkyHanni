@@ -910,6 +910,7 @@ object ItemUtils {
         showRepoWarning(name)
     }
 
+    // These two are matching right now, but we keep them separate for future-proofing
     val resetCommand get() = if (PlatformUtils.isNeuLoaded()) "neuresetrepo"
     else EnoughUpdatesRepoManager.updateCommand
 
@@ -988,8 +989,8 @@ object ItemUtils {
     //#if MC > 1.21
     //$$ fun ItemStack.getItemModel(): Item? {
     //$$     val identifier = this.get(DataComponentTypes.ITEM_MODEL)
-    //$$     val item = Registries.ITEM.get(identifier)
-    //$$     return if (item == Items.AIR) null else item
+    //$$     val itemModel = Registries.ITEM.get(identifier)
+    //$$     return if (itemModel == Items.AIR || itemModel == this.item) null else itemModel
     //$$ }
     //#endif
 }
