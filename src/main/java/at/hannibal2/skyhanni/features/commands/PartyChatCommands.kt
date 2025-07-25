@@ -7,7 +7,7 @@ import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
 import at.hannibal2.skyhanni.config.features.misc.PartyCommandsConfig
-import at.hannibal2.skyhanni.data.FriendApi
+import at.hannibal2.skyhanni.config.features.misc.PermissionLevel
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.hypixel.chat.event.PartyChatEvent
 import at.hannibal2.skyhanni.events.chat.TabCompletionEvent
@@ -30,10 +30,11 @@ object PartyChatCommands {
 
     data class PartyChatCommand(
         val names: List<String>,
-        val isEnabled: () -> Boolean,
+        val canUse: (PartyCommandsConfig.TrustUserConfig) -> PermissionLevel,
         val requiresPartyLead: Boolean = true,
         val triggerableBySelf: Boolean = true,
         val executable: (PartyChatEvent) -> Unit,
+        val offCooldown: () -> Boolean = { true },
     )
 
     private var lastWarp = SimpleTimeMark.farPast()
@@ -42,7 +43,7 @@ object PartyChatCommands {
     private val allPartyCommands = listOf(
         PartyChatCommand(
             listOf("pt", "ptme", "transfer"),
-            { config.transferCommand },
+            { it.effectiveTransferLeader },
             triggerableBySelf = false,
             executable = {
                 PartyApi.partyTransfer(it.cleanedAuthor)
@@ -50,23 +51,25 @@ object PartyChatCommands {
         ),
         PartyChatCommand(
             listOf("pw", "warp", "warpus"),
-            { config.warpCommand && lastWarp.passedSince() > 5.seconds },
+            { it.effectiveWarp },
             executable = {
                 lastWarp = SimpleTimeMark.now()
                 PartyApi.warp()
             },
+            offCooldown = { lastWarp.passedSince() > 5.seconds },
         ),
         PartyChatCommand(
             listOf("allinv", "allinvite"),
-            { config.allInviteCommand && lastAllInvite.passedSince() > 2.seconds },
+            { it.effectiveEnableAllInvite },
             executable = {
                 lastAllInvite = SimpleTimeMark.now()
                 PartyApi.allInvite()
             },
+            offCooldown = { lastAllInvite.passedSince() > 2.seconds },
         ),
         PartyChatCommand(
             listOf("ping"),
-            { config.pingCommand },
+            { if (config.pingCommand) PermissionLevel.INSTANT else PermissionLevel.NEVER },
             requiresPartyLead = false,
             executable = {
 
@@ -88,7 +91,7 @@ object PartyChatCommands {
         ),
         PartyChatCommand(
             listOf("tps"),
-            { config.tpsCommand },
+            { if (config.tpsCommand) PermissionLevel.INSTANT else PermissionLevel.NEVER },
             requiresPartyLead = false,
             executable = {
                 if (TpsCounter.tps != null) {
@@ -108,15 +111,8 @@ object PartyChatCommands {
         }
     }
 
-    private fun isTrustedUser(name: String): Boolean {
-        if (name == PlayerUtils.getName()) return true
-        val friend = FriendApi.getAllFriends().find { it.name == name }
-        return when (config.requiredTrustLevel) {
-            PartyCommandsConfig.TrustedUser.FRIENDS -> friend != null
-            PartyCommandsConfig.TrustedUser.BEST_FRIENDS -> friend?.bestFriend == true
-            PartyCommandsConfig.TrustedUser.ANYONE -> true
-            PartyCommandsConfig.TrustedUser.NO_ONE -> false
-        }
+    private fun getUserConfig(name: String): PartyCommandsConfig.TrustUserConfig {
+        return config.users.get(name) ?: config.TrustUserConfig(name)
     }
 
     private val commandPrefixes = ".!?".toSet()
@@ -131,9 +127,8 @@ object PartyChatCommands {
         val commandLabel = event.message.substring(1).substringBefore(' ')
         val command = indexedPartyChatCommands[commandLabel.lowercase()] ?: return
         val name = event.cleanedAuthor
-        if (name == PlayerUtils.getName() && (!command.triggerableBySelf || !config.selfTriggerCommands)) return
-        if (!command.isEnabled()) return
-        if (command.requiresPartyLead && PartyApi.partyLeader != PlayerUtils.getName()) return
+        if (name == PlayerUtils.getName() && (!command.triggerableBySelf)) return
+        if (command.requiresPartyLead && PartyApi.isPartyLeader()) return
         if (isBlockedUser(name)) {
             if (config.showIgnoredReminder) ChatUtils.clickableChat(
                 "§cIgnoring chat command from ${event.author}. " +
@@ -143,7 +138,9 @@ object PartyChatCommands {
             )
             return
         }
-        if (!isTrustedUser(name)) {
+        if (!command.offCooldown.invoke()) return
+        val level = command.canUse(getUserConfig(name))
+        if (level == PermissionLevel.NEVER) {
             if (config.showIgnoredReminder) {
                 ChatUtils.chat(
                     "§cIgnoring chat command from $name. " +
@@ -151,8 +148,11 @@ object PartyChatCommands {
                 )
             }
             return
+        } else if (level == PermissionLevel.INSTANT) {
+            command.executable.invoke(event)
+        }else if (level == PermissionLevel.ASK){
+            //TODO ChatPrompt
         }
-        command.executable(event)
     }
 
     @HandleEvent
@@ -264,4 +264,6 @@ object PartyChatCommands {
     fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         event.move(95, "misc.partyCommands.defaultRequiredTrustLevel", "misc.partyCommands.requiredTrustLevel")
     }
+
+    //TODO msg commands.
 }
