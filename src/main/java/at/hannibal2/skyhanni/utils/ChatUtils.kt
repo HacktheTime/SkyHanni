@@ -486,4 +486,9 @@ object ChatUtils {
         SkyHanniMod.consoleLog(text)
     }
 
+    fun suggestInChat(message: String) {
+        //TODO
+        ChatUtils.chat("Chat Suggestion is not implemented yet!")
+    }
+
 }
