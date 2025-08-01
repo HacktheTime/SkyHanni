@@ -134,6 +134,7 @@ object ChChestUpdateListener {
     @HandleEvent
     fun onWorldLeave(event: WorldLeaveEvent) {
         if (!config.chestWaypoints) return
+        //TODO fix to
         if (HypixelData.skyBlockIsland != IslandType.CRYSTAL_HOLLOWS) return
         val unsubpacket = UnSubscribeToChServer(
             HypixelData.serverId ?: error("Old Server Id is null but Island was loaded?"),
