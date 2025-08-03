@@ -11,7 +11,9 @@ import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.mixins.hooks.ChatLineData
 //#if MC < 1.21
 import at.hannibal2.skyhanni.mixins.transformers.AccessorMixinGuiNewChat
-//#endifimport at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+//#endif
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.test.SkyHanniDebugsAndTests
 import at.hannibal2.skyhanni.utils.ChatUtils.CHAT_PREFIX
 import at.hannibal2.skyhanni.utils.ChatUtils.DEBUG_PREFIX
 import at.hannibal2.skyhanni.utils.ChatUtils.USER_ERROR_PREFIX
