@@ -1,5 +1,6 @@
 package de.hype.bingonet.shared.tutorials.paths
 
+import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 
 abstract class TutorialFork(
@@ -8,7 +9,7 @@ abstract class TutorialFork(
     /**
      * Nodes of this fork.
      */
-    abstract fun getNodes(): List<TutorialNode>
+    abstract fun getNodes(tutorial: Tutorial): List<TutorialNode>
 
     /**
      * If this fork is asynchronous this means that its node are splitting off from the main branch and multiple nodes can be active at the same time.

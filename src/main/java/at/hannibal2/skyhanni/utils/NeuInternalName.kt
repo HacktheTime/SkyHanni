@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.utils
 
+import at.hannibal2.skyhanni.api.enoughupdates.EnoughUpdatesManager
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ItemUtils.getItemCategoryOrNull
 import at.hannibal2.skyhanni.utils.NeuItems.getItemStackOrNull
@@ -84,6 +85,9 @@ class NeuInternalName private constructor(internalName: String): BNNEUItem(inter
         internalName.replace(oldValue, newValue, ignoreCase = true).toInternalName()
 
     fun isKnownItem(): Boolean = getItemStackOrNull() != null || this == SKYBLOCK_COIN
+    fun getCraftingRecipies(): List<PrimitiveRecipe> {
+        return EnoughUpdatesManager.getRecipesFor(this).filter { it.recipeType== RecipeType.CRAFTING }
+    }
 
     /**
      * This is because skyblock has special ids in commands such as /viewrecipe for items like enchanted books and pets

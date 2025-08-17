@@ -8,7 +8,7 @@ class SelectPathTutorialFork(
 ) : TutorialFork() {
 
     override fun getNodes(tutorial: Tutorial): List<TutorialNode> {
-        val selectedOption: SelectedPathTutorialFork = tutorial.getSelectedOption(paths)
+        val selectedOption: SelectedPathTutorialFork = tutorial.getSelectedOption(paths)?: return emptyList()
         return selectedOption.pathNodes
     }
 

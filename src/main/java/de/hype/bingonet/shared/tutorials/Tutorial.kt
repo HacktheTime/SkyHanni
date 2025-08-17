@@ -22,17 +22,13 @@ class Tutorial(
         selectedPathIds.clear()
     }
 
-    fun getSelectedOption(options: List<SelectPathTutorialFork.SelectedPathTutorialFork>): SelectPathTutorialFork.SelectedPathTutorialFork {
-        if (options.size == 1){
-            return options.first().also {
-                addSelected(it.option)
-            }
-        }
+    fun getSelectedOption(options: List<SelectPathTutorialFork.SelectedPathTutorialFork>): SelectPathTutorialFork.SelectedPathTutorialFork? {
         options.forEach {
             if (selectedPathIds.contains(it.option.id)) {
                 return it
             }
         }
+        if (options.size == 1) return null
         ChatUtils.chat("§e[SkyHanni Tutorial]: The Currently loaded Tutorial has ${options.size} options for you to choose from on how to continue", prefix = false)
         options.forEach {
             ChatUtils.clickableChat("§e[SkyHanni Tutorial]: ${it.option.name} : ${it.option.guideMakerDescription}",{

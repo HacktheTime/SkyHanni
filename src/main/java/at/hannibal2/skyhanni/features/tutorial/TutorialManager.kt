@@ -4,9 +4,9 @@ import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 object TutorialManager {
-    fun getActiveStep() : TutorialStep{}
-    //TODO add asynchronous support like waiting for mining events, chchest findings etc.
-    //TODO add alternative paths
+    fun getActiveSteps() : TutorialStep{
+
+    }
 
     //TODO make store and retrieve step
     //TODO add a tag item step to allow for reference later
