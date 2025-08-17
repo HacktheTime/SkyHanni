@@ -15,16 +15,16 @@ Combat Preference
     - like hyper cleaver, void sword etc
 
 Bingo Card Preference
-- lowpt
+- Id: "lowpt"
     - optimize for as low pt as possible. do everything automatic with minions where possible and do everything the fastest way only.
-- speedrun
+- Id: "speedrun"
     - Complete card as soon as possible. Means a lot of manual work.
-- efficient
+- Id: "efficient"
     - Result that is long term the best result. This means optimization for overall such as implementing preperations for community goal
       within card time when having to wait, General pairing Community Goals with the Card such as Exterminator being done with Emans etc.
 
 Carry Preference
-- carry
+- Id: "carry"
   - If you have friends that can carry
-- no carry
+- Id: "nocarries"
   - If you do not have friends that can carry
