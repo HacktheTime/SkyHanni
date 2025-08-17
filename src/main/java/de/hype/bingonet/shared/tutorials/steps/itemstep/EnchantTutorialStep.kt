@@ -18,4 +18,6 @@ class EnchantTutorialStep : GUIBasedTutorialStep(Pattern.compile("Enchant Items"
     val assumeGrandCarrier get() = SkyHanniMod.feature
 
     //TODO render overlay, highlight items, highlight missing enchants once item is inserted. show how many grands are needed for a enchant from table.
+
+    //TODO only allow for tagged items to be enchanted. for daily 500k its not needed since extra step type. then when entering library auto scan items and open the tagged items with highlight.
 }
