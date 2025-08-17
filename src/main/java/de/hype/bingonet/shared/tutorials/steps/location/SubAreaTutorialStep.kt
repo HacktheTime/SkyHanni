@@ -1,0 +1,22 @@
+package de.hype.bingonet.shared.tutorials.steps.location
+
+import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.events.skyblock.ScoreboardAreaChangeEvent
+import de.hype.bingonet.shared.tutorials.steps.TutorialStep
+
+class SubAreaTutorialStep(
+    val area: String
+) : TutorialStep() {
+    override fun getStepName(): String {
+        return "Go to $area"
+    }
+
+    @HandleEvent
+    fun onAreaChange(event: ScoreboardAreaChangeEvent){
+        if (event.area == area) complete()
+    }
+
+    override fun getStepDescription(): String? {
+        return null
+    }
+}
