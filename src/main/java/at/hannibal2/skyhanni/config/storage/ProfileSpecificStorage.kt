@@ -56,6 +56,7 @@ import at.hannibal2.skyhanni.features.rift.area.westvillage.VerminTracker
 import at.hannibal2.skyhanni.features.rift.area.westvillage.kloon.KloonTerminal
 import at.hannibal2.skyhanni.features.skillprogress.SkillType
 import at.hannibal2.skyhanni.features.slayer.SlayerProfitTracker
+import at.hannibal2.skyhanni.features.tutorial.TutorialManager
 import at.hannibal2.skyhanni.utils.LorenzRarity
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.NeuInternalName
@@ -936,4 +937,8 @@ class ProfileSpecificStorage(
 
     @Expose
     var hiddenCoopMembers: MutableSet<String> = mutableSetOf()
+
+    @Expose
+    val tutorialManager: TutorialManager = TutorialManager()
+
 }

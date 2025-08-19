@@ -2,6 +2,7 @@ package de.hype.bingonet.shared.tutorials.steps
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.utils.ChatUtils
+import de.hype.bingonet.shared.objects.WaypointData
 import de.hype.bingonet.shared.tutorials.TutorialNode
 
 abstract class TutorialStep(
@@ -33,4 +34,18 @@ abstract class TutorialStep(
     //TODO it would be good to pre plan any item
     // the user obtains on whether it might be needed later still and to keep that amount then by highlighting needed stacks
     // to avoid selling needed items. sounds hyper complicated though. maybe not feasable
+
+    override fun reset() {
+        onReset()
+        completed = false
+        isActive = false
+    }
+
+    open fun showOnActive() = true
+
+    open fun refresh() {
+
+    }
+
+    val waypoints : MutableList<WaypointData> = mutableListOf()
 }

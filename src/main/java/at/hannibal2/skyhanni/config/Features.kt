@@ -19,6 +19,7 @@ import at.hannibal2.skyhanni.config.features.misc.MiscConfig
 import at.hannibal2.skyhanni.config.features.rift.RiftConfig
 import at.hannibal2.skyhanni.config.features.skillprogress.SkillProgressConfig
 import at.hannibal2.skyhanni.config.features.slayer.SlayerConfig
+import at.hannibal2.skyhanni.config.features.tutorials.TutorialConfig
 import at.hannibal2.skyhanni.config.storage.Storage
 import at.hannibal2.skyhanni.test.SkyHanniDebugsAndTests
 import com.google.gson.annotations.Expose
@@ -152,6 +153,10 @@ class Features : Config() {
     @Expose
     @Suppress("unused")
     var lastVersion: Int = ConfigUpdaterMigrator.CONFIG_VERSION
+
+    @Expose
+    @Category(name = "Tutorials", desc = "Ingame Tutorials. Have to be loaded separately.")
+    var tutorials: TutorialConfig = TutorialConfig()
 
     @Expose
     var lastMinecraftVersion: String? = null

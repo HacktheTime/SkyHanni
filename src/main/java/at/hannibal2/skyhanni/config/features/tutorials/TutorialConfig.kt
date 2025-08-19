@@ -16,6 +16,22 @@ class TutorialConfig {
     @ConfigEditorBoolean
     var assumeGrandCarrier = false
 
+    @Expose
+    @Category(
+        name = "Assume Max EChest",
+        desc = "Max EChest means you have a lot of accessible Space in your EChest. " +
+            "This can be used with Tutorials to route you better but require more Storage usage.",
+    )
+    @ConfigEditorBoolean
+    var assumeMaxEChest = false
+
+    @Expose
+    @Category(
+        name = "Mark to Keep Resources Across Paths",
+        desc = "Mark Resources to keep across paths EVEN if you selected the other path in an optional tutorial step."
+    )
+    @ConfigEditorBoolean
+    var protectResourcesAcrossPaths = true
 
     @Expose
     @Category(name = "Tutorials Chat Prompt Key", desc = "Chat Prompt key used for Tutorials.")

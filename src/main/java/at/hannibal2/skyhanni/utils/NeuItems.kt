@@ -14,6 +14,7 @@ import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.getPriceOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
+import at.hannibal2.skyhanni.utils.NeuNPC.Companion.toNPC
 import at.hannibal2.skyhanni.utils.PrimitiveIngredient.Companion.toPrimitiveItemStacks
 import at.hannibal2.skyhanni.utils.PrimitiveItemStack.Companion.makePrimitiveStack
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
@@ -211,7 +212,7 @@ object NeuItems {
         StringUtils.subMapOfStringsStartingWith(prefix, allInternalNames).filterNot { npcInternal.matches(it.key) }
             .filter { valid(it.value) }.keys
 
-    private val npcName = ".*\\((?:(?:rift )?npc|monster|mayor)\\)".toPattern()
+    private val npcName = NeuNPC.namePattern
     private val npcInternal = ".*\\((?:(?:RIFT_)?NPC|MONSTER|MAYOR)\\)".toPattern()
 
     fun findItemNameWithoutNPCs(
@@ -314,5 +315,9 @@ object NeuItems {
         val jsonString = StringUtils.decodeBase64(encoded)
         val jsonObject = ConfigManager.gson.fromJson(jsonString, JsonObject::class.java)
         return EnoughUpdatesManager.jsonToStack(jsonObject, false)
+    }
+
+    val npcs : List<NeuNPC> by lazy {
+        itemNamesWithoutColor.mapNotNull { it.value.toNPC() }
     }
 }

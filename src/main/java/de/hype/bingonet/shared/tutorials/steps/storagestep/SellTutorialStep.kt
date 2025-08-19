@@ -1,4 +1,4 @@
-package de.hype.bingonet.shared.tutorials.steps.guisteps
+package de.hype.bingonet.shared.tutorials.steps.storagestep
 
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 

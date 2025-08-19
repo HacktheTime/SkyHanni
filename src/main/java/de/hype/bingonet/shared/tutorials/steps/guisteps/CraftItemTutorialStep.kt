@@ -1,8 +1,9 @@
 package de.hype.bingonet.shared.tutorials.steps.guisteps
 
-import at.hannibal2.skyhanni.utils.NeuInternalName
+import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 
-class CraftItemTutorialStep(val item: NeuInternalName, val requiredAmount: Int = 1) {
+
+class CraftItemTutorialStep(val item: BNNEUItem, val requiredAmount: Int = 1) {
     val crafted: Int = 0
 
     //TODO check requirement, show if unlock needed + missing items via item search.

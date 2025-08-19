@@ -2,7 +2,8 @@ package de.hype.bingonet.shared.tutorials.paths
 
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
-import de.hype.bingonet.shared.tutorials.steps.misc.AwaitPotionEffectTutorialStep
+import de.hype.bingonet.shared.tutorials.steps.misc.AwaitGodSplashTutorialStep
+import kotlin.time.Duration
 
 class AsyncTutorialFork(
     val pathNodes : List<TutorialNode>
@@ -13,7 +14,7 @@ class AsyncTutorialFork(
 
     override fun isAsync(): Boolean = true
 
-    override fun isComplete(): Boolean {
+    override fun isComplete(tutorial: Tutorial): Boolean {
         return pathNodes.all { it.isComplete() }
     }
 
@@ -21,8 +22,12 @@ class AsyncTutorialFork(
         /**
          * Helper method to create an fork that requires a god splash effect.
          */
-        fun awaitingSplash(nodes: List<TutorialNode>){
-            AsyncTutorialFork(AwaitPotionEffectTutorialStep()+nodes)
+        fun awaitingSplash(minimumDuration: Duration,nodes: List<TutorialNode>){
+            AsyncTutorialFork(listOf(AwaitGodSplashTutorialStep(minimumDuration))+nodes)
         }
+    }
+
+    override fun reset() {
+        pathNodes.forEach { it.reset() }
     }
 }

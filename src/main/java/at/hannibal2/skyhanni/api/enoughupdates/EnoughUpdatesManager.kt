@@ -12,6 +12,8 @@ import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.extraAttributes
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.NeuInternalName
+import at.hannibal2.skyhanni.utils.NeuItems
+import at.hannibal2.skyhanni.utils.NeuNPC
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.PrimitiveRecipe
 import at.hannibal2.skyhanni.utils.StringUtils.cleanString
@@ -143,6 +145,10 @@ object EnoughUpdatesManager {
             }
         }
         return json
+    }
+
+    fun getNPCs() : List<NeuNPC>{
+        return NeuItems.npcs
     }
 
     fun registerRecipe(recipe: PrimitiveRecipe) {

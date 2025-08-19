@@ -6,13 +6,17 @@ import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.StringUtils.convertToUnformatted
 import java.util.regex.Pattern
 
-class MessageTutorialStep(val criteria: Pattern) : TutorialStep() {
+class MessageTutorialStep(
+    val criteria: Pattern,
+    val name: String,
+    val description: String
+) : TutorialStep() {
     override fun getStepName(): String {
-        TODO("Not yet implemented")
+        return name
     }
 
-    override fun getStepDescription(): String? {
-        TODO("Not yet implemented")
+    override fun getStepDescription(): String {
+       return description
     }
 
     @HandleEvent

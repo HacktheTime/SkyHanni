@@ -8,14 +8,15 @@ class SelectPathTutorialFork(
 ) : TutorialFork() {
 
     override fun getNodes(tutorial: Tutorial): List<TutorialNode> {
+        //TODO fix the issue of paths not being available yet.
         val selectedOption: SelectedPathTutorialFork = tutorial.getSelectedOption(paths)?: return emptyList()
         return selectedOption.pathNodes
     }
 
     override fun isAsync(): Boolean = false
 
-    override fun isComplete(): Boolean {
-        return paths.any { it.pathNodes.all { it.isComplete() } }
+    override fun isComplete(tutorial: Tutorial): Boolean {
+        return paths.any { it.pathNodes.all { it.isComplete(tutorial) } }
     }
 
     data class SelectedPathTutorialFork(
@@ -33,4 +34,8 @@ class SelectPathTutorialFork(
         val name: String,
         val guideMakerDescription: String? = null,
     )
+
+    override fun reset() {
+        paths.forEach { it.pathNodes.forEach { it.reset() } }
+    }
 }
