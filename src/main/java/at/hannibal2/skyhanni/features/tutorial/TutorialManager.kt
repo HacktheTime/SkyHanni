@@ -5,7 +5,6 @@ import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.ProfileJoinEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import de.hype.bingonet.shared.tutorials.Tutorial
-import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 
@@ -20,8 +19,8 @@ class TutorialManager {
             return ProfileStorageData.profileSpecific?.tutorialManager?.activeTutorial
         }
 
-        fun getActiveSteps(): List<TutorialStep> {
-            return activeTutorial.getActiveSteps()
+        fun getActiveSteps(): List<TutorialStep>? {
+            return activeTutorial?.getActiveSteps()
         }
 
         @HandleEvent
