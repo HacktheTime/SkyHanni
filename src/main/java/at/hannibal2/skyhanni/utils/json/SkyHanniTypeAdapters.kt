@@ -11,6 +11,7 @@ import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.NeuItems
+import at.hannibal2.skyhanni.utils.PrimitiveIngredient
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SimpleTimeMark.Companion.asTimeMark
 import at.hannibal2.skyhanni.utils.StringUtils
@@ -104,6 +105,17 @@ object SkyHanniTypeAdapters {
             return LocalDate.parse(reader.nextString())
         }
     }
+    val PRIMITE_INGREDIENT = object : TypeAdapter<PrimitiveIngredient>() {
+        override fun write(out: JsonWriter, value: PrimitiveIngredient) {
+            out.value("${value.internalName}:${value.count}")
+        }
+
+        override fun read(reader: JsonReader): PrimitiveIngredient {
+            return PrimitiveIngredient(reader.nextString())
+        }
+    }
+
+
 
     inline fun <reified T> GsonBuilder.registerTypeAdapter(
         crossinline write: (JsonWriter, T) -> Unit,

@@ -10,6 +10,8 @@ data class PrimitiveRecipe(
     val outputs: Set<PrimitiveIngredient>,
     val recipeType: RecipeType,
     val shouldUseForCraftCost: Boolean = true,
+    val limit: Int? = null,
+    val category: String? = null,
 ) {
 
     val output by lazy { outputs.firstOrNull() }
@@ -66,7 +68,7 @@ data class PrimitiveRecipe(
                         ingredients.add(PrimitiveIngredient(ingredient.asString))
                     }
                     val output = setOf(PrimitiveIngredient(recipeJson["result"].asString))
-                    val recipe = PrimitiveRecipe(ingredients, output, RecipeType.NPC_SHOP)
+                    val recipe = PrimitiveRecipe(ingredients, output, RecipeType.NPC_SHOP, limit = recipeJson["limit"]?.asInt, category = recipeJson["category"]?.asString )
                     EnoughUpdatesManager.registerRecipe(recipe)
                 }
 
