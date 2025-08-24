@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.StringUtils.convertToUnformatted
+import de.hype.bingonet.shared.tutorials.Tutorial
 import java.util.regex.Pattern
 
 class MessageTutorialStep(
@@ -15,7 +16,7 @@ class MessageTutorialStep(
         return name
     }
 
-    override fun getStepDescription(): String {
+    override fun getStepDescription(tutorial: Tutorial): String {
        return description
     }
 

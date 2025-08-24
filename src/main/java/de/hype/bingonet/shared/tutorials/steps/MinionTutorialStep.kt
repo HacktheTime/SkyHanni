@@ -1,6 +1,7 @@
 package de.hype.bingonet.shared.tutorials.steps
 
 import at.hannibal2.skyhanni.data.ProfileStorageData
+import de.hype.bingonet.shared.tutorials.Tutorial
 
 class MinionTutorialStep(val slots: Int) : TutorialStep(
 
@@ -13,7 +14,7 @@ class MinionTutorialStep(val slots: Int) : TutorialStep(
         TODO("Not yet implemented")
     }
 
-    override fun getStepDescription(): String? {
+    override fun getStepDescription(tutorial: Tutorial): String? {
         TODO("Not yet implemented")
     }
 

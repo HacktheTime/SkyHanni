@@ -3,20 +3,18 @@ package de.hype.bingonet.shared.tutorials.paths
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 
-class SelectPathTutorialFork(
-    val paths: List<SelectedPathTutorialFork>,
+class OptionalTutorialFork(
+    val paths: List<List<TutorialNode>>,
 ) : TutorialFork() {
 
-    override fun getNodes(tutorial: Tutorial): List<List<TutorialNode>> {
-        //TODO fix the issue of paths not being available yet.
-        val selectedOption: SelectedPathTutorialFork = tutorial.getSelectedOption(paths)?: return emptyList()
-        return listOf(selectedOption.pathNodes)
+    override fun getNodes(tutorial: Tutorial): List<TutorialNode> {
+        return paths.maxBy { it.count { it.isComplete(tutorial) } }
     }
 
     override fun isAsync(): Boolean = false
 
     override fun isComplete(tutorial: Tutorial): Boolean {
-        return paths.any { it.pathNodes.all { it.isComplete(tutorial) } }
+        return paths.any { it.all { it.isComplete(tutorial) } }
     }
 
     data class SelectedPathTutorialFork(
@@ -36,6 +34,6 @@ class SelectPathTutorialFork(
     )
 
     override fun getAllInternalNodes(): List<TutorialNode> {
-        return paths.flatMap { it.pathNodes }
+        return paths.flatten()
     }
 }

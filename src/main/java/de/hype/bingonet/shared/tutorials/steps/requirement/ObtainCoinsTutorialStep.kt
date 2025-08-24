@@ -1,6 +1,7 @@
 package de.hype.bingonet.shared.tutorials.steps.requirement
 
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.formatCoin
+import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 class ObtainCoinsTutorialStep(
@@ -10,7 +11,7 @@ class ObtainCoinsTutorialStep(
         return "Obtain ${amount.formatCoin(false)} Coins"
     }
 
-    override fun getStepDescription(): String? {
+    override fun getStepDescription(tutorial: Tutorial): String? {
         //TODO tips for money making based on users options.
         //Arachne, Enderman, Relics?
         //Maybe show user options what they could sell to npc based on most expensive to least expensive.

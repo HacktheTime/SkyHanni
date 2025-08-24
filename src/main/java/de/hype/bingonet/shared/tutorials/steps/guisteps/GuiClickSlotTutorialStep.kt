@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
+import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
 import java.awt.Color
 import java.util.regex.Pattern
@@ -16,7 +17,7 @@ class GuiClickSlotTutorialStep(
         TODO("Not yet implemented")
     }
 
-    override fun getStepDescription(): String? {
+    override fun getStepDescription(tutorial: Tutorial): String? {
         TODO("Not yet implemented")
     }
 

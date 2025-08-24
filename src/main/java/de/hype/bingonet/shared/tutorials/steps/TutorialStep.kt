@@ -1,8 +1,10 @@
 package de.hype.bingonet.shared.tutorials.steps
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
 import at.hannibal2.skyhanni.utils.ChatUtils
 import de.hype.bingonet.shared.objects.WaypointData
+import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 
 abstract class TutorialStep(
@@ -14,11 +16,12 @@ abstract class TutorialStep(
     var isActive: Boolean = false
     var completed: Boolean = false
 
-    abstract fun getStepName(): String
-    abstract fun getStepDescription(): String?
+    abstract fun getStepName(tutorial: Tutorial): String
+    abstract fun getStepDescription(tutorial: Tutorial): String?
 
     open fun complete() {
         completed = true
+        TutorialStepCompleteEvent(this).post()
     }
 
     protected fun chatPromptSuggestion(message: String, code: () -> Unit) {
@@ -43,9 +46,22 @@ abstract class TutorialStep(
 
     open fun showOnActive() = true
 
-    open fun refresh() {
+    override fun refresh() {
 
     }
 
     val waypoints : MutableList<WaypointData> = mutableListOf()
+
+    override fun populateNodeIds(tutorial: Tutorial) {
+        nodeId = tutorial.generateNodeId()
+    }
+
+
+    final override fun getDisplayString(tutorial: Tutorial): String? {
+        return getStepName(tutorial)
+    }
+
+    final override fun getDisplayDescription(tutorial: Tutorial): String? {
+        return getStepDescription(tutorial)
+    }
 }

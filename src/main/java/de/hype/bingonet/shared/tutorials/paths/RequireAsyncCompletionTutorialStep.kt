@@ -8,14 +8,14 @@ class RequireAsyncCompletionTutorialStep(node: TutorialNode) : TutorialStep() {
     val toToCompleteGoalId: String = node.nodeId
 
     fun getNodeReference(tutorial: Tutorial): TutorialNode {
-        return tutorial.getNodeReference(nodeId)
+        return tutorial.getNodeReference(toToCompleteGoalId)?:error("$toToCompleteGoalId not found")
     }
 
-    override fun getStepName(): String {
-        return "Awaiting completion of $toToCompleteGoalId"
+    override fun getStepName(tutorial: Tutorial): String {
+        return "Awaiting completion of ${getNodeReference(tutorial)}"
     }
 
-    override fun getStepDescription(): String? {
+    override fun getStepDescription(tutorial: Tutorial): String? {
         return null
     }
 

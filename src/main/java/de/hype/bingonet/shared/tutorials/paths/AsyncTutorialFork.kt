@@ -15,7 +15,7 @@ class AsyncTutorialFork(
     override fun isAsync(): Boolean = true
 
     override fun isComplete(tutorial: Tutorial): Boolean {
-        return pathNodes.all { it.isComplete() }
+        return pathNodes.all { it.isComplete(tutorial) }
     }
 
     companion object{
@@ -27,7 +27,7 @@ class AsyncTutorialFork(
         }
     }
 
-    override fun reset() {
-        pathNodes.forEach { it.reset() }
+    override fun getAllInternalNodes(): List<TutorialNode> {
+        return pathNodes
     }
 }

@@ -1,6 +1,7 @@
 package de.hype.bingonet.shared.tutorials.steps.itemstep
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
 import java.util.regex.Pattern
 
@@ -11,7 +12,7 @@ class EnchantTutorialStep : GUIBasedTutorialStep(Pattern.compile("Enchant Items"
 
     fun calcGrandsNeeded()
 
-    override fun getStepDescription(): String? {
+    override fun getStepDescription(tutorial: Tutorial): String? {
 
     }
 

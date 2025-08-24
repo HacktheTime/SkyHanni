@@ -2,6 +2,7 @@ package de.hype.bingonet.shared.tutorials.steps.storagestep
 
 import at.hannibal2.skyhanni.utils.NeuItems
 import de.hype.bingonet.shared.tutorials.ItemInfo
+import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
 import java.util.regex.Pattern
 
@@ -16,7 +17,7 @@ class BuyTutorialStep(
         TODO("Not yet implemented")
     }
 
-    override fun getStepDescription(): String? {
+    override fun getStepDescription(tutorial: Tutorial): String? {
         TODO("Not yet implemented")
     }
 

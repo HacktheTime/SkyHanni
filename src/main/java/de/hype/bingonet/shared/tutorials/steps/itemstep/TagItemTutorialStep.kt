@@ -1,6 +1,7 @@
 package de.hype.bingonet.shared.tutorials.steps.itemstep
 
 import at.hannibal2.skyhanni.features.inventory.storage.ItemTagManager
+import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 class TagItemTutorialStep(val tagName: String, val explenation: String ) : TutorialStep {
@@ -8,7 +9,7 @@ class TagItemTutorialStep(val tagName: String, val explenation: String ) : Tutor
         return "Tag Item with $tagName"
     }
 
-    override fun getStepDescription(): String {
+    override fun getStepDescription(tutorial: Tutorial): String {
         return "${explenation}\nRun /shtagitem $tagName"
     }
 

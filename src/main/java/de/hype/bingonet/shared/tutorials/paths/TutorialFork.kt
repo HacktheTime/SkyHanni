@@ -2,6 +2,7 @@ package de.hype.bingonet.shared.tutorials.paths
 
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
+import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 abstract class TutorialFork() : TutorialNode() {
     /**
@@ -14,4 +15,19 @@ abstract class TutorialFork() : TutorialNode() {
      * This is useful when waiting for something like a Mining Event before you can continue effectively
      */
     abstract fun isAsync(): Boolean
+
+
+    abstract fun getAllInternalNodes(): List<TutorialNode>
+
+    override fun populateNodeIds(tutorial: Tutorial) {
+        getAllInternalNodes().forEach { it.populateNodeIds(tutorial) }
+    }
+
+    override fun refresh() {
+        getAllInternalNodes().forEach { it.refresh() }
+    }
+
+    override fun reset() {
+        getAllInternalNodes().forEach { it.reset() }
+    }
 }
