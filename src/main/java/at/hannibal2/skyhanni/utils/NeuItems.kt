@@ -14,7 +14,6 @@ import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.getPriceOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
-import at.hannibal2.skyhanni.utils.NeuNPC.Companion.toNPC
 import at.hannibal2.skyhanni.utils.PrimitiveIngredient.Companion.toPrimitiveItemStacks
 import at.hannibal2.skyhanni.utils.PrimitiveItemStack.Companion.makePrimitiveStack
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
@@ -22,13 +21,21 @@ import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.isVanillaItem
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.StringUtils.removeNonAsciiNonColorCode
 import at.hannibal2.skyhanni.utils.StringUtils.removePrefix
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.add
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addAll
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrPut
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapKeysNotNull
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedCache
 import at.hannibal2.skyhanni.utils.compat.getVanillaItem
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
+import de.hype.bingonet.shared.constants.Islands
+import de.hype.bingonet.shared.objects.Position
+import de.hype.bingonet.shared.utils.skip
 import io.github.moulberry.notenoughupdates.NEUOverlay
 import io.github.moulberry.notenoughupdates.overlays.AuctionSearchOverlay
 import io.github.moulberry.notenoughupdates.overlays.BazaarSearchOverlay
@@ -63,10 +70,19 @@ object NeuItems {
 
     private var itemNamesWithoutColor: NavigableMap<String, NeuInternalName> = TreeMap()
 
+    fun findItemByNameWithoutColor(
+        name: String,
+    ): NeuInternalName? {
+        return itemNamesWithoutColor[name]
+    }
+
     var commonItemAliases: ItemAliases = ItemAliases()
         private set
 
     var allItemsCache = mapOf<String, NeuInternalName>() // item name -> internal name
+        private set
+
+    var npcs = mapOf<String, NeuNPC>()
         private set
 
     private val fallbackItem by lazy {
@@ -212,7 +228,7 @@ object NeuItems {
         StringUtils.subMapOfStringsStartingWith(prefix, allInternalNames).filterNot { npcInternal.matches(it.key) }
             .filter { valid(it.value) }.keys
 
-    private val npcName = NeuNPC.namePattern
+    private val npcName = ".*\\((?:(?:rift )?npc|monster|mayor)\\)".toPattern()
     private val npcInternal = ".*\\((?:(?:RIFT_)?NPC|MONSTER|MAYOR)\\)".toPattern()
 
     fun findItemNameWithoutNPCs(
@@ -222,7 +238,10 @@ object NeuItems {
     ): Set<String> =
         findItemWith(prefix, useContain).filterNot { npcName.matches(it.key) }.filter { valid(it.value) }.keys
 
-    fun findItemWith(prefix: String, useContain: Boolean = SkyHanniMod.feature.chat.tabCompletionUseContainsSuggestion): NavigableMap<String, NeuInternalName> {
+    fun findItemWith(
+        prefix: String,
+        useContain: Boolean = SkyHanniMod.feature.chat.tabCompletionUseContainsSuggestion,
+    ): NavigableMap<String, NeuInternalName> {
         if (!useContain) return StringUtils.subMapOfStringsStartingWith(prefix, itemNamesWithoutColor)
         else {
             return StringUtils.subMapOfStringsContains(prefix, itemNamesWithoutColor)
@@ -317,7 +336,4 @@ object NeuItems {
         return EnoughUpdatesManager.jsonToStack(jsonObject, false)
     }
 
-    val npcs : List<NeuNPC> by lazy {
-        itemNamesWithoutColor.mapNotNull { it.value.toNPC() }
-    }
 }

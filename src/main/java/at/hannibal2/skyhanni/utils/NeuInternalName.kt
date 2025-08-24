@@ -22,6 +22,8 @@ class NeuInternalName private constructor(internalName: String): BNNEUItem(inter
         val JASPER_CRYSTAL = "JASPER_CRYSTAL".toInternalName()
         val RUBY_CRYSTAL = "RUBY_CRYSTAL".toInternalName()
         val SKYBLOCK_COIN = "SKYBLOCK_COIN".toInternalName()
+        val SKYBLOCK_COPPER = "SKYBLOCK_COPPER".toInternalName()
+        val SKYBLOCK_CHOCOLATE = "SKYBLOCK_CHOCOLATE".toInternalName()
         val WISP_POTION = "WISP_POTION".toInternalName()
         val ENCHANTED_HAY_BLOCK = "ENCHANTED_HAY_BLOCK".toInternalName()
         val TIGHTLY_TIED_HAY_BALE = "TIGHTLY_TIED_HAY_BALE".toInternalName()
