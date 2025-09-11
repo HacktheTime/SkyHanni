@@ -7,7 +7,7 @@ import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
 import java.util.regex.Pattern
 
 class BuyTutorialStep(
-    val items: Map<ItemInfo, Int>,
+    val items: Map<IttemInfo, Int>,
     /**
      * Suggest NPC via NEU repo + dont forget trades and shops like garden ig?
      */
@@ -17,7 +17,7 @@ class BuyTutorialStep(
         TODO("Not yet implemented")
     }
 
-    override fun getStepDescription(tutorial: Tutorial): String? {
+    override fun getStepDescription(tutorial: Tutorial): String {
         TODO("Not yet implemented")
     }
 
@@ -27,11 +27,8 @@ class BuyTutorialStep(
         val addTags: List<String> = emptyList(),
     ) {
         fun isValid() : Boolean{
-            if (addTags.isNotEmpty() && (count != 1)){
-                return false
-            }
+            return !(addTags.isNotEmpty() && (count != 1))
             //TODO Technically it would be better to check stackable state and tags and count.
-            return true
         }
     }
 

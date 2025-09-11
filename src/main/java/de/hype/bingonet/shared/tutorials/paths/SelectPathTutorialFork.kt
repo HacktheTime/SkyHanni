@@ -7,16 +7,15 @@ class SelectPathTutorialFork(
     val paths: List<SelectedPathTutorialFork>,
 ) : TutorialFork() {
 
-    override fun getNodes(tutorial: Tutorial): List<List<TutorialNode>> {
-        //TODO fix the issue of paths not being available yet.
-        val selectedOption: SelectedPathTutorialFork = tutorial.getSelectedOption(paths)?: return emptyList()
-        return listOf(selectedOption.pathNodes)
+    override fun getNodes(tutorial: Tutorial): List<TutorialNode> {
+        val selectedOption: SelectedPathTutorialFork = tutorial.getSelectedOption(paths) ?: return emptyList()
+        return selectedOption.pathNodes
     }
 
     override fun isAsync(): Boolean = false
 
     override fun isComplete(tutorial: Tutorial): Boolean {
-        return paths.any { it.pathNodes.all { it.isComplete(tutorial) } }
+        return paths.any { it.pathNodes.all { node -> node.isComplete(tutorial) } }
     }
 
     data class SelectedPathTutorialFork(
@@ -38,4 +37,6 @@ class SelectPathTutorialFork(
     override fun getAllInternalNodes(): List<TutorialNode> {
         return paths.flatMap { it.pathNodes }
     }
+
+    override fun getHeader(tutorial: Tutorial): String = "Select a Path"
 }

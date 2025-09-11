@@ -14,7 +14,7 @@ class TagItemTutorialStep(val tagName: String, val explenation: String ) : Tutor
     }
 
     override fun onActivate() {
-        if (ItemTagManager.hasTag(tagName) ?: false) {
+        if (ItemTagManager.hasTag(tagName)) {
             chatPromptSuggestion("You have a Item tagged with $tagName already. Use the Keybind or redo /shtagitem $tagName with a new item."){
                 complete()
             }

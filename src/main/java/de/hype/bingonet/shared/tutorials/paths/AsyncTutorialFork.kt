@@ -30,4 +30,6 @@ class AsyncTutorialFork(
     override fun getAllInternalNodes(): List<TutorialNode> {
         return pathNodes
     }
+
+    override fun getHeader(tutorial: Tutorial): String = "Required at some point"
 }

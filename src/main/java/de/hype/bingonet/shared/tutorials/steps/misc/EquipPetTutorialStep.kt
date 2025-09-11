@@ -1,11 +1,10 @@
 package de.hype.bingonet.shared.tutorials.steps.misc
 
-import at.hannibal2.skyhanni.utils.LorenzRarity
-import at.hannibal2.skyhanni.utils.NeuInternalName
+import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 
 class EquipPetTutorialStep(
-    val petType: NeuInternalName,
-    val minimumPetRarity: LorenzRarity
+    val petType: BNNEUItem,
+    val minimumPetRarity: Rarity
 ) {
     //TODO make it so highest pet level is used.
 }

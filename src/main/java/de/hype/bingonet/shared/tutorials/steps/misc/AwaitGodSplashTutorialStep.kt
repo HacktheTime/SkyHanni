@@ -20,7 +20,13 @@ class AwaitGodSplashTutorialStep(val minimumDuration: Duration) : TutorialStep {
         check()
     }
 
-    fun check() {
-        if (EffectApi.getGodSplashDuration() >= minimumDuration) complete()
+    override fun isComplete(tutorial: Tutorial): Boolean {
+        return check()
+    }
+
+    fun check(): Boolean {
+        if (EffectApi.getGodSplashDuration() < minimumDuration) return false
+        complete()
+        return true
     }
 }

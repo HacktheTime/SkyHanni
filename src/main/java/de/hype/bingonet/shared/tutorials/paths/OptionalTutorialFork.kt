@@ -36,4 +36,6 @@ class OptionalTutorialFork(
     override fun getAllInternalNodes(): List<TutorialNode> {
         return paths.flatten()
     }
+
+    override fun getHeader(tutorial: Tutorial): String = "Do Either"
 }

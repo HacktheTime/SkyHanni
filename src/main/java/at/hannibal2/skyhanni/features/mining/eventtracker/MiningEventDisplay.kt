@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.config.features.mining.MiningEventConfig
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
+import at.hannibal2.skyhanni.events.mining.NewMiningEvent
 import at.hannibal2.skyhanni.features.mining.eventtracker.MiningEventType.Companion.CompressFormat
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ConfigUtils
@@ -112,7 +113,9 @@ object MiningEventDisplay {
         /* return upcoming.joinToString(" §8-> ") */
     }
 
-    fun updateData(eventData: MiningEventData) {
+    @HandleEvent
+    fun updateData(event: NewMiningEvent) {
+        val eventData = event.data
         for ((islandType, events) in eventData.runningEvents) {
             // we now ignore mineshaft events.
             if (islandType == IslandType.MINESHAFT) continue

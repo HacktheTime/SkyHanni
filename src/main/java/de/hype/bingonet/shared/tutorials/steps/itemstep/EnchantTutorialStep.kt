@@ -1,18 +1,36 @@
 package de.hype.bingonet.shared.tutorials.steps.itemstep
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.features.misc.items.enchants.Enchant
+import de.hype.bingonet.shared.tutorials.SingleItemCheck
+import de.hype.bingonet.shared.tutorials.TaggedItemCheck
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
 import java.util.regex.Pattern
 
-class EnchantTutorialStep : GUIBasedTutorialStep(Pattern.compile("Enchant Items")){
-    override fun getStepName(): String {
-        return "Enchant Items."
+class EnchantTutorialStep(
+    val item: TaggedItemCheck,
+    /**
+     * Map of enchant internal names to levels.
+     *
+     * Positive for minimum level. Aka if you want the user to get 5 but they have 6 enter 5
+     * 0 or negative. Tells the user to get the exact absolute level. 0 = disenchant
+     */
+    val enchantIds : Map<String, Int>,
+    ) : GUIBasedTutorialStep(Pattern.compile("Enchant Items")){
+
+    constructor(
+        item: TaggedItemCheck,
+        enchants: Map<Enchant, Int>
+    ): this(
+        item, enchantIds = enchants.mapKeys { it.key.nbtName }
+    )
+
+    fun calcGrandsNeeded(){
+
     }
 
-    fun calcGrandsNeeded()
-
-    override fun getStepDescription(tutorial: Tutorial): String? {
+    override fun getStepDescription(tutorial: Tutorial): String {
 
     }
 

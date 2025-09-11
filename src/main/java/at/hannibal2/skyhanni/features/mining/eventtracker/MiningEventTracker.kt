@@ -11,6 +11,7 @@ import at.hannibal2.skyhanni.events.BossbarUpdateEvent
 import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
+import at.hannibal2.skyhanni.events.mining.NewMiningEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -224,6 +225,7 @@ object MiningEventTracker {
 
         apiErrorCount = 0
         canRequestAt = SimpleTimeMark.now() + miningEventData.data.updateIn.milliseconds
+        NewMiningEvent(miningEventData.data)
         MiningEventDisplay.updateData(miningEventData.data)
     }
 

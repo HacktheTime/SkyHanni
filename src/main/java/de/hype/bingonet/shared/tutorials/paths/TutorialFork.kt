@@ -16,8 +16,12 @@ abstract class TutorialFork() : TutorialNode() {
      */
     abstract fun isAsync(): Boolean
 
-
     abstract fun getAllInternalNodes(): List<TutorialNode>
+
+    /**
+     * Header text to display for this fork in UIs.
+     */
+    abstract fun getHeader(tutorial: Tutorial): String
 
     override fun populateNodeIds(tutorial: Tutorial) {
         getAllInternalNodes().forEach { it.populateNodeIds(tutorial) }
