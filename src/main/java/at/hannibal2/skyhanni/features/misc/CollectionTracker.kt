@@ -71,6 +71,18 @@ object CollectionTracker {
         }
     }
 
+    /** Public API to start tracking programmatically */
+    fun startTrackingByInternalName(internalName: NeuInternalName, goal: Long = -1L) {
+        goalAmount = goal
+        val stack = internalName.getItemStackOrNull() ?: return
+        setNewCollection(internalName, stack.displayName.removeColor())
+    }
+
+    /** Public API to stop tracking programmatically */
+    fun resetTracking() {
+        resetData()
+    }
+
     private fun command(args: Array<String>) {
         val lastArg = args.last()
 
@@ -135,7 +147,7 @@ object CollectionTracker {
         else -> rawName
     }
 
-    private fun setNewCollection(internalName: NeuInternalName, name: String) {
+    fun setNewCollection(internalName: NeuInternalName, name: String) {
         val foundAmount = CollectionApi.getCollectionCounter(internalName)
         if (foundAmount == null) {
             ChatUtils.userError("$name collection not found. Try to open the collection inventory!")
