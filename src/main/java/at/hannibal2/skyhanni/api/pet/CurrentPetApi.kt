@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.PetData
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.DebugDataCollectEvent
+import at.hannibal2.skyhanni.events.PetChangeEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
@@ -28,6 +29,15 @@ object CurrentPetApi {
     private val chatSummonPattern by patternGroup.pattern(
         "chat.summon",
         "§aYou summoned your §r§(?<rarity>.)(?<pet>[^§]+)(?:§r(?<skin>§. ✦))?§r§a!",
+    )
+
+    /**
+     * REGEX-TEST: §aYou despawned your §r§dRabbit§r§9 ✦§r§a!
+     * REGEX-TEST: §aYou despawned your §r§6Golden Dragon§r§a!
+     */
+    private val chatDespawnPattern by patternGroup.pattern(
+        "chat.summon",
+        "§aYou despawned your §r§(?<rarity>.)(?<pet>[^§]+)(?:§r(?<skin>§. ✦))?§r§a!",
     )
 
     val currentPet: PetData?
@@ -83,7 +93,12 @@ object CurrentPetApi {
                 it.uuid != null
             } ?: return
 
+            PetChangeEvent(resolvedPet, currentPet)
             ProfileStorageData.profileSpecific?.currentPetUuid = resolvedPet.uuid
+        }
+        chatDespawnPattern.matchMatcher(event.message) {
+            PetChangeEvent(null, currentPet)
+            ProfileStorageData.profileSpecific?.currentPetUuid = null
         }
     }
 
