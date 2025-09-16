@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.api.GetFromSackApi
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.utils.ChatUtils.debug
 import at.hannibal2.skyhanni.utils.ChatUtils.sendMessageToServer
+import de.hype.bingonet.shared.constants.SkyblockInstance
 
 @Suppress("TooManyFunctions")
 object HypixelCommands {
@@ -258,5 +259,9 @@ object HypixelCommands {
 
     fun openWardrobe() {
         send("wardrobe")
+    }
+
+    fun SkyblockInstance.runJoinCommand() {
+        send("joininstance ${this.joinId}")
     }
 }

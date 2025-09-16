@@ -1,6 +1,7 @@
 package de.hype.bingonet.shared.tutorials.steps
 
-import at.hannibal2.skyhanni.features.misc.CollectionTracker
+import at.hannibal2.skyhanni.api.CollectionApi
+import de.hype.bingonet.environment.NeuEnvironmentRepo
 import de.hype.bingonet.shared.constants.Collections
 import de.hype.bingonet.shared.tutorials.Tutorial
 
@@ -9,23 +10,31 @@ class CollectionTutorialStep(
     val amount: Int,
     val forCollectionGoal: Boolean
 ): TutorialStep() {
-    override fun getStepName(): String {
+    override fun getStepName(tutorial: Tutorial): String {
         return "Obtain $amount ${collection.displayName}"
     }
 
-    override fun onActivate() {
-        CollectionTracker.trackcollection
+    override fun onActivate(tutorial: Tutorial) {
+        de.hype.bingonet.shared.api.CollectionAPI.startTracking(collection, amount.toLong())
     }
 
-    override fun onDeactivate() {
-        CollectionTracker.resetTracking()
+    override fun onDeactivate(tutorial: Tutorial) {
+        de.hype.bingonet.shared.api.CollectionAPI.stopTracking()
     }
 
-    override fun onReset() {
-        CollectionTracker.resetTracking()
+    override fun onReset(tutorial: Tutorial) {
+        de.hype.bingonet.shared.api.CollectionAPI.stopTracking()
     }
 
     override fun getStepDescription(tutorial: Tutorial): String? {
         return null
+    }
+
+    override fun getRequirements(): List<de.hype.bingonet.shared.tutorials.TutorialNode> = emptyList()
+
+    override fun isComplete(tutorial: Tutorial): Boolean {
+        val internal = NeuEnvironmentRepo.getFromSBName(collection.id)
+        val current = CollectionApi.getCollectionCounter(internal) ?: return false
+        return current >= amount
     }
 }

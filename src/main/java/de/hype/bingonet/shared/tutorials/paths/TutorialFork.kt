@@ -27,11 +27,15 @@ abstract class TutorialFork() : TutorialNode() {
         getAllInternalNodes().forEach { it.populateNodeIds(tutorial) }
     }
 
-    override fun refresh() {
-        getAllInternalNodes().forEach { it.refresh() }
+    override fun refresh(tutorial: Tutorial) {
+        getAllInternalNodes().forEach { it.refresh(tutorial) }
     }
 
-    override fun reset() {
-        getAllInternalNodes().forEach { it.reset() }
+    override fun reset(tutorial: Tutorial) {
+        getAllInternalNodes().forEach { it.reset(tutorial) }
+    }
+
+    override fun validate(tutorial: Tutorial): List<String> {
+        return getAllInternalNodes().flatMap { it.validate(tutorial) }
     }
 }

@@ -14,11 +14,10 @@ interface ItemCheck{
     fun check(itemStack: ItemStack): Boolean
 }
 
-class ItemCondition{
+class ItemCondition(private val predicate: (ItemStack) -> Boolean = { false }){
     fun check(itemStack: ItemStack): Boolean {
-
+        return predicate(itemStack)
     }
-
 }
 
 class SingleItemCheck(

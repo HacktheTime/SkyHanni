@@ -3,6 +3,8 @@ package de.hype.bingonet.shared.tutorials.steps.misc
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.bingo.BingoGoalReachedEvent
 import at.hannibal2.skyhanni.features.bingo.BingoApi
+import de.hype.bingonet.shared.tutorials.Tutorial
+import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 class ObtainBingoGoalTutorialStep(
@@ -12,19 +14,28 @@ class ObtainBingoGoalTutorialStep(
      */
     val showOnActive : Boolean = true
 ) : TutorialStep() {
-    //TODO suggest displayname via API?
 
-    //TODO use message event to detect goal completion + start check with manager.
+    override fun getStepName(tutorial: Tutorial): String {
+        return "Obtain the Bingo Goal: $displayName"
+    }
 
-    //TODO make it so each bingo goal is marked as optional fork so when done early or sth its auto completes anyway
+    override fun getStepDescription(tutorial: Tutorial): String? = null
+
+    override fun getRequirements(): List<TutorialNode> = emptyList()
+
+    override fun isComplete(tutorial: Tutorial): Boolean {
+        val goal = BingoApi.personalGoals.firstOrNull { it.displayName == displayName }
+        return goal?.done == true || completed
+    }
+
     @HandleEvent
     fun onBingoGoalCompleted(event: BingoGoalReachedEvent) {
         if (event.goal.displayName == displayName) complete()
     }
 
-    override fun onActivate() {
+    override fun onActivate(tutorial: Tutorial) {
         val goal = BingoApi.personalGoals.firstOrNull { it.displayName == displayName }
-        if (goal?.done ?: false) {
+        if (goal?.done == true) {
             complete()
         }
     }

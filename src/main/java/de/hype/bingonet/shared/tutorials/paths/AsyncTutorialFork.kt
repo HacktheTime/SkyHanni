@@ -32,4 +32,8 @@ class AsyncTutorialFork(
     }
 
     override fun getHeader(tutorial: Tutorial): String = "Required at some point"
+
+    override fun refresh(tutorial: Tutorial) {
+        pathNodes.forEach { it.refresh(tutorial) }
+    }
 }

@@ -4,11 +4,11 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
 import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 
 class Tutorial(
     private val _steps: MutableList<TutorialNode>,
@@ -24,7 +24,7 @@ class Tutorial(
     private var cachedShowDescriptions: Boolean? = null
 
     fun reset() {
-        _steps.forEach { it.reset() }
+        _steps.forEach { it.reset(this) }
         selectedPathIds.clear()
         invalidateRenderable()
     }
@@ -93,7 +93,7 @@ class Tutorial(
     fun getActiveSteps(): List<TutorialStep> = allStepsFlatMap.filter { it.isActive }
 
     fun onProfileJoin() {
-        allStepsFlatMap.forEach { it.refresh() }
+        allStepsFlatMap.forEach { it.refresh(this) }
     }
 
     fun generateNodeId(): String = "tutorial_node_${_steps.size + 1}"
@@ -105,12 +105,13 @@ class Tutorial(
     }
 
     fun refresh() {
-        _steps.forEach { it.refresh() }
+        _steps.forEach { it.refresh(this) }
         selectedPathIds.clear()
         refreshCaches()
     }
 
-    lateinit var requiredResources: Map<BNNEUItem, Double>
+    lateinit var requiredResources: Map<NeuInternalName, Double>
+        private set
 
     @HandleEvent
     fun onTutorialStepComplete(event: TutorialStepCompleteEvent) {
@@ -119,10 +120,19 @@ class Tutorial(
     }
 
     fun refreshCaches() {
-        val includeAllPaths = SkyHanniMod.feature.tutorials.protectResourcesAcrossPaths
-        if (includeAllPaths) {
-            // future: compute resources across all paths
+        SkyHanniMod.feature.tutorials.protectResourcesAcrossPaths
+        val contributors = allStepsFlatMap.filterIsInstance<ResourceContributor>()
+        val pending = contributors.filter { step ->
+            val asStep = step as? TutorialStep
+            asStep == null || !asStep.completed
         }
+        val map = mutableMapOf<NeuInternalName, Double>()
+        fun addAll(res: Map<NeuInternalName, Double>) {
+            res.forEach { (k, v) -> map.merge(k, v) { a, b -> a + b } }
+        }
+        pending.forEach { addAll(it.getRequiredResources(this)) }
+        requiredResources = map
+        // todo: if includeAllPaths == true, incorporate optional path resource needs
     }
 
     fun getRenderable(showDescriptions: Boolean): Renderable {
@@ -153,6 +163,18 @@ class Tutorial(
     }
 
     private fun validate() {
-        // validate structure if needed
+        val errors = mutableListOf<String>()
+        fun validateNode(node: TutorialNode) {
+            errors += node.validate(this)
+            when (node) {
+                is TutorialStep -> node.getRequirements().forEach { validateNode(it) }
+                is TutorialFork -> node.getAllInternalNodes().forEach { validateNode(it) }
+            }
+        }
+        _steps.forEach { validateNode(it) }
+        if (errors.isNotEmpty()) {
+            ChatUtils.chat("§c[SkyHanni Tutorial] Found ${errors.size} configuration issue(s):", prefix = false)
+            errors.forEach { ChatUtils.chat("§7- $it", prefix = false) }
+        }
     }
 }

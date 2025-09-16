@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import de.hype.bingonet.shared.tutorials.Tutorial
+import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
 import java.util.regex.Pattern
 
@@ -13,6 +14,7 @@ class GuiItemTutorialStep(
     val itemIndex: Int,
     val has: Regex?,
     val doesntHave: Regex?,
+    val description: String? = null,
 ) : GUIBasedTutorialStep(guiName) {
 
     @HandleEvent
@@ -27,11 +29,15 @@ class GuiItemTutorialStep(
         }
     }
 
-    override fun getStepName(): String {
-        TODO("Not yet implemented")
+    override fun getStepName(tutorial: Tutorial): String {
+        return "Inspect item in GUI (slot $itemIndex)"
     }
 
     override fun getStepDescription(tutorial: Tutorial): String? {
-        TODO("Not yet implemented")
+        return description
     }
+
+    override fun getRequirements(): List<TutorialNode> = emptyList()
+
+    override fun isComplete(tutorial: Tutorial): Boolean = completed
 }

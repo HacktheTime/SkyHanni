@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import de.hype.bingonet.shared.tutorials.Tutorial
+import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
 import java.awt.Color
 import java.util.regex.Pattern
@@ -12,19 +13,28 @@ import java.util.regex.Pattern
 class GuiClickSlotTutorialStep(
     guiName: Pattern,
     val slotIndex: Int,
+    val description: String? = null,
 ) : GUIBasedTutorialStep(guiName) {
-    override fun getStepName(): String {
-        TODO("Not yet implemented")
+
+    override fun getStepName(tutorial: Tutorial): String {
+        return "Click the highlighted slot"
     }
 
     override fun getStepDescription(tutorial: Tutorial): String? {
-        TODO("Not yet implemented")
+        return description
     }
+
+    override fun getRequirements(): List<TutorialNode> = emptyList()
+
+    override fun isComplete(tutorial: Tutorial): Boolean = completed
 
     @HandleEvent
     fun onClick(event: GuiContainerEvent.SlotClickEvent) {
         if (ignoreEvent()) return
-        complete()
+        val target = InventoryUtils.getItemsInOpenChestWithNull().getOrNull(slotIndex) ?: return
+        if (event.slot == target) {
+            complete()
+        }
     }
 
     @HandleEvent

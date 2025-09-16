@@ -7,6 +7,7 @@ import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 class WhileTutorialNode(
     val condition: TutorialCondition,
+    val conditionExplenation : String,
     val nodes: List<TutorialStep>,
 ) : TutorialFork() {
     override fun getNodes(tutorial: Tutorial): List<TutorialNode> {
@@ -27,8 +28,10 @@ class WhileTutorialNode(
             nodes.forEach { it.complete() }
         } else {
             val lastDone = nodes.last().completed
-            if (lastDone) nodes.forEach { it.reset() }
+            if (lastDone) nodes.forEach { it.reset(tutorial) }
         }
         return done
     }
+
+    override fun getHeader(tutorial: Tutorial): String = "Do While ${conditionExplenation}"
 }

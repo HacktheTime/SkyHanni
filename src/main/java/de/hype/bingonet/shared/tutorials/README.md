@@ -31,4 +31,13 @@ Carry Preference
 - Id: "nocarries"
   - If you do not have friends that can carry
 
-[//]: # (TODO) Add reach stat goal / magic dmg / normal damage step?
+Bingo Rank (inserted at the start)
+These vaĺues can be used to know the Bingo Rank AT THE START OF BINGO. → You only get Items and Pet Upgrade at Profile creation.
+BR0 → Bingo Rank 0 (Gray)
+BR1 → Bingo Rank 1 (Lime)
+BR2 → Bingo Rank 2 (Blue)
+BR3 → Bingo Rank 3 (Purple)
+BR4 → Bingo Rank 4 (Gold)
+
+
+[//]: # (TODO Add reach stat goal / magic dmg / normal damage step?, Player rank (VIP etc with fallback for higher than required using sort.)

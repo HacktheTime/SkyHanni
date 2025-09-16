@@ -1,6 +1,11 @@
 package de.hype.bingonet.shared.tutorials
 
+import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.utils.renderables.Renderable
+import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
+import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
+import at.hannibal2.skyhanni.utils.renderables.primitives.text
+import de.hype.bingonet.environment.displayName
 import de.hype.bingonet.shared.tutorials.paths.AsyncTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.OptionalTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
@@ -36,6 +41,20 @@ internal object TutorialRenderableBuilder {
         val list = mutableListOf<Renderable>()
         list.add(header)
         if (desc != null) list.add(desc)
+
+        // Protected resources section to help Sell Protection UI
+        val cfg = SkyHanniMod.feature.tutorials
+        val protected = tutorial.requiredResources
+        if (cfg.tutorialProtectRequiredItems && protected.isNotEmpty()) {
+            list.add(Renderable.text("§dProtected resources (sell-protect):"))
+            protected.entries.take(8).forEach { (key, amount) ->
+                list.add(Renderable.text("§7- §f${key.displayName} §8x ${amount.toInt()}"))
+            }
+            if (protected.size > 8) {
+                list.add(Renderable.text("§8… and ${protected.size - 8} more"))
+            }
+        }
+
         list.addAll(content)
         return Renderable.vertical(list)
     }

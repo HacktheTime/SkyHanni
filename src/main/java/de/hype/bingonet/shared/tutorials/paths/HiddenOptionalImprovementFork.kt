@@ -1,6 +1,7 @@
 package de.hype.bingonet.shared.tutorials.paths
 
 import de.hype.bingonet.shared.tutorials.Tutorial
+import de.hype.bingonet.shared.tutorials.TutorialCondition
 import de.hype.bingonet.shared.tutorials.TutorialNode
 
 /**
@@ -12,7 +13,7 @@ class HiddenOptionalImprovementFork(
     val condition: TutorialCondition,
 ) : TutorialFork() {
     override fun getNodes(tutorial: Tutorial): List<TutorialNode> {
-        if (condition.check(tutorial)){
+        if (condition.matches(tutorial)){
             return improved
         }
         else {
@@ -30,5 +31,11 @@ class HiddenOptionalImprovementFork(
 
     override fun isComplete(tutorial: Tutorial): Boolean {
         return getNodes(tutorial).all { it.isComplete(tutorial) }
+    }
+
+    override fun getHeader(tutorial: Tutorial): String = "Optional Improvement"
+
+    override fun refresh(tutorial: Tutorial) {
+        getAllInternalNodes().forEach { it.refresh(tutorial) }
     }
 }

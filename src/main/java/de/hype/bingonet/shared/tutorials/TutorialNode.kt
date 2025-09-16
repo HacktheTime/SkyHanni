@@ -9,6 +9,12 @@ abstract class TutorialNode {
 
     abstract fun populateNodeIds(tutorial: Tutorial)
     abstract fun isComplete(tutorial: Tutorial): Boolean
-    abstract fun reset()
-    abstract fun refresh()
+    abstract fun reset(tutorial: Tutorial)
+    abstract fun refresh(tutorial: Tutorial)
+
+    /**
+     * Validate this node's configuration. Return a list of human-readable error strings, empty if valid.
+     * Implementations should also validate sub-nodes if applicable.
+     */
+    open fun validate(tutorial: Tutorial): List<String> = emptyList()
 }

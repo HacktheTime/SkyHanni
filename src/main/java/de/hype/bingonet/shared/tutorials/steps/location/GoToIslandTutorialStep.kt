@@ -7,20 +7,23 @@ import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.tutorials.Tutorial
+import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
-class GoToIslandTutorialStep(val island: Islands) : TutorialStep {
-    override fun getStepName(): String {
-        TODO("Not yet implemented")
+class GoToIslandTutorialStep(val island: Islands) : TutorialStep() {
+    override fun getStepName(tutorial: Tutorial): String {
+        return "Travel to ${island.getDisplayName()}"
     }
 
     override fun getStepDescription(tutorial: Tutorial): String? {
-        TODO("Not yet implemented")
+        return null
     }
 
-    override fun onActivate() {
-        if (HypixelData.skyBlockIsland.toBNIsland()==island) complete()
-        chatPromptSuggestion("Next Task: Travel to $island Do you want to warp there now?"){
+    override fun getRequirements(): List<TutorialNode> = emptyList()
+
+    override fun onActivate(tutorial: Tutorial) {
+        if (HypixelData.skyBlockIsland.toBNIsland() == island) complete()
+        chatPromptSuggestion("Next Task: Travel to ${island.getDisplayName()}. Warp now?") {
             island.warpArgument?.let {
                 HypixelCommands.warp(it)
             }
@@ -28,7 +31,7 @@ class GoToIslandTutorialStep(val island: Islands) : TutorialStep {
     }
 
     @HandleEvent
-    fun onIslandChange(event: IslandChangeEvent){
-        if (isActive&&event.newIsland.toBNIsland()==island) complete()
+    fun onIslandChange(event: IslandChangeEvent) {
+        if (isActive && event.newIsland.toBNIsland() == island) complete()
     }
 }

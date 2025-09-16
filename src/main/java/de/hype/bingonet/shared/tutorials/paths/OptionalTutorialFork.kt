@@ -2,19 +2,21 @@ package de.hype.bingonet.shared.tutorials.paths
 
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
+import kotlin.collections.flatten
+import kotlin.collections.maxBy
 
 class OptionalTutorialFork(
-    val paths: List<List<TutorialNode>>,
+    val paths: List<Pair<List<TutorialNode>, Boolean>>,
 ) : TutorialFork() {
 
     override fun getNodes(tutorial: Tutorial): List<TutorialNode> {
-        return paths.maxBy { it.count { it.isComplete(tutorial) } }
+        return paths.maxBy { it.first.count { it.isComplete(tutorial) } }.first
     }
 
     override fun isAsync(): Boolean = false
 
     override fun isComplete(tutorial: Tutorial): Boolean {
-        return paths.any { it.all { it.isComplete(tutorial) } }
+        return paths.any { it.first.all { it.isComplete(tutorial) } }
     }
 
     data class SelectedPathTutorialFork(
@@ -34,7 +36,7 @@ class OptionalTutorialFork(
     )
 
     override fun getAllInternalNodes(): List<TutorialNode> {
-        return paths.flatten()
+        return paths.map { it.first }.flatten()
     }
 
     override fun getHeader(tutorial: Tutorial): String = "Do Either"

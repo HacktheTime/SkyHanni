@@ -20,6 +20,7 @@ class RequireAsyncCompletionTutorialStep(node: TutorialNode) : TutorialStep() {
     }
 
     override fun showOnActive(): Boolean = false
+    override fun getRequirements() = emptyList<TutorialNode>()
 
     override fun isComplete(tutorial: Tutorial): Boolean {
         return getNodeReference(tutorial).isComplete(tutorial)

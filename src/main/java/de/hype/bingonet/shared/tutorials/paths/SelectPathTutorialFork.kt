@@ -39,4 +39,8 @@ class SelectPathTutorialFork(
     }
 
     override fun getHeader(tutorial: Tutorial): String = "Select a Path"
+
+    override fun refresh(tutorial: Tutorial) {
+        getAllInternalNodes().forEach { it.refresh(tutorial) }
+    }
 }

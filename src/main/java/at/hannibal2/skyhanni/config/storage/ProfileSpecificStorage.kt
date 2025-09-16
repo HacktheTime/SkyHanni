@@ -47,6 +47,7 @@ import at.hannibal2.skyhanni.features.mining.fossilexcavator.ExcavatorProfitTrac
 import at.hannibal2.skyhanni.features.mining.glacitemineshaft.CorpseTracker
 import at.hannibal2.skyhanni.features.mining.glacitemineshaft.MineshaftDetection
 import at.hannibal2.skyhanni.features.mining.powdertracker.PowderTracker
+import at.hannibal2.skyhanni.features.misc.CenturyCakeAPI
 import at.hannibal2.skyhanni.features.misc.DraconicSacrificeTracker
 import at.hannibal2.skyhanni.features.misc.EnchantedClockHelper
 import at.hannibal2.skyhanni.features.misc.trevor.TrevorTracker.TrapperMobRarity
@@ -566,9 +567,6 @@ class ProfileSpecificStorage(
             var farmingStrength: Int = -1
 
             @Expose
-            var cakeExpiring: SimpleTimeMark? = null
-
-            @Expose
             var carrolyn: MutableMap<CropType, Boolean> = enumMapOf()
 
             @Expose
@@ -776,6 +774,8 @@ class ProfileSpecificStorage(
     }
 
     // - misc
+    @Expose
+    val centuryCakes = mutableMapOf<CenturyCakeAPI.CenturyCakeType, SimpleTimeMark>()
     @Expose
     var trapperData: TrapperData = TrapperData()
 
