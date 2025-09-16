@@ -255,4 +255,8 @@ object HypixelCommands {
         }
         sendMessageToServer("/$command")
     }
+
+    fun openWardrobe() {
+        send("wardrobe")
+    }
 }
