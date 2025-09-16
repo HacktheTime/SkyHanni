@@ -451,5 +451,19 @@ object ReforgeHelper {
         val table = Renderable.table(main, 5)
         return listOf(table)
     }
-}
 
+    /**
+     * Public API for tutorials: set a target reforge by its lowercase/internal name.
+     * Example values: "heroic", "spiritual", etc. Dash will be normalized to underscore.
+     */
+    fun setTutorialTargetReforge(targetLowercaseName: String?) {
+        if (targetLowercaseName.isNullOrBlank()) {
+            reforgeToSearch = null
+            updateDisplay()
+            return
+        }
+        val normalized = targetLowercaseName.lowercase().replace('-', '_')
+        reforgeToSearch = ReforgeApi.reforgeList.firstOrNull { it.lowercaseName == normalized }
+        updateDisplay()
+    }
+}
