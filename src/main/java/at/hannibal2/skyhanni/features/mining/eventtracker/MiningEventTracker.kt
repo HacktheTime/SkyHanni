@@ -226,7 +226,6 @@ object MiningEventTracker {
         apiErrorCount = 0
         canRequestAt = SimpleTimeMark.now() + miningEventData.data.updateIn.milliseconds
         NewMiningEvent(miningEventData.data)
-        MiningEventDisplay.updateData(miningEventData.data)
     }
 
     @HandleEvent
