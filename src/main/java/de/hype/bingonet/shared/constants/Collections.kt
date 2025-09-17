@@ -603,6 +603,8 @@ interface Collections {
         }
 
         val values: MutableSet<Collections> = values()
+
+        val entries: MutableSet<Collections> = values
     }
 
     fun asNEUItem(): BNNEUItem {

@@ -34,7 +34,7 @@ object TutorialOverlayDisplay {
     }
 
     private fun openGui() {
-        net.minecraft.client.Minecraft.getMinecraft().displayGuiScreen(TutorialManagerGui())
+        SkyHanniMod.screenToOpen = TutorialManagerGui()
     }
 
     @HandleEvent

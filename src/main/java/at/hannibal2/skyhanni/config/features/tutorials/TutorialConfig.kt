@@ -3,17 +3,23 @@ package at.hannibal2.skyhanni.config.features.tutorials
 import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
+import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
+import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import org.lwjgl.input.Keyboard
 
 
 class TutorialConfig {
 
-    enum class AutoUseMode { ALWAYS, NEVER, AUTO }
+    enum class AutoUseMode {
+        ALWAYS,
+        NEVER,
+        AUTO
+    }
 
     @Expose
     @ConfigOption(
@@ -35,13 +41,16 @@ class TutorialConfig {
     @Expose
     @ConfigOption(
         name = "Protect Resources Across Paths",
-        desc = "Mark Resources to keep across paths EVEN if you selected the other path in an optional tutorial step."
+        desc = "Mark Resources to keep across paths EVEN if you selected the other path in an optional tutorial step.",
     )
     @ConfigEditorBoolean
     var protectResourcesAcrossPaths = true
 
     @Expose
-    @ConfigOption(name = "Protect Required Items From Selling", desc = "Prevents selling items required by the tutorial unless holding the modifier key.")
+    @ConfigOption(
+        name = "Protect Required Items From Selling",
+        desc = "Prevents selling items required by the tutorial unless holding the modifier key.",
+    )
     @ConfigEditorBoolean
     var tutorialProtectRequiredItems: Boolean = true
 
@@ -61,12 +70,18 @@ class TutorialConfig {
     var tutorialNpcUseMode: AutoUseMode = AutoUseMode.AUTO
 
     @Expose
-    @ConfigOption(name = "Grind Tolerance Percent", desc = "If grinding extra is less than this percent, allow it instead of waiting for NPC limits.")
+    @ConfigOption(
+        name = "Grind Tolerance Percent",
+        desc = "If grinding extra is less than this percent, allow it instead of waiting for NPC limits.",
+    )
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 1f)
     var tutorialGrindTolerancePercent: Int = 5
 
     @Expose
-    @ConfigOption(name = "Planned Progress Percent", desc = "Plan purchases for only this percent of the full tutorial (e.g., 50 to plan for half).")
+    @ConfigOption(
+        name = "Planned Progress Percent",
+        desc = "Plan purchases for only this percent of the full tutorial (e.g., 50 to plan for half).",
+    )
     @ConfigEditorSlider(minValue = 1f, maxValue = 100f, minStep = 1f)
     var tutorialPlannedProgressPercent: Int = 100
 
@@ -76,7 +91,10 @@ class TutorialConfig {
     var tutorialAutoAddRequiredItems: Boolean = true
 
     @Expose
-    @ConfigOption(name = "Auto-Add Required Items Mode", desc = "Always, Never, or Automatic add required items to protections and planning.")
+    @ConfigOption(
+        name = "Auto-Add Required Items Mode",
+        desc = "Always, Never, or Automatic add required items to protections and planning.",
+    )
     @ConfigEditorDropdown
     var tutorialAutoAddRequiredItemsMode: AutoUseMode = AutoUseMode.AUTO
 
@@ -86,7 +104,10 @@ class TutorialConfig {
     var showCompactionHints: Boolean = true
 
     @Expose
-    @ConfigOption(name = "NPC Buy Hints Only When Way Null", desc = "Only show NPC buy hints when the obtain way is not specified (null) in the recipe plan.")
+    @ConfigOption(
+        name = "NPC Buy Hints Only When Way Null",
+        desc = "Only show NPC buy hints when the obtain way is not specified (null) in the recipe plan.",
+    )
     @ConfigEditorBoolean
     var npcBuyHintsOnlyWhenObtainWayNull: Boolean = true
 

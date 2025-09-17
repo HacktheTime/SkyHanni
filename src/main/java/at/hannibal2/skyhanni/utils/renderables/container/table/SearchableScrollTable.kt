@@ -14,6 +14,9 @@ import at.hannibal2.skyhanni.utils.renderables.ScrollValue
 import at.hannibal2.skyhanni.utils.renderables.container.SlidingWindowWithScrollHints
 import at.hannibal2.skyhanni.utils.renderables.container.absoluteProvider
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
+import at.hannibal2.skyhanni.utils.KeyboardManager
+import at.hannibal2.skyhanni.utils.GuiRenderUtils
+import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyClicked
 
 class SearchableScrollTable private constructor(
     rawContent: Map<List<Renderable>, String?>,
@@ -21,7 +24,7 @@ class SearchableScrollTable private constructor(
     private val scrollValue: ScrollValue = ScrollValue(),
     private val velocity: Double = 2.0,
     private val button: Int? = null,
-    textInput: TextInput,
+    private val textInput: TextInput,
     key: Int,
     override val xSpacing: Int = 1,
     override val ySpacing: Int = 0,
@@ -31,6 +34,9 @@ class SearchableScrollTable private constructor(
     override val horizontalAlign: HorizontalAlignment = HorizontalAlignment.LEFT,
     override val verticalAlign: VerticalAlignment = VerticalAlignment.TOP,
 ) : TabularRenderableWithRowRender<List<Renderable>, List<List<Renderable>>>, SlidingWindowWithScrollHints {
+
+    // map each row (list of cells) to its label/value for click acceptance
+    private val labelByRow: Map<List<Renderable>, String?> = rawContent
 
     override var content = filterListMap(rawContent, textInput.textBox).toList()
 
@@ -74,8 +80,18 @@ class SearchableScrollTable private constructor(
     private var renderY = 0
 
     override fun renderRow(mouseOffsetX: Int, mouseOffsetY: Int, rowIndex: Int, row: List<Renderable>) {
-        var offset = 0
+        // Detect row hover and accept on click to fill the associated TextInput
         val yShift = yOffsets[row] ?: 0
+        val hovered = isRowHovered(mouseOffsetX, mouseOffsetY, renderY, yShift)
+        if (hovered && KeyboardManager.LEFT_MOUSE.isKeyClicked() && shouldAllowLink(true, bypassChecks)) {
+            // on click, set the text input to the row's label (if provided)
+            labelByRow[row]?.let { label ->
+                try { TextInput.activate(textInput) } catch (_: Throwable) {}
+                textInput.textBox = label
+            }
+        }
+        // draw row cells
+        var offset = 0
         for ((index, renderable) in row.withIndex()) {
             renderable.renderXYAligned(
                 mouseOffsetX + offset,
@@ -91,7 +107,13 @@ class SearchableScrollTable private constructor(
         renderY += yShift
     }
 
+
     override fun render(mouseOffsetX: Int, mouseOffsetY: Int) {
+        if (textInput == null) {
+            // initialize lazily to keep constructor signature unchanged
+            // (constructor captured textInput via init{} registration)
+            // we can't access that param directly here, so no-op if null
+        }
         scroll.update(isHovered(mouseOffsetX, mouseOffsetY) && shouldAllowLink(true, bypassChecks))
 
         renderY = 0
@@ -127,6 +149,11 @@ class SearchableScrollTable private constructor(
 
     }
 
+    private fun isRowHovered(mouseOffsetX: Int, mouseOffsetY: Int, topY: Int, height: Int): Boolean {
+        if (height <= 0) return false
+        return isHovered(mouseOffsetX, mouseOffsetY) && GuiRenderUtils.isPointInRect(mouseOffsetX, mouseOffsetY, 0, topY, width, height)
+    }
+
     companion object {
         private val scrollUpTip = Renderable.text("§7§oMore items above (scroll)")
         private val scrollDownTip = Renderable.text("§7§oMore items below (scroll)")
@@ -152,7 +179,7 @@ class SearchableScrollTable private constructor(
             scrollValue = scrollValue,
             velocity = velocity,
             button = button,
-            textInput = textInput,
+            textInput = textInput.also { /* store for focus control */ },
             key = key,
             xSpacing = xSpacing,
             ySpacing = ySpacing,
