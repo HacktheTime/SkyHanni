@@ -96,6 +96,7 @@ class TutorialConfig {
     var overlayEnabled: Boolean = true
 
     @Expose
+    @ConfigLink(owner = TutorialConfig::class, field = "overlayEnabled")
     val overlayPos: Position = Position(250, 120)
 
     @Expose
@@ -110,6 +111,7 @@ class TutorialConfig {
 
     @Expose
     @ConfigOption(name = "Tutorials Chat Prompt Key", desc = "Chat Prompt key used for Tutorials.")
+    @Accordion
     val chatPromptKey: KeyBind = KeyBind()
 
     @Expose
