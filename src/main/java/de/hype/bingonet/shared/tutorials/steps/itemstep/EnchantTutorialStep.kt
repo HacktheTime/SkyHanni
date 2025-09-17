@@ -29,8 +29,8 @@ class EnchantTutorialStep(
 ) : GUIBasedTutorialStep(Pattern.compile("Enchant Items")){
 
     constructor(
+        enchants: Map<at.hannibal2.skyhanni.features.misc.items.enchants.Enchant, Int>,
         item: TaggedItemCheck,
-        enchants: Map<at.hannibal2.skyhanni.features.misc.items.enchants.Enchant, Int>
     ): this(
         item, enchantIds = enchants.mapKeys { it.key.nbtName }
     )
