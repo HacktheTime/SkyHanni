@@ -1,13 +1,23 @@
 # Bingo Net
 
-Please check the official [Sky Hanni](https://github.com/hannibal002/SkyHanni) changelog for any changes made in the official. Usually all
-Changes happening 1:1 on fork sync.
+#### Chat Features
 
 The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- empty
+- added chat prompts. enable in config and run /shnumpad to configure
+    - Developer Note: while you are able to configure your own codes please note that configuring codes which start with a 0
+      are deemed Developer Codes and may be overridden or deleted without warning in the future! 0 starting Codes may be used to activate internal
+      functions or for configuration purposes globally in the future!
+
+- actually added the catacombs milestone reached / level up messages implementations
+
+- added a helper Keybind for Pet Xp Com Goal. Disabled by default. Enable in Bingo Settings. (default is no keybind)
+
+- added keybind / key combo support. configure using /shkeybinds
+
+- Fixed multiple Issues (one Blocking) with the Bingo Net Registration Screen and made it more lenient.
 
 ## Static Info for modrinth:
 
@@ -17,6 +27,7 @@ manually, as it is planned to be disabled by default, since from sh perspective 
 
 To enable do:
 `/sh` → Events → Bingo → Third Party Networks →
+
 1) Bingo Net → Use Bingo Net = Off → ON
 2) Use Bingo Brewers = OFF → ON
 

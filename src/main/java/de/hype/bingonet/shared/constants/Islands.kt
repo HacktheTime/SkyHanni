@@ -63,7 +63,7 @@ enum class Islands(val internalName: String, private val displayName: String) {
         }
 
         fun fromInternalName(key: String): Islands? {
-            return entries.find { it.internalName == key }
+            return entries.firstOrNull { it.internalName == key }
         }
     }
 }

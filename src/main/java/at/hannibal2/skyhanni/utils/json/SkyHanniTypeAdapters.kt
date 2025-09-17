@@ -14,6 +14,7 @@ import at.hannibal2.skyhanni.utils.NeuItems
 import at.hannibal2.skyhanni.utils.PrimitiveIngredient
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SimpleTimeMark.Companion.asTimeMark
+import at.hannibal2.skyhanni.utils.Stopwatch
 import at.hannibal2.skyhanni.utils.StringUtils
 import at.hannibal2.skyhanni.utils.system.ModVersion
 import at.hannibal2.skyhanni.utils.tracker.SkyHanniTracker
@@ -75,6 +76,11 @@ object SkyHanniTypeAdapters {
         }
     }
 
+    val STOPWATCH: TypeAdapter<Stopwatch> = SimpleStringTypeAdapter(
+        { this.getDuration().inWholeMilliseconds.toString() },
+        { this.toLongOrNull()?.milliseconds?.let { Stopwatch(it) } ?: error("Could not parse Stopwatch duration from '$this'") },
+    )
+
     val CROP_TYPE: TypeAdapter<CropType> = SimpleStringTypeAdapter(
         { name },
         { CropType.getByName(this) },
@@ -114,6 +120,8 @@ object SkyHanniTypeAdapters {
             return PrimitiveIngredient(reader.nextString())
         }
     }
+
+
 
 
 

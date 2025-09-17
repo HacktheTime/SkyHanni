@@ -41,7 +41,6 @@ object ItemTagManager {
 
         // Set the new tag
         tagToUuid[normalizedTag] = normalizedUuid
-
         // Don't send success message here - let the caller handle it
         TutorialManager.getActiveSteps()?.filterIsInstance<TagItemTutorialStep>()?.forEach {
             if (it.tagName == tag) {
@@ -120,5 +119,4 @@ object ItemTagManager {
     private fun normalizeTag(tag: String): String {
         return tag.lowercase()
     }
-
 }

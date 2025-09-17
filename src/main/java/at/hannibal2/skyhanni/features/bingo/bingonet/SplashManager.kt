@@ -16,6 +16,8 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.packets.function.RequestDynamicSplashInvitePacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
+import kotlinx.coroutines.delay
+import java.lang.Thread.sleep
 import java.time.Instant
 import kotlin.time.Duration.Companion.minutes
 
@@ -25,6 +27,7 @@ object SplashManager {
     var splashPool: MutableMap<Int, DisplaySplash> = HashMap<Int, DisplaySplash>()
 
     fun addSplash(splash: SplashData, source: SplashSource) {
+        val existed = splashPool.containsKey(splash.splashId)
         splashPool[splash.splashId] = DisplaySplash(splash)
         DelayedRun.runDelayed(
             5.minutes,
@@ -32,7 +35,7 @@ object SplashManager {
                 splashPool.remove(splash.splashId)
             },
         )
-        SplashManager.display(splash.splashId, source)
+        if (!existed) display(splash.splashId, source)
     }
 
     fun updateSplash(packet: SplashUpdatePacket) {
@@ -47,9 +50,11 @@ object SplashManager {
         }
     }
 
-    fun getSplashInServer(mustBeFromSelf: Boolean,serverId: String? = HypixelData.serverId): DisplaySplash? {
+    fun getSplashInServer(mustBeFromSelf: Boolean, serverId: String? = HypixelData.serverId): DisplaySplash? {
         if (serverId == null) return null
-        return splashPool.values.filter { it.serverID == serverId }.filter { !mustBeFromSelf || it.announcer.equals( PlayerUtils.getName(), ignoreCase = true) }.sortedBy { it.receivedTime }.firstOrNull()
+        return splashPool.values.filter { it.serverID == serverId }
+            .filter { !mustBeFromSelf || it.announcer.equals(PlayerUtils.getName(), ignoreCase = true) }.sortedBy { it.receivedTime }
+            .firstOrNull()
     }
 
     enum class SplashSource {
@@ -60,7 +65,6 @@ object SplashManager {
     fun display(splashId: Int, source: SplashSource) {
         val splash = splashPool.get(splashId)
         if (splash == null) return
-        var tellraw: String
         if (splash.hubSelectorData == null) {
             ChatUtils.chatPrompt(
                 "§d${splash.announcer} is Splashing in a §4PRIVATE§r Lobby.",
@@ -81,7 +85,9 @@ object SplashManager {
                 "§d${splash.announcer}§r is Splashing in $islandType #${splash.hubSelectorData.hubNumber}§r at ${splash.locationInHub.displayString} (§aPress %KEY% to warp to a §d${splash.hubSelectorData.hubType}§r) §7| §6${splash.extraMessage ?: ""}",
                 SkyHanniMod.feature.event.bingo.bingoNetworks.splashHubWarp,
                 {
-                    prepareHubWarp(splash, source)
+                    SkyHanniMod.launchCoroutine {
+                        prepareHubWarp(splash, source)
+                    }
                 },
             )
         }
@@ -106,6 +112,7 @@ object SplashManager {
                 ) {
                     // Double warp needed
                     HypixelCommands.warp(Islands.HUB.name)
+                    sleep(100)
                 }
                 HypixelCommands.warp(Islands.HUB.name)
             } else {

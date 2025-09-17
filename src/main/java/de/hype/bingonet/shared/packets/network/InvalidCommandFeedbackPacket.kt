@@ -15,11 +15,12 @@ class InvalidCommandFeedbackPacket
  * @param argument         argument in the command that caused the problem.
  * @param permissionNeeded permission required for that command / argument
  * @param userPermissions  permissions the user has.
- */(
+ */
+constructor(
     val internalReason: InternalReasonConstants?,
     val command: String?,
     val displayMessage: String?,
     val argument: String?,
     val permissionNeeded: String?,
-    val userPermissions: Set<BNRole>?
+    val userPermissions: Set<BNRole>?,
 ) : AbstractPacket()

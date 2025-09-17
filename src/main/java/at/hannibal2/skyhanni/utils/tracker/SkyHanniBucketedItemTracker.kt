@@ -20,7 +20,7 @@ class SkyHanniBucketedItemTracker<E : Enum<E>, BucketedData : BucketedItemTracke
 
     @Deprecated(
         "Use addCoins(bucket, coins, command) instead",
-        ReplaceWith("addCoins(bucket, coins, command)")
+        ReplaceWith("addCoins(bucket, coins, command)"),
     )
     override fun addCoins(amount: Int, command: Boolean) =
         throw UnsupportedOperationException("Use addCoins(bucket, coins, command) instead")
@@ -57,10 +57,10 @@ class SkyHanniBucketedItemTracker<E : Enum<E>, BucketedData : BucketedItemTracke
             it.addItem(bucket, internalName, amount, command)
         }
         getSharedTracker()?.let {
-            val totalProp = it.get(DisplayMode.TOTAL).selectedBucketItems.getOrPut(internalName) {
+            val totalProp = it.get(DisplayMode.TOTAL).getBucketedItems(bucket).getOrPut(internalName) {
                 ItemTrackerData.TrackedItem()
             }
-            val sessionProp = it.get(DisplayMode.SESSION).selectedBucketItems.getOrPut(internalName) {
+            val sessionProp = it.get(DisplayMode.SESSION).getBucketedItems(bucket).getOrPut(internalName) {
                 ItemTrackerData.TrackedItem()
             }
             sessionProp.hidden = totalProp.hidden

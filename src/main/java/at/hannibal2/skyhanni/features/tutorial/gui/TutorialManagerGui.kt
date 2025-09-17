@@ -274,7 +274,7 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                     is ReforgeTutorialStep -> {
                         out.add(Renderable.text("§eType: §fReforge"))
                         out.add(Renderable.text("§7Tagged Item: §f${node.item.tag}"))
-                        out.add(Renderable.text("§7Wanted Reforge: §f${node.reforgeInternalName}"))
+                        out.add(Renderable.text("§7Wanted Reforge: §f${node.reforgeName}"))
                     }
                     is EnchantTutorialStep -> {
                         out.add(Renderable.text("§eType: §fEnchant"))

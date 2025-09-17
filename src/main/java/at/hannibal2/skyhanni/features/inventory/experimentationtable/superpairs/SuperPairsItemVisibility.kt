@@ -30,7 +30,7 @@ object SuperPairsItemVisibility {
      */
     private val unknownSuperpairsClickPattern by ExperimentationTableApi.patternGroup.pattern(
         "superpairs.unknown-click",
-        "(?:§.)+(?:\\?|(?:Click a(?: seco)?n[dy]|Next) button(?: is instantly rewarded)?!?)"
+        "(?:§.)+(?:\\?|(?:Click a(?: seco)?n[dy]|Next) button(?: is instantly rewarded)?!?)",
     )
 
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
@@ -38,7 +38,7 @@ object SuperPairsItemVisibility {
         if (!config.enabled) return
         if (!ExperimentationTableApi.inTable || ExperimentationTableApi.currentExperimentType != TaskType.SUPERPAIRS) return
         if (superpairsSlotMap.isEmpty() || event.slot !in superpairsSlotMap.keys) return
-        if (!unknownSuperpairsClickPattern.matches(event.originalItem.displayName)) return
+        if (!unknownSuperpairsClickPattern.matches(event.originalItem?.displayName)) return
         val replacementItem = superpairsSlotMap[event.slot] ?: return
         event.replace(replacementItem)
     }

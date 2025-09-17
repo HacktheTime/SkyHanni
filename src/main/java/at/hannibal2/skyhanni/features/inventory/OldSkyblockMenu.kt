@@ -50,7 +50,7 @@ object OldSkyblockMenu {
         if (!isEnabled()) return
 
         val sbButton = slotMap[event.slot]?.takeIf { !it.disabled } ?: return
-        val isAlreadySbButton = event.originalItem.displayName.endsWith(sbButton.displayName)
+        val isAlreadySbButton = event.originalItem?.displayName?.endsWith(sbButton.displayName) == true
         if (isAlreadySbButton) return
 
         event.replace(sbButton.item)
@@ -117,7 +117,7 @@ object OldSkyblockMenu {
                 val format = magicalPower.addSeparators()
                 lore.add(5, "§7Magical Power: §6$format")
                 item.copy().setLore(lore)
-            }
+            },
         ),
         POTION(
             HypixelCommands::potionBag,

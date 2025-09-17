@@ -3,7 +3,7 @@ package de.hype.bingonet.shared.tutorials.steps.misc
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.PetData
 import at.hannibal2.skyhanni.data.ProfileStorageData
-import at.hannibal2.skyhanni.events.PetChangeEvent
+import at.hannibal2.skyhanni.events.pets.PetChangeEvent
 import at.hannibal2.skyhanni.utils.toSh
 import de.hype.bingonet.environment.toInternalName
 import de.hype.bingonet.shared.constants.Rarity

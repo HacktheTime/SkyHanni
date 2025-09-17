@@ -37,25 +37,47 @@ object HubSelectorKeybinds {
     private val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks
     private var lastClick = SimpleTimeMark.farPast()
     private val patternGroup = RepoPattern.group("inventory.hubselector")
+
+    @Transient
     val hubIdToNumberCache: BiMap<String, Int> = HashBiMap.create()
     private var openedCache: Map<Int, HubData>? = null
+
+    @Transient
     var lastUpdate = SimpleTimeMark.farPast()
 
     // TODO Dungeon Hub implementation
+    /**
+     * REGEX-TEST: Dungeon Hub Selector
+     * REGEX-TEST: SkyBlock Hub Selector
+     */
     private val hubSelectorGuiNamePattern by patternGroup.pattern(
         "gui-name",
         ".*Hub Selector.*",
     )
 
+    /**
+     * REGEX-TEST: §aSkyBlock Hub #24
+     * REGEX-TEST: §aDungeon Hub #1
+     */
     private val itemNamePattern by patternGroup.pattern(
         "item-name",
-        "§.((SkyBlock)|(Dungeon)) Hub #(?<hubNumber>\\d+)",
+        "§.(?<type>(SkyBlock)|(Dungeon)) Hub #(?<hubNumber>\\d+)",
     )
 
+    /**
+     * REGEX-TEST: §7Players: 5/60
+     * REGEX-TEST: §7Players: 0/0
+     * REGEX-TEST: §7Players: 60/60
+     */
     private val playersPattern by patternGroup.pattern(
         "player-count",
         "§7Players: (?<current>\\d+)/(?<max>\\d+)",
     )
+
+    /**
+     * REGEX-TEST: §8Server: mega13D
+     * REGEX-TEST: §8Server: mini63BW
+     */
     private val serverIdPattern by patternGroup.pattern(
         "server-id",
         "§8Server: (?<serverid>.*)",
@@ -79,14 +101,14 @@ object HubSelectorKeybinds {
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onKeyPress(event: GuiKeyPressEvent) {
-        if (HypixelData.joinedWorld.passedSince() <= 2.5.seconds) return
+        if (HypixelData.joinedWorld.passedSince() <= 3.seconds) return
         if (!mainInventory.isInside()) return
         val cache = openedCache ?: return
 
         val chest = event.guiContainer as? GuiChest ?: return
 
         val key = config.splashHubWarp.getEffectiveKey()
-        if (!key.isKeyHeld() || lastClick.passedSince()<250.milliseconds) return
+        if (!key.isKeyHeld() || lastClick.passedSince() < 250.milliseconds) return
         lastClick = SimpleTimeMark.now()
         event.cancel()
         // First Score | Second Index
@@ -105,7 +127,7 @@ object HubSelectorKeybinds {
 
                 }
         event.guiContainer.inventorySlots.inventorySlots.forEach { slot ->
-            val data = cache[slot.slotNumber]?:return@forEach
+            val data = cache[slot.slotNumber] ?: return@forEach
             val score = calculateScore(splashPool.get(data.serverId), data)
             if (score != null) {
                 if (bestClick == null) {
@@ -153,7 +175,7 @@ object HubSelectorKeybinds {
     }
 
     fun getHubNumberById(serverId: String, island: Islands): SplashData.HubSelectorData? {
-        if (lastUpdate.plus(30.seconds).isInPast()) return null //Hub Swaps problem etc.
+        if (lastUpdate.plus(30.seconds).isInPast()) return null // Hub Swaps problem etc.
         return SplashData.HubSelectorData(hubIdToNumberCache.get(serverId) ?: return null, island)
     }
 
@@ -164,9 +186,9 @@ object HubSelectorKeybinds {
 
         val splashHubs = SplashManager.splashPool.filter { it.value.status == StatusConstants.WAITING }.map { it.value.serverID }
         val minPlayerCount = SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig.lowestPlayerHub.let {
-            if (it){
-                cache.maxBy { it.value.maxPlayerCount-it.value.playerCount }.value.serverId
-            }else{
+            if (it) {
+                cache.maxBy { it.value.maxPlayerCount - it.value.playerCount }.value.serverId
+            } else {
                 null
             }
         }

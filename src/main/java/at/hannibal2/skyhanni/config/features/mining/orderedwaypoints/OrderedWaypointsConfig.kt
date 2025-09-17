@@ -77,6 +77,11 @@ class OrderedWaypointsConfig {
     var showDistance: Boolean = true
 
     @Expose
+    @ConfigOption(name = "Show Name", desc = "Whether the name for ordered waypoints should be shown.")
+    @ConfigEditorBoolean
+    var showName: Boolean = true
+
+    @Expose
     @ConfigOption(name = "Setup Mode", desc = "Setup mode for route clearing.")
     @ConfigEditorBoolean
     var setupMode: Boolean = false
@@ -106,7 +111,7 @@ class OrderedWaypointsConfig {
         name = "Sneaking During Route",
         desc = "" +
             "Whether you'll be sneaking when moving between waypoints (e.g., using AOTV)." +
-            "This is used for drawing the line of sight line for setup mode."
+            "This is used for drawing the line of sight line for setup mode.",
     )
     @ConfigEditorBoolean
     var sneakingDuringRoute: Boolean = true

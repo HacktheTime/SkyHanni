@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.commands.brigadier
 
+import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils.isGreedy
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils.toSuggestionProvider
@@ -14,6 +15,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.mojang.brigadier.tree.CommandNode
 //#if MC < 1.21
 import net.minecraft.command.ICommand
+
 //#endif
 
 typealias LiteralCommandBuilder = BrigadierBuilder<LiteralArgumentBuilder<Any?>>
@@ -55,6 +57,16 @@ open class BrigadierBuilder<B : ArgumentBuilder<Any?, B>>(
     fun simpleCallback(block: () -> Unit) {
         this.builder.executes {
             block()
+            1
+        }
+    }
+
+    /** Alternative to [simpleCallback] when a block needs to be executed in a coroutine. */
+    fun coroutineSimpleCallback(block: suspend ArgContext.() -> Unit) {
+        this.builder.executes {
+            SkyHanniMod.launchIOCoroutine {
+                block(ArgContext(it))
+            }
             1
         }
     }

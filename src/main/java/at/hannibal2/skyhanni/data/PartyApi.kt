@@ -25,6 +25,7 @@ import de.hype.bingonet.shared.packets.function.RequestPartyStatePacket.PartySta
 import kotlin.random.Random
 
 @SkyHanniModule
+@Suppress("LongMethod", "ComplexMethod")
 object PartyApi {
     val hideConfig = SkyHanniMod.feature.misc.hidePartyMessagesConfig
     private val patternGroup = RepoPattern.group("data.party")
@@ -446,7 +447,7 @@ object PartyApi {
     private fun send(message: String) {
         ChatUtils.sendMessageToServer("/$message")
     }
-
+    @Suppress("FunctionOnlyReturningConstant")
     fun isModerator(): Boolean {
         // TODO add moderator tracking
         // TODO add allinvite tracking

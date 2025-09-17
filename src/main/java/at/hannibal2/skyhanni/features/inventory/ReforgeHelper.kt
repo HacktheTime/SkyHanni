@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.inventory
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.ReforgeApi
+import at.hannibal2.skyhanni.api.ReforgeApi.Reforge
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.model.SkyblockStat
 import at.hannibal2.skyhanni.data.model.SkyblockStatList
@@ -24,7 +25,7 @@ import at.hannibal2.skyhanni.utils.RenderUtils
 import at.hannibal2.skyhanni.utils.RenderUtils.drawSlotText
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderables
-import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getReforgeName
+import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getReforgeModifier
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.TimeUtils.ticks
@@ -85,10 +86,10 @@ object ReforgeHelper {
     private var itemToReforge: ItemStack? = null
     private var inventoryContainer: Container? = null
 
-    private var currentReforge: ReforgeApi.Reforge? = null
-    private var reforgeToSearch: ReforgeApi.Reforge? = null
+    private var currentReforge: Reforge? = null
+    private var reforgeToSearch: Reforge? = null
 
-    private var hoveredReforge: ReforgeApi.Reforge? = null
+    private var hoveredReforge: Reforge? = null
 
     private val reforgeItem get() = if (isInHexReforgeMenu) 19 else 13
     private val reforgeButton get() = if (isInHexReforgeMenu) 48 else 22
@@ -117,9 +118,9 @@ object ReforgeHelper {
             reforgeToSearch = null
         }
         itemToReforge = newItem
-        val newReforgeName = itemToReforge?.getReforgeName().orEmpty()
-        if (newReforgeName == currentReforge?.lowercaseName) return
-        currentReforge = ReforgeApi.reforgeList.firstOrNull { it.lowercaseName == newReforgeName }
+        val newReforgeName = itemToReforge?.getReforgeModifier().orEmpty()
+        if (newReforgeName == currentReforge?.nbtModifier) return
+        currentReforge = ReforgeApi.reforges.firstOrNull { it.nbtModifier == newReforgeName }
         updateDisplay()
     }
 
@@ -235,7 +236,7 @@ object ReforgeHelper {
         val itemRarity = item.getItemRarityOrNull() ?: return@buildList
 
         val rawReforgeList =
-            if (!isInHexReforgeMenu && config.reforgeStonesOnlyHex) ReforgeApi.nonePowerStoneReforge else ReforgeApi.reforgeList
+            if (!isInHexReforgeMenu && config.reforgeStonesOnlyHex) ReforgeApi.basicReforges else ReforgeApi.reforges
         val reforgeList = rawReforgeList.filter { it.isValid(itemType, internalName) }
 
         val statTypes = reforgeList.mapNotNull { it.stats[itemRarity]?.keys }.flatten().toSet()
@@ -247,14 +248,14 @@ object ReforgeHelper {
         this.addAll(list)
     }
 
-    private fun getReforgeColor(reforge: ReforgeApi.Reforge) = when {
+    private fun getReforgeColor(reforge: Reforge) = when {
         currentReforge == reforge -> "§6"
         reforgeToSearch == reforge -> "§3"
         reforge.isReforgeStone -> "§9"
         else -> "§7"
     }
 
-    private fun getReforgeView(itemRarity: LorenzRarity): (ReforgeApi.Reforge) -> Renderable = { reforge ->
+    private fun getReforgeView(itemRarity: LorenzRarity): (Reforge) -> Renderable = { reforge ->
         val text = getReforgeColor(reforge) + reforge.name
         val tips = getReforgeTips(reforge, itemRarity)
         val onHover = if (!isInHexReforgeMenu) {
@@ -276,7 +277,7 @@ object ReforgeHelper {
     }
 
     private fun getReforgeTips(
-        reforge: ReforgeApi.Reforge,
+        reforge: Reforge,
         itemRarity: LorenzRarity,
     ): List<Renderable> {
         val stats: List<Renderable>
@@ -313,8 +314,8 @@ object ReforgeHelper {
         return listOf(Renderable.text("§6Reforge Stats")) + stats + removedEffect + addedEffect + clickToApply
     }
 
-    private fun getReforgeEffect(reforge: ReforgeApi.Reforge?, rarity: LorenzRarity) =
-        reforge?.extraProperty?.get(rarity)?.let {
+    private fun getReforgeEffect(reforge: Reforge?, rarity: LorenzRarity) =
+        reforge?.reforgeAbility?.get(rarity)?.let {
             Renderable.wrappedText(
                 it,
                 190,
@@ -325,9 +326,9 @@ object ReforgeHelper {
     private fun getSortSelector(
         itemRarity: LorenzRarity,
         sorting: SkyblockStat?,
-    ): Comparator<ReforgeApi.Reforge> =
+    ): Comparator<Reforge> =
         if (sorting != null) {
-            Comparator.comparing<ReforgeApi.Reforge, Double> { it.stats[itemRarity]?.get(sorting) ?: 0.0 }.reversed()
+            Comparator.comparing<Reforge, Double> { it.stats[itemRarity]?.get(sorting) ?: 0.0 }.reversed()
         } else {
             Comparator.comparing { it.isReforgeStone }
         }
@@ -456,14 +457,13 @@ object ReforgeHelper {
      * Public API for tutorials: set a target reforge by its lowercase/internal name.
      * Example values: "heroic", "spiritual", etc. Dash will be normalized to underscore.
      */
-    fun setTutorialTargetReforge(targetLowercaseName: String?) {
-        if (targetLowercaseName.isNullOrBlank()) {
+    fun setTutorialTargetReforge(reforge: Reforge?) {
+        if (reforge==null) {
             reforgeToSearch = null
             updateDisplay()
             return
         }
-        val normalized = targetLowercaseName.lowercase().replace('-', '_')
-        reforgeToSearch = ReforgeApi.reforgeList.firstOrNull { it.lowercaseName == normalized }
+        reforgeToSearch = reforge
         updateDisplay()
     }
 }

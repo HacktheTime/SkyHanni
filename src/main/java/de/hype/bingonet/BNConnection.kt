@@ -3,16 +3,17 @@ package de.hype.bingonet
 // import de.hype.bingonet.shared.packets.function.MinionDataResponse.RequestMinionDataPacket
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetConfig
+import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetSystem
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.effect.EffectApi
+import at.hannibal2.skyhanni.events.ConfigLoadEvent
 import at.hannibal2.skyhanni.events.IslandChangeEvent
-import at.hannibal2.skyhanni.events.hypixel.HypixelJoinEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
-import at.hannibal2.skyhanni.features.bingo.bingonet.RegistrationScreen
+import at.hannibal2.skyhanni.features.bingo.bingonet.BNRegistrationScreen
 import at.hannibal2.skyhanni.features.bingo.bingonet.SplashManager
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.EntityUtils
@@ -86,6 +87,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toKotlinDuration
 
 @SkyHanniModule
+@Suppress("UnusedParameter")
 object BNConnection {
     var messageReceiverThread: Thread? = null
     var messageSenderThread: Thread? = null
@@ -132,13 +134,17 @@ object BNConnection {
         }
     }
 
-    init {
+    @HandleEvent
+    fun launchHook(event: ConfigLoadEvent) {
         if (bnConfig.useBN) {
             SkyHanniMod.launchCoroutine {
-                reconnectToBNServer()
+                if (!isConnected) connect("hackthetime.de", bnConfig.system.port)
             }
+        } else {
+            disconnect()
         }
     }
+
 
     fun connect(serverIP: kotlin.String = "hackthetime.de", serverPort: Int) {
         try {
@@ -231,22 +237,7 @@ object BNConnection {
             // This should prevent any Issues from Bingo Net from causing an actual Issue. The Set Filter should prevent Error Spam.
             val key = "${e::class.java.name}:${e.message}"
             if (reportedErrors.add(key)) {
-                val errorReport = buildString {
-                    appendLine("Bingo Net Connection Error Report")
-                    appendLine("Received packet: $message")
-                    var current: Throwable? = e
-                    while (current != null) {
-                        appendLine("Exception: ${current::class.java.name}: ${current.localizedMessage}")
-                        appendLine("Stacktrace:")
-                        current.stackTrace.forEach { appendLine("  at $it") }
-                        current = current.cause
-                        if (current != null) appendLine("Caused by:")
-                    }
-                }
-                ChatUtils.clickToClipboard(
-                    "§cBN: Error processing message: ${e.localizedMessage}", errorReport.split("\n"),
-                )
-                e.printStackTrace()
+                ErrorManager.logErrorWithData(e, "Error reading Bingo Net Packet", "packetJson" to message)
             }
         }
     }
@@ -355,11 +346,14 @@ object BNConnection {
 
     suspend fun BNConnection.reconnectToBNServer(
         ignoreIfConnected: Boolean = true,
-        system: BingoNetConfig.BingoNetSystem = bnConfig.system,
+        system: BingoNetSystem = bnConfig.system,
         packetIntercepts: List<InterceptPacketInfo<*>> = emptyList(),
     ) {
-        disconnect()
         if (bnConfig.useBN) {
+            if (ignoreIfConnected) {
+                if (isConnected) return
+                disconnect()
+            }
             connect("hackthetime.de", system.port)
         } else {
             ChatUtils.clickableChat(
@@ -403,7 +397,7 @@ object BNConnection {
             ChatUtils.clickableChat(
                 "§6BC > §r$prefix ${packet.username}: ${packet.message}",
                 {
-                  ChatUtils.suggestInChat("/bc @${packet.username} ")
+                    ChatUtils.suggestInChat("/bc @${packet.username} ")
                 },
                 "Bingo Cards: ${packet.bingo_cards}",
                 prefix = false,
@@ -442,7 +436,7 @@ object BNConnection {
 
         val reason = packet.internalReason
         if (reason == InternalReasonConstants.NOT_REGISTERED) {
-            RegistrationScreen.openHelper()
+            BNRegistrationScreen.openHelper()
         } else if (reason == InternalReasonConstants.BANNED) {
             ChatUtils.chat("§cIt appears that you have been banned from the Bingo Net Network. Due to this the Bingo Net Integration deactivated itself!")
             bnConfig.useBN = false
@@ -475,8 +469,8 @@ object BNConnection {
         if (config.allowBNServerPartyManagement) {
             val isInParty = PartyApi.isInParty()
             if (!isInParty && !(packet.type == PartyConstants.JOIN || packet.type == PartyConstants.ACCEPT || packet.type == PartyConstants.INVITE)) return
-            val leader = PartyApi.isPartyLeader()
-            val moderator = PartyApi.isModerator()
+            PartyApi.isPartyLeader()
+            PartyApi.isModerator()
 
             if (packet.type == PartyConstants.JOIN) {
                 PartyApi.leaveParty()
@@ -612,8 +606,7 @@ object BNConnection {
             reader = null
             socket = null
         } catch (e: Exception) {
-            if (e.message != null) ChatUtils.chat("§c" + e.message)
-            e.printStackTrace()
+            ErrorManager.logErrorWithData(e, "Connection Error", ignoreErrorCache = true)
         }
     }
 
@@ -626,6 +619,7 @@ object BNConnection {
             waypoints[packet.waypointId] = packet.waypoint
         }
     }
+
 
     fun onGetWaypointsPacket(packet: GetWaypointsPacket) {
         sendPacket(
@@ -671,10 +665,7 @@ object BNConnection {
         if (!data.canUseNetwork) bnConfig.useBN = false
         ChatUtils.chat(
             "§c[Bingo Net] You currently have a Punishment Active. Type: ${data.punishmentType}. Expiration Time: ${
-                (Duration.between(
-                    Instant.now(),
-                    data.expirationDate,
-                ).toKotlinDuration().format(at.hannibal2.skyhanni.utils.TimeUnit.DAY))
+                (Duration.between(Instant.now(), data.expirationDate).toKotlinDuration().format(at.hannibal2.skyhanni.utils.TimeUnit.DAY))
             }",
             prefix = false,
         )
@@ -749,9 +740,6 @@ object BNConnection {
         return bnConfig.useBN
     }
 
-    fun autoInit(event: HypixelJoinEvent){
-        //do nothing but init this file
-    }
 }
 
 fun Position.toLorenz(): LorenzVec {

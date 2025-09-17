@@ -1,3 +1,4 @@
+@file:Suppress("NoUnusedImports")
 package de.hype.bingonet
 
 import at.hannibal2.skyhanni.SkyHanniMod
@@ -5,11 +6,11 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
-import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetConfig
+import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetSystem
 import at.hannibal2.skyhanni.config.features.inventory.hubselector.HubSelectorKeybinds
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.toBNIsland
-import at.hannibal2.skyhanni.features.bingo.bingonet.RegistrationScreen
+import at.hannibal2.skyhanni.features.bingo.bingonet.BNRegistrationScreen
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import de.hype.bingonet.BNConnection.reconnectToBNServer
@@ -23,6 +24,7 @@ import de.hype.bingonet.shared.packets.function.SplashTimeRequestPacket
 import de.hype.bingonet.shared.packets.network.BingoChatMessagePacket
 
 @SkyHanniModule
+@Suppress("LongMethod", "NoUnusedImports")
 object BNCommands {
     val config = SkyHanniMod.feature.event.bingo.bingoNetworks
     val bnConfig = SkyHanniMod.feature.event.bingo.bingoNetworks.bingoNet
@@ -35,7 +37,7 @@ object BNCommands {
             arg(
                 "server",
                 BrigadierArguments.string(),
-                BingoNetConfig.BingoNetSystem.entries.map { it.name } + "disconnect",
+                BingoNetSystem.entries.map { it.name } + "disconnect",
             ) {
                 callback {
                     connectServerCommand(getArg(it))
@@ -112,6 +114,7 @@ object BNCommands {
             }
             event.registerBrigadier("bnrequestpottimes") {
                 category = CommandCategory.BINGO_NET
+                description = "For Splashers: Shows a summary of the current remaining God Pot Durations of all mod users."
                 simpleCallback {
                     val packet = SplashTimeRequestPacket()
                     BNConnection.sendPacket(packet)
@@ -126,7 +129,7 @@ object BNCommands {
                 category = CommandCategory.DEVELOPER_DEBUG
                 description = "Opens the Bingo Net Registration Screen"
                 simpleCallback {
-                    RegistrationScreen.openHelper()
+                    BNRegistrationScreen.openHelper()
                 }
             },
         )
@@ -146,7 +149,7 @@ object BNCommands {
     }
 
     fun connectServerCommand(arg: String? = null) {
-        val system = BingoNetConfig.BingoNetSystem.entries.find { it.name == arg }
+        val system = BingoNetSystem.entries.find { it.name == arg }
         if (system == null) {
             BNConnection.disconnect()
             return

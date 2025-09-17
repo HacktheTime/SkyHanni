@@ -1,12 +1,13 @@
 package de.hype.bingonet.shared.tutorials.steps.itemstep
 
+import at.hannibal2.skyhanni.api.ReforgeApi
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.features.inventory.ReforgeHelper
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
-import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getReforgeName
+import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getReforgeModifier
 import de.hype.bingonet.shared.tutorials.TaggedItemCheck
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
@@ -15,21 +16,21 @@ import java.awt.Color
 
 class ReforgeTutorialStep(
     val item: TaggedItemCheck,
-    val reforgeInternalName: String,
+    val reforgeName: String,
 ) : TutorialStep() {
 
-    private val desiredReforge = reforgeInternalName.lowercase().replace('-', '_')
+    private val desiredReforge = reforgeName.lowercase().replace('-', '_')
 
     override fun onActivate(tutorial: Tutorial) {
         // Pre-select the required reforge in ReforgeHelper; it will block the button until matched
-        ReforgeHelper.setTutorialTargetReforge(desiredReforge)
+        ReforgeHelper.setTutorialTargetReforge(ReforgeApi.reforges.firstOrNull{it.name.equals(reforgeName, true)})
     }
 
     override fun onDeactivate(tutorial: Tutorial) {
         ReforgeHelper.setTutorialTargetReforge(null)
     }
 
-    override fun getStepName(tutorial: Tutorial): String = "Reforge ${item.displayText} to ${reforgeInternalName}"
+    override fun getStepName(tutorial: Tutorial): String = "Reforge ${item.displayText} to ${reforgeName}"
 
     override fun getStepDescription(tutorial: Tutorial): String? = item.descriptionText
 
@@ -63,7 +64,7 @@ class ReforgeTutorialStep(
             val uuid = stack.getItemUuid() ?: return@any false
             val matches = targetUuid != null && uuid == targetUuid
             if (!matches) return@any false
-            val current = stack.getReforgeName().orEmpty().lowercase()
+            val current = stack.getReforgeModifier().orEmpty().lowercase()
             current == desiredReforge
         }
         if (hasReforged) complete()

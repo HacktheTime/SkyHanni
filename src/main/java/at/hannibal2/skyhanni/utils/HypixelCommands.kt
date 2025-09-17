@@ -28,6 +28,10 @@ object HypixelCommands {
         send("sbmenu")
     }
 
+    fun stats() {
+        send("stats")
+    }
+
     fun skills() {
         send("skills")
     }

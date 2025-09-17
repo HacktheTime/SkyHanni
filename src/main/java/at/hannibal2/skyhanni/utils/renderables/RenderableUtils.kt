@@ -25,6 +25,7 @@ import java.awt.Color
 import kotlin.math.ceil
 import kotlin.math.min
 import kotlin.reflect.KMutableProperty0
+
 //#if MC > 1.21
 //$$ import net.minecraft.text.Text
 //#endif
@@ -425,7 +426,7 @@ internal object RenderableUtils {
         data: List<DisplayTableEntry>,
         itemScale: Double = NeuItems.ITEM_FONT_SIZE,
     ): MutableList<List<Renderable>> {
-        val sorted = data.sortedByDescending { it.sort }
+        val sorted = data.sortedByDescending { it.sort.toDouble() }
         val outerList = mutableListOf<List<Renderable>>()
         for (entry in sorted) {
             val item = entry.item.getItemStackOrNull()?.let {

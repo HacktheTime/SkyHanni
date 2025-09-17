@@ -45,9 +45,9 @@ object ChChestMessageAnalyser {
             if (isInMessage && wrapper.matches(message)) {
                 isInMessage = false
                 if (items.isNotEmpty()) {
-                    val coords = ChChestUpdateListener.lastGlobalChchestCoords?.toBN()?:error("No global chest coords")
+                    val coords = ChChestUpdateListener.lastGlobalChchestCoords?.toBN() ?: error("No global chest coords")
                     val chest = ChChestData(coords, items)
-                    val serverId = HypixelData.serverId?:return@launchCoroutine
+                    val serverId = HypixelData.serverId ?: return@launchCoroutine
                     val bnPacket = ChChestPacket(chest, serverId)
                     BNConnection.sendPacket(bnPacket)
                     if (SkyHanniMod.feature.event.bingo.bingoNetworks.chestWaypoints) {
@@ -59,12 +59,12 @@ object ChChestMessageAnalyser {
                             val bItem = BingoBrewersPackets.CHChestItem()
                             bItem.name = item.displayName
                             bItem.count = count.toString()
-                            bItem.itemColor = item.itemFormatting.color?.rgb?: Color.WHITE.rgb
-                            bItem.numberColor = item.countFormatting.color?.rgb?:Color.WHITE.rgb
+                            bItem.itemColor = item.itemFormatting.color?.rgb ?: Color.WHITE.rgb
+                            bItem.numberColor = item.countFormatting.color?.rgb ?: Color.WHITE.rgb
                             return@map bItem
                         }
                         packet.server = serverId
-                        packet.day = WorldCompat.worldDay?:error("World is null?")
+                        packet.day = WorldCompat.worldDay ?: error("World is null?")
                         BingoBrewersClient.sendTCP(packet)
                     }
                 }
@@ -77,6 +77,11 @@ object ChChestMessageAnalyser {
             val before = items.get(item.first) ?: IntRange(0, 0)
             items[item.first] = before.plus(item.second)
         }
+    }
+
+
+    fun IntRange.plus(range: IntRange): IntRange {
+        return IntRange(this.first + range.first, this.last + range.last)
     }
 }
 

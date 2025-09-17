@@ -23,6 +23,7 @@ import net.minecraft.util.ResourceLocation
 import java.util.Locale
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
+
 //#if MC > 1.21
 //$$ import net.minecraft.component.DataComponentTypes
 //$$ import net.minecraft.registry.Registries
@@ -39,6 +40,8 @@ object SkyBlockItemModifierUtils {
 
     fun ItemStack.getHotPotatoCount() = getAttributeInt("hot_potato_count")
     fun ItemStack.getDungeonQuality() = getExtraAttributes()?.getInteger("baseStatBoostPercentage")
+
+    fun ItemStack.getWetBookCount() = getAttributeInt("wet_book_count")
 
     fun ItemStack.getFarmingForDummiesCount() = getAttributeInt("farming_for_dummies_count")
 
@@ -233,14 +236,7 @@ object SkyBlockItemModifierUtils {
 
     fun ItemStack.hasAttributes() = getAttributes() != null
 
-    fun ItemStack.getReforgeName() = getAttributeString("modifier")?.let {
-        when {
-            it == "pitchin" -> "pitchin_koi"
-            it == "warped" && displayName.removeColor().startsWith("Hyper ") -> "endstone_geode"
-
-            else -> it
-        }
-    }
+    fun ItemStack.getReforgeModifier() = getAttributeString("modifier")
 
     fun ItemStack.isRecombobulated() = getAttributeInt("rarity_upgrades").isPositive()
 

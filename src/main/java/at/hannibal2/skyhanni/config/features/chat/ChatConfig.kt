@@ -211,6 +211,15 @@ class ChatConfig {
 
     @Expose
     @ConfigOption(
+        name = "Hide Clickable Hints",
+        desc = "Hides the 'Click to x' chat line from SkyHanni messages. " +
+            "The message is still clickable and shows infos on hover.",
+    )
+    @ConfigEditorBoolean
+    var hideClickableHint: Boolean = false
+
+    @Expose
+    @ConfigOption(
         name = "Default Chat Prompt Keybind",
         desc = "Some clickable messages have a Keybind you can use to execute their Code instead of having to click. " +
             "All other Keybind can be configured to be different," +
@@ -233,13 +242,13 @@ class ChatConfig {
         desc = "Some NPCs have dialogue that you need to answer (stuff like §a[Yes]§r)",
     )
     @Accordion
-    val npcResponseSuggestion : KeyBind = KeyBind()
+    val npcResponseSuggestion: KeyBind = KeyBind()
 
 
     @Expose
     @ConfigOption(
         name = "Contains Command Tab Completion",
-        desc = "Suggestion will be matched based on contains instead of start matching."
+        desc = "Suggestion will be matched based on contains instead of start matching.",
     )
     @ConfigEditorBoolean
     var tabCompletionUseContainsSuggestion: Boolean = false
@@ -247,7 +256,7 @@ class ChatConfig {
     @Expose
     @ConfigOption(
         name = "Ignore Case Command Completion",
-        desc = "Suggestion will be matched based on contains instead of start matching."
+        desc = "Suggestion will be matched based on contains instead of start matching.",
     )
     @ConfigEditorBoolean
     var tabIgnoreCaseSuggestion: Boolean = true

@@ -39,6 +39,7 @@ import java.util.TreeMap
 import java.util.UUID
 
 @SkyHanniModule
+@Suppress("ReturnCount")
 object StorageApi {
     val toHighlightResults = mutableListOf<StorageSearchResult>()
     var currentInventoryResults: List<StorageSearchResult> = emptyList()
@@ -211,7 +212,7 @@ object StorageApi {
         currentInventoryResults = toHighlightResults.filter { it.storageName == name }
         toHighlightResults.removeAll(currentInventoryResults)
     }
-    //TODO museum (existing?), vault, warderobe, builders wand, bags
+    // TODO museum (existing?), vault, warderobe, builders wand, bags
 
     private var lastChestClicked: LorenzVec? = null
     private var doubleChestCord: LorenzVec? = null

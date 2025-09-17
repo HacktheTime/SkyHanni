@@ -42,7 +42,7 @@ value class Graph(
     fun getNodesWithName(name: String): List<GraphNode> = nodes.filter { it.name == name }
 
     fun getNearestNode(
-        location: LorenzVec = GraphUtils.playerGraphGridLocation(),
+        location: LorenzVec = GraphUtils.playerPosition,
         condition: (GraphNode) -> Boolean = { true },
     ): GraphNode = asSequence()
         .filter(condition)
@@ -166,7 +166,8 @@ value class Graph(
 }
 
 // The node object that gets parsed from/to json
-class GraphNode(val id: Int, val position: LorenzVec, val name: String? = null, val tagNames: List<String> = emptyList()) {
+class GraphNode(val id: Int, override val position: LorenzVec, val name: String? = null, val tagNames: List<String> = emptyList()) :
+    GraphUtils.GenericNode {
 
     val tags: List<GraphNodeTag> by lazy {
         tagNames.mapNotNull { GraphNodeTag.byId(it) }
@@ -187,9 +188,7 @@ class GraphNode(val id: Int, val position: LorenzVec, val name: String? = null, 
 
         other as GraphNode
 
-        if (id != other.id) return false
-
-        return true
+        return id == other.id
     }
 
     fun sameNameAndTags(other: GraphNode): Boolean = name == other.name && allowedTags == other.allowedTags

@@ -20,11 +20,11 @@ class BingoNetConfig {
     @Expose
     @ConfigOption(
         name = "Bingo Net Server (Main/Beta/Alpha)",
-        desc = "Which Server Version do you want to connect to by default?\n"+
-        "Do Not Change this unless you know what you are doing!"
+        desc = "Which Server Version do you want to connect to by default?\n" +
+            "Do Not Change this unless you know what you are doing!",
     )
     @ConfigEditorDropdown
-    var system : BingoNetSystem = BingoNetSystem.MAIN
+    var system: BingoNetSystem = BingoNetSystem.MAIN
 
     @Expose
     @ConfigOption(
@@ -32,23 +32,26 @@ class BingoNetConfig {
         desc = "API/Legacy Key can be used instead of Mojang Auth. This prevents the possible restart your client message when the Mojang Tokens expired. Leave empty to use Mojang Auth.",
     )
     @ConfigEditorText
+    @Suppress("VariableNaming", "PropertyName")
     var BNApiKey: String = ""
 
-    enum class BingoNetSystem {
-        MAIN("Main Server",5000),
-        BETA("Beta Server",5011),
-        ALPHA("Alpha Server",5012);
+}
 
-        private val displayName: String
-        val port: Int
+enum class BingoNetSystem {
+    MAIN("Main Server", 5000),
+    BETA("Beta Server", 5011),
+    ALPHA("Alpha Server", 5012);
 
-        constructor(displayName: String, port: Int) {
-            this.displayName = displayName
-            this.port = port
-        }
+    private val displayName: String
+    @Suppress("StorageNeedsExpose")
+    val port: Int
 
-        override fun toString(): String {
-            return displayName
-        }
+    constructor(displayName: String, port: Int) {
+        this.displayName = displayName
+        this.port = port
+    }
+
+    override fun toString(): String {
+        return displayName
     }
 }
