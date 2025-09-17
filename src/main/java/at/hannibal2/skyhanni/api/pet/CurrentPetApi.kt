@@ -36,7 +36,7 @@ object CurrentPetApi {
      * REGEX-TEST: §aYou despawned your §r§6Golden Dragon§r§a!
      */
     private val chatDespawnPattern by patternGroup.pattern(
-        "chat.summon",
+        "chat.despawn",
         "§aYou despawned your §r§(?<rarity>.)(?<pet>[^§]+)(?:§r(?<skin>§. ✦))?§r§a!",
     )
 
