@@ -576,7 +576,8 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 out.add(Renderable.text("§7Hidden options are ${if (config.showHiddenOptionalPaths) "§aVISIBLE" else "§cHIDDEN"}."))
                 out.add(Renderable.text(" "))
                 out.add(Renderable.text("§eAdd Child to Option:"))
-                node.paths.forEachIndexed { idx, (_, hidden) ->
+                node.paths.forEachIndexed { idx, pair ->
+                    val hidden = pair.second
                     val tag = if (hidden) "§8(hidden)" else ""
                     out.add(
                         Renderable.clickable(
@@ -895,18 +896,18 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
             }
             is SelectPathTutorialFork -> {
                 n.paths.forEachIndexed { i, sp ->
-                    val (inner, moved) = moveNodeRec(sp.pathNodes, delta, targetId)
+                    val (_, moved) = moveNodeRec(sp.pathNodes, delta, targetId)
                     if (moved) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) SelectPathTutorialFork.SelectedPathTutorialFork(p.option, inner) else p }
+                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) SelectPathTutorialFork(newPaths) else p }
                         return nodes.map { if (it === n) SelectPathTutorialFork(newPaths) else it } to true
                     }
                 }
             }
             is OptionalTutorialFork -> {
                 n.paths.forEachIndexed { i, pair ->
-                    val (inner, moved) = moveNodeRec(pair.first, delta, targetId)
+                    val (_, moved) = moveNodeRec(pair.first, delta, targetId)
                     if (moved) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) (inner to p.second) else p }
+                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) OptionalTutorialFork(newPaths) else p }
                         return nodes.map { if (it === n) OptionalTutorialFork(newPaths) else it } to true
                     }
                 }
@@ -942,18 +943,18 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
             }
             is SelectPathTutorialFork -> {
                 n.paths.forEachIndexed { i, sp ->
-                    val (inner, done) = duplicateNodeRec(tutorial, sp.pathNodes, targetId)
+                    val (_, done) = duplicateNodeRec(tutorial, sp.pathNodes, targetId)
                     if (done) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) SelectPathTutorialFork.SelectedPathTutorialFork(p.option, inner) else p }
+                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) SelectPathTutorialFork(newPaths) else p }
                         return nodes.map { if (it === n) SelectPathTutorialFork(newPaths) else it } to true
                     }
                 }
             }
             is OptionalTutorialFork -> {
                 n.paths.forEachIndexed { i, pair ->
-                    val (inner, done) = duplicateNodeRec(tutorial, pair.first, targetId)
+                    val (_, done) = duplicateNodeRec(tutorial, pair.first, targetId)
                     if (done) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) (inner to p.second) else p }
+                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) OptionalTutorialFork(newPaths) else p }
                         return nodes.map { if (it === n) OptionalTutorialFork(newPaths) else it } to true
                     }
                 }
