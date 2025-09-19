@@ -71,7 +71,13 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
     private var profileDependentDraft: Boolean = false
 
     // Node creation selector
-    private enum class NewNodeType { TEXT, GO_TO_ISLAND, TAG_ITEM, ASYNC_FORK }
+    private enum class NewNodeType {
+        TEXT,
+        GO_TO_ISLAND,
+        TAG_ITEM,
+        ASYNC_FORK
+    }
+
     private var pendingNodeType: NewNodeType? = null
 
     // Node-specific inputs
@@ -100,7 +106,9 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                     lastClipboardActionMs = now
                     SkyHanniMod.launchCoroutine {
                         val clip = OSUtils.readFromClipboard() ?: ""
-                        if (clip.isBlank()) { ChatUtils.chat("§cClipboard is empty"); return@launchCoroutine }
+                        if (clip.isBlank()) {
+                            ChatUtils.chat("§cClipboard is empty"); return@launchCoroutine
+                        }
                         val ok = ProfileStorageData.profileSpecific?.tutorialManager?.importTutorialFromJson(clip) ?: false
                         if (ok) {
                             TutorialOverlayDisplay.markDirty()
@@ -109,7 +117,8 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                     }
                 }
             }
-        } catch (_: Throwable) {}
+        } catch (_: Throwable) {
+        }
 
         val guiLeft = (width - sizeX) / 2
         val guiTop = (height - sizeY) / 2
@@ -199,10 +208,16 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
             // New: global root drop target
             list.add(
                 Renderable.droppable(
-                    display = Renderable.hoverTips("§7⇩ Drop here to move node to root", listOf("§7Drag a node handle and drop to append to root"), bypassChecks = true),
+                    display = Renderable.hoverTips(
+                        "§7⇩ Drop here to move node to root",
+                        listOf("§7Drag a node handle and drop to append to root"),
+                        bypassChecks = true,
+                    ),
                     drop = object : Droppable {
                         override fun validTarget(item: Any?): Boolean = item is NodeDrag
-                        override fun handle(drop: Any?) { val d = drop as? NodeDrag ?: return; moveNodeToRoot(tutorial, d.nodeId) }
+                        override fun handle(drop: Any?) {
+                            val d = drop as? NodeDrag ?: return; moveNodeToRoot(tutorial, d.nodeId)
+                        }
                     },
                     bypassChecks = true,
                 ),
@@ -382,10 +397,16 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         // New: header drop target to append to root
         header.add(
             Renderable.droppable(
-                display = Renderable.hoverTips("§8[ Drop node here to append to root ]", listOf("§7Drag a node handle and drop here"), bypassChecks = true),
+                display = Renderable.hoverTips(
+                    "§8[ Drop node here to append to root ]",
+                    listOf("§7Drag a node handle and drop here"),
+                    bypassChecks = true,
+                ),
                 drop = object : Droppable {
                     override fun validTarget(item: Any?): Boolean = item is NodeDrag
-                    override fun handle(drop: Any?) { val d = drop as? NodeDrag ?: return; moveNodeToRoot(tutorial, d.nodeId) }
+                    override fun handle(drop: Any?) {
+                        val d = drop as? NodeDrag ?: return; moveNodeToRoot(tutorial, d.nodeId)
+                    }
                 },
                 bypassChecks = true,
             ),
@@ -468,7 +489,13 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                     n.paths.forEachIndexed { pIdx, sp ->
                         val (inner, changed) = reorderRec(sp.pathNodes, movingId, targetId)
                         if (changed) {
-                            val newPaths = n.paths.mapIndexed { j, p -> if (j == pIdx) SelectPathTutorialFork.SelectedPathTutorialFork(p.option, inner) else p }
+                            val newPaths =
+                                n.paths.mapIndexed { j, p ->
+                                    if (j == pIdx) SelectPathTutorialFork.SelectedPathTutorialFork(
+                                        p.option,
+                                        inner,
+                                    ) else p
+                                }
                             val copy = nodes.toMutableList()
                             copy[idx] = SelectPathTutorialFork(newPaths)
                             return copy to true
@@ -497,8 +524,17 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         return Renderable.horizontal { add(Renderable.text(prefix)); children().forEach { add(it) } }
     }
 
-    private fun safeStepName(step: TutorialStep, tutorial: Tutorial): String = try { step.getStepName(tutorial) } catch (_: Throwable) { "Step" }
-    private fun safeStepDesc(step: TutorialStep, tutorial: Tutorial): String? = try { step.getStepDescription(tutorial) } catch (_: Throwable) { null }
+    private fun safeStepName(step: TutorialStep, tutorial: Tutorial): String = try {
+        step.getStepName(tutorial)
+    } catch (_: Throwable) {
+        "Step"
+    }
+
+    private fun safeStepDesc(step: TutorialStep, tutorial: Tutorial): String? = try {
+        step.getStepDescription(tutorial)
+    } catch (_: Throwable) {
+        null
+    }
 
     private fun buildDetails(tutorial: Tutorial, node: TutorialNode): List<Renderable> {
         val out = mutableListOf<Renderable>()
@@ -508,7 +544,13 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 val desc = safeStepDesc(node, tutorial)
                 if (!desc.isNullOrBlank()) out.add(Renderable.text("§7$desc"))
                 out.add(Renderable.text(" "))
-                if (!node.completed) out.add(Renderable.clickable("§cSkip this step", onLeftClick = { tutorial.skipNode(node); TutorialOverlayDisplay.markDirty() }, bypassChecks = true)) else out.add(Renderable.text("§aAlready completed"))
+                if (!node.completed) out.add(
+                    Renderable.clickable(
+                        "§cSkip this step",
+                        onLeftClick = { tutorial.skipNode(node); TutorialOverlayDisplay.markDirty() },
+                        bypassChecks = true,
+                    ),
+                ) else out.add(Renderable.text("§aAlready completed"))
                 when (node) {
                     is ReforgeTutorialStep -> {
                         out.add(Renderable.text("§eType: §fReforge"))
@@ -520,7 +562,8 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                         out.add(Renderable.text("§7Tagged Item: §f${node.item.tag}"))
                         if (node.enchantIds.isNotEmpty()) {
                             out.add(Renderable.text("§7Wanted Enchants:"))
-                            node.enchantIds.entries.sortedBy { it.key }.forEach { (id, lvl) -> out.add(Renderable.text("§7 - §f$id §8→ §f$lvl")) }
+                            node.enchantIds.entries.sortedBy { it.key }
+                                .forEach { (id, lvl) -> out.add(Renderable.text("§7 - §f$id §8→ §f$lvl")) }
                         }
                     }
                     is TagItemTutorialStep -> {
@@ -556,7 +599,15 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 val selected = tutorial.getSelectedOption(node.paths)
                 if (selected == null) {
                     out.add(Renderable.text("§6Waiting for path selection"))
-                    node.paths.forEach { opt -> out.add(Renderable.clickable("§eChoose: §f${opt.option.name}", onLeftClick = { tutorial.selectPath(opt.option.id); TutorialOverlayDisplay.markDirty() }, bypassChecks = true)) }
+                    node.paths.forEach { opt ->
+                        out.add(
+                            Renderable.clickable(
+                                "§eChoose: §f${opt.option.name}",
+                                onLeftClick = { tutorial.selectPath(opt.option.id); TutorialOverlayDisplay.markDirty() },
+                                bypassChecks = true,
+                            ),
+                        )
+                    }
                 } else out.add(Renderable.text("§aSelected: §f${selected.option.name}"))
                 out.add(Renderable.text(" "))
                 out.add(Renderable.text("§eAdd Child to Path:"))
@@ -565,7 +616,10 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                         Renderable.clickable(
                             "§7- §f${opt.option.name}",
                             tips = listOf(opt.option.guideMakerDescription ?: "§7No description"),
-                            onLeftClick = { addNodeMode = true; pendingNodeType = null; addTargetForkId = node.nodeId; addTargetPathIndex = idx },
+                            onLeftClick = {
+                                addNodeMode = true; pendingNodeType = null; addTargetForkId = node.nodeId; addTargetPathIndex =
+                                idx
+                            },
                         ),
                     )
                 }
@@ -583,7 +637,10 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                         Renderable.clickable(
                             "§7- §fOption ${idx + 1} $tag",
                             tips = listOf("§7Adds to this option"),
-                            onLeftClick = { addNodeMode = true; pendingNodeType = null; addTargetForkId = node.nodeId; addTargetPathIndex = idx },
+                            onLeftClick = {
+                                addNodeMode = true; pendingNodeType = null; addTargetForkId = node.nodeId; addTargetPathIndex =
+                                idx
+                            },
                         ),
                     )
                 }
@@ -604,7 +661,13 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
             is TutorialFork -> out.add(Renderable.text("§f${node.getHeader(tutorial)}"))
         }
         out.add(Renderable.text(" "))
-        out.add(Renderable.clickable("§7Clear selection", onLeftClick = { selectedNodeId = null; editNodeMode = false }, bypassChecks = true))
+        out.add(
+            Renderable.clickable(
+                "§7Clear selection",
+                onLeftClick = { selectedNodeId = null; editNodeMode = false },
+                bypassChecks = true,
+            ),
+        )
         return out
     }
 
@@ -626,7 +689,14 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 add(Renderable.textBox("", descInput, 260, bypassChecks = true))
             },
         )
-        out.add(Renderable.clickable("§7Profile dependent: ${if (profileDependentDraft) "§aYES" else "§cNO"}", tips = listOf("§7If on, progress is per-profile"), onLeftClick = { profileDependentDraft = !profileDependentDraft }, bypassChecks = true))
+        out.add(
+            Renderable.clickable(
+                "§7Profile dependent: ${if (profileDependentDraft) "§aYES" else "§cNO"}",
+                tips = listOf("§7If on, progress is per-profile"),
+                onLeftClick = { profileDependentDraft = !profileDependentDraft },
+                bypassChecks = true,
+            ),
+        )
         out.add(Renderable.text(" "))
         out.add(
             Renderable.horizontal(spacing = 8) {
@@ -634,13 +704,19 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                     Renderable.clickable(
                         Renderable.hoverTips("§aCreate", listOf("§7Create tutorial with given meta")),
                         onLeftClick = {
-                            val name = nameInput.finalText().trim(); val desc = descInput.finalText().trim()
+                            val name = nameInput.finalText().trim()
+                            val desc = descInput.finalText().trim()
                             if (name.isNotEmpty()) {
                                 val t = Tutorial(mutableListOf(), name, desc, profileDependentDraft)
                                 t.onLoad()
                                 ProfileStorageData.profileSpecific?.tutorialManager?.activeTutorial = t
                                 TutorialOverlayDisplay.markDirty()
-                                SkyHanniMod.launchCoroutine { SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "tutorial-create") }
+                                SkyHanniMod.launchCoroutine {
+                                    SkyHanniMod.configManager.saveConfig(
+                                        ConfigFileType.FEATURES,
+                                        "tutorial-create",
+                                    )
+                                }
                                 createTutorialMode = false
                             }
                         },
@@ -673,7 +749,14 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 add(Renderable.textBox("", descInput, 260, bypassChecks = true))
             },
         )
-        out.add(Renderable.clickable("§7Profile dependent: ${if (profileDependentDraft) "§aYES" else "§cNO"}", tips = listOf("§7If on, progress is per-profile"), onLeftClick = { profileDependentDraft = !profileDependentDraft }, bypassChecks = true))
+        out.add(
+            Renderable.clickable(
+                "§7Profile dependent: ${if (profileDependentDraft) "§aYES" else "§cNO"}",
+                tips = listOf("§7If on, progress is per-profile"),
+                onLeftClick = { profileDependentDraft = !profileDependentDraft },
+                bypassChecks = true,
+            ),
+        )
         out.add(Renderable.text(" "))
         out.add(
             Renderable.horizontal(spacing = 8) {
@@ -716,34 +799,93 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         if (pendingNodeType == null) {
             out.add(Renderable.text("§eChoose a node type:"))
             // Keep forms for these types
-            out.add(Renderable.clickable(Renderable.hoverTips("§fText Step", listOf("§7Custom instruction; manual skip"), bypassChecks = true), onLeftClick = { pendingNodeType = NewNodeType.TEXT }, bypassChecks = true))
-            out.add(Renderable.clickable(Renderable.hoverTips("§fGo To Island", listOf("§7Warp/select an island"), bypassChecks = true), onLeftClick = { pendingNodeType = NewNodeType.GO_TO_ISLAND }, bypassChecks = true))
-            out.add(Renderable.clickable(Renderable.hoverTips("§fTag Item", listOf("§7Ask user to tag an item"), bypassChecks = true), onLeftClick = { pendingNodeType = NewNodeType.TAG_ITEM }, bypassChecks = true))
-            out.add(Renderable.clickable(Renderable.hoverTips("§fAsync Fork", listOf("§7Parallel sub-steps"), bypassChecks = true), onLeftClick = { pendingNodeType = NewNodeType.ASYNC_FORK }, bypassChecks = true))
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips(
+                        "§fText Step",
+                        listOf("§7Custom instruction; manual skip"),
+                        bypassChecks = true,
+                    ),
+                    onLeftClick = { pendingNodeType = NewNodeType.TEXT }, bypassChecks = true,
+                ),
+            )
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips("§fGo To Island", listOf("§7Warp/select an island"), bypassChecks = true),
+                    onLeftClick = { pendingNodeType = NewNodeType.GO_TO_ISLAND },
+                    bypassChecks = true,
+                ),
+            )
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips("§fTag Item", listOf("§7Ask user to tag an item"), bypassChecks = true),
+                    onLeftClick = { pendingNodeType = NewNodeType.TAG_ITEM },
+                    bypassChecks = true,
+                ),
+            )
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips("§fAsync Fork", listOf("§7Parallel sub-steps"), bypassChecks = true),
+                    onLeftClick = { pendingNodeType = NewNodeType.ASYNC_FORK },
+                    bypassChecks = true,
+                ),
+            )
 
             // Quick-add common nodes with safe defaults
-            out.add(Renderable.clickable(Renderable.hoverTips("§fObtain (sample)", listOf("§7Adds a sample Obtain step using a placeholder tag"), bypassChecks = true), onLeftClick = {
-                val chk = TaggedItemCheck("Sample Item", "Placeholder sample item", "SAMPLE_TAG")
-                addNodeToTarget(tutorial, ObtainTutorialStep(chk))
-            }, bypassChecks = true))
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips(
+                        "§fObtain (sample)",
+                        listOf("§7Adds a sample Obtain step using a placeholder tag"),
+                        bypassChecks = true,
+                    ),
+                    onLeftClick = {
+                        val chk = TaggedItemCheck("Sample Item", "Placeholder sample item", "SAMPLE_TAG")
+                        addNodeToTarget(tutorial, ObtainTutorialStep(chk))
+                    },
+                    bypassChecks = true,
+                ),
+            )
 
-            out.add(Renderable.clickable(Renderable.hoverTips("§fObtain Coins", listOf("§7Adds a coin requirement step (1000)"), bypassChecks = true), onLeftClick = {
-                addNodeToTarget(tutorial, ObtainCoinsTutorialStep(1000))
-            }, bypassChecks = true))
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips("§fObtain Coins", listOf("§7Adds a coin requirement step (1000)"), bypassChecks = true),
+                    onLeftClick = {
+                        addNodeToTarget(tutorial, ObtainCoinsTutorialStep(1000))
+                    },
+                    bypassChecks = true,
+                ),
+            )
 
-            out.add(Renderable.clickable(Renderable.hoverTips("§fEnchant (sample)", listOf("§7Adds an Enchant step with empty enchant map"), bypassChecks = true), onLeftClick = {
-                val chk = TaggedItemCheck("Sample Item", "Placeholder", "SAMPLE_TAG")
-                addNodeToTarget(tutorial, EnchantTutorialStep(chk, emptyMap()))
-            }, bypassChecks = true))
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips(
+                        "§fEnchant (sample)",
+                        listOf("§7Adds an Enchant step with empty enchant map"),
+                        bypassChecks = true,
+                    ),
+                    onLeftClick = {
+                        val chk = TaggedItemCheck("Sample Item", "Placeholder", "SAMPLE_TAG")
+                        addNodeToTarget(tutorial, EnchantTutorialStep(chk, emptyMap()))
+                    },
+                    bypassChecks = true,
+                ),
+            )
 
-            out.add(Renderable.clickable(Renderable.hoverTips("§fReforge (sample)", listOf("§7Adds a Reforge step targeting 'Default'"), bypassChecks = true), onLeftClick = {
-                val chk = TaggedItemCheck("Sample Item", "Placeholder", "SAMPLE_TAG")
-                addNodeToTarget(tutorial, ReforgeTutorialStep(chk, "Default"))
-            }, bypassChecks = true))
-             out.add(Renderable.text(" "))
-             out.add(Renderable.clickable("§cBack", onLeftClick = { addNodeMode = false }))
-             return out
-         }
+            out.add(
+                Renderable.clickable(
+                    Renderable.hoverTips("§fReforge (sample)", listOf("§7Adds a Reforge step targeting 'Default'"), bypassChecks = true),
+                    onLeftClick = {
+                        val chk = TaggedItemCheck("Sample Item", "Placeholder", "SAMPLE_TAG")
+                        addNodeToTarget(tutorial, ReforgeTutorialStep(chk, "Default"))
+                    },
+                    bypassChecks = true,
+                ),
+            )
+            out.add(Renderable.text(" "))
+            out.add(Renderable.clickable("§cBack", onLeftClick = { addNodeMode = false }))
+            return out
+        }
         when (pendingNodeType) {
             NewNodeType.TEXT -> out.addAll(buildAddTextStepForm(tutorial))
             NewNodeType.GO_TO_ISLAND -> out.addAll(buildAddGoToIslandForm(tutorial))
@@ -757,18 +899,63 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
     private fun buildAddTextStepForm(tutorial: Tutorial): List<Renderable> {
         val out = mutableListOf<Renderable>()
         out.add(Renderable.text("§fNew Text Step"))
-        out.add(Renderable.searchBox(Renderable.text(""), "§7Title: §f", {}, textStepNameInput, hideIfNoText = false, ySpacing = 4, bypassChecks = true))
-        out.add(SuggestionDropdown.below(textStepNameInput, optionsProvider = { SuggestionProviders.filterContains(SuggestionProviders.titlesFromTutorial(tutorial), textStepNameInput.finalText()) }))
-        out.add(Renderable.searchBox(Renderable.text(""), "§7Description: §f", {}, textStepDescInput, hideIfNoText = false, ySpacing = 4, bypassChecks = true))
-        out.add(SuggestionDropdown.below(textStepDescInput, optionsProvider = { SuggestionProviders.filterContains(SuggestionProviders.descriptionsFromTutorial(tutorial), textStepDescInput.finalText()) }))
+        out.add(
+            Renderable.searchBox(
+                Renderable.text(""),
+                "§7Title: §f",
+                {},
+                textStepNameInput,
+                hideIfNoText = false,
+                ySpacing = 4,
+                bypassChecks = true,
+            ),
+        )
+        out.add(
+            SuggestionDropdown.below(
+                textStepNameInput,
+                optionsProvider = {
+                    SuggestionProviders.filterContains(
+                        SuggestionProviders.titlesFromTutorial(tutorial),
+                        textStepNameInput.finalText(),
+                    )
+                },
+            ),
+        )
+        out.add(
+            Renderable.searchBox(
+                Renderable.text(""),
+                "§7Description: §f",
+                {},
+                textStepDescInput,
+                hideIfNoText = false,
+                ySpacing = 4,
+                bypassChecks = true,
+            ),
+        )
+        out.add(
+            SuggestionDropdown.below(
+                textStepDescInput,
+                optionsProvider = {
+                    SuggestionProviders.filterContains(
+                        SuggestionProviders.descriptionsFromTutorial(tutorial),
+                        textStepDescInput.finalText(),
+                    )
+                },
+            ),
+        )
         out.add(Renderable.text(" "))
         out.add(
             Renderable.horizontal(spacing = 8) {
-                add(Renderable.clickable("§aAdd", onLeftClick = {
-                    val name = textStepNameInput.finalText().trim().ifEmpty { "Instruction" }
-                    val desc = textStepDescInput.finalText().trim()
-                    addNodeToTarget(tutorial, TextTutorialStep(name, desc))
-                }))
+                add(
+                    Renderable.clickable(
+                        "§aAdd",
+                        onLeftClick = {
+                            val name = textStepNameInput.finalText().trim().ifEmpty { "Instruction" }
+                            val desc = textStepDescInput.finalText().trim()
+                            addNodeToTarget(tutorial, TextTutorialStep(name, desc))
+                        },
+                    ),
+                )
                 add(Renderable.clickable("§cBack", onLeftClick = { pendingNodeType = null }))
             },
         )
@@ -779,12 +966,24 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         val out = mutableListOf<Renderable>()
         out.add(Renderable.text("§fNew 'Go To Island' Step"))
         val content: Map<List<Renderable>, String?> = Islands.entries.associate { isl ->
-            val label = Renderable.hoverTips("§f${isl.getDisplayName()}", listOf("§7Key: §f${isl.name}", isl.warpArgument?.let { "§7Warp: §f/$it" } ?: "§7No warp"), bypassChecks = true)
+            val label =
+                Renderable.hoverTips(
+                    "§f${isl.getDisplayName()}",
+                    listOf("§7Key: §f${isl.name}", isl.warpArgument?.let { "§7Warp: §f/$it" } ?: "§7No warp"),
+                    bypassChecks = true,
+                )
             listOf(Renderable.text("§7• "), label) to isl.getDisplayName()
         }
         out.add(
             Renderable.searchBox(
-                content = Renderable.searchableScrollTable(content, height = 120, textInput = islandInput, key = 31, xSpacing = 4, ySpacing = 1),
+                content = Renderable.searchableScrollTable(
+                    content,
+                    height = 120,
+                    textInput = islandInput,
+                    key = 31,
+                    xSpacing = 4,
+                    ySpacing = 1,
+                ),
                 searchPrefix = "§7Filter: §f",
                 onUpdateSize = {},
                 textInput = islandInput,
@@ -793,20 +992,30 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 bypassChecks = true,
             ),
         )
-        out.add(SuggestionDropdown.below(islandInput, optionsProvider = { SuggestionProviders.filterContains(SuggestionProviders.islands(), islandInput.finalText()) }))
+        out.add(
+            SuggestionDropdown.below(
+                islandInput,
+                optionsProvider = { SuggestionProviders.filterContains(SuggestionProviders.islands(), islandInput.finalText()) },
+            ),
+        )
         out.add(Renderable.text(" "))
         out.add(Renderable.text("§7Tip: Click an island in the list to select"))
         out.add(
             Renderable.horizontal(spacing = 8) {
-                add(Renderable.clickable("§aAdd with selected", tips = listOf("§7Adds if filter uniquely matches"), onLeftClick = {
-                    val q = islandInput.finalText().trim().lowercase()
-                    val matches = Islands.entries.filter { isl ->
-                        isl.getDisplayName().lowercase().contains(q) || isl.name.lowercase().contains(q)
-                    }
-                    if (matches.size == 1) {
-                        addNodeToTarget(tutorial, GoToIslandTutorialStep(matches.first()))
-                    }
-                }))
+                add(
+                    Renderable.clickable(
+                        "§aAdd with selected", tips = listOf("§7Adds if filter uniquely matches"),
+                        onLeftClick = {
+                            val q = islandInput.finalText().trim().lowercase()
+                            val matches = Islands.entries.filter { isl ->
+                                isl.getDisplayName().lowercase().contains(q) || isl.name.lowercase().contains(q)
+                            }
+                            if (matches.size == 1) {
+                                addNodeToTarget(tutorial, GoToIslandTutorialStep(matches.first()))
+                            }
+                        },
+                    ),
+                )
                 add(Renderable.clickable("§cBack", onLeftClick = { pendingNodeType = null }))
             },
         )
@@ -820,7 +1029,14 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         val content: Map<List<Renderable>, String?> = tags.associate { tag -> listOf(Renderable.text("§7• §f$tag")) to tag }
         out.add(
             Renderable.searchBox(
-                content = Renderable.searchableScrollTable(content, height = 80, textInput = tagNameInput, key = 41, xSpacing = 2, ySpacing = 0),
+                content = Renderable.searchableScrollTable(
+                    content,
+                    height = 80,
+                    textInput = tagNameInput,
+                    key = 41,
+                    xSpacing = 2,
+                    ySpacing = 0,
+                ),
                 searchPrefix = "§7Tag Name: §f",
                 onUpdateSize = {},
                 textInput = tagNameInput,
@@ -829,16 +1045,40 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 bypassChecks = true,
             ),
         )
-        out.add(SuggestionDropdown.below(tagNameInput, optionsProvider = { SuggestionProviders.filterContains(SuggestionProviders.tagNames() + SuggestionProviders.tagNamesFromSteps(tutorial), tagNameInput.finalText()) }))
-        out.add(Renderable.searchBox(Renderable.text(""), "§7Explanation: §f", {}, tagExplInput, hideIfNoText = false, ySpacing = 4, bypassChecks = true))
+        out.add(
+            SuggestionDropdown.below(
+                tagNameInput,
+                optionsProvider = {
+                    SuggestionProviders.filterContains(
+                        SuggestionProviders.tagNames() + SuggestionProviders.tagNamesFromSteps(tutorial), tagNameInput.finalText(),
+                    )
+                },
+            ),
+        )
+        out.add(
+            Renderable.searchBox(
+                Renderable.text(""),
+                "§7Explanation: §f",
+                {},
+                tagExplInput,
+                hideIfNoText = false,
+                ySpacing = 4,
+                bypassChecks = true,
+            ),
+        )
         out.add(Renderable.text(" "))
         out.add(
             Renderable.horizontal(spacing = 8) {
-                add(Renderable.clickable("§aAdd", onLeftClick = {
-                    val tag = tagNameInput.finalText().trim()
-                    val expl = tagExplInput.finalText().trim().ifEmpty { "Tag your item so later steps can reference it" }
-                    if (tag.isNotEmpty()) addNodeToTarget(tutorial, TagItemTutorialStep(tag, expl))
-                }))
+                add(
+                    Renderable.clickable(
+                        "§aAdd",
+                        onLeftClick = {
+                            val tag = tagNameInput.finalText().trim()
+                            val expl = tagExplInput.finalText().trim().ifEmpty { "Tag your item so later steps can reference it" }
+                            if (tag.isNotEmpty()) addNodeToTarget(tutorial, TagItemTutorialStep(tag, expl))
+                        },
+                    ),
+                )
                 add(Renderable.clickable("§cBack", onLeftClick = { pendingNodeType = null }))
             },
         )
@@ -852,7 +1092,14 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         out.add(Renderable.text(" "))
         out.add(
             Renderable.horizontal(spacing = 8) {
-                add(Renderable.clickable("§aAdd", tips = listOf("§7Create async fork"), onLeftClick = { addNodeToTarget(tutorial, AsyncTutorialFork(emptyList())) }, bypassChecks = true))
+                add(
+                    Renderable.clickable(
+                        "§aAdd",
+                        tips = listOf("§7Create async fork"),
+                        onLeftClick = { addNodeToTarget(tutorial, AsyncTutorialFork(emptyList())) },
+                        bypassChecks = true,
+                    ),
+                )
                 add(Renderable.clickable("§cBack", onLeftClick = { pendingNodeType = null }, bypassChecks = true))
             },
         )
@@ -860,8 +1107,17 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
     }
 
     private fun addNodeToTarget(tutorial: Tutorial, node: TutorialNode) {
-        try { node.populateNodeIds(tutorial) } catch (_: Throwable) {}
-        val newSteps = if (addTargetForkId == null) tutorial.steps.toMutableList().apply { add(node) } else TutorialTreeOps.addNodeInsideFork(tutorial.steps, addTargetForkId!!, addTargetPathIndex ?: 0, node)
+        try {
+            node.populateNodeIds(tutorial)
+        } catch (_: Throwable) {
+        }
+        val newSteps =
+            if (addTargetForkId == null) tutorial.steps.toMutableList().apply { add(node) } else TutorialTreeOps.addNodeInsideFork(
+                tutorial.steps,
+                addTargetForkId!!,
+                addTargetPathIndex ?: 0,
+                node,
+            )
         applyNewSteps(tutorial, newSteps)
         addNodeMode = false
         pendingNodeType = null
@@ -889,37 +1145,48 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
             }
             return nodes to false
         }
-        for (n in nodes) when (n) {
-            is AsyncTutorialFork -> {
-                val (inner, moved) = moveNodeRec(n.pathNodes, delta, targetId)
-                if (moved) return AsyncTutorialFork(inner).let { nodes.map { if (it === n) it.copyAsync(inner) else it } } to true
-            }
-            is SelectPathTutorialFork -> {
-                n.paths.forEachIndexed { i, sp ->
-                    val (_, moved) = moveNodeRec(sp.pathNodes, delta, targetId)
+        for (i in nodes.indices) {
+            when (val n = nodes[i]) {
+                is AsyncTutorialFork -> {
+                    val (inner, moved) = moveNodeRec(n.pathNodes, delta, targetId)
                     if (moved) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) SelectPathTutorialFork(newPaths) else p }
-                        return nodes.map { if (it === n) SelectPathTutorialFork(newPaths) else it } to true
+                        val copy = nodes.toMutableList()
+                        copy[i] = AsyncTutorialFork(inner)
+                        return copy to true
                     }
                 }
-            }
-            is OptionalTutorialFork -> {
-                n.paths.forEachIndexed { i, pair ->
-                    val (_, moved) = moveNodeRec(pair.first, delta, targetId)
-                    if (moved) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) OptionalTutorialFork(newPaths) else p }
-                        return nodes.map { if (it === n) OptionalTutorialFork(newPaths) else it } to true
+                is SelectPathTutorialFork -> {
+                    n.paths.forEachIndexed { pIdx, sp ->
+                        val (inner, moved) = moveNodeRec(sp.pathNodes, delta, targetId)
+                        if (moved) {
+                            val newPaths =
+                                n.paths.mapIndexed { j, p ->
+                                    if (j == pIdx) SelectPathTutorialFork.SelectedPathTutorialFork(
+                                        p.option,
+                                        inner,
+                                    ) else p
+                                }
+                            val copy = nodes.toMutableList()
+                            copy[i] = SelectPathTutorialFork(newPaths)
+                            return copy to true
+                        }
                     }
                 }
+                is OptionalTutorialFork -> {
+                    n.paths.forEachIndexed { pIdx, pair ->
+                        val (inner, moved) = moveNodeRec(pair.first, delta, targetId)
+                        if (moved) {
+                            val newPaths = n.paths.mapIndexed { j, p -> if (j == pIdx) (inner to p.second) else p }
+                            val copy = nodes.toMutableList()
+                            copy[i] = OptionalTutorialFork(newPaths)
+                            return copy to true
+                        }
+                    }
+                }
+                else -> {}
             }
-            else -> {}
         }
         return nodes to false
-    }
-
-    private fun TutorialNode.copyAsync(newChildren: List<TutorialNode>): TutorialNode = when (this) {
-        is AsyncTutorialFork -> AsyncTutorialFork(newChildren)
-        else -> this
     }
 
     private fun duplicateNodeInTree(tutorial: Tutorial, targetId: String): Boolean {
@@ -936,30 +1203,47 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
             copy.add(idx + 1, dup)
             return copy to true
         }
-        for (n in nodes) when (n) {
-            is AsyncTutorialFork -> {
-                val (inner, done) = duplicateNodeRec(tutorial, n.pathNodes, targetId)
-                if (done) return nodes.map { if (it === n) AsyncTutorialFork(inner) else it } to true
-            }
-            is SelectPathTutorialFork -> {
-                n.paths.forEachIndexed { i, sp ->
-                    val (_, done) = duplicateNodeRec(tutorial, sp.pathNodes, targetId)
+
+        for (i in nodes.indices) {
+            when (val n = nodes[i]) {
+                is AsyncTutorialFork -> {
+                    val (inner, done) = duplicateNodeRec(tutorial, n.pathNodes, targetId)
                     if (done) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) SelectPathTutorialFork(newPaths) else p }
-                        return nodes.map { if (it === n) SelectPathTutorialFork(newPaths) else it } to true
+                        val copy = nodes.toMutableList()
+                        copy[i] = AsyncTutorialFork(inner)
+                        return copy to true
                     }
                 }
-            }
-            is OptionalTutorialFork -> {
-                n.paths.forEachIndexed { i, pair ->
-                    val (_, done) = duplicateNodeRec(tutorial, pair.first, targetId)
-                    if (done) {
-                        val newPaths = n.paths.mapIndexed { j, p -> if (j == i) OptionalTutorialFork(newPaths) else p }
-                        return nodes.map { if (it === n) OptionalTutorialFork(newPaths) else it } to true
+                is SelectPathTutorialFork -> {
+                    n.paths.forEachIndexed { pIdx, sp ->
+                        val (inner, done) = duplicateNodeRec(tutorial, sp.pathNodes, targetId)
+                        if (done) {
+                            val newPaths =
+                                n.paths.mapIndexed { j, p ->
+                                    if (j == pIdx) SelectPathTutorialFork.SelectedPathTutorialFork(
+                                        p.option,
+                                        inner,
+                                    ) else p
+                                }
+                            val copy = nodes.toMutableList()
+                            copy[i] = SelectPathTutorialFork(newPaths)
+                            return copy to true
+                        }
                     }
                 }
+                is OptionalTutorialFork -> {
+                    n.paths.forEachIndexed { pIdx, pair ->
+                        val (inner, done) = duplicateNodeRec(tutorial, pair.first, targetId)
+                        if (done) {
+                            val newPaths = n.paths.mapIndexed { j, p -> if (j == pIdx) (inner to p.second) else p }
+                            val copy = nodes.toMutableList()
+                            copy[i] = OptionalTutorialFork(newPaths)
+                            return copy to true
+                        }
+                    }
+                }
+                else -> {}
             }
-            else -> {}
         }
         return nodes to false
     }
@@ -970,9 +1254,18 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         is GoToIslandTutorialStep -> GoToIslandTutorialStep(node.island).also { it.populateNodeIds(tutorial) }
         is ReforgeTutorialStep -> ReforgeTutorialStep(node.item, node.reforgeName).also { it.populateNodeIds(tutorial) }
         is EnchantTutorialStep -> EnchantTutorialStep(node.item, node.enchantIds.toMap()).also { it.populateNodeIds(tutorial) }
-        is AsyncTutorialFork -> AsyncTutorialFork(node.pathNodes.mapNotNull { duplicateNode(tutorial, it) }).also { it.populateNodeIds(tutorial) }
+        is AsyncTutorialFork -> AsyncTutorialFork(node.pathNodes.mapNotNull { duplicateNode(tutorial, it) }).also {
+            it.populateNodeIds(
+                tutorial,
+            )
+        }
         is SelectPathTutorialFork -> SelectPathTutorialFork(
-            node.paths.map { sp -> SelectPathTutorialFork.SelectedPathTutorialFork(sp.option, sp.pathNodes.mapNotNull { duplicateNode(tutorial, it) }) },
+            node.paths.map { sp ->
+                SelectPathTutorialFork.SelectedPathTutorialFork(
+                    sp.option,
+                    sp.pathNodes.mapNotNull { duplicateNode(tutorial, it) },
+                )
+            },
         ).also { it.populateNodeIds(tutorial) }
         is OptionalTutorialFork -> OptionalTutorialFork(
             node.paths.map { (path, hidden) -> path.mapNotNull { duplicateNode(tutorial, it) } to hidden },
@@ -1057,7 +1350,11 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                     val recSuffix = if (markNextAsRequiresAsync || pendingAsync) " §b(§e⚑ needs async§b)" else ""
                     val lineContent = lineWithIndent(indent) { listOf(Renderable.text(bullet), Renderable.text(" §f$name$recSuffix")) }
                     val clickableRow = Renderable.clickable(
-                        Renderable.hoverTips(lineContent, listOf("§7Left-click to select", "§7Right panel shows details & actions"), bypassChecks = true),
+                        Renderable.hoverTips(
+                            lineContent,
+                            listOf("§7Left-click to select", "§7Right panel shows details & actions"),
+                            bypassChecks = true,
+                        ),
                         onLeftClick = { selectedNodeId = node.nodeId },
                         bypassChecks = true,
                     )
@@ -1087,18 +1384,27 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                             }
                             lines.add(wrapDroppableRow(tutorial, rowWithHandle, node.nodeId, siblingIds))
                             // New: droppable zone to move a node into this async fork
-                            lines.add(lineWithIndent(indent + 1) {
-                                listOf(
-                                    Renderable.droppable(
-                                        display = Renderable.hoverTips("§8[ Drop node here to move into this async ]", listOf("§7Appends to async group"), bypassChecks = true),
-                                        drop = object : Droppable {
-                                            override fun validTarget(item: Any?): Boolean = item is NodeDrag
-                                            override fun handle(drop: Any?) { val d = drop as? NodeDrag ?: return; moveNodeIntoAsync(tutorial, node.nodeId, d.nodeId) }
-                                        },
-                                        bypassChecks = true,
-                                    ),
-                                )
-                            })
+                            lines.add(
+                                lineWithIndent(indent + 1) {
+                                    listOf(
+                                        Renderable.droppable(
+                                            display = Renderable.hoverTips(
+                                                "§8[ Drop node here to move into this async ]",
+                                                listOf("§7Appends to async group"),
+                                                bypassChecks = true,
+                                            ),
+                                            drop = object : Droppable {
+                                                override fun validTarget(item: Any?): Boolean = item is NodeDrag
+                                                override fun handle(drop: Any?) {
+                                                    val d = drop as? NodeDrag ?: return
+                                                    moveNodeIntoAsync(tutorial, node.nodeId, d.nodeId)
+                                                }
+                                            },
+                                            bypassChecks = true,
+                                        ),
+                                    )
+                                },
+                            )
                             lines.addAll(buildNodesList(tutorial, node.getNodes(tutorial), indent + 1, markNextAsRequiresAsync))
                             pendingAsync = true
                         }
@@ -1126,7 +1432,14 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                                             display = headerRow,
                                             drop = object : Droppable {
                                                 override fun validTarget(item: Any?): Boolean = item is NodeDrag
-                                                override fun handle(drop: Any?) { val d = drop as? NodeDrag ?: return; moveNodeIntoOptional(tutorial, node.nodeId, pathIndex, d.nodeId) }
+                                                override fun handle(drop: Any?) {
+                                                    val d = drop as? NodeDrag ?: return; moveNodeIntoOptional(
+                                                        tutorial,
+                                                        node.nodeId,
+                                                        pathIndex,
+                                                        d.nodeId,
+                                                    )
+                                                }
                                             },
                                             bypassChecks = true,
                                         ),
@@ -1144,15 +1457,23 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                                     onLeftClick = { selectedNodeId = node.nodeId },
                                     bypassChecks = true,
                                 )
-                                val rowWithHandle = Renderable.horizontal(spacing = 2) { add(makeDragHandle(node.nodeId, node.getHeader(tutorial))); add(clickableRow) }
+                                val rowWithHandle =
+                                    Renderable.horizontal(spacing = 2) {
+                                        add(makeDragHandle(node.nodeId, node.getHeader(tutorial))); add(clickableRow)
+                                    }
                                 lines.add(wrapDroppableRow(tutorial, rowWithHandle, node.nodeId, siblingIds))
                                 node.paths.forEachIndexed { idx, opt ->
-                                    val row = lineWithIndent(indent + 1) { listOf(Renderable.text("§e• §f${opt.option.name} §7(click to choose)")) }
+                                    val row =
+                                        lineWithIndent(indent + 1) { listOf(Renderable.text("§e• §f${opt.option.name} §7(click to choose)")) }
                                     // New: droppable into this selectable path
                                     lines.add(
                                         Renderable.droppable(
                                             display = Renderable.clickable(
-                                                Renderable.hoverTips(row, listOf(opt.option.guideMakerDescription ?: "§7No description"), bypassChecks = true),
+                                                Renderable.hoverTips(
+                                                    row,
+                                                    listOf(opt.option.guideMakerDescription ?: "§7No description"),
+                                                    bypassChecks = true,
+                                                ),
                                                 onLeftClick = {
                                                     tutorial.selectPath(opt.option.id)
                                                     TutorialOverlayDisplay.markDirty()
@@ -1162,20 +1483,35 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                                             ),
                                             drop = object : Droppable {
                                                 override fun validTarget(item: Any?): Boolean = item is NodeDrag
-                                                override fun handle(drop: Any?) { val d = drop as? NodeDrag ?: return; moveNodeIntoSelectPath(tutorial, node.nodeId, idx, d.nodeId) }
+                                                override fun handle(drop: Any?) {
+                                                    val d = drop as? NodeDrag ?: return; moveNodeIntoSelectPath(
+                                                        tutorial,
+                                                        node.nodeId,
+                                                        idx,
+                                                        d.nodeId,
+                                                    )
+                                                }
                                             },
                                             bypassChecks = true,
                                         ),
                                     )
                                 }
                             } else {
-                                val header = lineWithIndent(indent) { listOf(Renderable.text("§a◆ §2Selected Path: §f${selected.option.name}")) }
+                                val header =
+                                    lineWithIndent(indent) { listOf(Renderable.text("§a◆ §2Selected Path: §f${selected.option.name}")) }
                                 val clickableRow = Renderable.clickable(
-                                    Renderable.hoverTips(header, listOf(selected.option.guideMakerDescription ?: "§7Selected path"), bypassChecks = true),
+                                    Renderable.hoverTips(
+                                        header,
+                                        listOf(selected.option.guideMakerDescription ?: "§7Selected path"),
+                                        bypassChecks = true,
+                                    ),
                                     onLeftClick = { selectedNodeId = node.nodeId },
                                     bypassChecks = true,
                                 )
-                                val rowWithHandle = Renderable.horizontal(spacing = 2) { add(makeDragHandle(node.nodeId, node.getHeader(tutorial))); add(clickableRow) }
+                                val rowWithHandle =
+                                    Renderable.horizontal(spacing = 2) {
+                                        add(makeDragHandle(node.nodeId, node.getHeader(tutorial))); add(clickableRow)
+                                    }
                                 lines.add(wrapDroppableRow(tutorial, rowWithHandle, node.nodeId, siblingIds))
                                 // New: droppable into the selected path
                                 lines.add(
@@ -1183,7 +1519,16 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                                         display = lineWithIndent(indent + 1) { listOf(Renderable.text("§8[ Drop node here to move into selected path ]")) },
                                         drop = object : Droppable {
                                             override fun validTarget(item: Any?): Boolean = item is NodeDrag
-                                            override fun handle(drop: Any?) { val d = drop as? NodeDrag ?: return; val idx = node.paths.indexOfFirst { it.option.id == selected.option.id }; if (idx != -1) moveNodeIntoSelectPath(tutorial, node.nodeId, idx, d.nodeId) }
+                                            override fun handle(drop: Any?) {
+                                                val d = drop as? NodeDrag ?: return
+                                                val idx =
+                                                    node.paths.indexOfFirst { it.option.id == selected.option.id }; if (idx != -1) moveNodeIntoSelectPath(
+                                                    tutorial,
+                                                    node.nodeId,
+                                                    idx,
+                                                    d.nodeId,
+                                                )
+                                            }
                                         },
                                         bypassChecks = true,
                                     ),
@@ -1217,19 +1562,22 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         val (without, removed) = TutorialTreeOps.extractNodeById(tutorial.steps, movingId)
         if (removed != null) applyNewSteps(tutorial, without.toMutableList().apply { add(removed) })
     }
+
     private fun moveNodeIntoAsync(tutorial: Tutorial, forkId: String, movingId: String) {
         val (without, removed) = TutorialTreeOps.extractNodeById(tutorial.steps, movingId)
-        if (removed != null) TutorialTreeOps.addNodeInsideForkWithResult(without, forkId, 0, removed).also { (added, ok) -> if (ok) applyNewSteps(tutorial, added) }
-    }
-    private fun moveNodeIntoSelectPath(tutorial: Tutorial, forkId: String, pathIndex: Int, movingId: String) {
-        val (without, removed) = TutorialTreeOps.extractNodeById(tutorial.steps, movingId)
-        if (removed != null) TutorialTreeOps.addNodeInsideForkWithResult(without, forkId, pathIndex, removed).also { (added, ok) -> if (ok) applyNewSteps(tutorial, added) }
-    }
-    private fun moveNodeIntoOptional(tutorial: Tutorial, forkId: String, pathIndex: Int, movingId: String) {
-        val (without, removed) = TutorialTreeOps.extractNodeById(tutorial.steps, movingId)
-        if (removed != null) TutorialTreeOps.addNodeInsideForkWithResult(without, forkId, pathIndex, removed).also { (added, ok) -> if (ok) applyNewSteps(tutorial, added) }
+        if (removed != null) TutorialTreeOps.addNodeInsideForkWithResult(without, forkId, 0, removed)
+            .also { (added, ok) -> if (ok) applyNewSteps(tutorial, added) }
     }
 
-    // ...existing code...
+    private fun moveNodeIntoSelectPath(tutorial: Tutorial, forkId: String, pathIndex: Int, movingId: String) {
+        val (without, removed) = TutorialTreeOps.extractNodeById(tutorial.steps, movingId)
+        if (removed != null) TutorialTreeOps.addNodeInsideForkWithResult(without, forkId, pathIndex, removed)
+            .also { (added, ok) -> if (ok) applyNewSteps(tutorial, added) }
+    }
+
+    private fun moveNodeIntoOptional(tutorial: Tutorial, forkId: String, pathIndex: Int, movingId: String) {
+        val (without, removed) = TutorialTreeOps.extractNodeById(tutorial.steps, movingId)
+        if (removed != null) TutorialTreeOps.addNodeInsideForkWithResult(without, forkId, pathIndex, removed)
+            .also { (added, ok) -> if (ok) applyNewSteps(tutorial, added) }
+    }
 }
-//pre processor test
