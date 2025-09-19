@@ -6,6 +6,7 @@ import at.hannibal2.skyhanni.events.CollectionUpdateEvent
 import at.hannibal2.skyhanni.events.InventoryFullyOpenedEvent
 import at.hannibal2.skyhanni.events.ItemAddEvent
 import at.hannibal2.skyhanni.events.ProfileJoinEvent
+import at.hannibal2.skyhanni.features.misc.CollectionTracker
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.InventoryDetector
@@ -23,6 +24,8 @@ import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrPut
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
+import de.hype.bingonet.environment.NeuEnvironmentRepo
+import de.hype.bingonet.shared.constants.Collections
 
 @SkyHanniModule
 object CollectionApi {
@@ -169,4 +172,13 @@ object CollectionApi {
     fun isCollectionTier0(lore: List<String>) = lore.any { collectionTier0Pattern.matches(it) }
     fun NeuInternalName.getCorrectedName() = incorrectCollectionNames.getOrElse(this) { this }
     fun getCollectionCounter(internalName: NeuInternalName): Long? = collectionValue[internalName]
+
+    fun startTracking(collection: Collections, goalAmount: Long = -1L) {
+        val internal: NeuInternalName = NeuEnvironmentRepo.getFromSBName(collection.id)
+        CollectionTracker.startTrackingByInternalName(internal, goalAmount)
+    }
+
+    fun stopTracking() {
+        CollectionTracker.resetTracking()
+    }
 }

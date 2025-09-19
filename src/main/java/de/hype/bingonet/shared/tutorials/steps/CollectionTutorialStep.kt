@@ -15,15 +15,15 @@ class CollectionTutorialStep(
     }
 
     override fun onActivate(tutorial: Tutorial) {
-        de.hype.bingonet.shared.api.CollectionAPI.startTracking(collection, amount.toLong())
+        CollectionApi.startTracking(collection, amount.toLong())
     }
 
     override fun onDeactivate(tutorial: Tutorial) {
-        de.hype.bingonet.shared.api.CollectionAPI.stopTracking()
+        CollectionApi.stopTracking()
     }
 
     override fun onReset(tutorial: Tutorial) {
-        de.hype.bingonet.shared.api.CollectionAPI.stopTracking()
+        CollectionApi.stopTracking()
     }
 
     override fun getStepDescription(tutorial: Tutorial): String? {
