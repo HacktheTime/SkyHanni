@@ -1,6 +1,5 @@
 package de.hype.bingonet.shared.objects
 
-import de.hype.bingonet.server.objects.BBUser
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.constants.TradeType
 import java.time.Instant
@@ -23,7 +22,7 @@ data class BBServiceData(
 
 
     data class Participant(
-        @JvmField val user: BBUser,
+        @JvmField val user: BNUser,
         @JvmField val price: Int,
         @JvmField val priority: Boolean = false,
         @JvmField val joinTime: Instant = Instant.now(),
@@ -31,7 +30,7 @@ data class BBServiceData(
     ) {
         override fun equals(other: Any?): Boolean {
             if (other is Participant) return other.user == user
-            if (other is BBUser) return other == this.user
+            if (other is BNUser) return other == this.user
             return false
         }
 
@@ -41,15 +40,15 @@ data class BBServiceData(
     }
 
     class Helper {
-        private val user: BBUser?
+        private val user: BNUser?
         private val username: String?
 
-        constructor(user: BBUser) {
+        constructor(user: BNUser) {
             this.user = user
             this.username = user.mcusername
         }
 
-        constructor(user: BBUser?, username: String) {
+        constructor(user: BNUser?, username: String) {
             this.user = user
             this.username = username
         }
@@ -60,7 +59,7 @@ data class BBServiceData(
                 if (username != null) return other.equals(username, ignoreCase = true)
                 else return user!!.mcusername.equals(other, ignoreCase = true)
             }
-            if (other is BBUser) {
+            if (other is BNUser) {
                 if (user != null) return other == user
                 else return other.mcusername.equals(username, ignoreCase = true)
             }
@@ -76,7 +75,7 @@ data class BBServiceData(
             return username ?: user!!.mcusername
         }
 
-        fun getUser(): BBUser? {
+        fun getUser(): BNUser? {
             return user
         }
     }
