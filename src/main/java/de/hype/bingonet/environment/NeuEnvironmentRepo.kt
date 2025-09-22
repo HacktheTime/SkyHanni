@@ -43,7 +43,7 @@ fun MinionTypes.toShared(): MinionType {
     return EnoughUpdatesManager.getMinionType(this.name)!!
 }
 
-fun SkyblockItems.toShared(): BNNEUItem {
+fun SkyblockItems.toShared(): NeuInternalName {
     return this.itemId.toInternalName()
 }
 
