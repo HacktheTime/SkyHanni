@@ -3,6 +3,7 @@ package de.hype.bingonet.shared.tutorials.steps.itemstep
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
+import at.hannibal2.skyhanni.features.misc.items.enchants.Enchant
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.InventoryUtils.isTopInventory
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
@@ -29,7 +30,7 @@ class EnchantTutorialStep(
 ) : GUIBasedTutorialStep(Pattern.compile("Enchant Items")){
 
     constructor(
-        enchants: Map<at.hannibal2.skyhanni.features.misc.items.enchants.Enchant, Int>,
+        enchants: Map<Enchant, Int>,
         item: TaggedItemCheck,
     ): this(
         item, enchantIds = enchants.mapKeys { it.key.nbtName }
