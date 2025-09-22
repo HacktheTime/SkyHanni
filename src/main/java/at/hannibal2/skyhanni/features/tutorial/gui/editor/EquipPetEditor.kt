@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionDropdown
+import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
@@ -45,7 +46,7 @@ class EquipPetEditor : TutorialNodeEditor {
             Renderable.text(" "),
             Renderable.horizontal(spacing = 8) {
                 add(Renderable.clickable("§aSave", onLeftClick = {
-                    val pet = BNNEUItem(petInternalInput.finalText().trim())
+                    val pet = petInternalInput.finalText().trim().toInternalName()
                     val rarity = runCatching { Rarity.valueOf(rarityInput.finalText().trim().uppercase()) }.getOrElse { step.minimumPetRarity }
                     val newNode = EquipPetTutorialStep(pet, rarity)
                     try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}
