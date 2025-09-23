@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials
-
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
@@ -19,8 +18,7 @@ class Tutorial(
     // Selected route IDs for SelectPathTutorialForks
     private val selectedPathIds = mutableSetOf<String>()
 
-    // Cached renderable of the tree to avoid rebuilding each frame
-    private var cachedRenderable: Renderable? = null
+    
     private var cachedShowDescriptions: Boolean? = null
 
     fun reset() {
@@ -31,21 +29,7 @@ class Tutorial(
 
     val steps: List<TutorialNode> get() = _steps
 
-    fun getSelectedOption(options: List<SelectPathTutorialFork.SelectedPathTutorialFork>): SelectPathTutorialFork.SelectedPathTutorialFork? {
-        options.forEach { if (selectedPathIds.contains(it.option.id)) return it }
-        if (options.size == 1) return options.first()
-        ChatUtils.chat(
-            "§e[SkyHanni Tutorial]: The Currently loaded Tutorial has ${options.size} options for you to choose from on how to continue",
-            prefix = false,
-        )
-        options.forEach {
-            ChatUtils.clickableChat(
-                "§e[SkyHanni Tutorial]: ${it.option.name} : ${it.option.guideMakerDescription}",
-                { selectPath(it.option.id) },
-            )
-        }
-        return null
-    }
+    
 
     fun selectPath(optionId: String) {
         selectedPathIds.add(optionId)
@@ -107,19 +91,53 @@ class Tutorial(
     fun refresh() {
         _steps.forEach { it.refresh(this) }
         selectedPathIds.clear()
-        refreshCaches()
     }
 
     lateinit var requiredResources: Map<NeuInternalName, Double>
         private set
 
-    @HandleEvent
+    
+
+    
+
+    
+
+    private fun invalidateRenderable() {
+    }
+
+    private fun invalidateAndRebuild() {
+        cachedShowDescriptions
+        invalidateRenderable()
+    }
+
+    fun onLoad() {
+    }
+
+    
+
+fun getSelectedOption(options: List<SelectPathTutorialFork.SelectedPathTutorialFork>): SelectPathTutorialFork.SelectedPathTutorialFork? {
+        options.forEach { if (selectedPathIds.contains(it.option.id)) return it }
+        if (options.size == 1) return options.first()
+        ChatUtils.chat(
+            "§e[SkyHanni Tutorial]: The Currently loaded Tutorial has ${options.size} options for you to choose from on how to continue",
+            prefix = false,
+        )
+        options.forEach {
+            ChatUtils.clickableChat(
+                "§e[SkyHanni Tutorial]: ${it.option.name} : ${it.option.guideMakerDescription}",
+                { selectPath(it.option.id) },
+            )
+        }
+        return null
+    }
+
+@HandleEvent
     fun onTutorialStepComplete(event: TutorialStepCompleteEvent) {
         refreshCaches()
         invalidateAndRebuild()
     }
 
-    fun refreshCaches() {
+fun refreshCaches() {
         SkyHanniMod.feature.tutorials.protectResourcesAcrossPaths
         val contributors = allStepsFlatMap.filterIsInstance<ResourceContributor>()
         val pending = contributors.filter { step ->
@@ -135,7 +153,7 @@ class Tutorial(
         // todo: if includeAllPaths == true, incorporate optional path resource needs
     }
 
-    fun getRenderable(showDescriptions: Boolean): Renderable {
+fun getRenderable(showDescriptions: Boolean): Renderable {
         val cached = cachedRenderable
         if (cached != null && cachedShowDescriptions == showDescriptions) return cached
         val built = TutorialRenderableBuilder.build(this, showDescriptions)
@@ -144,25 +162,7 @@ class Tutorial(
         return built
     }
 
-    private fun invalidateRenderable() {
-        cachedRenderable = null
-    }
-
-    private fun invalidateAndRebuild() {
-        val show = cachedShowDescriptions
-        invalidateRenderable()
-        if (show != null) {
-            cachedRenderable = TutorialRenderableBuilder.build(this, show)
-            cachedShowDescriptions = show
-        }
-    }
-
-    fun onLoad() {
-        validate()
-        refreshCaches()
-    }
-
-    private fun validate() {
+private fun validate() {
         val errors = mutableListOf<String>()
         fun validateNode(node: TutorialNode) {
             errors += node.validate(this)
@@ -177,4 +177,7 @@ class Tutorial(
             errors.forEach { ChatUtils.chat("§7- $it", prefix = false) }
         }
     }
+
+// Cached renderable of the tree to avoid rebuilding each frame
+    private var cachedRenderable: Renderable? = null
 }

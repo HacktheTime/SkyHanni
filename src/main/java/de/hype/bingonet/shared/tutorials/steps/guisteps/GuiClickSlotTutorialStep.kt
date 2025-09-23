@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps.guisteps
-
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.utils.InventoryUtils
@@ -28,7 +27,11 @@ class GuiClickSlotTutorialStep(
 
     override fun isComplete(tutorial: Tutorial): Boolean = completed
 
-    @HandleEvent
+    
+
+    
+
+@HandleEvent
     fun onClick(event: GuiContainerEvent.SlotClickEvent) {
         if (ignoreEvent()) return
         val target = InventoryUtils.getItemsInOpenChestWithNull().getOrNull(slotIndex) ?: return
@@ -37,7 +40,7 @@ class GuiClickSlotTutorialStep(
         }
     }
 
-    @HandleEvent
+@HandleEvent
     fun highlightSlot(event: GuiContainerEvent.BackgroundDrawnEvent) {
         if (ignoreEvent()) return
         InventoryUtils.getItemsInOpenChestWithNull().getOrNull(slotIndex)?.highlight(

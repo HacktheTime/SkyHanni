@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps.misc
-
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.bingo.BingoGoalReachedEvent
 import at.hannibal2.skyhanni.features.bingo.BingoApi
@@ -23,22 +22,28 @@ class ObtainBingoGoalTutorialStep(
 
     override fun getRequirements(): List<TutorialNode> = emptyList()
 
-    override fun isComplete(tutorial: Tutorial): Boolean {
+    
+
+    
+
+    
+
+    override fun showOnActive() = showOnActive
+
+override fun isComplete(tutorial: Tutorial): Boolean {
         val goal = BingoApi.personalGoals.firstOrNull { it.displayName == displayName }
         return goal?.done == true || completed
     }
 
-    @HandleEvent
+@HandleEvent
     fun onBingoGoalCompleted(event: BingoGoalReachedEvent) {
         if (event.goal.displayName == displayName) complete()
     }
 
-    override fun onActivate(tutorial: Tutorial) {
+override fun onActivate(tutorial: Tutorial) {
         val goal = BingoApi.personalGoals.firstOrNull { it.displayName == displayName }
         if (goal?.done == true) {
             complete()
         }
     }
-
-    override fun showOnActive() = showOnActive
 }

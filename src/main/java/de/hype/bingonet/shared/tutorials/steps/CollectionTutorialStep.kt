@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps
-
 import at.hannibal2.skyhanni.api.CollectionApi
 import de.hype.bingonet.environment.NeuEnvironmentRepo
 import de.hype.bingonet.shared.constants.Collections
@@ -14,17 +13,11 @@ class CollectionTutorialStep(
         return "Obtain $amount ${collection.displayName}"
     }
 
-    override fun onActivate(tutorial: Tutorial) {
-        CollectionApi.startTracking(collection, amount.toLong())
-    }
+    
 
-    override fun onDeactivate(tutorial: Tutorial) {
-        CollectionApi.stopTracking()
-    }
+    
 
-    override fun onReset(tutorial: Tutorial) {
-        CollectionApi.stopTracking()
-    }
+    
 
     override fun getStepDescription(tutorial: Tutorial): String? {
         return null
@@ -32,7 +25,21 @@ class CollectionTutorialStep(
 
     override fun getRequirements(): List<de.hype.bingonet.shared.tutorials.TutorialNode> = emptyList()
 
-    override fun isComplete(tutorial: Tutorial): Boolean {
+    
+
+override fun onActivate(tutorial: Tutorial) {
+        CollectionApi.startTracking(collection, amount.toLong())
+    }
+
+override fun onDeactivate(tutorial: Tutorial) {
+        CollectionApi.stopTracking()
+    }
+
+override fun onReset(tutorial: Tutorial) {
+        CollectionApi.stopTracking()
+    }
+
+override fun isComplete(tutorial: Tutorial): Boolean {
         val internal = NeuEnvironmentRepo.getFromSBName(collection.id)
         val current = CollectionApi.getCollectionCounter(internal) ?: return false
         return current >= amount

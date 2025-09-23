@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects
-
 import de.hype.bingonet.shared.packets.function.PositionCommunityFeedback.ComGoalPosition
 import java.time.Instant
 import java.time.temporal.ChronoUnit

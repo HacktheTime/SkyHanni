@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.packets.function.secretbingo
-
 import de.hype.bingonet.environment.packetconfig.AbstractPacket
 
 class GoalSolutionReportedPacket(

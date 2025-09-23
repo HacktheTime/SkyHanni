@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps.location
-
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.objects.Position
 import de.hype.bingonet.shared.tutorials.Tutorial

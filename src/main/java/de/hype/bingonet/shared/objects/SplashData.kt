@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects
-
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import kotlin.properties.Delegates

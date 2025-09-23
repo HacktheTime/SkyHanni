@@ -1,7 +1,5 @@
 package de.hype.bingonet.shared.tutorials
 
-import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-
 abstract class TutorialNode {
 
     lateinit var nodeId: String

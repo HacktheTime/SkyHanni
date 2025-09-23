@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects.minions
-
 import de.hype.bingonet.shared.utils.modifyValues
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionCategory
 
@@ -121,4 +120,3 @@ enum class Fueles(
         builder.invoke(minionData)
     }
 }
-

@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects
-
 import de.hype.bingonet.shared.constants.ChChestItem
 
 open class ChChestData(

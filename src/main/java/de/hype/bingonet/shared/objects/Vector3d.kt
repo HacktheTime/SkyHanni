@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects
-
 import kotlin.math.PI
 import kotlin.math.sign
 

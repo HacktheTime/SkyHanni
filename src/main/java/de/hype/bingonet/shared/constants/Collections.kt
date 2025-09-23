@@ -1,7 +1,6 @@
 package de.hype.bingonet.shared.constants
-
-import de.hype.bingonet.environment.NeuEnvironmentRepo
 import at.hannibal2.skyhanni.utils.NeuInternalName
+import de.hype.bingonet.environment.NeuEnvironmentRepo
 import kotlin.math.min
 
 @Suppress("unused", "EnumEntryNameCase")

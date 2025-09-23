@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects
-
 import java.awt.Color
 
 open class WaypointData(

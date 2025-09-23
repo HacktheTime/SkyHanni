@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects.json
-
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
@@ -204,4 +203,3 @@ class ApiJson {
         }
     }
 }
-

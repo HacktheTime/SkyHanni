@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps.requirement
-
 import at.hannibal2.skyhanni.api.CollectionApi
 import de.hype.bingonet.environment.NeuEnvironmentRepo
 import de.hype.bingonet.shared.constants.Collections
@@ -25,7 +24,9 @@ class CollectionLevelRequirement(
 
     override fun getRequirements(): List<TutorialNode> = emptyList()
 
-    override fun check(tutorial: Tutorial): Boolean {
+    
+
+override fun check(tutorial: Tutorial): Boolean {
         val internal = NeuEnvironmentRepo.getFromSBName(collection.id)
         val current = CollectionApi.getCollectionCounter(internal) ?: return false
         val need = requiredTotal ?: collection.getCollectionForTier(minLevel)

@@ -3,12 +3,9 @@ package de.hype.bingonet.shared.tutorials
 interface TutorialCondition{
     fun matches(tutorial: Tutorial): Boolean
 }
-
 fun TutorialCondition.not(): NotTutorialCondition {
     return NotTutorialCondition(this)
 }
-
-
 class NotTutorialCondition(
     val condition: TutorialCondition
 ) : TutorialCondition {
@@ -24,7 +21,6 @@ class AndTutorialCondition(
         return conditions.all { it.matches(tutorial) }
     }
 }
-
 class OrTutorialCondition(
     val conditions: List<TutorialCondition>
 ) : TutorialCondition {
@@ -33,7 +29,6 @@ class OrTutorialCondition(
         return conditions.any { it.matches(tutorial) }
     }
 }
-
 class AllOfTutorialCondition(
     val conditions: List<TutorialNode>
 ) : TutorialCondition {
@@ -42,7 +37,6 @@ class AllOfTutorialCondition(
         return conditions.all { it.isComplete(tutorial) }
     }
 }
-
 class AnyOfTutorialCondition(
     val conditions: List<TutorialNode>
 ) : TutorialCondition {

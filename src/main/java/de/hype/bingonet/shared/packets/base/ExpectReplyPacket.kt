@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.packets.base
-
 import de.hype.bingonet.environment.packetconfig.AbstractPacket
 import java.util.*
 

@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects.json
-
 import com.google.gson.JsonElement
 import de.hype.bingonet.shared.objects.json.ApiJson.Companion.of
 

@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.constants
-
 import java.awt.Color
 
 enum class Formatting(val mCCode: String, @JvmField val discordFormattingCode: String, val color: Color?) {

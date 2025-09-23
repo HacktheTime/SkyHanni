@@ -17,4 +17,3 @@ class SimpleC2SServiceOperationPacket(val operation: ClientServiceOperation?, va
         }
     }
 }
-

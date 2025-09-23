@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps
-
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -13,7 +12,6 @@ abstract class TutorialStep(
 ) : TutorialNode() {
     open fun onReset(tutorial: Tutorial) {}
     open fun onActivate(tutorial: Tutorial) {
-        if (!completed && check(tutorial)) complete()
     }
     open fun onDeactivate(tutorial: Tutorial) {}
     var isActive: Boolean = false
@@ -32,19 +30,9 @@ abstract class TutorialStep(
         return completed || check(tutorial)
     }
 
-    open fun complete() {
-        completed = true
-        TutorialStepCompleteEvent(this).post()
-    }
+    
 
-    protected fun chatPromptSuggestion(message: String, code: () -> Unit) {
-        ChatUtils.chatPrompt(
-            "§e[SkyHanni Tutorial] $message (Press %KEYBIND% to activate)",
-            SkyHanniMod.feature.tutorials.chatPromptKey,
-            code,
-            prefix = false,
-        )
-    }
+    
 
     open fun ignoreEvent(): Boolean = !isActive
 
@@ -93,5 +81,19 @@ abstract class TutorialStep(
         }
         collect(this)
         return reqs
+    }
+
+open fun complete() {
+        completed = true
+        TutorialStepCompleteEvent(this).post()
+    }
+
+protected fun chatPromptSuggestion(message: String, code: () -> Unit) {
+        ChatUtils.chatPrompt(
+            "§e[SkyHanni Tutorial] $message (Press %KEYBIND% to activate)",
+            SkyHanniMod.feature.tutorials.chatPromptKey,
+            code,
+            prefix = false,
+        )
     }
 }

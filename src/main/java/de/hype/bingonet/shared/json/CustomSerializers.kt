@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.json
-
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -34,7 +33,6 @@ class InstantSerializer : JsonSerializer<Instant>, JsonDeserializer<Instant> {
         return jsonObject
     }
 }
-
 class ColorSerializer : JsonSerializer<Color>, JsonDeserializer<Color> {
     @Throws(JsonParseException::class)
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Color {
@@ -57,7 +55,6 @@ class ColorSerializer : JsonSerializer<Color>, JsonDeserializer<Color> {
         return jsonObject
     }
 }
-
 class DurationSerializer : JsonSerializer<Duration>, JsonDeserializer<Duration> {
     @Throws(JsonParseException::class)
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Duration {

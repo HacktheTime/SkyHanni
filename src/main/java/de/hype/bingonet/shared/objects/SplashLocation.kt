@@ -30,4 +30,3 @@ class SplashLocation {
             return "$name (${coords.x} ${coords.y} ${coords.z})"
         }
 }
-

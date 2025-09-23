@@ -1,7 +1,7 @@
 package de.hype.bingonet.shared.objects
-
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.constants.TradeType
+import de.hype.bingonet.shared.objects.BNUser
 import java.time.Instant
 
 data class BBServiceData(
@@ -80,5 +80,3 @@ data class BBServiceData(
         }
     }
 }
-
-

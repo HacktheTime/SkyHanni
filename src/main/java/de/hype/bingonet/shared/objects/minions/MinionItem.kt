@@ -1,11 +1,10 @@
 package de.hype.bingonet.shared.objects.minions
-
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.environment.toShared
 import de.hype.bingonet.generated.sbenums.SkyblockItems
 import de.hype.bingonet.generated.sbenums.minions.MinionTypes
 import de.hype.bingonet.shared.utils.modifyKeys
 import de.hype.bingonet.shared.utils.modifyValues
-import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionCategory
 
 enum class MinionItem(
@@ -157,7 +156,6 @@ enum class MinionItem(
         }
     }
 }
-
 private fun AppliedMinionData.addDrop(item: NeuInternalName, amount: Double) {
     this.drops.compute(item) { _, v ->
         return@compute (v ?: 0.0) + amount

@@ -1,18 +1,16 @@
 package de.hype.bingonet.shared.tutorials.steps.storagestep
-
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.utils.InventoryUtils.getAmountInInventoryAndSacks
 import at.hannibal2.skyhanni.utils.ItemUtils.itemNameWithoutColor
-import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuItems.getRecipes
 import at.hannibal2.skyhanni.utils.PrimitiveRecipe
 import at.hannibal2.skyhanni.utils.RecipeType
 import de.hype.bingonet.shared.tutorials.ResourceContributor
+import de.hype.bingonet.shared.tutorials.ResourceItemCheck
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
-import de.hype.bingonet.shared.tutorials.ResourceItemCheck
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import at.hannibal2.skyhanni.utils.NeuInternalName
 import kotlin.math.ceil
 
 /**
@@ -30,7 +28,27 @@ class ObtainFromNEURecipe(
 
     override fun getStepName(tutorial: Tutorial): String = "Obtain ${item.internalName} x$requiredAmount (by recipe)"
 
-    override fun getStepDescription(tutorial: Tutorial): String? {
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+override fun getStepDescription(tutorial: Tutorial): String? {
         val config = SkyHanniMod.feature.tutorials
         val id = item
         val recipe = manualRecipe ?: pickRecipe(id) ?: return null
@@ -66,11 +84,9 @@ class ObtainFromNEURecipe(
         return if (desc.isEmpty()) null else desc.joinToString("\n")
     }
 
-    private var manualRecipe: PrimitiveRecipe? = null
+fun setManualRecipe(recipe: PrimitiveRecipe?) { manualRecipe = recipe }
 
-    fun setManualRecipe(recipe: PrimitiveRecipe?) { manualRecipe = recipe }
-
-    override fun getRequirements(): List<TutorialNode> {
+override fun getRequirements(): List<TutorialNode> {
         val id = item
         val have = id.getAmountInInventoryAndSacks()
         val needUnits = (requiredAmount - have).coerceAtLeast(0)
@@ -94,13 +110,13 @@ class ObtainFromNEURecipe(
         return reqs
     }
 
-    override fun check(tutorial: Tutorial): Boolean {
+override fun check(tutorial: Tutorial): Boolean {
         val id = item
         val have = id.getAmountInInventoryAndSacks()
         return have >= requiredAmount
     }
 
-    override fun getRequiredResources(tutorial: Tutorial): Map<NeuInternalName, Double> {
+override fun getRequiredResources(tutorial: Tutorial): Map<NeuInternalName, Double> {
         val target = item
         val have = target.getAmountInInventoryAndSacks()
         val needUnits = (requiredAmount - have).coerceAtLeast(0)
@@ -114,7 +130,7 @@ class ObtainFromNEURecipe(
         return perUnit.mapValues { it.value * needUnits * planned }
     }
 
-    override fun validate(tutorial: Tutorial): List<String> {
+override fun validate(tutorial: Tutorial): List<String> {
         val issues = mutableListOf<String>()
         if (requiredAmount <= 0) issues += "ObtainFromNEURecipe for ${item.internalName} has non-positive amount"
         val target = item
@@ -132,7 +148,7 @@ class ObtainFromNEURecipe(
         return issues
     }
 
-    private fun pickRecipe(target: NeuInternalName): PrimitiveRecipe? {
+private fun pickRecipe(target: NeuInternalName): PrimitiveRecipe? {
         val list = getRecipes(target)
         if (list.isEmpty()) return null
         // Prefer crafting if we have more of its primitive mats; else NPC by lower coin price
@@ -143,10 +159,10 @@ class ObtainFromNEURecipe(
         return scoredCraft ?: cheapestNpc ?: list.firstOrNull()
     }
 
-    private fun flattenIngredients(recipe: PrimitiveRecipe): Map<NeuInternalName, Double> =
+private fun flattenIngredients(recipe: PrimitiveRecipe): Map<NeuInternalName, Double> =
         flattenIngredientsInternal(recipe, mutableSetOf())
 
-    private fun flattenIngredientsInternal(recipe: PrimitiveRecipe, visiting: MutableSet<NeuInternalName>): Map<NeuInternalName, Double> {
+private fun flattenIngredientsInternal(recipe: PrimitiveRecipe, visiting: MutableSet<NeuInternalName>): Map<NeuInternalName, Double> {
         val result = mutableMapOf<NeuInternalName, Double>()
         for (ing in recipe.ingredients) {
             val internal = ing.internalName
@@ -163,4 +179,6 @@ class ObtainFromNEURecipe(
         }
         return result
     }
+
+private var manualRecipe: PrimitiveRecipe? = null
 }

@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps
-
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
@@ -23,7 +22,9 @@ class MessageTutorialStep(
 
     override fun getRequirements(): List<TutorialNode> = emptyList()
 
-    @HandleEvent
+    
+
+@HandleEvent
     fun onMessageEvent(event: SkyHanniChatEvent) {
         if (isActive && Pattern.compile(criteria.pattern(), Pattern.CASE_INSENSITIVE).matches(event.message.convertToUnformatted())) {
             complete()

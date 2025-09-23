@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps.requirement
-
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.features.skillprogress.SkillType.Companion.toSh
 import de.hype.bingonet.shared.constants.Skills
@@ -22,8 +21,10 @@ class SkillTutorialStep(
 
     override fun isComplete(tutorial: Tutorial): Boolean = matchingCondition()
 
-    fun matchingCondition() : Boolean{
+    
+
+
+fun matchingCondition() : Boolean{
         return (ProfileStorageData.profileSpecific?.skillData?.get(skill.toSh())?.level ?: 0) >= level
     }
-
 }

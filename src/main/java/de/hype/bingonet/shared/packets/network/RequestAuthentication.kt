@@ -1,7 +1,5 @@
 package de.hype.bingonet.shared.packets.network
-
 import de.hype.bingonet.environment.packetconfig.AbstractPacket
-
 
 /**
  * From Server to client telling him to authenticate.

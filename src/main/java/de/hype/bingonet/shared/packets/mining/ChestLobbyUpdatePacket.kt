@@ -1,7 +1,5 @@
 @file:Suppress("Indentation")
-
 package de.hype.bingonet.shared.packets.mining
-
 import de.hype.bingonet.environment.packetconfig.AbstractPacket
 import de.hype.bingonet.shared.objects.ChChestData
 

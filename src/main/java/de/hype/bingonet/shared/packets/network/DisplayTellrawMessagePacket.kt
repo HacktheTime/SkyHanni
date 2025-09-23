@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.packets.network
-
 import de.hype.bingonet.environment.packetconfig.AbstractPacket
 
 /**

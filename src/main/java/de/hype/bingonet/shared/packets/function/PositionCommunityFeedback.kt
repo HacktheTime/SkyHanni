@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.packets.function
-
 import de.hype.bingonet.environment.packetconfig.AbstractPacket
 
 class PositionCommunityFeedback(@JvmField var positions: Set<ComGoalPosition>) : AbstractPacket() {

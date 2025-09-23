@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials.steps.location
-
 import de.hype.bingonet.shared.constants.SkyblockInstance
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode

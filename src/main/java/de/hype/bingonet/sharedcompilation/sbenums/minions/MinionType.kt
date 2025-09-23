@@ -1,7 +1,5 @@
 package de.hype.bingonet.sharedcompilation.sbenums.minions
-
 import at.hannibal2.skyhanni.utils.NeuInternalName
-
 
 open class MinionType(
     open val typeId: String,
@@ -18,7 +16,6 @@ open class MinionType(
         return typeId == (other as? MinionType)?.typeId
     }
 }
-
 enum class MinionCategory {
     MINING,
     FARMING,

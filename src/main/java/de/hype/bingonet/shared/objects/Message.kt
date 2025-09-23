@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.objects
-
 import com.google.gson.JsonObject
 import de.hype.bingonet.environment.BNEnvironmentUtils
 import java.util.function.Predicate

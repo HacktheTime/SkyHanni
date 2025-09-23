@@ -1,5 +1,4 @@
 package de.hype.bingonet.shared.tutorials
-
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.utils.ItemUtils.itemNameWithoutColor
 import at.hannibal2.skyhanni.utils.renderables.Renderable
@@ -33,7 +32,25 @@ internal object TutorialRenderableBuilder {
     private val colOptional = Color(180, 180, 180)
     private val colSelected = Color(120, 255, 120)
 
-    fun build(tutorial: Tutorial, showDescriptions: Boolean): Renderable {
+    
+
+    
+
+    
+
+    private fun safeStepName(step: TutorialStep, tutorial: Tutorial): String = try {
+        step.getStepName(tutorial)
+    } catch (e: Throwable) {
+        "Step"
+    }
+
+    private fun safeStepDesc(step: TutorialStep, tutorial: Tutorial): String? = try {
+        step.getStepDescription(tutorial)
+    } catch (e: Throwable) {
+        null
+    }
+
+fun build(tutorial: Tutorial, showDescriptions: Boolean): Renderable {
         this.showDescriptions = showDescriptions
         val content = buildNodesList(tutorial, tutorial.steps, indent = 0, markNextAsRequiresAsync = false)
         val header = Renderable.text("§b§lTutorial: §f${tutorial.name}")
@@ -59,7 +76,7 @@ internal object TutorialRenderableBuilder {
         return Renderable.vertical(list)
     }
 
-    private fun buildNodesList(
+private fun buildNodesList(
         tutorial: Tutorial,
         nodes: List<TutorialNode>,
         indent: Int,
@@ -156,21 +173,9 @@ internal object TutorialRenderableBuilder {
         return lines
     }
 
-    private fun renderIndented(indent: Int, children: () -> List<Renderable>): Renderable {
+private fun renderIndented(indent: Int, children: () -> List<Renderable>): Renderable {
         val prefix = "  ".repeat(indent)
         val prefixRenderable = Renderable.text(prefix)
         return Renderable.horizontal(listOf(prefixRenderable) + children(), 0)
-    }
-
-    private fun safeStepName(step: TutorialStep, tutorial: Tutorial): String = try {
-        step.getStepName(tutorial)
-    } catch (e: Throwable) {
-        "Step"
-    }
-
-    private fun safeStepDesc(step: TutorialStep, tutorial: Tutorial): String? = try {
-        step.getStepDescription(tutorial)
-    } catch (e: Throwable) {
-        null
     }
 }
