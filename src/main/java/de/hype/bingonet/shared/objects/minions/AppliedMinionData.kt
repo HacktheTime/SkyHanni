@@ -1,7 +1,7 @@
 package de.hype.bingonet.shared.objects.minions
 
 import de.hype.bingonet.environment.withTierData
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.sharedcompilation.sbenums.minions.Minion
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionCategory
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionData
@@ -47,7 +47,7 @@ class AppliedMinionData(
     var compactor: Boolean = false
     var smelter: Boolean = false
     val category: MinionCategory = minionType.category
-    val drops: MutableMap<BNNEUItem, Double> = HashMap(minionType.drops)
+    val drops: MutableMap<NeuInternalName, Double> = HashMap(minionType.drops)
 
 
     init {

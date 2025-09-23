@@ -2,19 +2,17 @@ package de.hype.bingonet.shared.tutorials.steps.storagestep
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.utils.InventoryUtils.getAmountInInventoryAndSacks
-import at.hannibal2.skyhanni.utils.NeuInternalName
+import at.hannibal2.skyhanni.utils.ItemUtils.itemNameWithoutColor
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.NeuItems.getRecipes
 import at.hannibal2.skyhanni.utils.PrimitiveRecipe
 import at.hannibal2.skyhanni.utils.RecipeType
-import de.hype.bingonet.environment.displayName
-import de.hype.bingonet.environment.toInternalName
 import de.hype.bingonet.shared.tutorials.ResourceContributor
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.ResourceItemCheck
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import kotlin.math.ceil
 
 /**
@@ -22,7 +20,7 @@ import kotlin.math.ceil
  * Each ingredient can specify a list of nodes to perform to gather it; if null, default to NPC purchases when possible.
  */
 class ObtainFromNEURecipe(
-    val item: BNNEUItem,
+    val item: NeuInternalName,
     val requiredAmount: Int = 1,
     val obtainMap: Map<NeuInternalName, ObtainWay?>,
     val preferOnCurrentIsland: Boolean = true,
@@ -34,7 +32,7 @@ class ObtainFromNEURecipe(
 
     override fun getStepDescription(tutorial: Tutorial): String? {
         val config = SkyHanniMod.feature.tutorials
-        val id = item.toInternalName()
+        val id = item
         val recipe = manualRecipe ?: pickRecipe(id) ?: return null
         val desc = mutableListOf<String>()
 
@@ -46,7 +44,7 @@ class ObtainFromNEURecipe(
                 have >= ceil(per).toInt()
             }
             if (canCraftNow) {
-                val name = id.displayName
+                val name = id.itemNameWithoutColor
                 val verb = if (id.asString().startsWith("ENCHANTED_")) "compact" else "craft"
                 desc += "Hint: You can $verb $name now."
             }
@@ -60,7 +58,7 @@ class ObtainFromNEURecipe(
                 r.any { it.recipeType == RecipeType.NPC_SHOP }
             }.filter { ing -> obtainMap[ing] == null }
             if (npcs.isNotEmpty()) {
-                val first = npcs.first().displayName
+                val first = npcs.first().itemNameWithoutColor
                 desc += "Hint: You can buy $first from an NPC (default mapping)."
             }
         }
@@ -73,7 +71,7 @@ class ObtainFromNEURecipe(
     fun setManualRecipe(recipe: PrimitiveRecipe?) { manualRecipe = recipe }
 
     override fun getRequirements(): List<TutorialNode> {
-        val id = item.toInternalName()
+        val id = item
         val have = id.getAmountInInventoryAndSacks()
         val needUnits = (requiredAmount - have).coerceAtLeast(0)
         if (needUnits <= 0) return emptyList()
@@ -87,7 +85,7 @@ class ObtainFromNEURecipe(
             if (way == null) {
                 // Default: obtain via NPC or any available route
                 reqs += ObtainTutorialStep(
-                    check = ResourceItemCheck(item = mat, amount = total, displayText = mat.displayName),
+                    check = ResourceItemCheck(item = mat, amount = total, displayText = mat.itemNameWithoutColor),
                 )
             } else {
                 reqs += way.nodes
@@ -97,13 +95,13 @@ class ObtainFromNEURecipe(
     }
 
     override fun check(tutorial: Tutorial): Boolean {
-        val id = item.toInternalName()
+        val id = item
         val have = id.getAmountInInventoryAndSacks()
         return have >= requiredAmount
     }
 
     override fun getRequiredResources(tutorial: Tutorial): Map<NeuInternalName, Double> {
-        val target = item.toInternalName()
+        val target = item
         val have = target.getAmountInInventoryAndSacks()
         val needUnits = (requiredAmount - have).coerceAtLeast(0)
         if (needUnits <= 0) return emptyMap()
@@ -119,7 +117,7 @@ class ObtainFromNEURecipe(
     override fun validate(tutorial: Tutorial): List<String> {
         val issues = mutableListOf<String>()
         if (requiredAmount <= 0) issues += "ObtainFromNEURecipe for ${item.internalName} has non-positive amount"
-        val target = item.toInternalName()
+        val target = item
         val recipe = manualRecipe ?: pickRecipe(target)
         if (recipe == null) {
             issues += "No NEU recipe found for ${item.internalName}"
@@ -127,7 +125,7 @@ class ObtainFromNEURecipe(
         }
         val perUnit = flattenIngredients(recipe)
         perUnit.keys.forEach { ing ->
-            if (!obtainMap.containsKey(ing)) issues += "Missing obtain way mapping (nullable or list) for ingredient ${ing.displayName}"
+            if (!obtainMap.containsKey(ing)) issues += "Missing obtain way mapping (nullable or list) for ingredient ${ing.itemNameWithoutColor}"
         }
         // Validate nested nodes
         obtainMap.values.filterNotNull().forEach { way -> way.nodes.forEach { issues += it.validate(tutorial) } }

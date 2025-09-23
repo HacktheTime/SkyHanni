@@ -1,9 +1,8 @@
 package at.hannibal2.skyhanni.data.jsonobjects.repo.neu
 
-import at.hannibal2.skyhanni.utils.NeuInternalName
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionCategory
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionType
 

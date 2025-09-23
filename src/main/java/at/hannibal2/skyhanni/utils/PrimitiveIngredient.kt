@@ -1,10 +1,10 @@
 package at.hannibal2.skyhanni.utils
 
+import at.hannibal2.skyhanni.utils.ItemUtils.itemNameWithoutColor
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.SKYBLOCK_COIN
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.NumberUtil.formatDouble
-import de.hype.bingonet.environment.displayName
 
 class PrimitiveIngredient(val internalName: NeuInternalName, val count: Double = 1.0) {
 
@@ -41,7 +41,7 @@ class PrimitiveIngredient(val internalName: NeuInternalName, val count: Double =
         } else if (internalName == NeuInternalName.SKYBLOCK_COPPER) {
             return "§c${count.addSeparators()} Copper"
         } else {
-            return internalName.displayName + " §8x$count"
+            return internalName.itemNameWithoutColor + " §8x$count"
         }
     }
 

@@ -8,7 +8,6 @@ import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
 import at.hannibal2.skyhanni.utils.PrimitiveRecipe
 import at.hannibal2.skyhanni.utils.RecipeType
 import at.hannibal2.skyhanni.utils.NeuItems.getRecipes
-import de.hype.bingonet.environment.toInternalName
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.objects.Position
 import de.hype.bingonet.shared.tutorials.ItemCheck
@@ -72,7 +71,7 @@ class ObtainTutorialStep(
 
     private fun computeCoinRequirementOrNull(): ObtainCoinsTutorialStep? {
         val res = check as? ResourceItemCheck ?: return null
-        val target = res.item.toInternalName()
+        val target = res.item
         val want = res.amount
         val have = target.getAmountInInventoryAndSacks()
         val need = (want - have).coerceAtLeast(0)
@@ -92,7 +91,7 @@ class ObtainTutorialStep(
 
     override fun getRequiredResources(tutorial: Tutorial): Map<NeuInternalName, Double> {
         val res = check as? ResourceItemCheck ?: return emptyMap()
-        val target = res.item.toInternalName()
+        val target = res.item
         val want = res.amount
         val have = target.getAmountInInventoryAndSacks()
         val need = (want - have).coerceAtLeast(0)

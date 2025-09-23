@@ -1,12 +1,12 @@
 package de.hype.bingonet.sharedcompilation.sbenums.minions
 
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 
 
 open class MinionType(
     open val typeId: String,
     open val category: MinionCategory,
-    open val drops: Map<BNNEUItem, Double>,
+    open val drops: Map<NeuInternalName, Double>,
     open val requiredActions: Int,
 ) {
 

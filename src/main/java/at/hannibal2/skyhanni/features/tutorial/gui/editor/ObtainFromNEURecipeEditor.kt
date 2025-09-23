@@ -2,14 +2,13 @@ package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
-import at.hannibal2.skyhanni.utils.NeuItems
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.storagestep.ObtainFromNEURecipe
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 
 /** Basic editor for ObtainFromNEURecipe: allows changing target item and required amount. */
 class ObtainFromNEURecipeEditor : TutorialNodeEditor {
@@ -45,8 +44,8 @@ class ObtainFromNEURecipeEditor : TutorialNodeEditor {
             Renderable.horizontal(spacing = 8) {
                 add(Renderable.clickable("§aSave", onLeftClick = {
                     val q = itemInput.finalText().trim()
-                    //Use NeuItems since BNNEUItem is not a Enum.
-                    val picked: BNNEUItem = runCatching { q.toInternalName() }.getOrNull() ?: step.item
+                    //Use NeuItems since NeuInternalName is not a Enum.
+                    val picked: NeuInternalName = q.toInternalName()
                     val amt = amountInput.finalText().trim().toIntOrNull() ?: step.requiredAmount
                     val newNode = ObtainFromNEURecipe(picked, amt, step.obtainMap, step.preferOnCurrentIsland)
                     try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}

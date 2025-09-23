@@ -10,7 +10,7 @@ import de.hype.bingonet.shared.constants.Rarity
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.misc.EquipPetTutorialStep
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 
 class EquipPetEditor : TutorialNodeEditor {
     private val petInternalInput = TextInput()

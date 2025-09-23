@@ -5,15 +5,14 @@ import at.hannibal2.skyhanni.data.PetData
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.pets.PetChangeEvent
 import at.hannibal2.skyhanni.utils.toSh
-import de.hype.bingonet.environment.toInternalName
 import de.hype.bingonet.shared.constants.Rarity
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 
 class EquipPetTutorialStep(
-    val petType: BNNEUItem,
+    val petType: NeuInternalName,
     val minimumPetRarity: Rarity,
 ) : TutorialStep() {
     override fun getStepName(tutorial: Tutorial): String {
@@ -29,7 +28,7 @@ class EquipPetTutorialStep(
 
     fun fetchPet(): PetData? {
         val validPets = ProfileStorageData.petProfiles?.pets?.filter {
-            it.rarity == minimumPetRarity.toSh() && it.fauxInternalName == petType.toInternalName()
+            it.rarity == minimumPetRarity.toSh() && it.fauxInternalName == petType
         }
         val best = validPets?.maxBy { it.level }
         return best

@@ -1,7 +1,7 @@
 package de.hype.bingonet.shared.constants
 
 import de.hype.bingonet.environment.NeuEnvironmentRepo
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import kotlin.math.min
 
 @Suppress("unused", "EnumEntryNameCase")
@@ -607,7 +607,7 @@ interface Collections {
         val entries: MutableSet<Collections> = values
     }
 
-    fun asNEUItem(): BNNEUItem {
+    fun asNEUItem(): NeuInternalName {
         return NeuEnvironmentRepo.getFromSBName(id)!!
     }
 }

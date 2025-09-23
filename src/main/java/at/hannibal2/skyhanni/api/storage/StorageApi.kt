@@ -30,8 +30,7 @@ import at.hannibal2.skyhanni.utils.StringUtils
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIf
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
-import de.hype.bingonet.environment.toInternalName
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.block.BlockChest
 import net.minecraft.item.ItemStack
 import java.util.NavigableMap
@@ -377,9 +376,9 @@ object StorageApi {
         }
     }
 
-    fun searchByNeuItem(item: BNNEUItem): StorageSearchConsumer {
+    fun searchByNeuItem(item: NeuInternalName): StorageSearchConsumer {
         return search().filter { stack, name, category ->
-            return@filter stack.getInternalName() == item.toInternalName()
+            return@filter stack.getInternalName() == item
         }
     }
 }

@@ -3,8 +3,7 @@ package de.hype.bingonet.shared.tutorials
 import at.hannibal2.skyhanni.features.inventory.storage.ItemTagManager
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
-import de.hype.bingonet.environment.skyblockItemId
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.item.ItemStack
 
 interface ItemCheck{
@@ -31,13 +30,13 @@ class SingleItemCheck(
 }
 
 class ResourceItemCheck(
-    val item : BNNEUItem,
+    val item : NeuInternalName,
     val amount : Int,
     override val displayText: String,
     override val descriptionText: String? = null,
 ): ItemCheck {
     override fun check(itemStack: ItemStack): Boolean {
-        return item.skyblockItemId == itemStack.getInternalNameOrNull()?.skyblockItemId
+        return item == itemStack.getInternalNameOrNull()
     }
 }
 

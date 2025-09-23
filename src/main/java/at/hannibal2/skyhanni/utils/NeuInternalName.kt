@@ -5,11 +5,11 @@ import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ItemUtils.getItemCategoryOrNull
 import at.hannibal2.skyhanni.utils.NeuItems.getItemStackOrNull
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedCache
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.init.Items
 import kotlin.time.Duration.Companion.minutes
 
-class NeuInternalName private constructor(internalName: String) : BNNEUItem(internalName) {
+class NeuInternalName private constructor(val internalName: String) {
 
     companion object {
 
@@ -88,7 +88,7 @@ class NeuInternalName private constructor(internalName: String) : BNNEUItem(inte
 
     fun isKnownItem(): Boolean = getItemStackOrNull() != null || this == SKYBLOCK_COIN
     fun getCraftingRecipies(): List<PrimitiveRecipe> {
-        return EnoughUpdatesManager.getRecipesFor(this).filter { it.recipeType== RecipeType.CRAFTING }
+        return EnoughUpdatesManager.getRecipesFor(this).filter { it.recipeType == RecipeType.CRAFTING }
     }
 
     /**
