@@ -1,10 +1,13 @@
-package de.hype.bingonet.shared.tutorials
+package at.hannibal2.skyhanni.features.tutorial.gui
+
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.utils.ItemUtils.itemNameWithoutColor
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
+import de.hype.bingonet.shared.tutorials.Tutorial
+import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.paths.AsyncTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.OptionalTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
@@ -32,12 +35,6 @@ internal object TutorialRenderableBuilder {
     private val colOptional = Color(180, 180, 180)
     private val colSelected = Color(120, 255, 120)
 
-    
-
-    
-
-    
-
     private fun safeStepName(step: TutorialStep, tutorial: Tutorial): String = try {
         step.getStepName(tutorial)
     } catch (e: Throwable) {
@@ -49,6 +46,7 @@ internal object TutorialRenderableBuilder {
     } catch (e: Throwable) {
         null
     }
+
 
 fun build(tutorial: Tutorial, showDescriptions: Boolean): Renderable {
         this.showDescriptions = showDescriptions
@@ -77,10 +75,10 @@ fun build(tutorial: Tutorial, showDescriptions: Boolean): Renderable {
     }
 
 private fun buildNodesList(
-        tutorial: Tutorial,
-        nodes: List<TutorialNode>,
-        indent: Int,
-        markNextAsRequiresAsync: Boolean,
+    tutorial: Tutorial,
+    nodes: List<TutorialNode>,
+    indent: Int,
+    markNextAsRequiresAsync: Boolean,
     ): List<Renderable> {
         val lines = mutableListOf<Renderable>()
         var pendingAsync = false

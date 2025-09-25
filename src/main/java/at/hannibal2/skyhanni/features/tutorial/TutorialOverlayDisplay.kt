@@ -9,7 +9,7 @@ import at.hannibal2.skyhanni.features.tutorial.gui.TutorialManagerGui
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderable
 import at.hannibal2.skyhanni.utils.renderables.Renderable
-import de.hype.bingonet.shared.tutorials.TutorialRenderableBuilder
+import at.hannibal2.skyhanni.features.tutorial.gui.TutorialRenderableBuilder
 
 /**
  * Displays the active tutorial in an SH overlay and wires up a GUI to manage it.
