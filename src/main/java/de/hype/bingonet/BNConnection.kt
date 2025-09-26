@@ -357,7 +357,7 @@ object BNConnection {
             connect("hackthetime.de", system.port)
         } else {
             ChatUtils.clickableChat(
-                "Bingo Net is currently disabled. (Click to enable). §cKeep in mind that Hype_the_Time controls the Server and NOT the Sky Hanni Team!",
+                "§rBingo Net is currently §cdisabled§r. §6(Click to enable)§r. §cKeep in mind that the Server is §cNOT§r Controlled by the Sky Hanni Team (controlled by Hype_the_Time)!",
                 {
                     SkyHanniMod.launchCoroutine {
                         bnConfig.useBN = true
