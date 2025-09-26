@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.api.storage
 
+import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getExtraAttributes
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemId
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
@@ -97,6 +99,17 @@ class SkyBlockItemIdFilter(
         } else {
             id == itemId
         }
+    }
+}
+/**
+ * Filter for SkyBlock item ID
+ */
+class NeuInternalNameFilter(
+    private val itemType: NeuInternalName
+) : StorageFilter {
+
+    override fun matches(item: ItemStack, storageName: String, category: StorageCategory): Boolean {
+        return item.getInternalName() == itemType
     }
 }
 

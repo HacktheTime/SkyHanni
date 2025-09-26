@@ -1,6 +1,6 @@
 package at.hannibal2.skyhanni.api.storage
 
-import com.sun.org.apache.xpath.internal.operations.Bool
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.item.ItemStack
 import java.util.UUID
 
@@ -132,6 +132,13 @@ fun StorageSearchConsumer.filterByUuid(uuid: UUID): StorageSearchConsumer {
 fun StorageSearchConsumer.filterByItemId(itemId: String, ignoreCase: Boolean = true): StorageSearchConsumer {
     return addFilter(SkyBlockItemIdFilter(itemId, ignoreCase))
 }
+/**
+ * Filter by NeuInternalName
+ */
+fun StorageSearchConsumer.filterByNeuInternalName(item: NeuInternalName): StorageSearchConsumer {
+    return addFilter(NeuInternalNameFilter(item))
+}
+
 
 /**
  * Filter by storage categories
