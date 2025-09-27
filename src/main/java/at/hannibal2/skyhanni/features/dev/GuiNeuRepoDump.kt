@@ -89,11 +89,11 @@ object GuiNeuRepoDump {
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onGuiOpen(event: InventoryFullyOpenedEvent) {
-        SkyHanniMod.launchCoroutine {
+        SkyHanniMod.launchCoroutine("GuiNeuRepoDump npc offer updater") {
             delay(10.milliseconds)
             val npc = getLastNPC(event.inventoryName) ?: return@launchCoroutine
             npc.removeCategoryOffers(event.inventoryName)
-            val items = event.inventoryItems.forEach {
+            event.inventoryItems.forEach {
                 addOffer(npc, it.value, event.inventoryName)
             }
             val json = gson.toJson(npc)

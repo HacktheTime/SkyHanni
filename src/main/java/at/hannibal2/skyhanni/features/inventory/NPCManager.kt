@@ -66,10 +66,10 @@ object NPCManager {
     fun updateLimit(event: InventoryUpdatedEvent){
         val npc = getLastNPC(event.inventoryName) ?: return
         lastClickedNPC = npc
-        SkyHanniMod.launchCoroutine {
+        SkyHanniMod.launchCoroutine("NPCManager#updateLimit") {
             val offers = npc.offers.get(event.inventoryName)
             if (offers.isNullOrEmpty()) return@launchCoroutine
-            event.inventoryItems.forEach { (key, stack) ->
+            event.inventoryItems.forEach { (_, stack) ->
                 offers.find { it.matches(stack) }?.let {
                     val lore = stack.getLore()
                     for (line in lore) {
@@ -143,7 +143,7 @@ object NPCManager {
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onGuiOpen(event: InventoryFullyOpenedEvent) {
-        SkyHanniMod.launchCoroutine {
+        SkyHanniMod.launchCoroutine("NPCManager schedule last clicked NPC") {
             delay(10.milliseconds)
             resetTask?.cancel()
             val npc = GuiNeuRepoDump.getLastNPC(event.inventoryName) ?: return@launchCoroutine
@@ -157,7 +157,7 @@ object NPCManager {
     @HandleEvent(onlyOnSkyblock = true)
     fun onGuiClose(event: InventoryCloseEvent) {
         resetTask?.cancel()
-        resetTask = SkyHanniMod.launchCoroutine {
+        resetTask = SkyHanniMod.launchCoroutine("NPCManager clear last clicked NPC") {
             try {
                 delay(500.milliseconds)
                 lastClickedEntity = null

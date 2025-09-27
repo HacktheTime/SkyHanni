@@ -1,8 +1,5 @@
 package at.hannibal2.skyhanni.features.inventory.storage
 
-import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.config.ConfigFileType
-import at.hannibal2.skyhanni.config.storage.ProfileSpecificStorage
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.features.tutorial.TutorialManager
 import at.hannibal2.skyhanni.utils.ChatUtils

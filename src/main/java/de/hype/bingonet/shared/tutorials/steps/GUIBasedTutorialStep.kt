@@ -6,8 +6,8 @@ import java.util.regex.Pattern
 abstract class GUIBasedTutorialStep(val guiName: Pattern) : TutorialStep() {
     val inventory = InventoryDetector(
         pattern = guiName,
-        openInventory = {},
-        closeInventory = {},
+        onOpenInventory = {},
+        onCloseInventory = {},
     )
 
     override fun ignoreEvent(): Boolean {

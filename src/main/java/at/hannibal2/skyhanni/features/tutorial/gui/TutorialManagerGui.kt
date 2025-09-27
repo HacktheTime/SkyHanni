@@ -104,7 +104,7 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                 }
                 if (KeyboardManager.isPastingKeysDown() && now - lastClipboardActionMs > 800) {
                     lastClipboardActionMs = now
-                    SkyHanniMod.launchCoroutine {
+                    SkyHanniMod.launchCoroutine("Paste Tutorial") {
                         val clip = OSUtils.readFromClipboard() ?: ""
                         if (clip.isBlank()) {
                             ChatUtils.chat("§cClipboard is empty"); return@launchCoroutine
@@ -711,7 +711,7 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                                 t.onLoad()
                                 ProfileStorageData.profileSpecific?.tutorialManager?.activeTutorial = t
                                 TutorialOverlayDisplay.markDirty()
-                                SkyHanniMod.launchCoroutine {
+                                SkyHanniMod.launchCoroutine("Save Created Tutorial") {
                                     SkyHanniMod.configManager.saveConfig(
                                         ConfigFileType.FEATURES,
                                         "tutorial-create",
@@ -770,7 +770,7 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                             newT.onLoad()
                             ProfileStorageData.profileSpecific?.tutorialManager?.activeTutorial = newT
                             TutorialOverlayDisplay.markDirty()
-                            SkyHanniMod.launchCoroutine { SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "tutorial-edit") }
+                            SkyHanniMod.launchCoroutine("Save Tutorial Changes") { SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "tutorial-edit") }
                             editTutorialMode = false
                         },
                         bypassChecks = true,
@@ -787,7 +787,7 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
         newT.onLoad()
         ProfileStorageData.profileSpecific?.tutorialManager?.activeTutorial = newT
         TutorialOverlayDisplay.markDirty()
-        SkyHanniMod.launchCoroutine { SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "tutorial-apply-steps") }
+        SkyHanniMod.launchCoroutine("Save new Tutorial Steps") { SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "tutorial-apply-steps") }
     }
 
     private fun buildAddNodeWizard(tutorial: Tutorial): List<Renderable> {

@@ -30,6 +30,8 @@ import at.hannibal2.skyhanni.utils.StringUtils
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIf
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.sync.Mutex
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.block.BlockChest
 import net.minecraft.item.ItemStack
@@ -44,6 +46,9 @@ object StorageApi {
     var currentInventoryResults: List<StorageSearchResult> = emptyList()
     private val storage: NavigableMap<String, SkyHanniInventoryContainer>
         get() = ProfileStorageData.storageProfiles?.data ?: TreeMap()
+
+    private var saveJob: Job? = null
+    private val saveMutex = Mutex()
 
     /**
      * REGEX-TEST: Ender Chest
@@ -139,11 +144,16 @@ object StorageApi {
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onSecondPassed() {
-        if (!shouldSave) return
-        SkyHanniMod.launchCoroutine {
+        if (!shouldSave || saveJob?.isActive == true) return
+        setupSaveJob()
+    }
+
+    private fun setupSaveJob() {
+        saveJob = SkyHanniMod.launchIOCoroutineWithMutex("storage api save", saveMutex) {
+            if (!shouldSave) return@launchIOCoroutineWithMutex
             SkyHanniMod.configManager.saveConfig(ConfigFileType.STORAGE, "Updated Items")
+            shouldSave = false
         }
-        shouldSave = false
     }
 
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)

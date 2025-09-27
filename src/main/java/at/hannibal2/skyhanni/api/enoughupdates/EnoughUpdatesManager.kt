@@ -2,9 +2,11 @@ package at.hannibal2.skyhanni.api.enoughupdates
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigManager
+import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils.parseItem
 import at.hannibal2.skyhanni.data.jsonobjects.other.NeuNbtInfoJson
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuMinionTypeData
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuPetsJson
+import at.hannibal2.skyhanni.data.repo.ChatProgressUpdates
 import at.hannibal2.skyhanni.events.NeuRepositoryReloadEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
@@ -27,6 +29,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionData
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionType
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -39,6 +42,7 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import java.io.File
 import java.util.TreeMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.floor
 //#if MC > 1.21
 //$$ import net.minecraft.registry.Registries
@@ -81,7 +85,9 @@ object EnoughUpdatesManager {
     /**
      * Called by the Neu Repo Manager when the NEU repo is reloaded.
      */
-    suspend fun reloadItemsFromRepo() = loadingMutex.withLock {
+    suspend fun reloadItemsFromRepo(progress: ChatProgressUpdates) = loadingMutex.withLock {
+        progress.update("call reloadItemsFromRepo")
+        progress.update("clearing caches and maps")
         itemStackCache.clear()
         displayNameCache.clear()
         itemMap.clear()
@@ -90,11 +96,13 @@ object EnoughUpdatesManager {
 
         val tempItemMap = TreeMap<String, JsonObject>()
         val tempNpcMap = TreeMap<String, NeuNPC>()
-        loadItemMap(tempItemMap, tempNpcMap)
+        loadItemMap(progress, tempItemMap, tempNpcMap)
 
+        progress.update("call synchronized itemMap")
         synchronized(itemMap) {
             itemMap.clear()
             itemMap.putAll(tempItemMap)
+            progress.update("putAll tempItemMap")
         }
 
         synchronized(npcs) {
@@ -105,9 +113,20 @@ object EnoughUpdatesManager {
 
     fun getRecipesFor(internalName: NeuInternalName): Set<PrimitiveRecipe> = recipesMap.getOrDefault(internalName, emptySet())
 
-    private suspend fun loadItemMap(tempItemMap: TreeMap<String, JsonObject>, tempNpcMap: TreeMap<String, NeuNPC>) = coroutineScope {
+    private suspend fun loadItemMap(
+        progress: ChatProgressUpdates, tempItemMap: TreeMap<String, JsonObject>,
+        tempNpcMap: TreeMap<
+            String,
+            NeuNPC,
+            >,
+    ) {
+        coroutineScope {
+        progress.update("call loadItemMap")
         val fileSystem = EnoughUpdatesRepoManager.repoFileSystem
-        val partitioned = fileSystem.list("items").partition { it.contains("NPC") }
+            val list = fileSystem.list("items").filter { it.endsWith(".json") }
+            val partitioned = list.partition { it.contains("NPC") }
+        progress.innerProgress(0, list.size)
+        val done = AtomicInteger(0)
         //Is NPC
         partitioned.first.mapNotNullAsync { name->
             try {
@@ -128,17 +147,21 @@ object EnoughUpdatesManager {
         partitioned.second.mapNotNullAsync { name ->
             try {
                 val internalName = name.removeSuffix(".json")
-                val parsed = parseItem(
+                val item = parseItem(
                     internalName = internalName,
                     json = fileSystem.readAllBytesAsJsonElement("items/$name").asJsonObject,
-                ) ?: return@mapNotNullAsync null
+                )
+                progress.innerProgress(done.incrementAndGet(), list.size)
+                val parsed = item ?: return@mapNotNullAsync null
                 internalName to parsed
             } catch (e: Exception) {
+                progress.update("Failed to parse item: $name")
                 ErrorManager.logErrorWithData(e, "Failed to parse item: $name")
                 null
             }
-        }.forEach { (internalName, item) ->
-            tempItemMap[internalName] = item
+        }.forEach {
+            tempItemMap[it.first] = it.second
+        }
         }
     }
 

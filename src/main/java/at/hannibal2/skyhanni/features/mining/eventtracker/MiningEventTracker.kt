@@ -125,7 +125,7 @@ object MiningEventTracker {
         if (!config.outsideMining && !isMiningIsland()) return
         if (!canRequestAt.isInPast()) return
 
-        SkyHanniMod.launchIOCoroutine {
+        SkyHanniMod.launchIOCoroutine("mining event tracker fetch data") {
             fetchData()
         }
     }
@@ -178,7 +178,7 @@ object MiningEventTracker {
             ChatUtils.debug("blocked sending mining event data: api error")
             return
         }
-        SkyHanniMod.launchIOCoroutine {
+        SkyHanniMod.launchIOCoroutine("mining event tracker send data") {
             sendData(miningEventJson)
         }
     }

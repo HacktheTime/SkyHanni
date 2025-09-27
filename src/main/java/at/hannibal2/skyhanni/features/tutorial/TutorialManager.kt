@@ -38,7 +38,7 @@ class TutorialManager {
             parsed.onLoad()
             // persist into profile storage
             ProfileStorageData.profileSpecific?.tutorialManager?.activeTutorial = parsed
-            SkyHanniMod.launchCoroutine { SkyHanniMod.configManager.saveConfig(ConfigFileType.STORAGE, "import-tutorial") }
+            SkyHanniMod.launchCoroutine("Save Tutorial") { SkyHanniMod.configManager.saveConfig(ConfigFileType.STORAGE, "import-tutorial") }
             ChatUtils.chat("§aImported tutorial successfully")
             true
         } catch (e: Throwable) {
