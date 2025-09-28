@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials.steps.misc
+
 import at.hannibal2.skyhanni.features.misc.CenturyCakeAPI
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
@@ -18,15 +19,11 @@ class CakeTutorialStep(
 
     override fun getRequirements(): List<TutorialNode> = emptyList()
 
-    
-
-    
-
-override fun isComplete(tutorial: Tutorial): Boolean {
+    override fun isComplete(tutorial: Tutorial): Boolean {
         return CenturyCakeAPI.ateAllCakes(minimumDuration)
     }
 
-override fun onActivate(tutorial: Tutorial) {
+    override fun onActivate(tutorial: Tutorial) {
         if (CenturyCakeAPI.ateAllCakes(minimumDuration)) {
             complete()
         }

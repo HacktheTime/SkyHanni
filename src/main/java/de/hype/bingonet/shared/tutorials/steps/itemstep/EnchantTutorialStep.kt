@@ -26,14 +26,14 @@ class EnchantTutorialStep(
      * Positive for minimum level. Aka if you want the user to get 5 but they have 6 enter 5
      * 0 or negative. Tells the user to get the exact absolute level. 0 = disenchant
      */
-    val enchantIds : Map<String, Int>,
-) : GUIBasedTutorialStep(Pattern.compile("Enchant Items")){
+    val enchantIds: Map<String, Int>,
+) : GUIBasedTutorialStep(Pattern.compile("Enchant Items")) {
 
     constructor(
         enchants: Map<Enchant, Int>,
         item: TaggedItemCheck,
-    ): this(
-        item, enchantIds = enchants.mapKeys { it.key.nbtName }
+    ) : this(
+        item, enchantIds = enchants.mapKeys { it.key.nbtName },
     )
 
     override fun getStepName(tutorial: Tutorial): String {
@@ -69,7 +69,7 @@ class EnchantTutorialStep(
 
     private fun romanToIntOrNull(s: String): Int? {
         val map = mapOf(
-            'I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000
+            'I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000,
         )
         var sum = 0
         var prev = 0

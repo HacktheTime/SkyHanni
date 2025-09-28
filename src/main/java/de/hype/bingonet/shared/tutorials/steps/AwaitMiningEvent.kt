@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials.steps
+
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.toSHIsland
 import at.hannibal2.skyhanni.events.mining.NewMiningEvent
@@ -22,7 +23,6 @@ class AwaitMiningEvent(
 
     override fun getRequirements(): List<TutorialNode> = emptyList()
 
-    
 
     override fun isComplete(tutorial: Tutorial): Boolean {
         return completed
@@ -30,7 +30,7 @@ class AwaitMiningEvent(
     }
 
 
-@HandleEvent
+    @HandleEvent
     fun onNewMiningEvent(event: NewMiningEvent) {
         if (ignoreEvent()) return
         val runningEvents = event.data.runningEvents

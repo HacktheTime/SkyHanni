@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials.steps.itemstep
+
 import at.hannibal2.skyhanni.api.ReforgeApi
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
@@ -20,9 +21,6 @@ class ReforgeTutorialStep(
 
     private val desiredReforge = reforgeName.lowercase().replace('-', '_')
 
-    
-
-    
 
     override fun getStepName(tutorial: Tutorial): String = "Reforge ${item.displayText} to ${reforgeName}"
 
@@ -32,18 +30,17 @@ class ReforgeTutorialStep(
 
     override fun isComplete(tutorial: Tutorial): Boolean = completed
 
-    
 
-override fun onActivate(tutorial: Tutorial) {
+    override fun onActivate(tutorial: Tutorial) {
         // Pre-select the required reforge in ReforgeHelper; it will block the button until matched
-        ReforgeHelper.setTutorialTargetReforge(ReforgeApi.reforges.firstOrNull{it.name.equals(reforgeName, true)})
+        ReforgeHelper.setTutorialTargetReforge(ReforgeApi.reforges.firstOrNull { it.name.equals(reforgeName, true) })
     }
 
-override fun onDeactivate(tutorial: Tutorial) {
+    override fun onDeactivate(tutorial: Tutorial) {
         ReforgeHelper.setTutorialTargetReforge(null)
     }
 
-@HandleEvent
+    @HandleEvent
     fun onBackgroundDraw(event: GuiContainerEvent.BackgroundDrawnEvent) {
         if (ignoreEvent()) return
 

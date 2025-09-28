@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials.steps.location
+
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.toBNIsland
@@ -20,11 +21,8 @@ class GoToIslandTutorialStep(val island: Islands) : TutorialStep() {
 
     override fun getRequirements(): List<TutorialNode> = emptyList()
 
-    
 
-    
-
-override fun onActivate(tutorial: Tutorial) {
+    override fun onActivate(tutorial: Tutorial) {
         if (HypixelData.skyBlockIsland.toBNIsland() == island) complete()
         chatPromptSuggestion("Next Task: Travel to ${island.getDisplayName()}. Warp now?") {
             island.warpArgument?.let {
@@ -33,7 +31,7 @@ override fun onActivate(tutorial: Tutorial) {
         }
     }
 
-@HandleEvent
+    @HandleEvent
     fun onIslandChange(event: IslandChangeEvent) {
         if (isActive && event.newIsland.toBNIsland() == island) complete()
     }

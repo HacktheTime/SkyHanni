@@ -13,7 +13,7 @@ import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 import at.hannibal2.skyhanni.features.tutorial.SellProtection
 
 class ObtainCoinsTutorialStep(
-    val amount: Long
+    val amount: Long,
 ) : TutorialStep() {
 
     private var lastKnownPurse: Double = PurseApi.currentPurse

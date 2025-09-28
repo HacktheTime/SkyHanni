@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials.paths
+
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import kotlin.collections.flatten

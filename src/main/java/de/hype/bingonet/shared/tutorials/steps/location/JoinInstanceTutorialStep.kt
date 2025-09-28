@@ -1,11 +1,12 @@
 package de.hype.bingonet.shared.tutorials.steps.location
+
 import de.hype.bingonet.shared.constants.SkyblockInstance
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 class JoinInstanceTutorialStep(
-    val instance: SkyblockInstance
+    val instance: SkyblockInstance,
 ) : TutorialStep() {
     override fun getStepName(tutorial: Tutorial): String {
         return "Join a ${instance.displayName}"

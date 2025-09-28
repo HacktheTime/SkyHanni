@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials
+
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
@@ -19,7 +20,7 @@ class Tutorial(
     // Selected route IDs for SelectPathTutorialForks
     private val selectedPathIds = mutableSetOf<String>()
 
-    
+
     private var cachedShowDescriptions: Boolean? = null
 
     fun reset() {
@@ -30,7 +31,6 @@ class Tutorial(
 
     val steps: List<TutorialNode> get() = _steps
 
-    
 
     fun selectPath(optionId: String) {
         selectedPathIds.add(optionId)
@@ -97,11 +97,6 @@ class Tutorial(
     lateinit var requiredResources: Map<NeuInternalName, Double>
         private set
 
-    
-
-    
-
-    
 
     private fun invalidateRenderable() {
     }
@@ -114,9 +109,8 @@ class Tutorial(
     fun onLoad() {
     }
 
-    
 
-fun getSelectedOption(options: List<SelectPathTutorialFork.SelectedPathTutorialFork>): SelectPathTutorialFork.SelectedPathTutorialFork? {
+    fun getSelectedOption(options: List<SelectPathTutorialFork.SelectedPathTutorialFork>): SelectPathTutorialFork.SelectedPathTutorialFork? {
         options.forEach { if (selectedPathIds.contains(it.option.id)) return it }
         if (options.size == 1) return options.first()
         ChatUtils.chat(
@@ -132,13 +126,13 @@ fun getSelectedOption(options: List<SelectPathTutorialFork.SelectedPathTutorialF
         return null
     }
 
-@HandleEvent
+    @HandleEvent
     fun onTutorialStepComplete(event: TutorialStepCompleteEvent) {
         refreshCaches()
         invalidateAndRebuild()
     }
 
-fun refreshCaches() {
+    fun refreshCaches() {
         SkyHanniMod.feature.tutorials.protectResourcesAcrossPaths
         val contributors = allStepsFlatMap.filterIsInstance<ResourceContributor>()
         val pending = contributors.filter { step ->
@@ -154,7 +148,7 @@ fun refreshCaches() {
         // todo: if includeAllPaths == true, incorporate optional path resource needs
     }
 
-fun getRenderable(showDescriptions: Boolean): Renderable {
+    fun getRenderable(showDescriptions: Boolean): Renderable {
         val cached = cachedRenderable
         if (cached != null && cachedShowDescriptions == showDescriptions) return cached
         val built = TutorialRenderableBuilder.build(this, showDescriptions)
@@ -163,7 +157,7 @@ fun getRenderable(showDescriptions: Boolean): Renderable {
         return built
     }
 
-private fun validate() {
+    private fun validate() {
         val errors = mutableListOf<String>()
         fun validateNode(node: TutorialNode) {
             errors += node.validate(this)
@@ -179,6 +173,6 @@ private fun validate() {
         }
     }
 
-// Cached renderable of the tree to avoid rebuilding each frame
+    // Cached renderable of the tree to avoid rebuilding each frame
     private var cachedRenderable: Renderable? = null
 }

@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials.steps.misc
+
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep

@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.tutorials
+
 import at.hannibal2.skyhanni.utils.NeuInternalName
 
 /**
