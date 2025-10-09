@@ -42,7 +42,6 @@ import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import java.io.File
 import java.util.TreeMap
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.floor
 //#if MC > 1.21
 //$$ import net.minecraft.registry.Registries
@@ -86,7 +85,7 @@ object EnoughUpdatesManager {
      * Called by the Neu Repo Manager when the NEU repo is reloaded.
      */
     suspend fun reloadItemsFromRepo(progress: ChatProgressUpdates) = loadingMutex.withLock {
-        progress.update("call reloadItemsFromRepo")
+        progress.update("reloadItemsFromRepo")
         progress.update("clearing caches and maps")
         itemStackCache.clear()
         displayNameCache.clear()
@@ -98,7 +97,7 @@ object EnoughUpdatesManager {
         val tempNpcMap = TreeMap<String, NeuNPC>()
         loadItemMap(progress, tempItemMap, tempNpcMap)
 
-        progress.update("call synchronized itemMap")
+        progress.update("synchronized itemMap")
         synchronized(itemMap) {
             itemMap.clear()
             itemMap.putAll(tempItemMap)
@@ -121,12 +120,11 @@ object EnoughUpdatesManager {
             >,
     ) {
         coroutineScope {
-        progress.update("call loadItemMap")
+        progress.update("loadItemMap")
         val fileSystem = EnoughUpdatesRepoManager.repoFileSystem
             val list = fileSystem.list("items").filter { it.endsWith(".json") }
             val partitioned = list.partition { it.contains("NPC") }
-        progress.innerProgress(0, list.size)
-        val done = AtomicInteger(0)
+        progress.innerProgressStart(list.size)
         //Is NPC
         partitioned.first.mapNotNullAsync { name->
             try {
@@ -151,7 +149,7 @@ object EnoughUpdatesManager {
                     internalName = internalName,
                     json = fileSystem.readAllBytesAsJsonElement("items/$name").asJsonObject,
                 )
-                progress.innerProgress(done.incrementAndGet(), list.size)
+                progress.innerProgressStep()
                 val parsed = item ?: return@mapNotNullAsync null
                 internalName to parsed
             } catch (e: Exception) {
