@@ -3,14 +3,15 @@ package de.hype.bingonet.shared.tutorials.steps.requirement
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.PurseApi
 import at.hannibal2.skyhanni.events.PurseChangeEvent
+import at.hannibal2.skyhanni.features.tutorial.SellProtection
 import at.hannibal2.skyhanni.utils.InventoryUtils
-import at.hannibal2.skyhanni.utils.ItemPriceUtils.getNpcPriceOrNull
 import at.hannibal2.skyhanni.utils.ItemPriceUtils.formatCoin
+import at.hannibal2.skyhanni.utils.ItemPriceUtils.getNpcPriceOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import at.hannibal2.skyhanni.features.tutorial.SellProtection
 
 class ObtainCoinsTutorialStep(
     val amount: Long,
@@ -25,7 +26,7 @@ class ObtainCoinsTutorialStep(
         if (need <= 0L) return null
         // Build NPC sell suggestions from current inventory, excluding protected resources
         val protected = SellProtection.getProtectedResources().filterValues { it > 0.0 }.keys
-        val counts = mutableMapOf<at.hannibal2.skyhanni.utils.NeuInternalName, Int>()
+        val counts = mutableMapOf<NeuInternalName, Int>()
         InventoryUtils.getItemsInOwnInventory().forEach { stack ->
             val internal = stack.getInternalNameOrNull() ?: return@forEach
             if (internal in protected) return@forEach

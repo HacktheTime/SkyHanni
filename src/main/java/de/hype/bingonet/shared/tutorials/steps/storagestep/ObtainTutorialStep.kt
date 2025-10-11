@@ -1,13 +1,14 @@
 package de.hype.bingonet.shared.tutorials.steps.storagestep
 
+import at.hannibal2.skyhanni.features.inventory.storage.ItemTagManager
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.InventoryUtils.getAmountInInventoryAndSacks
 import at.hannibal2.skyhanni.utils.InventoryUtils.isTopInventory
 import at.hannibal2.skyhanni.utils.NeuInternalName
-import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
+import at.hannibal2.skyhanni.utils.NeuItems.getRecipes
 import at.hannibal2.skyhanni.utils.PrimitiveRecipe
 import at.hannibal2.skyhanni.utils.RecipeType
-import at.hannibal2.skyhanni.utils.NeuItems.getRecipes
+import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.objects.Position
 import de.hype.bingonet.shared.tutorials.ItemCheck
@@ -17,10 +18,9 @@ import de.hype.bingonet.shared.tutorials.TaggedItemCheck
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import at.hannibal2.skyhanni.features.inventory.storage.ItemTagManager
 import de.hype.bingonet.shared.tutorials.steps.requirement.ObtainCoinsTutorialStep
-import net.minecraft.item.ItemStack
 import kotlin.math.ceil
+import net.minecraft.item.ItemStack
 
 /**
  * Unified obtain step: replaces Buy/Store/Retrieve/Has flows.

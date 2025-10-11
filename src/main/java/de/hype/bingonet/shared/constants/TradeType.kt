@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.constants
+
 import de.hype.bingonet.environment.packetconfig.TradeTypeEnvironmentRegistry
 import java.util.function.IntUnaryOperator
 

@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.packets.network
+
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.packets.base.ExpectReplyPacket
 

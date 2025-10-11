@@ -4,12 +4,12 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.PetData
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.pets.PetChangeEvent
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.toSh
 import de.hype.bingonet.shared.constants.Rarity
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import at.hannibal2.skyhanni.utils.NeuInternalName
 
 class EquipPetTutorialStep(
     val petType: NeuInternalName,
