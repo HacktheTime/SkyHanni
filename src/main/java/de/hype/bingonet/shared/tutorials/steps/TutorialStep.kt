@@ -8,7 +8,7 @@ import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
 
-abstract class TutorialStep(
+abstract class  TutorialStep(
     val guiderMakerExtraNotes: String? = null,
 ) : TutorialNode() {
     open fun onReset(tutorial: Tutorial) {}

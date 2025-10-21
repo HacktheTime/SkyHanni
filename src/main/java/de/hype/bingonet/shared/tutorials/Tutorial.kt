@@ -10,12 +10,15 @@ import at.hannibal2.skyhanni.utils.renderables.Renderable
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
+import java.time.Instant
 
 class Tutorial(
     private val _steps: MutableList<TutorialNode>,
     val name: String,
     val description: String,
     val profileDependend: Boolean = false,
+    var lastModified: Instant = Instant.now(),
+    val updateUrl : String? = null,
 ) {
     // Selected route IDs for SelectPathTutorialForks
     private val selectedPathIds = mutableSetOf<String>()
@@ -87,6 +90,7 @@ class Tutorial(
         node.populateNodeIds(this)
         _steps.add(node)
         invalidateRenderable()
+        lastModified = Instant.now()
     }
 
     fun refresh() {
