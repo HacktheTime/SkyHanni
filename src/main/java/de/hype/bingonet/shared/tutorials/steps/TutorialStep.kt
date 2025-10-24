@@ -1,8 +1,5 @@
 package de.hype.bingonet.shared.tutorials.steps
 
-import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
-import at.hannibal2.skyhanni.utils.ChatUtils
 import de.hype.bingonet.shared.objects.WaypointData
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
@@ -42,9 +39,7 @@ abstract class TutorialStep(
     // to avoid selling needed items. sounds hyper complicated though. maybe not feasable
 
     override fun reset(tutorial: Tutorial) {
-        onReset(tutorial)
-        completed = false
-        isActive = false
+        TutorialStepLogic.reset(this, tutorial)
     }
 
     open fun showOnActive() = true
@@ -60,39 +55,14 @@ abstract class TutorialStep(
     abstract fun getRequirements(): List<TutorialNode>
 
     fun getRecursiveRequirements(tutorial: Tutorial): List<TutorialNode> {
-        val reqs = mutableListOf<TutorialNode>()
-        fun collect(node: TutorialNode) {
-            if (node is TutorialStep) {
-                node.getRequirements().forEach {
-                    if (!reqs.contains(it)) {
-                        reqs.add(it)
-                        collect(it)
-                    }
-                }
-            } else if (node is TutorialFork) {
-                node.getNodes(tutorial).forEach {
-                    if (!reqs.contains(it)) {
-                        reqs.add(it)
-                        collect(it)
-                    }
-                }
-            }
-        }
-        collect(this)
-        return reqs
+        return TutorialStepLogic.getRecursiveRequirements(this, tutorial)
     }
 
     open fun complete() {
-        completed = true
-        TutorialStepCompleteEvent(this).post()
+        TutorialStepLogic.complete(this)
     }
 
     protected fun chatPromptSuggestion(message: String, code: () -> Unit) {
-        ChatUtils.chatPrompt(
-            "§e[SkyHanni Tutorial] $message (Press %KEYBIND% to activate)",
-            SkyHanniMod.feature.tutorials.chatPromptKey,
-            code,
-            prefix = false,
-        )
+        TutorialStepLogic.chatPromptSuggestion(message, code)
     }
 }

@@ -33,8 +33,4 @@ class HiddenOptionalImprovementFork(
     }
 
     override fun getHeader(tutorial: Tutorial): String = "Optional Improvement"
-
-    override fun refresh(tutorial: Tutorial) {
-        getAllInternalNodes().forEach { it.refresh(tutorial) }
-    }
 }

@@ -23,18 +23,18 @@ abstract class TutorialFork() : TutorialNode() {
     abstract fun getHeader(tutorial: Tutorial): String
 
     override fun populateNodeIds(tutorial: Tutorial) {
-        getAllInternalNodes().forEach { it.populateNodeIds(tutorial) }
+        TutorialForkLogic.populateNodeIds(this, tutorial)
     }
 
     override fun refresh(tutorial: Tutorial) {
-        getAllInternalNodes().forEach { it.refresh(tutorial) }
+        TutorialForkLogic.refresh(this, tutorial)
     }
 
     override fun reset(tutorial: Tutorial) {
-        getAllInternalNodes().forEach { it.reset(tutorial) }
+        TutorialForkLogic.reset(this, tutorial)
     }
 
     override fun validate(tutorial: Tutorial): List<String> {
-        return getAllInternalNodes().flatMap { it.validate(tutorial) }
+        return TutorialForkLogic.validate(this, tutorial)
     }
 }
