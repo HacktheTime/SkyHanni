@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
@@ -12,18 +13,14 @@ import de.hype.bingonet.shared.tutorials.ItemCondition
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.storagestep.ObtainTutorialStep
-
 class ObtainEditor : TutorialNodeEditor {
     private val displayInput = TextInput()
     private val descriptionInput = TextInput()
     private val amountInput = TextInput() // for resource checks
     private val forceInvToggle = TextInput() // simplified as toggle via text ON/OFF
     private val tagNameInput = TextInput()
-
     override fun supports(node: TutorialNode): Boolean = node is ObtainTutorialStep
-
     override fun title(node: TutorialNode): String = "Edit 'Obtain' Step"
-
     override fun buildEditor(
         tutorial: Tutorial,
         node: TutorialNode,
@@ -37,9 +34,7 @@ class ObtainEditor : TutorialNodeEditor {
         if (amountInput.textBox.isEmpty() && chk is ResourceItemCheck) amountInput.textBox = chk.amount.toString()
         if (forceInvToggle.textBox.isEmpty()) forceInvToggle.textBox = if (step.forceInventory) "ON" else "OFF"
         if (tagNameInput.textBox.isEmpty()) tagNameInput.textBox = step.tagName.orEmpty()
-
         val toggleHint = Renderable.text("§7Force in Inventory: type ON or OFF")
-
         return listOf(
             Renderable.text("§fEdit 'Obtain' Step (basic)"),
             Renderable.horizontal(spacing = 6) { add(Renderable.text("§7Display: §f")); add(Renderable.textBox("", displayInput, 280, bypassChecks = true)) },
@@ -62,13 +57,12 @@ class ObtainEditor : TutorialNodeEditor {
                         is TaggedItemCheck -> {
                             val tag = tagNameInput.finalText().trim().ifEmpty { chk.tag }
                             TaggedItemCheck(display, desc, tag)
-                        }
                         else -> SingleItemCheck(ItemCondition(), display, desc)
                     }
                     val force = forceInvToggle.finalText().trim().equals("ON", true)
                     val tag = tagNameInput.finalText().trim().ifEmpty { null }
                     val newNode = ObtainTutorialStep(newCheck, step.obtainSource, force, step.forceNPCLeftOver, tag)
-                    try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}
+                    try { TutorialStepLogic.populateNodeIds(newNode, tutorial) } catch (_: Throwable) {}
                     onSave(newNode)
                 }))
                 add(Renderable.clickable("§cCancel", onLeftClick = { onCancel() }))

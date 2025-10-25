@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionDropdown
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionProviders
 import at.hannibal2.skyhanni.utils.renderables.Renderable
@@ -11,14 +12,10 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.location.GoToIslandTutorialStep
-
 class GoToIslandEditor : TutorialNodeEditor {
     private val islandInput = TextInput()
-
     override fun supports(node: TutorialNode): Boolean = node is GoToIslandTutorialStep
-
     override fun title(node: TutorialNode): String = "Edit 'Go To Island' Step"
-
     override fun buildEditor(
         tutorial: Tutorial,
         node: TutorialNode,
@@ -27,7 +24,6 @@ class GoToIslandEditor : TutorialNodeEditor {
     ): List<Renderable> {
         val step = node as GoToIslandTutorialStep
         if (islandInput.textBox.isEmpty()) islandInput.textBox = step.island.getDisplayName()
-
         val content: Map<List<Renderable>, String?> = Islands.entries.associate { isl ->
             val label = Renderable.hoverTips(
                 "§f${isl.getDisplayName()}",
@@ -35,7 +31,6 @@ class GoToIslandEditor : TutorialNodeEditor {
             )
             listOf(Renderable.text("§7• "), label) to isl.getDisplayName()
         }
-
         return listOf(
             Renderable.text("§fEdit 'Go To Island' Step"),
             Renderable.searchBox(
@@ -55,7 +50,7 @@ class GoToIslandEditor : TutorialNodeEditor {
                         isl.getDisplayName().lowercase().contains(q) || isl.name.lowercase().contains(q)
                     } ?: step.island
                     val newNode = GoToIslandTutorialStep(pick)
-                    try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}
+                    try { TutorialStepLogic.populateNodeIds(newNode, tutorial) } catch (_: Throwable) {}
                     onSave(newNode)
                 }))
                 add(Renderable.clickable("§cCancel", onLeftClick = { onCancel() }))

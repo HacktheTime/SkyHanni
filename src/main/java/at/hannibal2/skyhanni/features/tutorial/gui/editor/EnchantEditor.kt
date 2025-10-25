@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionDropdown
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionProviders
 import at.hannibal2.skyhanni.utils.renderables.Renderable
@@ -10,17 +11,13 @@ import de.hype.bingonet.shared.tutorials.TaggedItemCheck
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.itemstep.EnchantTutorialStep
-
 class EnchantEditor : TutorialNodeEditor {
     private val tagInput = TextInput()
     private val enchantIdInput = TextInput()
     private val enchantLevelInput = TextInput()
     private var editMap: MutableMap<String, Int>? = null
-
     override fun supports(node: TutorialNode): Boolean = node is EnchantTutorialStep
-
     override fun title(node: TutorialNode): String = "Edit 'Enchant' Step"
-
     override fun buildEditor(
         tutorial: Tutorial,
         node: TutorialNode,
@@ -31,12 +28,10 @@ class EnchantEditor : TutorialNodeEditor {
         if (tagInput.textBox.isEmpty()) tagInput.textBox = step.item.tag
         if (editMap == null) editMap = step.enchantIds.toMutableMap()
         val map = editMap ?: mutableMapOf()
-
         val list = mutableListOf<Renderable>()
         list += Renderable.text("§fEdit 'Enchant' Step")
         list += Renderable.searchBox(Renderable.text(""), "§7Tag Name: §f", {}, tagInput, hideIfNoText = false, bypassChecks = true)
         list += SuggestionDropdown.below(tagInput, optionsProvider = { SuggestionProviders.filterContains(SuggestionProviders.tagNames() + SuggestionProviders.tagNamesFromSteps(tutorial), tagInput.finalText()) })
-
         // Current enchants overview
         if (map.isNotEmpty()) {
             list += Renderable.text("§7Current Enchants:")
@@ -49,7 +44,6 @@ class EnchantEditor : TutorialNodeEditor {
         } else {
             list += Renderable.text("§8(no enchants yet)")
         }
-
         // Add/update row
         list += Renderable.text(" ")
         list += Renderable.searchBox(Renderable.text(""), "§7Enchant ID: §f", {}, enchantIdInput, hideIfNoText = false, bypassChecks = true)
@@ -62,23 +56,18 @@ class EnchantEditor : TutorialNodeEditor {
                 editMap?.put(id, lvl)
                 enchantIdInput.textBox = ""
                 enchantLevelInput.textBox = ""
-            }
         })
-
-        list += Renderable.text(" ")
         list += Renderable.horizontal(spacing = 8) {
             add(Renderable.clickable("§aSave", onLeftClick = {
                 val newNode = EnchantTutorialStep(
                     TaggedItemCheck(step.item.displayText, step.item.descriptionText, tagInput.finalText().trim()),
                     (editMap ?: emptyMap()).toMap(),
                 )
-                try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}
+                try { TutorialStepLogic.populateNodeIds(newNode, tutorial) } catch (_: Throwable) {}
                 onSave(newNode)
                 editMap = null
             }))
             add(Renderable.clickable("§cCancel", onLeftClick = { onCancel(); editMap = null }))
-        }
-
         return list
     }
 }

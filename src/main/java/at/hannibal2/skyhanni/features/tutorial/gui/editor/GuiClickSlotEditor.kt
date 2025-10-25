@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
@@ -8,16 +9,12 @@ import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.guisteps.GuiClickSlotTutorialStep
 import java.util.regex.Pattern
-
 class GuiClickSlotEditor : TutorialNodeEditor {
     private val guiRegexInput = TextInput()
     private val indexInput = TextInput()
     private val descriptionInput = TextInput()
-
     override fun supports(node: TutorialNode): Boolean = node is GuiClickSlotTutorialStep
-
     override fun title(node: TutorialNode): String = "Edit 'GUI Click Slot' Step"
-
     override fun buildEditor(
         tutorial: Tutorial,
         node: TutorialNode,
@@ -28,7 +25,6 @@ class GuiClickSlotEditor : TutorialNodeEditor {
         if (guiRegexInput.textBox.isEmpty()) guiRegexInput.textBox = step.guiName.pattern()
         if (indexInput.textBox.isEmpty()) indexInput.textBox = step.slotIndex.toString()
         if (descriptionInput.textBox.isEmpty()) descriptionInput.textBox = step.description.orEmpty()
-
         return listOf(
             Renderable.text("§fEdit 'GUI Click Slot' Step"),
             Renderable.horizontal(spacing = 6) { add(Renderable.text("§7GUI Regex: §f")); add(Renderable.textBox("", guiRegexInput, 300, bypassChecks = true)) },
@@ -41,7 +37,7 @@ class GuiClickSlotEditor : TutorialNodeEditor {
                     val idx = indexInput.finalText().trim().filter { it.isDigit() }.toIntOrNull() ?: step.slotIndex
                     val desc = descriptionInput.finalText().trim().ifEmpty { null }
                     val newNode = GuiClickSlotTutorialStep(gui, idx, desc)
-                    try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}
+                    try { TutorialStepLogic.populateNodeIds(newNode, tutorial) } catch (_: Throwable) {}
                     onSave(newNode)
                 }))
                 add(Renderable.clickable("§cCancel", onLeftClick = { onCancel() }))
