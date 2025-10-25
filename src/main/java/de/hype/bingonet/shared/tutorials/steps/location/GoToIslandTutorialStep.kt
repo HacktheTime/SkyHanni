@@ -9,6 +9,7 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 
 class GoToIslandTutorialStep(val island: Islands) : TutorialStep() {
     override fun getStepName(tutorial: Tutorial): String {
@@ -23,8 +24,8 @@ class GoToIslandTutorialStep(val island: Islands) : TutorialStep() {
 
 
     override fun onActivate(tutorial: Tutorial) {
-        if (HypixelData.skyBlockIsland.toBNIsland() == island) complete()
-        chatPromptSuggestion("Next Task: Travel to ${island.getDisplayName()}. Warp now?") {
+        if (HypixelData.skyBlockIsland.toBNIsland() == island) TutorialStepLogic.complete(this)
+        TutorialStepLogic.chatPromptSuggestion("Next Task: Travel to ${island.getDisplayName()}. Warp now?") {
             island.warpArgument?.let {
                 HypixelCommands.warp(it)
             }
@@ -33,6 +34,6 @@ class GoToIslandTutorialStep(val island: Islands) : TutorialStep() {
 
     @HandleEvent
     fun onIslandChange(event: IslandChangeEvent) {
-        if (isActive && event.newIsland.toBNIsland() == island) complete()
+        if (isActive && event.newIsland.toBNIsland() == island) TutorialStepLogic.complete(this)
     }
 }

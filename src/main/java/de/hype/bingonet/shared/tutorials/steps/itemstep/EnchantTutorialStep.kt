@@ -14,6 +14,7 @@ import de.hype.bingonet.shared.tutorials.TaggedItemCheck
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.GUIBasedTutorialStep
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 import java.awt.Color
 import java.util.Locale
 import java.util.regex.Pattern
@@ -163,7 +164,7 @@ class EnchantTutorialStep(
 
         // If nothing to highlight on this page but still missing overall, hint to swap pages
         if (!anyHighlightedOnPage && neededOverview.isNotEmpty()) {
-            chatPromptSuggestion("Swap pages in the Enchanting menu to find the required enchants.") { }
+            TutorialStepLogic.chatPromptSuggestion("Swap pages in the Enchanting menu to find the required enchants.") { }
         }
 
         // Completion check: all needed fulfilled

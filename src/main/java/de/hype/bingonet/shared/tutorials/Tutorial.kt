@@ -9,7 +9,9 @@ import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
+import de.hype.bingonet.shared.tutorials.paths.TutorialForkLogic
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 
 class Tutorial(
     private val _steps: MutableList<TutorialNode>,
@@ -24,7 +26,12 @@ class Tutorial(
     private var cachedShowDescriptions: Boolean? = null
 
     fun reset() {
-        _steps.forEach { it.reset(this) }
+        _steps.forEach { node ->
+            when (node) {
+                is TutorialStep -> TutorialStepLogic.reset(node, this)
+                is TutorialFork -> TutorialForkLogic.reset(node, this)
+            }
+        }
         selectedPathIds.clear()
         invalidateRenderable()
     }
@@ -41,7 +48,7 @@ class Tutorial(
 
     fun skipNode(node: TutorialNode) {
         when (node) {
-            is TutorialStep -> if (!node.completed) node.complete()
+            is TutorialStep -> if (!node.completed) TutorialStepLogic.complete(node)
             is TutorialFork -> node.getAllInternalNodes().forEach { skipNode(it) }
             else -> {}
         }
@@ -78,19 +85,27 @@ class Tutorial(
     fun getActiveSteps(): List<TutorialStep> = allStepsFlatMap.filter { it.isActive }
 
     fun onProfileJoin() {
-        allStepsFlatMap.forEach { it.refresh(this) }
+        allStepsFlatMap.forEach { TutorialStepLogic.refresh(it, this) }
     }
 
     fun generateNodeId(): String = "tutorial_node_${_steps.size + 1}"
 
     fun addNode(node: TutorialNode) {
-        node.populateNodeIds(this)
+        when (node) {
+            is TutorialStep -> TutorialStepLogic.populateNodeIds(node, this)
+            is TutorialFork -> TutorialForkLogic.populateNodeIds(node, this)
+        }
         _steps.add(node)
         invalidateRenderable()
     }
 
     fun refresh() {
-        _steps.forEach { it.refresh(this) }
+        _steps.forEach { node ->
+            when (node) {
+                is TutorialStep -> TutorialStepLogic.refresh(node, this)
+                is TutorialFork -> TutorialForkLogic.refresh(node, this)
+            }
+        }
         selectedPathIds.clear()
     }
 
@@ -160,7 +175,11 @@ class Tutorial(
     private fun validate() {
         val errors = mutableListOf<String>()
         fun validateNode(node: TutorialNode) {
-            errors += node.validate(this)
+            errors += when (node) {
+                is TutorialStep -> TutorialStepLogic.validate(node, this)
+                is TutorialFork -> TutorialForkLogic.validate(node, this)
+                else -> emptyList()
+            }
             when (node) {
                 is TutorialStep -> node.getRequirements().forEach { validateNode(it) }
                 is TutorialFork -> node.getAllInternalNodes().forEach { validateNode(it) }

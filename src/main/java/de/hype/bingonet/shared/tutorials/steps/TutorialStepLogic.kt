@@ -9,9 +9,16 @@ import de.hype.bingonet.shared.tutorials.paths.TutorialFork
 
 /**
  * Logic handler for TutorialStep operations.
- * Separates business logic from data structure.
+ * Handles all business logic for tutorial steps, keeping the step classes as pure data.
  */
 object TutorialStepLogic {
+
+    /**
+     * Check if a step is complete
+     */
+    fun isComplete(step: TutorialStep, tutorial: Tutorial): Boolean {
+        return step.completed || step.check(tutorial)
+    }
 
     /**
      * Handle the reset logic for a tutorial step
@@ -20,6 +27,27 @@ object TutorialStepLogic {
         step.onReset(tutorial)
         step.completed = false
         step.isActive = false
+    }
+
+    /**
+     * Refresh a tutorial step (currently no-op but can be extended)
+     */
+    fun refresh(step: TutorialStep, tutorial: Tutorial) {
+        // Empty implementation - can be extended by subclasses
+    }
+
+    /**
+     * Populate node IDs for a step
+     */
+    fun populateNodeIds(step: TutorialStep, tutorial: Tutorial) {
+        step.nodeId = tutorial.generateNodeId()
+    }
+
+    /**
+     * Validate a tutorial step (default empty, can be overridden)
+     */
+    fun validate(step: TutorialStep, tutorial: Tutorial): List<String> {
+        return emptyList()
     }
 
     /**

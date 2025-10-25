@@ -1,7 +1,8 @@
-package de.hype.bingonet.shared.tutorials.paths
+package de.hype.bingonet.shared/tutorials/paths
 
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
+import de.hype.bingonet.shared.tutorials.TutorialNodeLogic
 import de.hype.bingonet.shared.tutorials.steps.misc.AwaitGodSplashTutorialStep
 import kotlin.time.Duration
 
@@ -15,7 +16,7 @@ class AsyncTutorialFork(
     override fun isAsync(): Boolean = true
 
     override fun isComplete(tutorial: Tutorial): Boolean {
-        return pathNodes.all { it.isComplete(tutorial) }
+        return pathNodes.all { TutorialNodeLogic.isComplete(it, tutorial) }
     }
 
     companion object {

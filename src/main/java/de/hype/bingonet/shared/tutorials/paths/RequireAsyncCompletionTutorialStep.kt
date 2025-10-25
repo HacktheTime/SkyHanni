@@ -2,6 +2,7 @@ package de.hype.bingonet.shared.tutorials.paths
 
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
+import de.hype.bingonet.shared.tutorials.TutorialNodeLogic
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 class RequireAsyncCompletionTutorialStep(node: TutorialNode) : TutorialStep() {
@@ -22,7 +23,7 @@ class RequireAsyncCompletionTutorialStep(node: TutorialNode) : TutorialStep() {
     override fun showOnActive(): Boolean = false
     override fun getRequirements() = emptyList<TutorialNode>()
 
-    override fun isComplete(tutorial: Tutorial): Boolean {
-        return getNodeReference(tutorial).isComplete(tutorial)
+    override fun check(tutorial: Tutorial): Boolean {
+        return TutorialNodeLogic.isComplete(getNodeReference(tutorial), tutorial)
     }
 }

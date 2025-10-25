@@ -3,6 +3,7 @@ package de.hype.bingonet.shared.tutorials.paths
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialCondition
 import de.hype.bingonet.shared.tutorials.TutorialNode
+import de.hype.bingonet.shared.tutorials.TutorialNodeLogic
 
 /**
  * A fork that
@@ -29,7 +30,7 @@ class HiddenOptionalImprovementFork(
     }
 
     override fun isComplete(tutorial: Tutorial): Boolean {
-        return getNodes(tutorial).all { it.isComplete(tutorial) }
+        return getNodes(tutorial).all { TutorialNodeLogic.isComplete(it, tutorial) }
     }
 
     override fun getHeader(tutorial: Tutorial): String = "Optional Improvement"

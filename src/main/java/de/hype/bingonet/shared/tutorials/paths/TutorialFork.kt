@@ -3,6 +3,11 @@ package de.hype.bingonet.shared.tutorials.paths
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 
+/**
+ * Pure data class for tutorial forks.
+ * Contains only abstract methods for data access.
+ * All logic is handled by TutorialForkLogic.
+ */
 abstract class TutorialFork() : TutorialNode() {
     /**
      * Nodes of this fork.
@@ -21,20 +26,4 @@ abstract class TutorialFork() : TutorialNode() {
      * Header text to display for this fork in UIs.
      */
     abstract fun getHeader(tutorial: Tutorial): String
-
-    override fun populateNodeIds(tutorial: Tutorial) {
-        TutorialForkLogic.populateNodeIds(this, tutorial)
-    }
-
-    override fun refresh(tutorial: Tutorial) {
-        TutorialForkLogic.refresh(this, tutorial)
-    }
-
-    override fun reset(tutorial: Tutorial) {
-        TutorialForkLogic.reset(this, tutorial)
-    }
-
-    override fun validate(tutorial: Tutorial): List<String> {
-        return TutorialForkLogic.validate(this, tutorial)
-    }
 }

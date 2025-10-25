@@ -2,6 +2,7 @@ package de.hype.bingonet.shared.tutorials.paths
 
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
+import de.hype.bingonet.shared.tutorials.TutorialNodeLogic
 
 class SelectPathTutorialFork(
     val paths: List<SelectedPathTutorialFork>,
@@ -15,7 +16,7 @@ class SelectPathTutorialFork(
     override fun isAsync(): Boolean = false
 
     override fun isComplete(tutorial: Tutorial): Boolean {
-        return paths.any { it.pathNodes.all { node -> node.isComplete(tutorial) } }
+        return paths.any { it.pathNodes.all { node -> TutorialNodeLogic.isComplete(node, tutorial) } }
     }
 
     data class SelectedPathTutorialFork(

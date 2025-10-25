@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.features.inventory.storage.ItemTagManager
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
+import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 
 class TagItemTutorialStep(val tagName: String, val explenation: String) : TutorialStep() {
     override fun getStepName(tutorial: Tutorial): String {
@@ -21,8 +22,8 @@ class TagItemTutorialStep(val tagName: String, val explenation: String) : Tutori
 
     override fun onActivate(tutorial: Tutorial) {
         if (ItemTagManager.hasTag(tagName)) {
-            chatPromptSuggestion("You have a Item tagged with $tagName already. Use the Keybind or redo /shtagitem $tagName with a new item.") {
-                complete()
+            TutorialStepLogic.chatPromptSuggestion("You have a Item tagged with $tagName already. Use the Keybind or redo /shtagitem $tagName with a new item.") {
+                TutorialStepLogic.complete(this)
             }
         }
     }
