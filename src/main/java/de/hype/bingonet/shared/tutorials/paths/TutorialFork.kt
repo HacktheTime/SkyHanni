@@ -1,29 +1,10 @@
 package de.hype.bingonet.shared.tutorials.paths
 
-import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 
 /**
  * Pure data class for tutorial forks.
- * Contains only abstract methods for data access.
- * All logic is handled by TutorialForkLogic.
+ * Contains only data properties - NO methods or logic.
+ * All behavior is handled externally by TutorialForkLogic.
  */
-abstract class TutorialFork() : TutorialNode() {
-    /**
-     * Nodes of this fork.
-     */
-    abstract fun getNodes(tutorial: Tutorial): List<TutorialNode>
-
-    /**
-     * If this fork is asynchronous this means that its node are splitting off from the main branch and multiple nodes can be active at the same time.
-     * This is useful when waiting for something like a Mining Event before you can continue effectively
-     */
-    abstract fun isAsync(): Boolean
-
-    abstract fun getAllInternalNodes(): List<TutorialNode>
-
-    /**
-     * Header text to display for this fork in UIs.
-     */
-    abstract fun getHeader(tutorial: Tutorial): String
-}
+abstract class TutorialFork() : TutorialNode()
