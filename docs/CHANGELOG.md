@@ -1,14 +1,14 @@
 # Bingo Net
 
-#### Chat Features
-
 The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Only merged in changes from SkyHanni. No additional changes.
-
-Currently working on an In game Guide which is going to take a while until its done.
+- Possible fix for Chat Prompts not working properly
+- Attempted a fix of BN Splash Announce packets
+- Added Dungeon Quality Tooltip
+    - Supports best item highlighting
+    - And support for showing it as stack size.
 
 ## Static Info for modrinth:
 

@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.utils
+
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KMutableProperty0

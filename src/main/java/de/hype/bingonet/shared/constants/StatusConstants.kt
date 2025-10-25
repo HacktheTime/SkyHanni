@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.constants
+
 import java.awt.Color
 
 enum class StatusConstants(@JvmField var displayName: String, @JvmField var color: Color) {

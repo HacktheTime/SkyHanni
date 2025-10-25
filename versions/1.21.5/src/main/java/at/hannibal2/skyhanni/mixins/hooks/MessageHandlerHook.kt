@@ -34,5 +34,5 @@ fun onGameMessage(message: Text, actionBar: Boolean, original: Operation<Void>) 
         ClientReceiveMessageEvents.GAME_CANCELED.invoker().onReceiveGameMessageCanceled(message, actionBar)
         return
     }
-    original.call(message, actionBar);
+    original.call(message, actionBar)
 }

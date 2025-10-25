@@ -1,4 +1,5 @@
 package de.hype.bingonet.sharedcompilation.sbenums.minions
+
 import at.hannibal2.skyhanni.utils.NeuInternalName
 
 open class MinionType(

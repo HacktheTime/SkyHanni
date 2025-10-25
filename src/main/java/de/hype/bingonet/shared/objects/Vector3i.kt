@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.objects
+
 import java.lang.Double.doubleToLongBits
 import kotlin.math.sign
 

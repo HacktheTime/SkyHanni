@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.constants
+
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.environment.NeuEnvironmentRepo
 import kotlin.math.min

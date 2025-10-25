@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.objects.minions
+
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.environment.withTierData
 import de.hype.bingonet.sharedcompilation.sbenums.minions.Minion

@@ -1252,65 +1252,6 @@ interface Renderable {
             }
         }
 
-        fun fakePlayer(
-            player: EntityPlayer,
-            followMouse: Boolean = false,
-            eyesX: Float = 0f,
-            eyesY: Float = 0f,
-            width: Int = 50,
-            height: Int = 100,
-            entityScale: Int = 30,
-            padding: Int = 5,
-            color: Color? = null,
-            colorCondition: () -> Boolean = { true },
-        ) = object : Renderable {
-            override val width = width + 2 * padding
-            override val height = height + 2 * padding
-            override val horizontalAlign = HorizontalAlignment.LEFT
-            override val verticalAlign = VerticalAlignment.TOP
-            val playerHeight = entityScale * 2
-            val playerX = width / 2 + padding
-            val playerY = height / 2 + playerHeight / 2 + padding
-
-            override fun render(mouseOffsetX: Int, mouseOffsetY: Int) {
-                GlStateManager.color(1f, 1f, 1f, 1f)
-                if (color != null) RenderLivingEntityHelper.setEntityColor(player, color, colorCondition)
-                val mouse = currentRenderPassMousePosition ?: return
-                val (mouseXRelativeToPlayer, mouseYRelativeToPlayer) = if (followMouse) {
-                    val newOffsetX = (mouseOffsetX + playerX - mouse.first).toFloat()
-                    val newOffsetY = (mouseOffsetY + playerY - mouse.second - 1.62 * entityScale).toFloat()
-                    newOffsetX to newOffsetY
-                } else eyesX to eyesY
-                DrawContextUtils.translate(0f, 0f, 100f)
-                //#if MC < 1.21
-                drawEntityOnScreen(
-                    playerX,
-                    playerY,
-                    entityScale,
-                    mouseXRelativeToPlayer,
-                    mouseYRelativeToPlayer,
-                    player,
-                )
-                //#else
-                //$$ DrawContextUtils.translate(-35f, -125f, 0f)
-                //$$ drawEntity(
-                //$$     DrawContextUtils.drawContext,
-                //$$     playerX,
-                //$$     playerY,
-                //$$     playerX + width,
-                //$$     playerY + height,
-                //$$     entityScale,
-                //$$     0.0625f,
-                //$$     -mouseXRelativeToPlayer + if (followMouse) 70f else 0f,
-                //$$     -mouseYRelativeToPlayer + if (followMouse) 195f else 0f,
-                //$$     player
-                //$$ )
-                //$$ DrawContextUtils.translate(35f, 125f, 0f)
-                //#endif
-                DrawContextUtils.translate(0f, 0f, -100f)
-            }
-        }
-
         fun textBox(
             prefix: String,
             input: TextInput,
@@ -1332,7 +1273,8 @@ interface Renderable {
 
             override fun render(mouseOffsetX: Int, mouseOffsetY: Int) {
                 // Draw dark background box
-                val boxColor = if (isHovered(mouseOffsetX, mouseOffsetY)) {
+                val hovered = isHovered(mouseOffsetX, mouseOffsetY)
+                val boxColor = if (hovered) {
                     0xFF404040.toInt() // Lighter when hovered
                 } else {
                     0xFF202020.toInt() // Dark background
@@ -1342,7 +1284,7 @@ interface Renderable {
                 // Draw border
                 val borderColor = if (input.isActive) {
                     0xFF00AAFF.toInt() // Blue when active
-                } else if (isHovered(mouseOffsetX, mouseOffsetY)) {
+                } else if (hovered) {
                     0xFF888888.toInt() // Light gray when hovered
                 } else {
                     0xFF555555.toInt() // Dark gray normally
@@ -1352,14 +1294,18 @@ interface Renderable {
                 GuiRenderUtils.drawRect(0, 0, 1, height, borderColor) // Left
                 GuiRenderUtils.drawRect(width - 1, 0, width, height, borderColor) // Right
 
-                if (isHovered(mouseOffsetX, mouseOffsetY) && condition() && shouldAllowLink(true, bypassChecks)) {
+                // Activation: previously this activated & handled only while hovered, disabling otherwise.
+                // That prevented deletions when mouse left the box. Now we only activate on hover+condition
+                // but keep it active until ESC (or other logic) disables it.
+                if (hovered && condition() && shouldAllowLink(true, bypassChecks)) {
                     input.makeActive()
-                    input.handle()
                     if (RIGHT_MOUSE.isKeyClicked()) {
                         input.clear()
                     }
-                } else {
-                    input.disable()
+                }
+                // Always handle keyboard input while active so user can continue editing even when not hovered.
+                if (input.isActive) {
+                    input.handle()
                 }
 
                 // Render text with some padding

@@ -7,7 +7,7 @@ import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 /**
  * Pure data class for item obtaining tutorial steps.
  * Step completes when the specified item is obtained.
- * 
+ *
  * @param forceInventory If true, requires the item to be in inventory
  * @param forceNPCLeftOver If set, requires keeping this amount when buying from NPC
  * @param tagName If set, tags the obtained item with this name

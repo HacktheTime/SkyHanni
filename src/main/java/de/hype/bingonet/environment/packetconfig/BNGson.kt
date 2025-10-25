@@ -8,14 +8,18 @@ import de.hype.bingonet.shared.json.DurationSerializer
 import de.hype.bingonet.shared.json.InstantSerializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import de.hype.bingonet.projectsync.registerProjectSyncAdapters
 
 object BNGson {
-    var ownSerializer: Gson = GsonBuilder().create()
     fun create(): Gson {
-        return base.setPrettyPrinting().create()
+        return base.setPrettyPrinting().registerProjectSyncAdapters().create()
     }
 
     fun createNotPrettyPrinting(): Gson {
+        return base.registerProjectSyncAdapters().create()
+    }
+
+    fun createInternal(): Gson {
         return base.create()
     }
 
