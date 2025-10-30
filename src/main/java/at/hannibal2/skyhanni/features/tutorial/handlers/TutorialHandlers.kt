@@ -79,13 +79,73 @@ object TutorialHandlers {
             at.hannibal2.skyhanni.features.tutorial.handlers.steps.requirement.SkillTutorialStepHandler()
         )
         
-        // TODO: Register remaining step handlers as they are implemented
-        // - MinionTutorialStep
-        // - AwaitMiningEvent  
-        // - GUI-based steps (3)
-        // - Misc steps (6)
-        // - Requirement steps (3 more)
-        // - Storage steps (2 more)
+        // GUI handlers
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.guisteps.GuiClickSlotTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.gui.GuiClickSlotTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.guisteps.GuiItemTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.gui.GuiItemTutorialStepHandler()
+        )
+        
+        // Basic/Misc handlers
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.MinionTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.MinionTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.AwaitMiningEvent::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.AwaitMiningEventHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.misc.AwaitGodSplashTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.AwaitGodSplashTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.misc.CakeTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.CakeTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.misc.DailyEnchantingXpTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.DailyEnchantingXpTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.misc.EquipPetTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.EquipPetTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.misc.InTimeframeTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.InTimeframeTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.misc.ObtainBingoGoalTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.misc.ObtainBingoGoalTutorialStepHandler()
+        )
+        
+        // Remaining requirement handlers
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.requirement.CollectionLevelRequirement::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.requirement.CollectionLevelRequirementHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.requirement.NeuRecipeRequirement::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.requirement.NeuRecipeRequirementHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.requirement.ObtainCoinsTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.requirement.ObtainCoinsTutorialStepHandler()
+        )
+        
+        // Remaining storage handlers
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.storagestep.EquipArmorTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.storage.EquipArmorTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.storagestep.ObtainFromNEURecipeTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.storage.ObtainFromNEURecipeTutorialStepHandler()
+        )
     }
     
     private fun registerForkHandlers() {
