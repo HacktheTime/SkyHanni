@@ -53,15 +53,39 @@ object TutorialHandlers {
             at.hannibal2.skyhanni.features.tutorial.handlers.steps.location.SubAreaTutorialStepHandler()
         )
         
+        // Priority 1 - Core handlers
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.CollectionTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.CollectionTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.storagestep.ObtainTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.storage.ObtainTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.itemstep.TagItemTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.item.TagItemTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.itemstep.EnchantTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.item.EnchantTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.itemstep.ReforgeTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.item.ReforgeTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.requirement.SkillTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.requirement.SkillTutorialStepHandler()
+        )
+        
         // TODO: Register remaining step handlers as they are implemented
-        // - CollectionTutorialStep
         // - MinionTutorialStep
-        // - AwaitMiningEvent
-        // - GUI-based steps (2)
-        // - Item steps (3)
+        // - AwaitMiningEvent  
+        // - GUI-based steps (3)
         // - Misc steps (6)
-        // - Requirement steps (4)
-        // - Storage steps (3)
+        // - Requirement steps (3 more)
+        // - Storage steps (2 more)
     }
     
     private fun registerForkHandlers() {
