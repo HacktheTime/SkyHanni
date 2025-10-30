@@ -29,6 +29,12 @@ object TutorialHandlers {
         TutorialHandlerRegistry.registerStepHandler(MessageTutorialStep::class, MessageTutorialStepHandler())
         TutorialHandlerRegistry.registerStepHandler(TextTutorialStep::class, TextTutorialStepHandler())
         
+        // Register RequireAsyncCompletionTutorialStep (technically a step but in paths package)
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.paths.RequireAsyncCompletionTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.RequireAsyncCompletionTutorialStepHandler()
+        )
+        
         // TODO: Register remaining step handlers as they are implemented
         // - CollectionTutorialStep
         // - MinionTutorialStep
@@ -42,12 +48,25 @@ object TutorialHandlers {
     }
     
     private fun registerForkHandlers() {
-        // TODO: Register fork handlers as they are implemented
-        // - AsyncTutorialFork
-        // - OptionalTutorialFork
-        // - SelectPathTutorialFork
-        // - HiddenOptionalImprovementFork
-        // - RequireAsyncCompletionTutorialStep
-        // - WhileTutorialNode
+        TutorialForkHandlerRegistry.registerForkHandler(
+            de.hype.bingonet.shared.tutorials.paths.AsyncTutorialFork::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.forks.AsyncTutorialForkHandler()
+        )
+        TutorialForkHandlerRegistry.registerForkHandler(
+            de.hype.bingonet.shared.tutorials.paths.HiddenOptionalImprovementFork::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.forks.HiddenOptionalImprovementForkHandler()
+        )
+        TutorialForkHandlerRegistry.registerForkHandler(
+            de.hype.bingonet.shared.tutorials.paths.OptionalTutorialFork::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.forks.OptionalTutorialForkHandler()
+        )
+        TutorialForkHandlerRegistry.registerForkHandler(
+            de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.forks.SelectPathTutorialForkHandler()
+        )
+        TutorialForkHandlerRegistry.registerForkHandler(
+            de.hype.bingonet.shared.tutorials.paths.WhileTutorialNode::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.forks.WhileTutorialNodeHandler()
+        )
     }
 }
