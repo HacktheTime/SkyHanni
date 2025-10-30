@@ -35,16 +35,33 @@ object TutorialHandlers {
             at.hannibal2.skyhanni.features.tutorial.handlers.steps.RequireAsyncCompletionTutorialStepHandler()
         )
         
+        // Location steps
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.location.GoToIslandTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.location.GoToIslandTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.location.GoToPositionTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.location.GoToPositionTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.location.JoinInstanceTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.location.JoinInstanceTutorialStepHandler()
+        )
+        TutorialHandlerRegistry.registerStepHandler(
+            de.hype.bingonet.shared.tutorials.steps.location.SubAreaTutorialStep::class,
+            at.hannibal2.skyhanni.features.tutorial.handlers.steps.location.SubAreaTutorialStepHandler()
+        )
+        
         // TODO: Register remaining step handlers as they are implemented
         // - CollectionTutorialStep
         // - MinionTutorialStep
         // - AwaitMiningEvent
-        // - GUI-based steps
-        // - Item steps
-        // - Location steps
-        // - Misc steps
-        // - Requirement steps
-        // - Storage steps
+        // - GUI-based steps (2)
+        // - Item steps (3)
+        // - Misc steps (6)
+        // - Requirement steps (4)
+        // - Storage steps (3)
     }
     
     private fun registerForkHandlers() {
