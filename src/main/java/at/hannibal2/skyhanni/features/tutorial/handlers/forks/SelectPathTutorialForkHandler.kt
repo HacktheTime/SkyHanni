@@ -3,7 +3,7 @@ package at.hannibal2.skyhanni.features.tutorial.handlers.forks
 import at.hannibal2.skyhanni.features.tutorial.handlers.TutorialForkHandler
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
-import de.hype.bingonet.shared.tutorials.TutorialNodeLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialNodeLogic
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 
 class SelectPathTutorialForkHandler : TutorialForkHandler<SelectPathTutorialFork> {

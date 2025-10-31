@@ -1,7 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionDropdown
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionProviders
 import at.hannibal2.skyhanni.utils.renderables.Renderable

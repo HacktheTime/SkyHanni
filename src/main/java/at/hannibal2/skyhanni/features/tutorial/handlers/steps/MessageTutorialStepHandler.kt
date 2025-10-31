@@ -8,7 +8,7 @@ import at.hannibal2.skyhanni.utils.StringUtils.convertToUnformatted
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.MessageTutorialStep
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import java.util.regex.Pattern
 
 /**

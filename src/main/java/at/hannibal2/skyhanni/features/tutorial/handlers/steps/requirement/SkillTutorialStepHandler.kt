@@ -6,7 +6,7 @@ import at.hannibal2.skyhanni.events.ProfileJoinEvent
 import at.hannibal2.skyhanni.features.tutorial.handlers.TutorialStepHandler
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import de.hype.bingonet.shared.tutorials.steps.requirement.SkillTutorialStep
 
 class SkillTutorialStepHandler : TutorialStepHandler<SkillTutorialStep> {

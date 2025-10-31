@@ -1,7 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.utils.renderables.Renderable
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode

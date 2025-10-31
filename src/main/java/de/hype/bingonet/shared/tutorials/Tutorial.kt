@@ -4,14 +4,14 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
 import at.hannibal2.skyhanni.features.tutorial.gui.TutorialRenderableBuilder
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialForkLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
-import de.hype.bingonet.shared.tutorials.paths.TutorialForkLogic
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 import java.time.Instant
 
 class Tutorial(

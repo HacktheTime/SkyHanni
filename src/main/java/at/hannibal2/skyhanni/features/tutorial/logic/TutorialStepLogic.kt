@@ -1,4 +1,4 @@
-package de.hype.bingonet.shared.tutorials.steps
+package at.hannibal2.skyhanni.features.tutorial.logic
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
@@ -7,7 +7,7 @@ import at.hannibal2.skyhanni.utils.ChatUtils
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
-import de.hype.bingonet.shared.tutorials.paths.TutorialForkLogic
+import de.hype.bingonet.shared.tutorials.steps.TutorialStep
 
 /**
  * Logic handler for TutorialStep operations.

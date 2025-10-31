@@ -1,10 +1,11 @@
 package at.hannibal2.skyhanni.features.tutorial.handlers.forks
 
 import at.hannibal2.skyhanni.features.tutorial.handlers.TutorialForkHandler
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialConditionLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.paths.WhileTutorialNode
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 
 class WhileTutorialNodeHandler : TutorialForkHandler<WhileTutorialNode> {
     
@@ -23,7 +24,7 @@ class WhileTutorialNodeHandler : TutorialForkHandler<WhileTutorialNode> {
     }
     
     override fun isComplete(fork: WhileTutorialNode, tutorial: Tutorial): Boolean {
-        val done = fork.condition.matches(tutorial)
+        val done = TutorialConditionLogic.matches(fork.condition, tutorial)
         if (done) {
             fork.nodes.forEach { TutorialStepLogic.complete(it) }
         } else {

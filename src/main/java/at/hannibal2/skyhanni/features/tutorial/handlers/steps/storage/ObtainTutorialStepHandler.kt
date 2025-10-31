@@ -6,7 +6,7 @@ import at.hannibal2.skyhanni.features.tutorial.handlers.TutorialStepHandler
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import de.hype.bingonet.shared.tutorials.steps.storagestep.ObtainTutorialStep
 
 class ObtainTutorialStepHandler : TutorialStepHandler<ObtainTutorialStep> {

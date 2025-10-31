@@ -1,15 +1,16 @@
 package at.hannibal2.skyhanni.features.tutorial.handlers.forks
 
 import at.hannibal2.skyhanni.features.tutorial.handlers.TutorialForkHandler
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialConditionLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialNodeLogic
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
-import de.hype.bingonet.shared.tutorials.TutorialNodeLogic
 import de.hype.bingonet.shared.tutorials.paths.HiddenOptionalImprovementFork
 
 class HiddenOptionalImprovementForkHandler : TutorialForkHandler<HiddenOptionalImprovementFork> {
     
     override fun getNodes(fork: HiddenOptionalImprovementFork, tutorial: Tutorial): List<TutorialNode> {
-        return if (fork.condition.matches(tutorial)) {
+        return if (TutorialConditionLogic.matches(fork.condition, tutorial)) {
             fork.improved
         } else {
             fork.default

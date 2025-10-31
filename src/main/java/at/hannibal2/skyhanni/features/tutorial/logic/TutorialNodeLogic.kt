@@ -1,9 +1,9 @@
-package de.hype.bingonet.shared.tutorials
+package at.hannibal2.skyhanni.features.tutorial.logic
 
+import de.hype.bingonet.shared.tutorials.Tutorial
+import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
-import de.hype.bingonet.shared.tutorials.paths.TutorialForkLogic
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
 
 /**
  * Utility object for handling TutorialNode operations polymorphically.

@@ -6,7 +6,7 @@ import at.hannibal2.skyhanni.features.tutorial.handlers.TutorialStepHandler
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.AwaitMiningEvent
-import de.hype.bingonet.shared.tutorials.steps.TutorialStepLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 
 class AwaitMiningEventHandler : TutorialStepHandler<AwaitMiningEvent> {
     
