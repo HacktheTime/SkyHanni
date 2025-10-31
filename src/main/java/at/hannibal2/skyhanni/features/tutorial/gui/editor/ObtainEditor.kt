@@ -57,6 +57,7 @@ class ObtainEditor : TutorialNodeEditor {
                         is TaggedItemCheck -> {
                             val tag = tagNameInput.finalText().trim().ifEmpty { chk.tag }
                             TaggedItemCheck(display, desc, tag)
+                        }
                         else -> SingleItemCheck(ItemCondition(), display, desc)
                     }
                     val force = forceInvToggle.finalText().trim().equals("ON", true)

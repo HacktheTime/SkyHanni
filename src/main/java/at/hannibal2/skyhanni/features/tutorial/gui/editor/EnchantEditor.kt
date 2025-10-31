@@ -56,6 +56,7 @@ class EnchantEditor : TutorialNodeEditor {
                 editMap?.put(id, lvl)
                 enchantIdInput.textBox = ""
                 enchantLevelInput.textBox = ""
+            }
         })
         list += Renderable.horizontal(spacing = 8) {
             add(Renderable.clickable("§aSave", onLeftClick = {
@@ -68,6 +69,7 @@ class EnchantEditor : TutorialNodeEditor {
                 editMap = null
             }))
             add(Renderable.clickable("§cCancel", onLeftClick = { onCancel(); editMap = null }))
+        }
         return list
     }
 }
