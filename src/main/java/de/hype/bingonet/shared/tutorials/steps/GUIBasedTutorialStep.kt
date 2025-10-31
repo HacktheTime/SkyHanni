@@ -1,16 +1,11 @@
 package de.hype.bingonet.shared.tutorials.steps
 
-import at.hannibal2.skyhanni.utils.InventoryDetector
 import java.util.regex.Pattern
 
-abstract class GUIBasedTutorialStep(val guiName: Pattern) : TutorialStep() {
-    val inventory = InventoryDetector(
-        pattern = guiName,
-        onOpenInventory = {},
-        onCloseInventory = {},
-    )
-
-    override fun ignoreEvent(): Boolean {
-        return super.ignoreEvent() || !inventory.isInside()
-    }
-}
+/**
+ * Pure data class for GUI-based tutorial steps.
+ * Base class for steps that require specific GUI to be open.
+ */
+abstract class GUIBasedTutorialStep(
+    val guiName: Pattern,
+) : TutorialStep()

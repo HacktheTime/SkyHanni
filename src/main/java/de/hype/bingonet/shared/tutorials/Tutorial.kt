@@ -4,6 +4,8 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.tutorials.TutorialStepCompleteEvent
 import at.hannibal2.skyhanni.features.tutorial.gui.TutorialRenderableBuilder
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialForkLogic
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.renderables.Renderable
@@ -27,7 +29,12 @@ class Tutorial(
     private var cachedShowDescriptions: Boolean? = null
 
     fun reset() {
-        _steps.forEach { it.reset(this) }
+        _steps.forEach { node ->
+            when (node) {
+                is TutorialStep -> TutorialStepLogic.reset(node, this)
+                is TutorialFork -> TutorialForkLogic.reset(node, this)
+            }
+        }
         selectedPathIds.clear()
         invalidateRenderable()
     }
@@ -44,7 +51,7 @@ class Tutorial(
 
     fun skipNode(node: TutorialNode) {
         when (node) {
-            is TutorialStep -> if (!node.completed) node.complete()
+            is TutorialStep -> if (!node.completed) TutorialStepLogic.complete(node)
             is TutorialFork -> node.getAllInternalNodes().forEach { skipNode(it) }
             else -> {}
         }
@@ -81,20 +88,28 @@ class Tutorial(
     fun getActiveSteps(): List<TutorialStep> = allStepsFlatMap.filter { it.isActive }
 
     fun onProfileJoin() {
-        allStepsFlatMap.forEach { it.refresh(this) }
+        allStepsFlatMap.forEach { TutorialStepLogic.refresh(it, this) }
     }
 
     fun generateNodeId(): String = "tutorial_node_${_steps.size + 1}"
 
     fun addNode(node: TutorialNode) {
-        node.populateNodeIds(this)
+        when (node) {
+            is TutorialStep -> TutorialStepLogic.populateNodeIds(node, this)
+            is TutorialFork -> TutorialForkLogic.populateNodeIds(node, this)
+        }
         _steps.add(node)
         invalidateRenderable()
         lastModified = Instant.now()
     }
 
     fun refresh() {
-        _steps.forEach { it.refresh(this) }
+        _steps.forEach { node ->
+            when (node) {
+                is TutorialStep -> TutorialStepLogic.refresh(node, this)
+                is TutorialFork -> TutorialForkLogic.refresh(node, this)
+            }
+        }
         selectedPathIds.clear()
     }
 
@@ -164,7 +179,11 @@ class Tutorial(
     private fun validate() {
         val errors = mutableListOf<String>()
         fun validateNode(node: TutorialNode) {
-            errors += node.validate(this)
+            errors += when (node) {
+                is TutorialStep -> TutorialStepLogic.validate(node, this)
+                is TutorialFork -> TutorialForkLogic.validate(node, this)
+                else -> emptyList()
+            }
             when (node) {
                 is TutorialStep -> node.getRequirements().forEach { validateNode(it) }
                 is TutorialFork -> node.getAllInternalNodes().forEach { validateNode(it) }

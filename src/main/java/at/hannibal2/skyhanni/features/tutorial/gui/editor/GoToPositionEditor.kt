@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionDropdown
 import at.hannibal2.skyhanni.features.tutorial.gui.suggest.SuggestionProviders
 import at.hannibal2.skyhanni.utils.renderables.Renderable
@@ -11,15 +12,11 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.location.GoToPositionTutorialStep
-
 class GoToPositionEditor : TutorialNodeEditor {
     private val islandInput = TextInput()
     private var allowSkip = true
-
     override fun supports(node: TutorialNode): Boolean = node is GoToPositionTutorialStep
-
     override fun title(node: TutorialNode): String = "Edit 'Go To Position' Step"
-
     override fun buildEditor(
         tutorial: Tutorial,
         node: TutorialNode,
@@ -29,7 +26,6 @@ class GoToPositionEditor : TutorialNodeEditor {
         val step = node as GoToPositionTutorialStep
         if (islandInput.textBox.isEmpty()) islandInput.textBox = step.island.getDisplayName()
         allowSkip = step.allowSkip
-
         val content: Map<List<Renderable>, String?> = Islands.entries.associate { isl ->
             val label = Renderable.hoverTips(
                 "§f${isl.getDisplayName()}",
@@ -37,13 +33,11 @@ class GoToPositionEditor : TutorialNodeEditor {
             )
             listOf(Renderable.text("§7• "), label) to isl.getDisplayName()
         }
-
         val toggle = Renderable.clickable(
             "§7Allow Skip: ${if (allowSkip) "§aYES" else "§cNO"}",
             tips = listOf("§7If off, user can't skip this step"),
             onLeftClick = { allowSkip = !allowSkip },
         )
-
         return listOf(
             Renderable.text("§fEdit 'Go To Position' Step"),
             Renderable.searchBox(
@@ -65,11 +59,10 @@ class GoToPositionEditor : TutorialNodeEditor {
                         isl.getDisplayName().lowercase().contains(q) || isl.name.lowercase().contains(q)
                     } ?: step.island
                     val newNode = GoToPositionTutorialStep(null, pick, allowSkip)
-                    try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}
+                    try { TutorialStepLogic.populateNodeIds(newNode, tutorial) } catch (_: Throwable) {}
                     onSave(newNode)
                 }))
                 add(Renderable.clickable("§cCancel", onLeftClick = { onCancel() }))
             },
-        )
     }
 }

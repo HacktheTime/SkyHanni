@@ -1,56 +1,50 @@
 package de.hype.bingonet.shared.tutorials
 
-import at.hannibal2.skyhanni.features.inventory.storage.ItemTagManager
-import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.NeuInternalName
-import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
 import net.minecraft.item.ItemStack
 
+/**
+ * Pure data interface for item checks.
+ * Logic for checking items is in ItemCheckLogic in at.hannibal2 package.
+ */
 interface ItemCheck {
     val displayText: String
     val descriptionText: String?
-
-
-    fun check(itemStack: ItemStack): Boolean
 }
 
+/**
+ * Pure data class: Check for a specific NEU item
+ */
 class ResourceItemCheck(
     val item: NeuInternalName,
     val amount: Int,
     override val displayText: String,
     override val descriptionText: String? = null,
-) : ItemCheck {
+) : ItemCheck
 
-    override fun check(itemStack: ItemStack): Boolean {
-        return item == itemStack.getInternalNameOrNull()
-    }
-}
-
+/**
+ * Pure data class: Check for an item with a specific tag
+ */
 class TaggedItemCheck(
     override val displayText: String,
     override val descriptionText: String? = null,
     val tag: String,
-) : ItemCheck {
+) : ItemCheck
 
-
-    override fun check(itemStack: ItemStack): Boolean {
-        val itemID = itemStack.getItemUuid() ?: return false
-        return itemID == ItemTagManager.getUuidByTag(tag)
-    }
-}
-
-class ItemCondition(private val predicate: (ItemStack) -> Boolean = { false }) {
+/**
+ * Pure data class: Stores an item condition predicate
+ */
+class ItemCondition(val predicate: (ItemStack) -> Boolean = { false }) {
     fun check(itemStack: ItemStack): Boolean {
         return predicate(itemStack)
     }
 }
 
+/**
+ * Pure data class: Check for an item using a custom condition
+ */
 class SingleItemCheck(
     val itemCondition: ItemCondition,
     override val displayText: String,
     override val descriptionText: String? = null,
-) : ItemCheck {
-    override fun check(itemStack: ItemStack): Boolean {
-        return itemCondition.check(itemStack)
-    }
-}
+) : ItemCheck

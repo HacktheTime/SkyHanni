@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.tutorial.gui.editor
 
 import at.hannibal2.skyhanni.data.model.TextInput
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
@@ -11,15 +12,11 @@ import de.hype.bingonet.shared.constants.SkyblockInstance
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
 import de.hype.bingonet.shared.tutorials.steps.location.JoinInstanceTutorialStep
-
 /** Simple editor to pick a SkyblockInstance by text. Falls back to the existing value when not recognized. */
 class JoinInstanceEditor : TutorialNodeEditor {
     private val instanceInput = TextInput()
-
     override fun supports(node: TutorialNode): Boolean = node is JoinInstanceTutorialStep
-
     override fun title(node: TutorialNode): String = "Edit 'Join Instance' Step"
-
     override fun buildEditor(
         tutorial: Tutorial,
         node: TutorialNode,
@@ -28,7 +25,6 @@ class JoinInstanceEditor : TutorialNodeEditor {
     ): List<Renderable> {
         val step = node as JoinInstanceTutorialStep
         if (instanceInput.textBox.isEmpty()) instanceInput.textBox = step.instance.displayName
-
         return listOf(
             Renderable.text("§fEdit 'Join Instance' Step"),
             Renderable.horizontal(spacing = 6) {
@@ -47,11 +43,10 @@ class JoinInstanceEditor : TutorialNodeEditor {
                         inst.displayName.lowercase().contains(q) || inst.joinId.lowercase().contains(q)
                     }
                     val newNode = JoinInstanceTutorialStep(pick ?: step.instance)
-                    try { newNode.populateNodeIds(tutorial) } catch (_: Throwable) {}
+                    try { TutorialStepLogic.populateNodeIds(newNode, tutorial) } catch (_: Throwable) {}
                     onSave(newNode)
                 }))
                 add(Renderable.clickable("§cCancel", onLeftClick = { onCancel() }))
-            },
         )
     }
 }

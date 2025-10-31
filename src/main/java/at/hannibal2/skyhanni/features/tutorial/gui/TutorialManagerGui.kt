@@ -18,12 +18,15 @@ import at.hannibal2.skyhanni.utils.renderables.primitives.text
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.tutorials.Tutorial
 import de.hype.bingonet.shared.tutorials.TutorialNode
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialNodeLogic
 import de.hype.bingonet.shared.tutorials.paths.AsyncTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.OptionalTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.SelectPathTutorialFork
 import de.hype.bingonet.shared.tutorials.paths.TutorialFork
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialForkLogic
 import de.hype.bingonet.shared.tutorials.steps.TextTutorialStep
 import de.hype.bingonet.shared.tutorials.steps.TutorialStep
+import at.hannibal2.skyhanni.features.tutorial.logic.TutorialStepLogic
 import de.hype.bingonet.shared.tutorials.steps.itemstep.EnchantTutorialStep
 import de.hype.bingonet.shared.tutorials.steps.itemstep.ReforgeTutorialStep
 import de.hype.bingonet.shared.tutorials.steps.itemstep.TagItemTutorialStep
@@ -1108,7 +1111,7 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
 
     private fun addNodeToTarget(tutorial: Tutorial, node: TutorialNode) {
         try {
-            node.populateNodeIds(tutorial)
+            TutorialNodeLogic.populateNodeIds(node, tutorial)
         } catch (_: Throwable) {
         }
         val newSteps =
@@ -1249,13 +1252,14 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
     }
 
     private fun duplicateNode(tutorial: Tutorial, node: TutorialNode): TutorialNode? = when (node) {
-        is TextTutorialStep -> TextTutorialStep(node.name, node.description).also { it.populateNodeIds(tutorial) }
-        is TagItemTutorialStep -> TagItemTutorialStep(node.tagName, node.explenation).also { it.populateNodeIds(tutorial) }
-        is GoToIslandTutorialStep -> GoToIslandTutorialStep(node.island).also { it.populateNodeIds(tutorial) }
-        is ReforgeTutorialStep -> ReforgeTutorialStep(node.item, node.reforgeName).also { it.populateNodeIds(tutorial) }
-        is EnchantTutorialStep -> EnchantTutorialStep(node.item, node.enchantIds.toMap()).also { it.populateNodeIds(tutorial) }
+        is TextTutorialStep -> TextTutorialStep(node.name, node.description).also { TutorialStepLogic.populateNodeIds(it, tutorial) }
+        is TagItemTutorialStep -> TagItemTutorialStep(node.tagName, node.explenation).also { TutorialStepLogic.populateNodeIds(it, tutorial) }
+        is GoToIslandTutorialStep -> GoToIslandTutorialStep(node.island).also { TutorialStepLogic.populateNodeIds(it, tutorial) }
+        is ReforgeTutorialStep -> ReforgeTutorialStep(node.item, node.reforgeName).also { TutorialStepLogic.populateNodeIds(it, tutorial) }
+        is EnchantTutorialStep -> EnchantTutorialStep(node.item, node.enchantIds.toMap()).also { TutorialStepLogic.populateNodeIds(it, tutorial) }
         is AsyncTutorialFork -> AsyncTutorialFork(node.pathNodes.mapNotNull { duplicateNode(tutorial, it) }).also {
-            it.populateNodeIds(
+            TutorialForkLogic.populateNodeIds(
+                it,
                 tutorial,
             )
         }
@@ -1266,10 +1270,10 @@ class TutorialManagerGui : SkyhanniBaseScreen() {
                     sp.pathNodes.mapNotNull { duplicateNode(tutorial, it) },
                 )
             },
-        ).also { it.populateNodeIds(tutorial) }
+        ).also { TutorialForkLogic.populateNodeIds(it, tutorial) }
         is OptionalTutorialFork -> OptionalTutorialFork(
             node.paths.map { (path, hidden) -> path.mapNotNull { duplicateNode(tutorial, it) } to hidden },
-        ).also { it.populateNodeIds(tutorial) }
+        ).also { TutorialForkLogic.populateNodeIds(it, tutorial) }
         else -> null
     }
 
