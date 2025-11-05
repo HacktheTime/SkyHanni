@@ -38,6 +38,7 @@ import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.network.play.client.C02PacketUseEntity
 import kotlin.time.Duration.Companion.seconds
+
 //#if MC > 1.21
 //$$ import net.minecraft.server.world.ServerWorld
 //#endif
@@ -67,8 +68,7 @@ object VisitorListener {
         //#if MC < 1.21
         val entity = packet.getEntityFromWorld(MinecraftCompat.localWorld) ?: return
         //#else
-        //$$ val world = MinecraftCompat.localPlayer.world
-        //$$ val entity = world.getEntityById(packet.entityId) ?: return
+        //$$ val entity = MinecraftCompat.localWorld.getEntityById(packet.entityId) ?: return
         //#endif
         val entityId = entity.entityId
 
@@ -138,7 +138,7 @@ object VisitorListener {
         val inventory = event.guiContainer as? AccessorGuiContainer ?: return
         inventory as GuiContainer
         val slot = inventory.slots()[29]
-        InventoryCompat.clickInventorySlot(slot.slotIndex, mouseButton = 0, mode = 0)
+        InventoryCompat.mouseClickInventorySlot(slot.slotIndex, mouseButton = 0, mode = 0)
     }
 
     @HandleEvent(onlyOnIsland = IslandType.GARDEN)

@@ -76,7 +76,7 @@ object CompactSweepDetails {
         var sweep: Double = -1.0,
         var toughness: Double = -1.0,
         var treeType: String = "",
-    ) : Resettable()
+    ) : Resettable
 
     private var sweepDetailsAreDirty = false
     private var isInsideSweepDetails = false
@@ -182,9 +182,11 @@ object CompactSweepDetails {
         val chatComponent = chatText.asComponent()
 
         chatComponent.hover = hoverText.asComponent()
-        chatComponent.onClick(onClick = {
-            HypixelCommands.treeGifts()
-        })
+        chatComponent.onClick(
+            onClick = {
+                HypixelCommands.treeGifts()
+            },
+        )
 
         ChatUtils.chat(chatComponent)
         resetSweepDetailsVariables()

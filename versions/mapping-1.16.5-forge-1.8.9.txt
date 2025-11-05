@@ -11,8 +11,6 @@ com.mojang.blaze3d.systems.RenderSystem blendFuncSeparate() tryBlendFuncSeparate
 com.mojang.blaze3d.systems.RenderSystem disableDepthTest() disableDepth()
 com.mojang.blaze3d.systems.RenderSystem enableDepthTest() enableDepth()
 
-io.github.notenoughupdates.moulconfig.gui.GuiElementWrapper io.github.notenoughupdates.moulconfig.gui.GuiScreenElementWrapper
-
 net.minecraft.ChatFormatting net.minecraft.util.EnumChatFormatting
 
 net.minecraft.block.ButtonBlock net.minecraft.block.BlockButtonWood
@@ -75,9 +73,12 @@ net.minecraft.client.gui.screens.inventory.SignEditScreen sign tileSign
 
 net.minecraft.client.multiplayer.ClientLevel net.minecraft.client.multiplayer.WorldClient
 net.minecraft.client.multiplayer.ClientPacketListener net.minecraft.client.network.NetHandlerPlayClient
+net.minecraft.client.multiplayer.MultiPlayerGameMode net.minecraft.client.multiplayer.PlayerControllerMP
 net.minecraft.client.multiplayer.PlayerInfo net.minecraft.client.network.NetworkPlayerInfo
 
 net.minecraft.client.multiplayer.ClientLevel players() getPlayers()
+
+net.minecraft.client.multiplayer.MultiPlayerGameMode isDestroying() getIsHittingBlock()
 
 net.minecraft.client.multiplayer.PlayerInfo getGameMode() getGameType()
 net.minecraft.client.multiplayer.PlayerInfo getProfile() getGameProfile()
@@ -401,6 +402,7 @@ net.minecraft.world.entity.item.ItemEntity net.minecraft.entity.item.EntityItem
 
 net.minecraft.world.entity.item.ItemEntity getItem() getEntityItem()
 
+net.minecraft.world.entity.monster.AbstractSkeleton net.minecraft.entity.monster.EntitySkeleton
 net.minecraft.world.entity.monster.Blaze net.minecraft.entity.monster.EntityBlaze
 net.minecraft.world.entity.monster.CaveSpider net.minecraft.entity.monster.EntityCaveSpider
 net.minecraft.world.entity.monster.Creeper net.minecraft.entity.monster.EntityCreeper
@@ -412,7 +414,6 @@ net.minecraft.world.entity.monster.Guardian net.minecraft.entity.monster.EntityG
 net.minecraft.world.entity.monster.MagmaCube net.minecraft.entity.monster.EntityMagmaCube
 net.minecraft.world.entity.monster.Monster net.minecraft.entity.monster.EntityMob
 net.minecraft.world.entity.monster.Silverfish net.minecraft.entity.monster.EntitySilverfish
-net.minecraft.world.entity.monster.AbstractSkeleton net.minecraft.entity.monster.EntitySkeleton
 net.minecraft.world.entity.monster.Slime net.minecraft.entity.monster.EntitySlime
 net.minecraft.world.entity.monster.Spider net.minecraft.entity.monster.EntitySpider
 net.minecraft.world.entity.monster.Witch net.minecraft.entity.monster.EntityWitch
@@ -994,4 +995,25 @@ org.lwjgl.glfw.GLFW GLFW_KEY_W KEY_W
 org.lwjgl.glfw.GLFW GLFW_KEY_X KEY_X
 org.lwjgl.glfw.GLFW GLFW_KEY_Y KEY_Y
 org.lwjgl.glfw.GLFW GLFW_KEY_Z KEY_Z
-
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_0 KEY_NUMPAD0
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_1 KEY_NUMPAD1
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_2 KEY_NUMPAD2
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_3 KEY_NUMPAD3
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_4 KEY_NUMPAD4
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_5 KEY_NUMPAD5
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_6 KEY_NUMPAD6
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_7 KEY_NUMPAD7
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_8 KEY_NUMPAD8
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_9 KEY_NUMPAD9
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_DECIMAL KEY_DECIMAL
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_DIVIDE KEY_NUMPADCOMMA
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_ENTER KEY_NUMPADENTER
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_MULTIPLY KEY_MULTIPLY
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_PERIOD KEY_NUMPADDECIMAL
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_SEPARATOR KEY_NUMPADCOMMA
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_SLASH KEY_DIVIDE
+org.lwjgl.glfw.GLFW GLFW_KEY_NUMLOCK KEY_NUMLOCK
+org.lwjgl.glfw.GLFW GLFW_KEY_KP_SUBTRACT KEY_SUBTRACT
+org.lwjgl.glfw.GLFW GLFW_KEY_DELETE KEY_DELETE
+org.lwjgl.glfw.GLFW GLFW_KEY_PAGE_UP KEY_PRIOR
+org.lwjgl.glfw.GLFW GLFW_KEY_PAGE_DOWN KEY_NEXT

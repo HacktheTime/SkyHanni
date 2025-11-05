@@ -10,6 +10,7 @@ enum class ModrinthInfo(
         loader = "forge",
         dependencies = mapOf(
             ModrinthDependency.NOT_ENOUGH_UPDATES to DependencyType.OPTIONAL,
+            ModrinthDependency.SKYHANNI to DependencyType.INCOMPATIBLE,
         ),
     ),
     FABRIC_1_21_5(
@@ -18,14 +19,24 @@ enum class ModrinthInfo(
         dependencies = mapOf(
             ModrinthDependency.FABRIC_API to DependencyType.REQUIRED,
             ModrinthDependency.FABRIC_LANGUAGE_KOTLIN to DependencyType.REQUIRED,
+            ModrinthDependency.SKYHANNI to DependencyType.INCOMPATIBLE,
         ),
     ),
-    FABRIC_1_21_7(
-        minecraftVersions = listOf("1.21.7", "1.21.8"),
+    FABRIC_1_21_8(
+        minecraftVersions = listOf("1.21.8"),
         loader = "fabric",
         dependencies = mapOf(
             ModrinthDependency.FABRIC_API to DependencyType.REQUIRED,
             ModrinthDependency.FABRIC_LANGUAGE_KOTLIN to DependencyType.REQUIRED,
+        ),
+    ),
+    FABRIC_1_21_10(
+        minecraftVersions = listOf("1.21.10"),
+        loader = "fabric",
+        dependencies = mapOf(
+            ModrinthDependency.FABRIC_API to DependencyType.REQUIRED,
+            ModrinthDependency.FABRIC_LANGUAGE_KOTLIN to DependencyType.REQUIRED,
+            ModrinthDependency.SKYHANNI to DependencyType.INCOMPATIBLE,
         ),
     ),
 }
@@ -33,6 +44,7 @@ enum class ModrinthInfo(
 enum class ModrinthDependency(
     val projectId: String,
 ) {
+    BINGO_NET("Cp13oI7e"),
     SKYHANNI("byNkmv5G"),
     NOT_ENOUGH_UPDATES("GGamhqbw"),
     FABRIC_API("P7dR8mSH"),

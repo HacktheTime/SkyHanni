@@ -1,12 +1,11 @@
 package at.hannibal2.skyhanni.utils.tracker
 
+import at.hannibal2.skyhanni.config.storage.Resettable
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import com.google.gson.annotations.Expose
 
-abstract class ItemTrackerData : TrackerData() {
-
-    abstract fun resetItems()
+abstract class ItemTrackerData : Resettable {
 
     abstract fun getDescription(timesGained: Long): List<String>
 
@@ -18,8 +17,8 @@ abstract class ItemTrackerData : TrackerData() {
     open fun getCustomPricePer(internalName: NeuInternalName) = SkyHanniTracker.getPricePer(internalName)
 
     override fun reset() {
+        super.reset()
         items.clear()
-        resetItems()
     }
 
     open fun addItem(internalName: NeuInternalName, amount: Int, command: Boolean) {
@@ -42,10 +41,14 @@ abstract class ItemTrackerData : TrackerData() {
         command: Boolean,
         removalRunner: (NeuInternalName) -> Unit? = { removeItem(internalName) },
     ) = apply {
-        if (!command) { timesGained++ }
+        if (!command) {
+            timesGained++
+        }
         totalAmount += amount
         lastTimeUpdated = SimpleTimeMark.now()
-        if (command && totalAmount <= 0) { removalRunner(internalName) }
+        if (command && totalAmount <= 0) {
+            removalRunner(internalName)
+        }
     }
 
     @Expose
@@ -55,6 +58,6 @@ abstract class ItemTrackerData : TrackerData() {
         @Expose var timesGained: Long = 0,
         @Expose var totalAmount: Long = 0,
         @Expose var hidden: Boolean = false,
-        var lastTimeUpdated: SimpleTimeMark = SimpleTimeMark.farPast()
+        var lastTimeUpdated: SimpleTimeMark = SimpleTimeMark.farPast(),
     )
 }

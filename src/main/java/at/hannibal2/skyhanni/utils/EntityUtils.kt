@@ -36,11 +36,13 @@ import net.minecraft.tileentity.TileEntity
 //$$ import net.minecraft.entity.EquipmentSlot
 //#else
 import net.minecraft.entity.SharedMonsterAttributes
+
 //#endif
 
 @SkyHanniModule
 object EntityUtils {
 
+    // TODO remove this relatively heavy call everywhere
     @Deprecated("Use Mob Detection Instead")
     fun EntityLivingBase.hasNameTagWith(
         y: Int,
@@ -58,6 +60,10 @@ object EntityUtils {
             }
         }
         return list
+    }
+
+    fun getPlayerList(): Set<String> {
+        return getPlayerEntities().map { it.name }.toHashSet()
     }
 
     @Deprecated("Use Mob Detection Instead")
@@ -216,10 +222,10 @@ object EntityUtils {
         list.keepOnlyIn(getEntities<T>())
     }
 
-    fun Entity.canBeSeen(viewDistance: Number = 150.0, vecYOffset: Double = 0.5): Boolean {
+    fun Entity.canBeSeen(viewDistance: Number = 150.0, vecYOffset: Double = 0.5, ignoreFrustum: Boolean = false): Boolean {
         if (isDead) return false
         // TODO add cache that only updates e.g. 10 times a second
-        if (!FrustumUtils.isVisible(entityBoundingBox)) return false
+        if (!ignoreFrustum && !FrustumUtils.isVisible(entityBoundingBox)) return false
         return getLorenzVec().up(vecYOffset).canBeSeen(viewDistance)
     }
 
@@ -238,4 +244,12 @@ object EntityUtils {
     //#else
     //$$ get() = this.getAttributeBaseValue(EntityAttributes.MAX_HEALTH).toInt()
     //#endif
+
+    fun EntityPlayer.isOnBingo(): Boolean {
+        return this.displayName.formattedText.endsWith("Ⓑ§r")
+    }
+
+    fun EntityPlayer.isOnIronman(): Boolean {
+        return this.displayName.formattedText.endsWith("♲§r")
+    }
 }

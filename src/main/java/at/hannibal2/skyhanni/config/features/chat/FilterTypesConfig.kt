@@ -39,7 +39,7 @@ class FilterTypesConfig {
     @ConfigOption(
         name = "Hypixel Lobbies",
         desc = "Hide announcements in Hypixel lobbies " +
-            "(player joins, loot boxes, prototype lobby messages, radiating generosity, Hypixel tournaments)"
+            "(player joins, loot boxes, prototype lobby messages, radiating generosity, Hypixel tournaments)",
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -64,10 +64,10 @@ class FilterTypesConfig {
     var welcome: Boolean = false
 
     @Expose
-    @ConfigOption(name = "Guild EXP", desc = "Hide Guild EXP messages.")
+    @ConfigOption(name = "Guild/Event EXP", desc = "Hide Guild and Event EXP messages.")
     @ConfigEditorBoolean
     @FeatureToggle
-    var guildExp: Boolean = false
+    var guildEventExp: Boolean = false
 
     @Expose
     @ConfigOption(name = "Friend Join/Left", desc = "Hide friend join/left messages.")

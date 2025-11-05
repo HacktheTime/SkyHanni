@@ -1,8 +1,11 @@
+@file:Suppress("UsePropertyAccessSyntax")
+
 package at.hannibal2.skyhanni.utils
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.data.hypixel.chat.event.SystemMessageEvent
 import at.hannibal2.skyhanni.utils.ColorUtils.getFirstColorCode
+import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.RegexUtils.findAll
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
@@ -24,8 +27,10 @@ import java.util.NavigableSet
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import java.util.TreeMap
 //#if FORGE
 import io.github.notenoughupdates.moulconfig.internal.ForgeFontRenderer
+
 //#else
 //$$ import net.minecraft.client.util.ChatMessages
 //$$ import net.minecraft.text.TextColor
@@ -203,12 +208,15 @@ object StringUtils {
 
     //#if FORGE
     fun String.splitLines(width: Int): String = ForgeFontRenderer(Minecraft.getMinecraft().fontRendererObj).splitText(
-        //#else
-        //$$ fun String.splitLines(width: Int): String = splitText(
-        //#endif
-        this,
+        this.asStructuredText(),
         width,
-    ).joinToString("\n") { it.removePrefix("§r") }
+    ).joinToString("\n") { it.text.removePrefix("§r") }
+    //#else
+    //$$ fun String.splitLines(width: Int): String = splitText(
+    //$$ this,
+    //$$ width,
+    //$$ ).joinToString("\n") { it.toString().removePrefix("§r") }
+    //#endif
 
     //#if MC > 1.21
     //$$ private fun splitText(text: String, width: Int): List<String> {
@@ -606,5 +614,14 @@ object StringUtils {
         return if (matcher.find() && matcher.start() == 0) {
             this.substring(matcher.end())
         } else this
+    }
+
+    fun subMapOfStringsContains(
+        string: String,
+        map: NavigableMap<String, NeuInternalName>,
+    ): NavigableMap<String, NeuInternalName> {
+        if ("" == string) return map
+        val ignoreCase = SkyHanniMod.feature.chat.tabIgnoreCaseSuggestion
+        return TreeMap(map.filterKeys { it.contains(string, ignoreCase) }.toMap())
     }
 }

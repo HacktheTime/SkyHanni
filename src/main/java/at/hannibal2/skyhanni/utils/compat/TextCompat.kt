@@ -10,6 +10,7 @@ import net.minecraft.util.ResourceLocation
 //#if MC < 1.16
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import net.minecraft.util.ChatComponentText
+
 //#endif
 //#if MC > 1.16
 //$$ import at.hannibal2.skyhanni.utils.collection.TimeLimitedCache
@@ -100,20 +101,24 @@ fun IChatComponent?.formattedTextCompat(noExtraResets: Boolean = false, leadingW
 //$$
 //$$ private fun Component?.computeFormattedTextCompat(noExtraResets: Boolean, leadingWhite: Boolean): String {
 //$$     this ?: return ""
-//$$     val sb = StringBuilder()
+//$$     val sb = StringBuilder(50)
+//$$     var wasFormatted  = false
 //$$     for (component in iterator()) {
 //$$         val chatStyle = component.style.chatStyle()
-//$$         if (leadingWhite || (sb.contains("§") && sb.toString() != "§r") || chatStyle != "§f") {
+//$$         if (chatStyle.isNotEmpty() && (leadingWhite || (wasFormatted && (sb.length != 2 || sb.get(0) != '§' || sb.get(1) != 'r')) || chatStyle != "§f")) {
 //$$             sb.append(chatStyle)
+//$$             wasFormatted  = true
 //$$         }
 //$$         sb.append(component.unformattedTextForChatCompat())
 //$$         if (!noExtraResets) {
 //$$             sb.append("§r")
-//$$         } else {
-//$$             if (component == Component.empty()) sb.append("§r")
+//$$             wasFormatted  = true
+//$$         } else if (component == Component.empty()){
+//$$             sb.append("§r")
+//$$             wasFormatted  = true
 //$$         }
 //$$     }
-//$$     return sb.toString().removeSuffix("§r").removePrefix("§r")
+//$$     return sb.removeSuffix("§r").removePrefix("§r").toString()
 //$$ }
 //$$
 //$$ private val textColorLUT = ChatFormatting.entries
@@ -260,7 +265,9 @@ fun addChatMessageToChat(message: IChatComponent) {
     //#if FORGE
     Minecraft.getMinecraft().thePlayer.addChatMessage(message)
     //#else
+    //$$ MinecraftClient.getInstance().execute {
     //$$ MinecraftClient.getInstance().player?.sendMessage(message, false)
+    //$$ }
     //#endif
 }
 
@@ -292,9 +299,10 @@ fun addDeletableMessageToChat(component: IChatComponent, id: Int) {
 //$$ }
 //#endif
 
-val defaultStyleConstructor: ChatStyle get() =
-    //#if MC < 1.16
-    ChatStyle()
+val defaultStyleConstructor: ChatStyle
+    get() =
+        //#if MC < 1.16
+        ChatStyle()
 //#else
 //$$ Style.EMPTY
 //#endif
@@ -379,11 +387,11 @@ fun IChatComponent.convertToJsonString(): String {
 //$$     return mutableText.append(newText)
 //$$ }
 //#else
-fun at.hannibal2.skyhanni.utils.compat.Text.append(string: String): at.hannibal2.skyhanni.utils.compat.Text {
-    return at.hannibal2.skyhanni.utils.compat.Text.of(this.text + string)
+fun Text.append(string: String): Text {
+    return Text.of(this.text + string)
 }
 
-fun at.hannibal2.skyhanni.utils.compat.Text.append(newText: Text): at.hannibal2.skyhanni.utils.compat.Text {
-    return at.hannibal2.skyhanni.utils.compat.Text.of(this.text + newText.text)
+fun Text.append(newText: Text): Text {
+    return Text.of(this.text + newText.text)
 }
 //#endif

@@ -11,6 +11,7 @@ import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
 import java.awt.datatransfer.UnsupportedFlavorException
 import kotlin.time.Duration.Companion.milliseconds
+
 //#if MC > 1.21
 //$$ import net.minecraft.client.MinecraftClient
 //#endif
@@ -43,12 +44,14 @@ object ClipboardUtils {
     //#endif
 
     fun copyToClipboard(text: String, step: Int = 0) {
-        SkyHanniMod.launchCoroutine {
+        SkyHanniMod.launchCoroutine("copyToClipboard") {
             try {
                 //#if MC < 1.21
                 getClipboard()?.setContents(StringSelection(text), null)
-                //#else
+                //#elseif MC < 1.21.9
                 //$$ net.minecraft.client.util.Clipboard().setClipboard(MinecraftClient.getInstance().window.handle, text)
+                //#else
+                //$$ net.minecraft.client.util.Clipboard().set(MinecraftClient.getInstance().window, text)
                 //#endif
             } catch (e: Exception) {
                 if (step == 3) {
@@ -83,7 +86,11 @@ object ClipboardUtils {
     //$$ fun readFromClipboard(step: Int = 0): String? {
     //$$     var shouldRetry = false
     //$$     val clipboard = net.minecraft.client.util.Clipboard().getClipboard(
-    //$$         0,
+    //#if MC < 1.21.9
+    //$$     0,
+    //#else
+    //$$     MinecraftClient.getInstance().window,
+    //#endif
     //$$     ) { _, _ ->
     //$$         shouldRetry = true
     //$$     }

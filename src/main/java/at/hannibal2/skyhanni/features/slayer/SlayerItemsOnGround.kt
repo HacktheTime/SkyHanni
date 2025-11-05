@@ -14,6 +14,7 @@ import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.exactLocation
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.init.Items
 import kotlin.time.Duration.Companion.seconds
+
 //#if MC > 1.16
 //$$ import net.minecraft.item.SpawnEggItem
 //#endif
@@ -53,5 +54,5 @@ object SlayerItemsOnGround {
     }
 
     fun isEnabled() = SkyBlockUtils.inSkyBlock && config.enabled &&
-        SlayerApi.isInCorrectArea && SlayerApi.hasActiveSlayerQuest()
+        SlayerApi.isInCorrectArea && SlayerApi.hasActiveQuest()
 }

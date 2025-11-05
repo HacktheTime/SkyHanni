@@ -502,4 +502,37 @@ class MiscConfig {
     @ConfigOption(name = "Abiphone Hotkey", desc = "Answer incoming abiphone calls with a hotkey.")
     @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NONE)
     var abiphoneAcceptKey: Int = Keyboard.KEY_NONE
+
+    @Expose
+    @ConfigOption(
+        name = "Fix item double clicks",
+        desc = "Fixes a Hypixel bug causing double clicks on blocks with blaze daggers or a fishing rod with autopet.",
+    )
+    @ConfigEditorBoolean
+    @FeatureToggle
+    @OnlyModern
+    var fixDoubleClicks: Boolean = true
+
+
+    @Expose
+    @ConfigOption(name = "Hide Party Messages", desc = "Hides party chat messages.")
+    @Accordion
+    val hidePartyMessagesConfig: HidePartyMessagesConfig = HidePartyMessagesConfig()
+
+    @Expose
+    @ConfigOption(
+        name = "Island Change Default Intermediate",
+        desc = "The island to swap to unless specified otherwise when using the /shswapisland commands",
+    )
+    var defaultSwapMiddleIsland: Islands = Islands.HUB
+
+    @Expose
+    @ConfigOption(name = "Swap Lobbies Keybind", desc = "Keybind to swap lobbies when using the /shswapisland command.")
+    @Accordion
+    val swapKeybind: KeyBind = KeyBind()
+
+
+    // Persisted saved keybinds stored in FEATURES config under misc
+    @Expose
+    var keybinds: MutableList<SavedKeybind> = mutableListOf()
 }

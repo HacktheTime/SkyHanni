@@ -16,9 +16,9 @@ object HoppityMuteEggSounds {
     private val config get() = SkyHanniMod.feature.event.hoppityEggs
     private val eggInventory = InventoryDetector(
         pattern = HoppityRabbitTheFishChecker.mealEggInventoryPattern,
-        closeInventory = {
+        onCloseInventory = {
             lastInInventory = SimpleTimeMark.now()
-        }
+        },
     )
 
     @HandleEvent

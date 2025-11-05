@@ -15,7 +15,7 @@ class NeuRepositoryConfig : AbstractRepoConfig<NeuRepositoryConfig.NeuRepository
     @Expose
     @ConfigOption(
         name = "NEU Repo Auto Update",
-        desc = "Update the NEU repository on every startup.\n" +
+        desc = "Update the NEU repository on every startup and tries to auto fix bugs.\n" +
             "§cOnly disable this if you know what you are doing!\n " +
             "§eThis only works if NEU is not installed, if it is use their settings.",
     )
@@ -24,7 +24,7 @@ class NeuRepositoryConfig : AbstractRepoConfig<NeuRepositoryConfig.NeuRepository
 
     @ConfigOption(name = "Update NEU Repo Now", desc = "Update your NEU repository to the latest version")
     @ConfigEditorButton(buttonText = "Update")
-    override val updateRepo: Runnable = Runnable(EnoughUpdatesRepoManager::updateRepo)
+    override val updateRepo: Runnable = Runnable { EnoughUpdatesRepoManager.updateRepo("config button") }
 
     @Expose
     @ConfigOption(name = "NEU Repository Location", desc = "")
@@ -39,7 +39,7 @@ class NeuRepositoryConfig : AbstractRepoConfig<NeuRepositoryConfig.NeuRepository
         @Expose
         @ConfigOption(name = "Repository User", desc = "The Repository Branch, default: NotEnoughUpdates")
         @ConfigEditorText
-        override var user: String = "NotEnoughUpdates"
+        override var user: String = "HacktheTime"
 
         @Expose
         @ConfigOption(name = "Repository Name", desc = "The Repository Name, default: NotEnoughUpdates-REPO")
@@ -51,9 +51,14 @@ class NeuRepositoryConfig : AbstractRepoConfig<NeuRepositoryConfig.NeuRepository
         @ConfigEditorText
         override var branch: String = "master"
 
-        @Transient override val defaultUser = "NotEnoughUpdates"
-        @Transient override val defaultRepoName = "NotEnoughUpdates-REPO"
-        @Transient override val defaultBranch = "master"
+        @Transient
+        override val defaultUser = "NotEnoughUpdates"
+
+        @Transient
+        override val defaultRepoName = "NotEnoughUpdates-REPO"
+
+        @Transient
+        override val defaultBranch = "master"
     }
 
     @Expose

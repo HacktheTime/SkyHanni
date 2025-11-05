@@ -41,7 +41,7 @@ class GuiConfig {
 
     @ConfigOption(
         name = "Edit GUI Locations",
-        desc = "Opens the Position Editor, allows changing the position of SkyHanni's overlays."
+        desc = "Opens the Position Editor, allows changing the position of SkyHanni's overlays.",
     )
     @ConfigEditorButton(buttonText = "Edit")
     val positions: Runnable = Runnable { openGuiPositionEditor(true) }
@@ -113,6 +113,7 @@ class GuiConfig {
     @FeatureToggle
     var beaconPower: Boolean = false
 
+    // TODO move beacon power options into an accordion and into their own config file
     @Expose
     @ConfigOption(name = "Show Beacon Stat", desc = "Show what stat is being boosted by your beacon.")
     @ConfigEditorBoolean
@@ -125,7 +126,7 @@ class GuiConfig {
     @Expose
     @ConfigOption(
         name = "Real Time",
-        desc = "Display the current computer time, a handy feature when playing in full-screen mode."
+        desc = "Display the current computer time, a handy feature when playing in full-screen mode.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -134,7 +135,7 @@ class GuiConfig {
     @Expose
     @ConfigOption(
         name = "Real Time 12h Format",
-        desc = "Display the current computer time in 12hr Format rather than 24h Format."
+        desc = "Display the current computer time in 12hr Format rather than 24h Format.",
     )
     @ConfigEditorBoolean
     var realTimeFormatToggle: Boolean = false

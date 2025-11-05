@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorInfoText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
@@ -35,7 +36,7 @@ class DiscordRPCConfig {
     @ConfigOption(
         name = "Dynamic Priority",
         desc = "Disable certain dynamic statuses, or change the priority in case " +
-            "two are triggered at the same time (higher up means higher priority)."
+            "two are triggered at the same time (higher up means higher priority).",
     )
     @ConfigEditorDraggableList
     val autoPriority: MutableList<PriorityEntry> = mutableListOf(
@@ -43,7 +44,7 @@ class DiscordRPCConfig {
         PriorityEntry.SLAYER,
         PriorityEntry.STACKING_ENCHANT,
         PriorityEntry.DUNGEONS,
-        PriorityEntry.AFK
+        PriorityEntry.AFK,
     )
 
     enum class PriorityEntry(private val displayName: String) {
@@ -60,7 +61,7 @@ class DiscordRPCConfig {
     @Expose
     @ConfigOption(
         name = "Dynamic Fallback",
-        desc = "What to show when none of your \"Dynamic Priority\" statuses are active."
+        desc = "What to show when none of your \"Dynamic Priority\" statuses are active.",
     )
     @ConfigEditorDropdown
     val auto: Property<LineEntry> = Property.of(LineEntry.NOTHING)
@@ -93,4 +94,13 @@ class DiscordRPCConfig {
 
         override fun toString() = displayName
     }
+
+    @ConfigOption(
+        name = "Credits",
+        desc = "Rich presence assets were created by\n" +
+            "Hypixel Pack HQ (packshq.com) for the old images\n" +
+            "and @unfamiliartunes (unfamiliartunes.straw.page) for the new images",
+    )
+    @ConfigEditorInfoText
+    val credits = ""
 }

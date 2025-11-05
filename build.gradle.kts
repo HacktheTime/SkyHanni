@@ -49,6 +49,8 @@ java {
     // causing crashes during tests. You can still manually select DCEVM in the Minecraft Client
     // IntelliJ run configuration.
     toolchain.vendor.set(JvmVendorSpec.ADOPTIUM)
+    // Enable generation of standard sources jar (classifier 'sources') so remapSourcesJar exists.
+    withSourcesJar()
 }
 val runDirectory = rootProject.file("run")
 runDirectory.mkdirs()
@@ -132,7 +134,7 @@ val includeBackupRepo by tasks.registering(DownloadBackupRepo::class) {
 }
 
 val includeBackupNeuRepo by tasks.registering(DownloadBackupRepo::class) {
-    this.user = "NotEnoughUpdates"
+    this.user = "HacktheTime"
     this.repo = "NotEnoughUpdates-Repo"
     this.branch = "master"
     this.resourcePath = "assets/skyhanni/neu-repo.zip"
@@ -143,20 +145,35 @@ val cleanupMappingFiles by tasks.registering(CleanupMappingFiles::class) {
     this.mappingsDirectory.set(layout.projectDirectory.asFile.parentFile)
 }
 
-val publishToModrinth by tasks.registering(PublishToModrinth::class)
-
-tasks.runClient {
-    this.javaLauncher.set(
-        javaToolchains.launcherFor {
-            languageVersion.set(target.minecraftVersion.javaLanguageVersion)
-        },
-    )
+// Ensure build/libs is clean before compiling to avoid leftover jars
+val cleanLibs by tasks.registering(Delete::class) {
+    delete(layout.buildDirectory.dir("libs"))
+    delete(rootProject.layout.buildDirectory.dir("libs"))
+}
+// Run cleanLibs before classes (compilation) to guarantee a fresh libs directory
+tasks.named("classes") {
+    dependsOn(cleanLibs)
 }
 
-tasks.register("checkPrDescription", ChangelogVerification::class) {
-    this.outputDirectory.set(layout.buildDirectory)
-    this.prTitle = project.findProperty("prTitle") as? String ?: ""
-    this.prBody = project.findProperty("prBody") as? String ?: ""
+// Configure remapSourcesJar on all projects so sources land in root build/libs with '-sources' classifier
+tasks.named<net.fabricmc.loom.task.RemapSourcesJarTask>("remapSourcesJar") {
+    destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
+    archiveClassifier.set("sources")
+}
+
+// Register root-only publishToModrinth that depends on all remap tasks
+if (project == rootProject) {
+    tasks.register("publishToModrinth", PublishToModrinth::class) {
+        group = "publishing"
+        description = "Publish all built jars to Modrinth (root-only) and update GitHub release."
+        // Ensure this project builds
+        dependsOn(tasks.named("remapJar"))
+        // Ensure sources for this project
+        dependsOn(tasks.named("remapSourcesJar"))
+        // Ensure all subprojects produce their remapped jars and sources
+        dependsOn(subprojects.mapNotNull { sp -> sp.tasks.findByName("remapJar") })
+        dependsOn(subprojects.mapNotNull { sp -> sp.tasks.findByName("remapSourcesJar") })
+    }
 }
 
 // Disabled because it breaks mixins with the minecraft dev plugin
@@ -171,7 +188,8 @@ tasks.register("checkPrDescription", ChangelogVerification::class) {
 //     }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${target.minecraftVersion.versionName}")
+    val versionName = target.minecraftVersion.versionNameOverride ?: target.minecraftVersion.versionName
+    minecraft("com.mojang:minecraft:$versionName")
     if (target.mappingDependency == "official") {
         mappings(loom.officialMojangMappings())
     } else {
@@ -181,8 +199,15 @@ dependencies {
         "forge"(target.forgeDep!!)
     }
 
+    //Bingo Net / Bingo Brewers
+    shadowImpl("com.esotericsoftware:kryonet:2.22.0-RC1")
+
+
     // Discord RPC client
-    shadowImpl("com.github.caoimhebyrne:KDiscordIPC:0.2.3")
+    shadowImpl("com.github.caoimhebyrne:KDiscordIPC:0.2.3") {
+        exclude("org.jetbrains.kotlin")
+        exclude("org.jetbrains.kotlinx")
+    }
     compileOnly(libs.jbAnnotations)
 
     headlessLwjgl(libs.headlessLwjgl)
@@ -193,6 +218,7 @@ dependencies {
     implementation(libs.autoservice.annotations)
 
     val mixinVersion = if (target == ProjectTarget.MAIN) "0.7.11-SNAPSHOT" else "0.8.2"
+
 
     if (!target.isFabric) {
         shadowImpl("org.spongepowered:mixin:$mixinVersion") {
@@ -237,8 +263,9 @@ dependencies {
     if (target == ProjectTarget.MAIN) {
         shadowModImpl(libs.moulconfig)
     } else if (target.isModern) {
-        shadowModImpl("org.notenoughupdates.moulconfig:modern-${target.minecraftVersion.versionName}:${libs.versions.moulconfig.get()}")
-        include("org.notenoughupdates.moulconfig:modern-${target.minecraftVersion.versionName}:${libs.versions.moulconfig.get()}")
+        val moulconfigVersion = target.minecraftVersion.moulconfigMinecraftVersionOverride ?: target.minecraftVersion.versionName
+        shadowModImpl("org.notenoughupdates.moulconfig:modern-$moulconfigVersion:${libs.versions.moulconfig.get()}")
+        include("org.notenoughupdates.moulconfig:modern-$moulconfigVersion:${libs.versions.moulconfig.get()}")
     }
     @Suppress("UnstableApiUsage")
     shadowImpl(libs.libautoupdate) {
@@ -450,16 +477,11 @@ preprocess {
     vars.put("TODO", 0)
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
-    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-    archiveClassifier.set("src")
-    from(sourceSets.main.get().allSource)
-}
-
 publishing.publications {
     create<MavenPublication>("maven") {
         artifact(tasks.remapJar)
-        artifact(sourcesJar) { classifier = "sources" }
+        // Include remapped sources jar produced by Loom
+        tasks.findByName("remapSourcesJar")?.let { artifact(it) }
         pom {
             name.set("SkyHanni")
             licenses {

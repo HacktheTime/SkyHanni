@@ -7,7 +7,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
-class SpacingConfig : Resettable() {
+class SpacingConfig : Resettable {
 
     @ConfigOption(name = "Reset to Default", desc = "Reset all custom wardrobe spacing settings to the default.")
     @ConfigEditorButton(buttonText = "Reset")
@@ -61,7 +61,7 @@ class SpacingConfig : Resettable() {
     @Expose
     @ConfigOption(
         name = "Slots & Buttons Spacing",
-        desc = "How much vertical space there is between wardrobe slots and the buttons."
+        desc = "How much vertical space there is between wardrobe slots and the buttons.",
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 40f, minStep = 1f)
     val buttonSlotsVerticalSpacing: Property<Int> = Property.of(10)

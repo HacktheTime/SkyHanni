@@ -32,7 +32,7 @@ object BlazeSlayerDaggerHelper {
 
     private val attunementPattern by RepoPattern.pattern(
         "slayer.blaze.dagger.attunement",
-        "§cStrike using the §r.+ §r§cattunement on your dagger!"
+        "§cStrike using the §r.+ §r§cattunement on your dagger!",
     )
 
     private var clientSideClicked = false
@@ -208,6 +208,7 @@ object BlazeSlayerDaggerHelper {
         clientSideClicked = true
     }
 
+    // TODO use internal names. see FixDoubleClicks.blazeDaggers
     enum class Dagger(val daggerNames: List<String>, vararg val shields: HellionShield, var updated: Boolean = false) {
         TWILIGHT(
             listOf("Twilight Dagger", "Mawdredge Dagger", "Deathripper Dagger"),

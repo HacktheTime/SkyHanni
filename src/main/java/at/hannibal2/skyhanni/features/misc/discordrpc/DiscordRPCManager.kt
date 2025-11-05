@@ -13,7 +13,6 @@ import at.hannibal2.skyhanni.config.features.misc.DiscordRPCConfig.PriorityEntry
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.events.ConfigLoadEvent
 import at.hannibal2.skyhanni.events.DebugDataCollectEvent
-import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.minecraft.ClientDisconnectEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -30,6 +29,12 @@ import dev.cbyrne.kdiscordipc.core.event.impl.DisconnectedEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.data.activity.Activity
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.INFINITE
+import dev.cbyrne.kdiscordipc.data.user.User
+import java.lang.Thread.sleep
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -43,6 +48,7 @@ object DiscordRPCManager {
     private var startTimestamp: SimpleTimeMark = SimpleTimeMark.farPast()
     private var started = false
     private var nextUpdate: SimpleTimeMark = SimpleTimeMark.farPast()
+    private var presenceJob: Job? = null
 
     private var debugError = false
     private var debugStatusMessage = "nothing"
@@ -60,12 +66,14 @@ object DiscordRPCManager {
         }
     }
 
-    private fun stop() {
+    fun stop() {
         if (!isConnected()) return
         updateDebugStatus("Stopped")
         client?.disconnect()
         started = false
     }
+
+    fun isStarted() = started
 
     private suspend fun setup(fromCommand: Boolean) {
         try {
@@ -73,6 +81,7 @@ object DiscordRPCManager {
             client?.on<DisconnectedEvent> { onIPCDisconnect() }
             client?.on<ErrorEvent> { onError(data) }
             client?.connect()
+            setupPresenceJob()
             updateDebugStatus("Successfully started")
             if (!fromCommand) return
             // confirm that /shrpcstart worked
@@ -93,17 +102,25 @@ object DiscordRPCManager {
         }
     }
 
-    private fun isConnected() = client?.connected == true
+    fun isConnected() = client?.connected == true
 
     @HandleEvent(ConfigLoadEvent::class)
     fun onConfigLoad() {
         ConditionalUtils.onToggle(config.firstLine, config.secondLine, config.customText) {
-            if (isConnected()) {
-                SkyHanniMod.launchNoScopeCoroutine(::updatePresence)
-            }
+            if (isConnected()) setupPresenceJob()
+            else presenceJob?.cancel()
         }
         config.enabled.whenChanged { _, new ->
             if (!new) stop()
+        }
+    }
+
+    private fun setupPresenceJob() {
+        presenceJob = SkyHanniMod.launchNoScopeCoroutine("discord rpc updatePresence", timeout = Duration.INFINITE) {
+            while (isConnected()) {
+                updatePresence()
+                delay(5.seconds)
+            }
         }
     }
 
@@ -115,8 +132,8 @@ object DiscordRPCManager {
             buttons.add(
                 Activity.Button(
                     label = "Open EliteBot",
-                    url = "https://elitebot.dev/@${PlayerUtils.getName()}/${HypixelData.profileName}"
-                )
+                    url = "https://elitebot.dev/@${PlayerUtils.getName()}/${HypixelData.profileName}",
+                ),
             )
         }
 
@@ -124,8 +141,8 @@ object DiscordRPCManager {
             buttons.add(
                 Activity.Button(
                     label = "Open SkyCrypt",
-                    url = "https://sky.shiiyu.moe/stats/${PlayerUtils.getName()}/${HypixelData.profileName}"
-                )
+                    url = "https://sky.shiiyu.moe/stats/${PlayerUtils.getName()}/${HypixelData.profileName}",
+                ),
             )
         }
 
@@ -135,14 +152,14 @@ object DiscordRPCManager {
                 state = getStatusByConfigId(config.secondLine.get()).getDisplayString(),
                 timestamps = Activity.Timestamps(
                     start = startTimestamp.toMillis(),
-                    end = null
+                    end = null,
                 ),
                 assets = Activity.Assets(
                     largeImage = discordIconKey,
-                    largeText = location
+                    largeText = location,
                 ),
-                buttons = buttons.ifEmpty { null }
-            )
+                buttons = buttons.ifEmpty { null },
+            ),
         )
     }
 
@@ -152,11 +169,10 @@ object DiscordRPCManager {
     }
 
     @HandleEvent
-    fun onSecondPassed(event: SecondPassedEvent) {
-        if (!isConnected()) return
-        if (event.repeatSeconds(5)) {
-            SkyHanniMod.launchNoScopeCoroutine(::updatePresence)
-        }
+    fun onSecondPassed() {
+        if (!isConnected()) return presenceJob?.cancel() ?: Unit
+        else if (presenceJob?.isActive == true) return
+        setupPresenceJob()
     }
 
     private fun onIPCDisconnect() {
@@ -182,7 +198,7 @@ object DiscordRPCManager {
         if (SkyBlockUtils.inSkyBlock) {
             // todo discord rpc doesnt connect on 1.21
             //#if TODO
-            SkyHanniMod.launchNoScopeCoroutine(::start)
+            SkyHanniMod.launchNoScopeCoroutine("discord rpc start", timeout = INFINITE) { start() }
             //#endif
             started = true
         }
@@ -215,7 +231,7 @@ object DiscordRPCManager {
 
         ChatUtils.chat("Attempting to start Discord Rich Presence...")
         try {
-            SkyHanniMod.launchCoroutine { start(true) }
+            SkyHanniMod.launchCoroutine("discord rpc manual start") { start(true) }
             updateDebugStatus("Successfully started")
         } catch (e: Exception) {
             updateDebugStatus("Unable to start: ${e.message}", error = true)
@@ -269,5 +285,28 @@ object DiscordRPCManager {
             category = CommandCategory.USERS_ACTIVE
             callback { startCommand() }
         }
+    }
+
+    suspend fun getSelfUser(): User? {
+        val manager = client?.userManager ?: return null
+        if (manager.currentUser == null) {
+            manager.subscribeToUserUpdates()
+        }
+        var max = 50
+        while (max > 0) {
+            max--
+            manager.currentUser?.let { return it }
+            sleep(100)
+        }
+        return null
+    }
+
+
+    suspend fun getDiscordUserId(): String? {
+        return getSelfUser()?.id
+    }
+
+    suspend fun getDiscordUsername(): String? {
+        return getSelfUser()?.username
     }
 }

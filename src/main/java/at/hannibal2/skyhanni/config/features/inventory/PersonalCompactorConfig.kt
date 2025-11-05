@@ -37,8 +37,9 @@ class PersonalCompactorConfig {
     @Expose
     @ConfigOption(
         name = "Show On/Off",
-        desc = "Show whether the Personal Compactor/Deletor is currently turned on or off."
+        desc = "Show whether the Personal Compactor/Deletor is currently turned on or off.",
     )
     @ConfigEditorBoolean
+    @FeatureToggle
     var showToggle: Boolean = true
 }

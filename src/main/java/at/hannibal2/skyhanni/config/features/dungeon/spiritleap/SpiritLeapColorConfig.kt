@@ -7,10 +7,11 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
-class SpiritLeapColorConfig : Resettable() {
+class SpiritLeapColorConfig : Resettable {
 
     companion object {
-        @Transient val defaultColor = ChromaColour.fromStaticRGB(0, 0, 0, 200)
+        @Transient
+        val defaultColor = ChromaColour.fromStaticRGB(0, 0, 0, 200)
     }
 
     @Expose

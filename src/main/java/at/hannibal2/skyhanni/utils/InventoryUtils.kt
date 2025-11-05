@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.utils
 
+import at.hannibal2.skyhanni.data.OtherInventoryData
 import at.hannibal2.skyhanni.data.SackApi.getAmountInSacks
 import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.test.command.ErrorManager
@@ -61,7 +62,7 @@ object InventoryUtils {
             .filter { it.inventory is InventoryPlayer && it.stack.isNotEmpty() }
     }
 
-    fun openInventoryName(): String = InventoryCompat.getOpenChestName()
+    fun openInventoryName(): String = OtherInventoryData.currentInventoryName
 
     fun inInventory() = Minecraft.getMinecraft().currentScreen is GuiChest
 
@@ -191,6 +192,14 @@ object InventoryUtils {
             InventoryCompat.clickInventorySlot(slotNumber, windowId, mouseButton = mouseButton, mode = mode)
         } else {
             InventoryCompat.clickInventorySlot(slotNumber, mouseButton = mouseButton, mode = mode)
+        }
+    }
+
+    fun clickSlot(slotNumber: Int, windowId: Int? = null, clickType: GuiContainerEvent.ClickType, mouseButton: Int = 0) {
+        if (windowId != null) {
+            InventoryCompat.clickInventorySlot(slotNumber, windowId, mouseButton = mouseButton, mode = clickType.id)
+        } else {
+            InventoryCompat.clickInventorySlot(slotNumber, mouseButton = mouseButton, mode = clickType.id)
         }
     }
 

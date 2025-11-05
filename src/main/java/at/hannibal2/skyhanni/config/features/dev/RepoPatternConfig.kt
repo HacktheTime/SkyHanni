@@ -7,14 +7,14 @@ import io.github.notenoughupdates.moulconfig.observer.Property
 
 class RepoPatternConfig {
     @Expose
-    @ConfigOption(name = "Force Local Loading", desc = "Force loading local patterns.")
+    @ConfigOption(name = "Force Local Loading", desc = "When enabled, we use the pattern in the code and do not touch the repo file.")
     @ConfigEditorBoolean
     val forceLocal: Property<Boolean> = Property.of(false)
 
     @Expose
     @ConfigOption(
         name = "Tolerate Duplicate Usages",
-        desc = "Don't crash when two or more code locations use the same RepoPattern key"
+        desc = "Don't crash when two or more code locations use the same RepoPattern key",
     )
     @ConfigEditorBoolean
     var tolerateDuplicateUsage: Boolean = false
@@ -22,7 +22,7 @@ class RepoPatternConfig {
     @Expose
     @ConfigOption(
         name = "Tolerate Late Registration",
-        desc = "Don't crash when a RepoPattern is obtained after preinitialization."
+        desc = "Don't crash when a RepoPattern is obtained after preinitialization.",
     )
     @ConfigEditorBoolean
     var tolerateLateRegistration: Boolean = false

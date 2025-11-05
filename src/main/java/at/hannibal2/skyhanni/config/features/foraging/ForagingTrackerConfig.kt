@@ -26,6 +26,7 @@ class ForagingTrackerConfig {
     @ConfigOption(name = "Compact Gifts", desc = "Compact the chat messages when you receive a tree gift.")
     @ConfigEditorBoolean
     @OnlyModern
+    @FeatureToggle
     var compactGiftChats: Boolean = true
 
     @Expose
@@ -37,7 +38,7 @@ class ForagingTrackerConfig {
     @Expose
     @ConfigOption(
         name = "Disappearing Delay",
-        desc = "The delay in seconds before the tracker disappears after you stop holding an axe."
+        desc = "The delay in seconds before the tracker disappears after you stop holding an axe.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 60f, minStep = 1f)
     @OnlyModern

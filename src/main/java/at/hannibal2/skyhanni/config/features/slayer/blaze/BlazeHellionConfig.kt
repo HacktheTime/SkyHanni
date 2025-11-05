@@ -9,6 +9,9 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 class BlazeHellionConfig {
+
+
+    // TODO rename to highlight phase or similar
     @Expose
     @ConfigOption(
         name = "Colored Mobs",
