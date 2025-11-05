@@ -8,7 +8,7 @@ import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.RenderUtils
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
-import at.hannibal2.skyhanni.utils.compat.SkyhanniBaseScreen
+import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
@@ -16,7 +16,7 @@ import at.hannibal2.skyhanni.utils.renderables.primitives.placeholder
 import net.minecraft.client.renderer.GlStateManager
 import java.awt.Color
 
-class SearchableStorageReminderGui(private var search: String = "") : SkyhanniBaseScreen() {
+class SearchableStorageReminderGui(private var search: String = "") : SkyHanniBaseScreen() {
 
     private val config get() = SkyHanniMod.feature.inventory
 

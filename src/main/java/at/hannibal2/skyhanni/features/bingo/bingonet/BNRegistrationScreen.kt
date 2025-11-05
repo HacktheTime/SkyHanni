@@ -12,7 +12,7 @@ import at.hannibal2.skyhanni.utils.PlayerUtils
 import at.hannibal2.skyhanni.utils.RenderUtils
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
-import at.hannibal2.skyhanni.utils.compat.SkyhanniBaseScreen
+import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.renderXYAligned
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
@@ -28,7 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 class BNRegistrationScreen(
     val discordUserId: String,
     val discordUserName: String,
-) : SkyhanniBaseScreen() {
+) : SkyHanniBaseScreen() {
 
 
     private fun title(maxSize: Int) = centeredText("§b§lBingo Net Registration", maxSize)

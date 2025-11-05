@@ -1,7 +1,7 @@
 package at.hannibal2.skyhanni.features.misc.keybinds
 
 import at.hannibal2.skyhanni.data.IslandType
-import at.hannibal2.skyhanni.utils.compat.SkyhanniBaseScreen
+import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
@@ -17,7 +17,7 @@ import at.hannibal2.skyhanni.utils.ui.CommandSuggestionController
 import at.hannibal2.skyhanni.utils.ClipboardUtils
 import kotlinx.coroutines.runBlocking
 
-class KeybindEditorGui : SkyhanniBaseScreen() {
+class KeybindEditorGui : SkyHanniBaseScreen() {
     private val manager = Keybinds
     private val editor = KeybindEditor()
 

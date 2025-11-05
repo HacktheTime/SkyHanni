@@ -1,7 +1,7 @@
 package at.hannibal2.skyhanni.features.misc.numpadcodes
 
 import at.hannibal2.skyhanni.data.IslandType
-import at.hannibal2.skyhanni.utils.compat.SkyhanniBaseScreen
+import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
@@ -25,7 +25,7 @@ import at.hannibal2.skyhanni.utils.ui.CommandSuggestionController
  * - Working island list scrolling
  * - Working actions list scrolling
  */
-class NumpadEditorGui : SkyhanniBaseScreen() {
+class NumpadEditorGui : SkyHanniBaseScreen() {
 
     private val editor = NumpadEditor()
 

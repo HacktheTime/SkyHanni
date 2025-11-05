@@ -1,6 +1,6 @@
 package at.hannibal2.skyhanni.features.inventory.searchablestorage
 
-import at.hannibal2.skyhanni.api.StorageApi
+import at.hannibal2.skyhanni.api.storage.StorageApi
 import at.hannibal2.skyhanni.data.OtherInventoryData
 import at.hannibal2.skyhanni.data.model.SkyHanniInventoryContainer
 import at.hannibal2.skyhanni.features.inventory.searchablestorage.SearchableStorage.searchMode
@@ -28,7 +28,7 @@ import at.hannibal2.skyhanni.utils.RenderUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
-import at.hannibal2.skyhanni.utils.compat.SkyhanniBaseScreen
+import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
@@ -38,7 +38,7 @@ import net.minecraft.item.ItemStack
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
-class SearchableStorageGui(private var search: String = "") : SkyhanniBaseScreen() {
+class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen() {
 
     private var display: Renderable? = null
     private var tooltipRenderable: Renderable? = null
