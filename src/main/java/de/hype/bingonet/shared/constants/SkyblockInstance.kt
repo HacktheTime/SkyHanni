@@ -5,13 +5,11 @@ interface SkyblockInstance {
 
     val displayName: String
 }
-
 interface CatacombsType: SkyblockInstance {
     override val joinId: String
 
     override val displayName: String
 }
-
 enum class BasicCatacombsType(
     override val joinId: String,
     override val displayName: String,
@@ -25,7 +23,6 @@ enum class BasicCatacombsType(
     FLOOR_6("CATACOMBS_FLOOR_SIX", "Floor 6"),
     FLOOR_7("CATACOMBS_FLOOR_SEVEN", "Floor 7"),
 }
-
 enum class MasterModCatacombsType(
     override val joinId: String,
     override val displayName: String,
@@ -38,7 +35,6 @@ enum class MasterModCatacombsType(
     FLOOR_6("MASTER_CATACOMBS_FLOOR_SIX", "Master Mode Floor 6"),
     FLOOR_7("MASTER_CATACOMBS_FLOOR_SEVEN", "Master Mode Floor 7"),
 }
-
 enum class KuudraType(
     override val joinId: String,
     override val displayName: String,

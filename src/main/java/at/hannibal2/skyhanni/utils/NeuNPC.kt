@@ -37,7 +37,8 @@ class NeuNPC(
     @Expose
     @SerializedName("recipes")
     private var _offers: MutableList<NeuNPCOffer>? = mutableListOf(),
-) {
+
+    ) {
     @Expose
     @SerializedName("internalname")
     val internalName: String = displayName.uppercase().replace(" ", "_").replace(Regex("[^A-Z_]+"), "")

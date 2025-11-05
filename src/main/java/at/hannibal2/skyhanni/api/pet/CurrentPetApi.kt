@@ -31,6 +31,15 @@ object CurrentPetApi {
         "§aYou summoned your §r§(?<rarity>.)(?<pet>[^§]+)(?:§r(?<skin>§. ✦))?§r§a!",
     )
 
+    /**
+     * REGEX-TEST: §aYou despawned your §r§dRabbit§r§9 ✦§r§a!
+     * REGEX-TEST: §aYou despawned your §r§6Golden Dragon§r§a!
+     */
+    private val chatDespawnPattern by patternGroup.pattern(
+        "chat.despawn",
+        "§aYou despawned your §r§(?<rarity>.)(?<pet>[^§]+)(?:§r(?<skin>§. ✦))?§r§a!",
+    )
+
     val currentPet: PetData?
         get() = ProfileStorageData.profileSpecific?.currentPetUuid?.let { currentUuid ->
             ProfileStorageData.petProfiles?.pets?.firstOrNull { it.uuid == currentUuid }
@@ -71,7 +80,7 @@ object CurrentPetApi {
             ErrorManager.skyHanniError("Tried to assert a non-UUID having pet!")
         }
 
-        PetChangeEvent(petData).post()
+        PetChangeEvent(petData,currentPet).post()
         ProfileStorageData.profileSpecific?.currentPetUuid = petData.uuid
     }
 
@@ -86,9 +95,12 @@ object CurrentPetApi {
                 it.uuid != null
             } ?: return
 
-            PetChangeEvent(resolvedPet).post()
-
+            PetChangeEvent(resolvedPet, currentPet).post()
             ProfileStorageData.profileSpecific?.currentPetUuid = resolvedPet.uuid
+        }
+        chatDespawnPattern.matchMatcher(event.message) {
+            PetChangeEvent(null, currentPet).post()
+            ProfileStorageData.profileSpecific?.currentPetUuid = null
         }
     }
 

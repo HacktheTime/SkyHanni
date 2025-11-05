@@ -21,13 +21,21 @@ import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.isVanillaItem
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.StringUtils.removeNonAsciiNonColorCode
 import at.hannibal2.skyhanni.utils.StringUtils.removePrefix
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.add
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addAll
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrPut
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapKeysNotNull
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedCache
 import at.hannibal2.skyhanni.utils.compat.getVanillaItem
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
+import de.hype.bingonet.shared.constants.Islands
+import de.hype.bingonet.shared.objects.Position
+import de.hype.bingonet.shared.utils.skip
 import io.github.moulberry.notenoughupdates.NEUOverlay
 import io.github.moulberry.notenoughupdates.overlays.AuctionSearchOverlay
 import io.github.moulberry.notenoughupdates.overlays.BazaarSearchOverlay
@@ -62,10 +70,19 @@ object NeuItems {
 
     private var itemNamesWithoutColor: NavigableMap<String, NeuInternalName> = TreeMap()
 
+    fun findItemByNameWithoutColor(
+        name: String,
+    ): NeuInternalName? {
+        return itemNamesWithoutColor[name]
+    }
+
     var commonItemAliases: ItemAliases = ItemAliases()
         private set
 
     var allItemsCache = mapOf<String, NeuInternalName>() // item name -> internal name
+        private set
+
+    var npcs = mapOf<String, NeuNPC>()
         private set
 
     private val fallbackItem by lazy {
@@ -88,16 +105,6 @@ object NeuItems {
         DelayedRun.onThread.execute {
             readAllNeuItems()
         }
-    }
-
-    var npcs = mapOf<String, NeuNPC>()
-        private set
-
-
-    fun findItemByNameWithoutColor(
-        name: String,
-    ): NeuInternalName? {
-        return itemNamesWithoutColor[name]
     }
 
     private fun readAllNeuItems() {
@@ -328,4 +335,5 @@ object NeuItems {
         val jsonObject = ConfigManager.gson.fromJson(jsonString, JsonObject::class.java)
         return EnoughUpdatesManager.jsonToStack(jsonObject, false)
     }
+
 }

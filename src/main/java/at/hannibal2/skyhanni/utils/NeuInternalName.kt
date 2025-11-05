@@ -1,14 +1,15 @@
 package at.hannibal2.skyhanni.utils
 
+import at.hannibal2.skyhanni.api.enoughupdates.EnoughUpdatesManager
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ItemUtils.getItemCategoryOrNull
 import at.hannibal2.skyhanni.utils.NeuItems.getItemStackOrNull
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedCache
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.init.Items
 import kotlin.time.Duration.Companion.minutes
 
-class NeuInternalName private constructor(internalName: String) : BNNEUItem(internalName) {
+class NeuInternalName private constructor(val internalName: String) {
 
     companion object {
 
@@ -86,6 +87,9 @@ class NeuInternalName private constructor(internalName: String) : BNNEUItem(inte
         internalName.replace(oldValue, newValue, ignoreCase = true).toInternalName()
 
     fun isKnownItem(): Boolean = getItemStackOrNull() != null || this == SKYBLOCK_COIN
+    fun getCraftingRecipies(): List<PrimitiveRecipe> {
+        return EnoughUpdatesManager.getRecipesFor(this).filter { it.recipeType == RecipeType.CRAFTING }
+    }
 
     private val categoryCache = mutableMapOf<NeuInternalName, ItemCategory?>()
 

@@ -18,6 +18,7 @@ import at.hannibal2.skyhanni.config.features.mining.MiningConfig
 import at.hannibal2.skyhanni.config.features.rift.RiftConfig
 import at.hannibal2.skyhanni.config.features.skillprogress.SkillProgressConfig
 import at.hannibal2.skyhanni.config.features.slayer.SlayerConfig
+import at.hannibal2.skyhanni.config.features.tutorials.TutorialConfig
 import at.hannibal2.skyhanni.config.storage.Storage
 import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
 import at.hannibal2.skyhanni.utils.TimeUtils
@@ -160,6 +161,10 @@ class Features : Config() {
     @Expose
     @Suppress("unused")
     var lastVersion: Int = ConfigUpdaterMigrator.CONFIG_VERSION
+
+    @Expose
+    @Category(name = "Tutorials", desc = "Ingame Tutorials. Have to be loaded separately.")
+    var tutorials: TutorialConfig = TutorialConfig()
 
     @Expose
     var lastMinecraftVersion: String? = null

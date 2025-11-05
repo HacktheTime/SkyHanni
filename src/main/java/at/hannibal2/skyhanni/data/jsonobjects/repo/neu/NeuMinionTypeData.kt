@@ -2,7 +2,7 @@ package at.hannibal2.skyhanni.data.jsonobjects.repo.neu
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionCategory
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionType
 
@@ -21,9 +21,9 @@ class NeuMinionTypeData : MinionType {
 
     @Expose
     @SerializedName("drops")
-    override val drops: Map<BNNEUItem, Double>
+    override val drops: Map<NeuInternalName, Double>
 
-    private constructor(typeId: String, category: MinionCategory, requiredActions: Int, drops: Map<BNNEUItem, Double>) : super(
+    private constructor(typeId: String, category: MinionCategory, requiredActions: Int, drops: Map<NeuInternalName, Double>) : super(
         typeId, category, drops, requiredActions,
     ) {
         this.typeId = typeId

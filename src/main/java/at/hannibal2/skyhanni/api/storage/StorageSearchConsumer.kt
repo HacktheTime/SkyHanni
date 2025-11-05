@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.api.storage
 
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.item.ItemStack
 import java.util.UUID
 
@@ -13,8 +14,20 @@ class StorageSearchConsumer {
     /**
      * Adds a filter to the search
      */
-    fun addFilter(filter: StorageFilter): StorageSearchConsumer {
-        filters.add(filter)
+    fun addFilter(filterObj: StorageFilter): StorageSearchConsumer {
+        filters.add(filterObj)
+        return this
+    }
+
+    /**
+     * Adds a filter to the search
+     */
+    fun filter(filter: (ItemStack, String, StorageCategory) -> Boolean): StorageSearchConsumer {
+        filters.add(object : StorageFilter{
+            override fun matches(item: ItemStack, storageName: String, category: StorageCategory): Boolean {
+                return filter.invoke(item,storageName,category)
+            }
+        })
         return this
     }
 
@@ -119,6 +132,13 @@ fun StorageSearchConsumer.filterByUuid(uuid: UUID): StorageSearchConsumer {
 fun StorageSearchConsumer.filterByItemId(itemId: String, ignoreCase: Boolean = true): StorageSearchConsumer {
     return addFilter(SkyBlockItemIdFilter(itemId, ignoreCase))
 }
+/**
+ * Filter by NeuInternalName
+ */
+fun StorageSearchConsumer.filterByNeuInternalName(item: NeuInternalName): StorageSearchConsumer {
+    return addFilter(NeuInternalNameFilter(item))
+}
+
 
 /**
  * Filter by storage categories

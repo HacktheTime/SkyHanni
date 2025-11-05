@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.features.skillprogress
 
 import at.hannibal2.skyhanni.utils.ItemUtils
+import de.hype.bingonet.shared.constants.Skills
 import net.minecraft.block.Block
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
@@ -39,5 +40,21 @@ enum class SkillType(val displayName: String, icon: Item, val maxLevel: Int) {
 
         fun getByNameOrNull(name: String) =
             entries.firstOrNull { it.displayName.lowercase() == name.lowercase() }
+
+        fun Skills.toSh() = when(this) {
+            Skills.Combat -> COMBAT
+            Skills.Farming -> FARMING
+            Skills.Fishing -> FISHING
+            Skills.Mining -> MINING
+            Skills.Foraging -> FORAGING
+            Skills.Enchanting -> ENCHANTING
+            Skills.Alchemy -> ALCHEMY
+            Skills.Carpentry -> CARPENTRY
+            Skills.Taming -> TAMING
+            Skills.Hunting -> HUNTING
+            Skills.Runecrafting -> null
+            Skills.Social -> null
+            Skills.Dungeon -> null
+        }
     }
 }

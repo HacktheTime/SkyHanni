@@ -1,7 +1,5 @@
 package de.hype.bingonet.shared.constants
 
-// Mining Events
-
 /**
  * A List of all Mining Events
  * [.BETTER_TOGETHER]

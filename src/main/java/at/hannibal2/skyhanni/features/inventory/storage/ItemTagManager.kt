@@ -1,9 +1,9 @@
 package at.hannibal2.skyhanni.features.inventory.storage
 
-import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.config.ConfigFileType
 import at.hannibal2.skyhanni.data.ProfileStorageData
+import at.hannibal2.skyhanni.features.tutorial.TutorialManager
 import at.hannibal2.skyhanni.utils.ChatUtils
+import de.hype.bingonet.shared.tutorials.steps.itemstep.TagItemTutorialStep
 
 /**
  * Simple item tag manager - 1:1 mapping between tags and UUIDs
@@ -38,9 +38,12 @@ object ItemTagManager {
 
         // Set the new tag
         tagToUuid[normalizedTag] = normalizedUuid
-        saveData()
-
         // Don't send success message here - let the caller handle it
+        TutorialManager.getActiveSteps()?.filterIsInstance<TagItemTutorialStep>()?.forEach {
+            if (it.tagName == tag) {
+                it.complete()
+            }
+        }
         return true
     }
 
@@ -53,7 +56,6 @@ object ItemTagManager {
 
         if (existingTag != null) {
             tagToUuid.remove(existingTag)
-            saveData()
             ChatUtils.chat("§aRemoved tag §b$existingTag")
             return true
         }
@@ -113,11 +115,5 @@ object ItemTagManager {
 
     private fun normalizeTag(tag: String): String {
         return tag.lowercase()
-    }
-
-    private fun saveData() {
-        SkyHanniMod.launchCoroutine("Save Item Tags") {
-            SkyHanniMod.configManager.saveConfig(ConfigFileType.STORAGE, "Updated item tags")
-        }
     }
 }

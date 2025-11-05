@@ -89,15 +89,6 @@ object CaptureFarmingGear {
     )
 
     /**
-     * REGEX-TEST: Yum! You gain +5☘ Farming Fortune for 48 hours!
-     * REGEX-TEST: Big Yum! You refresh +5☘ Farming Fortune for 48 hours!
-     */
-    private val cakePattern by patternGroup.pattern(
-        "cake",
-        "(?:Big )?Yum! You (?:gain|refresh) [+]5☘ Farming Fortune for 48 hours!",
-    )
-
-    /**
      * REGEX-TEST:  Strength: §r§c❁170
      */
     private val strengthPattern by patternGroup.pattern(
@@ -418,10 +409,6 @@ object CaptureFarmingGear {
                     outdatedItems[item] = true
                 }
             }
-            return
-        }
-        cakePattern.matchMatcher(msg) {
-            FFStats.cakeExpireTime = 2.days.fromNow()
             return
         }
         CarrolynTable.entries.forEach {

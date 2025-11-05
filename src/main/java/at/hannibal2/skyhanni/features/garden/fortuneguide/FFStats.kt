@@ -6,6 +6,7 @@ import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.features.garden.CropType
 import at.hannibal2.skyhanni.features.garden.FarmingFortuneDisplay
 import at.hannibal2.skyhanni.features.garden.GardenApi
+import at.hannibal2.skyhanni.features.misc.CenturyCakeAPI
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
@@ -23,11 +24,7 @@ object FFStats {
     private val YELLOW_BANDANA_ITEM = "YELLOW_BANDANA".toInternalName()
     private val MINOS_RELIC_ITEM = "MINOS_RELIC".toInternalName()
 
-    var cakeExpireTime
-        get() = GardenApi.storage?.fortune?.cakeExpiring ?: SimpleTimeMark.farPast()
-        set(value) {
-            GardenApi.storage?.fortune?.cakeExpiring = value
-        }
+    val cakeExpireTime get() = CenturyCakeAPI.getCakeExpiration(CenturyCakeAPI.CenturyCakeType.FARMING_FORTUNE)
 
     var equipmentTotalFF = mapOf<FFTypes, Double>()
 

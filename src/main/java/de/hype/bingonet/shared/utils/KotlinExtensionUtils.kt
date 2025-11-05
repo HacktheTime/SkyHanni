@@ -22,15 +22,12 @@ fun <S, T> lazyRemap(
             return cache!!
         }
     }
-
 fun <T : Comparable<T>> T.min(other: T): T {
     return if (this < other) this else other
 }
-
 fun <T : Comparable<T>> T.max(other: T): T {
     return if (this > other) this else other
 }
-
 // for `var x by lazyRemap(::sourceProp) { mapper } reverse { toSource }`
 fun <R, S> lazyRemap(
     prop: KMutableProperty0<R>,
@@ -57,16 +54,13 @@ fun <R, S> lazyRemap(
             prop.set(newSource)
         }
     }
-
 fun <T : List<V>, V> T.subList(from: Int): List<V> {
     if (from > size) return listOf()
     return subList(from, size)
 }
-
 fun <T : List<V>, V> T.skip(count: Int): List<V> {
     return subList(from = count)
 }
-
 fun <T : List<V>, V> T.subListTo(to: Int): List<V> {
     val to = to.coerceAtMost(size)
     if (to <= 0) return listOf()

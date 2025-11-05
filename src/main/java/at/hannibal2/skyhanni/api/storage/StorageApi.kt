@@ -19,6 +19,7 @@ import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.BlockUtils.getBlockAt
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.InventoryUtils
+import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceSqToPlayer
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
@@ -31,6 +32,7 @@ import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import net.minecraft.block.BlockChest
 import net.minecraft.item.ItemStack
 import java.util.NavigableMap
@@ -381,6 +383,12 @@ object StorageApi {
         toHighlightResults.filter { it.isPrivateIslandChest() }.forEach {
             val location = it.location ?: return@forEach
             event.drawWaypointFilled(location, java.awt.Color.YELLOW, true, false)
+        }
+    }
+
+    fun searchByNeuItem(item: NeuInternalName): StorageSearchConsumer {
+        return search().filter { stack, name, category ->
+            return@filter stack.getInternalName() == item
         }
     }
 }

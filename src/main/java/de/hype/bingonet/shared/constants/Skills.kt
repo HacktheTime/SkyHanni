@@ -1,7 +1,7 @@
 package de.hype.bingonet.shared.constants
 
 enum class Skills {
-    Foraging("FORAGING", "Foraging", 50, 50, LevelingType.NORMAL_SKILL_LEVELING),
+    Foraging("FORAGING", "Foraging", 50, 54, LevelingType.NORMAL_SKILL_LEVELING),
     Runecrafting("RUNECRAFTING", "Runecrafting", 25, 25, LevelingType.COSMETIC_SKILL_LEVELING, true),
     Taming("TAMING", "Taming", 50, 60, LevelingType.NORMAL_SKILL_LEVELING),
     Social("SOCIAL", "Social", 25, 25, LevelingType.COSMETIC_SKILL_LEVELING, true),
@@ -12,7 +12,9 @@ enum class Skills {
     Carpentry("CARPENTRY", "Carpentry", 50, 50, LevelingType.NORMAL_SKILL_LEVELING),
     Alchemy("ALCHEMY", "Alchemy", 50, 50, LevelingType.NORMAL_SKILL_LEVELING),
     Mining("MINING", "Mining", 60, 60, LevelingType.NORMAL_SKILL_LEVELING),
-    Dungeon("DUNGEON", "Dungeon", 50, 50, LevelingType.CATACOMBS_SKILL_LEVELING), ;
+    Dungeon("DUNGEON", "Dungeon", 50, 50, LevelingType.CATACOMBS_SKILL_LEVELING),
+    Hunting("HUNTING", "Hunting", 25, 25, LevelingType.COSMETIC_SKILL_LEVELING, true),
+    ;
 
     @JvmField
     val id: String

@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.inventory
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.ReforgeApi
+import at.hannibal2.skyhanni.api.ReforgeApi.Reforge
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.model.SkyblockStat
 import at.hannibal2.skyhanni.data.model.SkyblockStatList
@@ -85,10 +86,10 @@ object ReforgeHelper {
     private var itemToReforge: ItemStack? = null
     private var inventoryContainer: Container? = null
 
-    private var currentReforge: ReforgeApi.Reforge? = null
-    private var reforgeToSearch: ReforgeApi.Reforge? = null
+    private var currentReforge: Reforge? = null
+    private var reforgeToSearch: Reforge? = null
 
-    private var hoveredReforge: ReforgeApi.Reforge? = null
+    private var hoveredReforge: Reforge? = null
 
     private val reforgeItem get() = if (isInHexReforgeMenu) 19 else 13
     private val reforgeButton get() = if (isInHexReforgeMenu) 48 else 22
@@ -247,14 +248,14 @@ object ReforgeHelper {
         this.addAll(list)
     }
 
-    private fun getReforgeColor(reforge: ReforgeApi.Reforge) = when {
+    private fun getReforgeColor(reforge: Reforge) = when {
         currentReforge == reforge -> "§6"
         reforgeToSearch == reforge -> "§3"
         reforge.isReforgeStone -> "§9"
         else -> "§7"
     }
 
-    private fun getReforgeView(itemRarity: LorenzRarity): (ReforgeApi.Reforge) -> Renderable = { reforge ->
+    private fun getReforgeView(itemRarity: LorenzRarity): (Reforge) -> Renderable = { reforge ->
         val text = getReforgeColor(reforge) + reforge.name
         val tips = getReforgeTips(reforge, itemRarity)
         val onHover = if (!isInHexReforgeMenu) {
@@ -276,7 +277,7 @@ object ReforgeHelper {
     }
 
     private fun getReforgeTips(
-        reforge: ReforgeApi.Reforge,
+        reforge: Reforge,
         itemRarity: LorenzRarity,
     ): List<Renderable> {
         val stats: List<Renderable>
@@ -313,7 +314,7 @@ object ReforgeHelper {
         return listOf(Renderable.text("§6Reforge Stats")) + stats + removedEffect + addedEffect + clickToApply
     }
 
-    private fun getReforgeEffect(reforge: ReforgeApi.Reforge?, rarity: LorenzRarity) =
+    private fun getReforgeEffect(reforge: Reforge?, rarity: LorenzRarity) =
         reforge?.reforgeAbility?.get(rarity)?.let {
             Renderable.wrappedText(
                 it,
@@ -325,9 +326,9 @@ object ReforgeHelper {
     private fun getSortSelector(
         itemRarity: LorenzRarity,
         sorting: SkyblockStat?,
-    ): Comparator<ReforgeApi.Reforge> =
+    ): Comparator<Reforge> =
         if (sorting != null) {
-            Comparator.comparing<ReforgeApi.Reforge, Double> { it.stats[itemRarity]?.get(sorting) ?: 0.0 }.reversed()
+            Comparator.comparing<Reforge, Double> { it.stats[itemRarity]?.get(sorting) ?: 0.0 }.reversed()
         } else {
             Comparator.comparing { it.isReforgeStone }
         }
@@ -451,5 +452,18 @@ object ReforgeHelper {
         val table = Renderable.table(main, 5)
         return listOf(table)
     }
-}
 
+    /**
+     * Public API for tutorials: set a target reforge by its lowercase/internal name.
+     * Example values: "heroic", "spiritual", etc. Dash will be normalized to underscore.
+     */
+    fun setTutorialTargetReforge(reforge: Reforge?) {
+        if (reforge==null) {
+            reforgeToSearch = null
+            updateDisplay()
+            return
+        }
+        reforgeToSearch = reforge
+        updateDisplay()
+    }
+}

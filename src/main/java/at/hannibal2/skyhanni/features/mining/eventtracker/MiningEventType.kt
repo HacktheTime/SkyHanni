@@ -15,6 +15,7 @@ import at.hannibal2.skyhanni.utils.renderables.Renderable.Companion.darken
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.primitives.ItemStackRenderable.Companion.item
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
+import de.hype.bingonet.shared.constants.MiningEvents
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import kotlin.time.Duration
@@ -195,5 +196,17 @@ enum class MiningEventType(
         fun fromEventName(bossbarName: String): MiningEventType? {
             return MiningEventType.entries.find { it.eventName == bossbarName.removeColor() }
         }
+    }
+
+}
+
+fun MiningEventType.toBN(): MiningEvents{
+    when (this) {
+        MiningEventType.GONE_WITH_THE_WIND -> return MiningEvents.GONE_WITH_THE_WIND
+        MiningEventType.DOUBLE_POWDER -> return MiningEvents.DOUBLE_POWDER
+        MiningEventType.GOBLIN_RAID -> return MiningEvents.GOBLIN_RAID
+        MiningEventType.BETTER_TOGETHER -> return MiningEvents.BETTER_TOGETHER
+        MiningEventType.RAFFLE -> return MiningEvents.RAFFLE
+        MiningEventType.MITHRIL_GOURMAND -> return MiningEvents.MITHRIL_GOURMAND
     }
 }

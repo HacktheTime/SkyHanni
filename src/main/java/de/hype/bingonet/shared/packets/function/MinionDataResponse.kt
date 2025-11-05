@@ -1,4 +1,5 @@
 package de.hype.bingonet.shared.packets.function
+
 // TODO: Add mininion data response packet
 // import de.hype.bingonet.shared.compilation.sbenums.minions.Minion
 // import de.hype.bingonet.shared.packets.base.ExpectReplyPacket

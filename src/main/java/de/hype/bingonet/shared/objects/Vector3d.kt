@@ -138,9 +138,7 @@ class Vector3d(val x: Double, val y: Double, val z: Double) : Comparable<Vector3
     }
 
     fun signumEquals(other: Vector3d): Boolean {
-        return sign(x) == sign(other.x) &&
-            sign(y) == sign(other.y) &&
-            sign(z) == sign(other.z)
+        return sign(x) == sign(other.x) && sign(y) == sign(other.y) && sign(z) == sign(other.z)
     }
 
     fun sqrt(value: Double): Double = sqrt(value)

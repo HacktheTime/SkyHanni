@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.api.enoughupdates
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigManager
+import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils.parseItem
 import at.hannibal2.skyhanni.data.jsonobjects.other.NeuNbtInfoJson
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuMinionTypeData
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuPetsJson
@@ -13,6 +14,7 @@ import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.extraAttributes
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.NeuInternalName
+import at.hannibal2.skyhanni.utils.NeuNPC
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.PrimitiveRecipe
 import at.hannibal2.skyhanni.utils.StringUtils.cleanString
@@ -21,11 +23,13 @@ import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapNotNullAsync
 import at.hannibal2.skyhanni.utils.compat.getIdentifierString
 import at.hannibal2.skyhanni.utils.compat.getVanillaItem
 import at.hannibal2.skyhanni.utils.compat.setCustomItemName
+import at.hannibal2.skyhanni.utils.json.BaseGsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionData
 import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionType
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -62,6 +66,7 @@ object EnoughUpdatesManager {
 
     private val loadingMutex = Mutex()
     private val itemMap = TreeMap<String, JsonObject>()
+    private val npcs = TreeMap<String, NeuNPC>()
     private val itemStackCache = mutableMapOf<String, ItemStack>()
     private val displayNameCache = mutableMapOf<String, String>()
     private val recipesMap = mutableMapOf<NeuInternalName, MutableSet<PrimitiveRecipe>>()
@@ -89,7 +94,8 @@ object EnoughUpdatesManager {
         recipesMap.clear()
 
         val tempItemMap = TreeMap<String, JsonObject>()
-        loadItemMap(progress, tempItemMap)
+        val tempNpcMap = TreeMap<String, NeuNPC>()
+        loadItemMap(progress, tempItemMap, tempNpcMap)
 
         progress.update("synchronized itemMap")
         synchronized(itemMap) {
@@ -97,16 +103,46 @@ object EnoughUpdatesManager {
             itemMap.putAll(tempItemMap)
             progress.update("putAll tempItemMap")
         }
+
+        synchronized(npcs) {
+            npcs.clear()
+            npcs.putAll(tempNpcMap)
+        }
     }
 
     fun getRecipesFor(internalName: NeuInternalName): Set<PrimitiveRecipe> = recipesMap.getOrDefault(internalName, emptySet())
 
-    private suspend fun loadItemMap(progress: ChatProgressUpdates, tempItemMap: TreeMap<String, JsonObject>) = coroutineScope {
+    private suspend fun loadItemMap(
+        progress: ChatProgressUpdates, tempItemMap: TreeMap<String, JsonObject>,
+        tempNpcMap: TreeMap<
+            String,
+            NeuNPC,
+            >,
+    ) {
+        coroutineScope {
         progress.update("loadItemMap")
         val fileSystem = EnoughUpdatesRepoManager.repoFileSystem
-        val list = fileSystem.list("items")
+            val list = fileSystem.list("items").filter { it.endsWith(".json") }
+            val partitioned = list.partition { it.contains("NPC") }
         progress.innerProgressStart(list.size)
-        val async = list.mapNotNullAsync { name ->
+        //Is NPC
+        partitioned.first.mapNotNullAsync { name->
+            try {
+                val internalName = name.removeSuffix(".json")
+                val parsed = parseNPC(
+                    internalName = internalName,
+                    json = fileSystem.readAllBytesAsJsonElement("items/$name").asJsonObject,
+                )?: return@mapNotNullAsync null
+                internalName to parsed
+            } catch (e: Exception) {
+                ErrorManager.logErrorWithData(e, "Failed to parse NPC: $name")
+                null
+            }
+        }.forEach {
+            tempNpcMap[it.first] = it.second
+        }
+        // Is not NPC → Is Item
+        partitioned.second.mapNotNullAsync { name ->
             try {
                 val internalName = name.removeSuffix(".json")
                 val item = parseItem(
@@ -121,10 +157,14 @@ object EnoughUpdatesManager {
                 ErrorManager.logErrorWithData(e, "Failed to parse item: $name")
                 null
             }
+        }.forEach {
+            tempItemMap[it.first] = it.second
         }
-        async.forEach { (internalName, item) ->
-            tempItemMap[internalName] = item
         }
+    }
+
+    fun parseNPC(internalName: String, json: JsonObject) : NeuNPC? {
+        return BaseGsonBuilder.gson().create().fromJson(json, NeuNPC::class.java)
     }
 
     private fun parseItem(internalName: String, json: JsonObject): JsonObject? {
@@ -475,8 +515,12 @@ object EnoughUpdatesManager {
     fun onNeuRepoReload(event: NeuRepositoryReloadEvent) {
         neuPetsJson = event.getConstant<NeuPetsJson>("pets")
         neuPetNums = event.getConstant<JsonObject>("petnums")
-        neuMinionTypes = event.getConstant<List<NeuMinionTypeData>>("minions")
-            .associateBy { it.typeId }
+        try {
+            neuMinionTypes = event.getConstant<List<NeuMinionTypeData>>("minions")
+                .associateBy { it.typeId }
+        }catch (e: Exception) {
+            ErrorManager.logErrorWithData(e, "Failed to parse minions json")
+        }
         if (itemMap.isNotEmpty()) {
             ChatUtils.chat("Reloaded ${itemMap.size.addSeparators()} items in the NEU repo")
         }

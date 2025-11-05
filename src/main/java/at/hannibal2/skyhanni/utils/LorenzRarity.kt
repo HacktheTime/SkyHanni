@@ -1,7 +1,18 @@
 package at.hannibal2.skyhanni.utils
 
 import at.hannibal2.skyhanni.test.command.ErrorManager
+import at.hannibal2.skyhanni.utils.LorenzRarity.COMMON
+import at.hannibal2.skyhanni.utils.LorenzRarity.DIVINE
+import at.hannibal2.skyhanni.utils.LorenzRarity.EPIC
+import at.hannibal2.skyhanni.utils.LorenzRarity.LEGENDARY
+import at.hannibal2.skyhanni.utils.LorenzRarity.MYTHIC
+import at.hannibal2.skyhanni.utils.LorenzRarity.RARE
+import at.hannibal2.skyhanni.utils.LorenzRarity.SPECIAL
+import at.hannibal2.skyhanni.utils.LorenzRarity.SUPREME
+import at.hannibal2.skyhanni.utils.LorenzRarity.UNCOMMON
+import at.hannibal2.skyhanni.utils.LorenzRarity.VERY_SPECIAL
 import at.hannibal2.skyhanni.utils.StringUtils.firstLetterUppercase
+import de.hype.bingonet.shared.constants.Rarity
 
 // TODO: replace id with ordinal
 enum class LorenzRarity(val color: LorenzColor, val id: Int) {
@@ -58,5 +69,21 @@ enum class LorenzRarity(val color: LorenzColor, val id: Int) {
         fun getByNameOrError(name: String): LorenzRarity = getByName(name) ?: error("LorenzRarity not found by name: '$name'")
 
         fun getByColorCode(colorCode: Char): LorenzRarity? = entries.find { it.color.chatColorCode == colorCode }
+    }
+}
+
+fun Rarity.toSh(): LorenzRarity? {
+    return when (this) {
+        Rarity.COMMON -> COMMON
+        Rarity.UNCOMMON -> UNCOMMON
+        Rarity.RARE -> RARE
+        Rarity.EPIC -> EPIC
+        Rarity.LEGENDARY -> LEGENDARY
+        Rarity.MYTHIC -> MYTHIC
+        Rarity.DIVINE -> DIVINE
+        Rarity.SUPREME -> SUPREME
+        Rarity.SPECIAL -> SPECIAL
+        Rarity.VERY_SPECIAL -> VERY_SPECIAL
+        Rarity.UNKNOWN -> null
     }
 }

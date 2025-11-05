@@ -1,0 +1,22 @@
+# Project Sync is a Project by Hype_the_Time/HacktheTime.
+# It is intended to sync Code needed for the Client Server Communication of the Bingo Net integration.
+# For more details contact me.
+
+projectId: bingonet-client
+syncProjects:
+    BINGONET:
+        syncFolders:
+            shared: src/main/java/de/hype/bingonet/shared
+            shared-gen: src/main/java/de/hype/bingonet/sharedcompilation/sbenums
+remap:
+    at.hannibal2.skyhanni.utils.NeuInternalName: de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
+
+envSpecific:
+    environmentCode:
+        - ^at\.hannibal2\.skyhanni(\..*)?$
+        - ^net\.minecraft(\..*)?$
+environmentCode:
+    - ^at\.hannibal2\.skyhanni(\..*)?$
+    - ^net\.minecraft(\..*)?$
+
+#testss

@@ -121,4 +121,3 @@ enum class Fueles(
         builder.invoke(minionData)
     }
 }
-

@@ -157,3 +157,29 @@ fun IslandType.toBNIsland(): Islands? {
         IslandType.UNKNOWN -> null
     }
 }
+
+fun Islands.toSHIsland(): IslandType {
+    when (this) {
+        Islands.CRYSTAL_HOLLOWS -> return IslandType.CRYSTAL_HOLLOWS
+        Islands.CRIMSON_ISLE -> return IslandType.CRIMSON_ISLE
+        Islands.DEEP_CAVERNS -> return IslandType.DEEP_CAVERNS
+        Islands.DUNGEON -> return IslandType.CATACOMBS
+        Islands.DUNGEON_HUB -> return IslandType.DUNGEON_HUB
+        Islands.DWARVEN_MINES -> return IslandType.DWARVEN_MINES
+        Islands.GOLD_MINE -> return IslandType.GOLD_MINES
+        Islands.HUB -> return IslandType.HUB
+        Islands.GLACITE_TUNNEL -> return IslandType.MINESHAFT
+        Islands.KUUDRA -> return IslandType.KUUDRA_ARENA
+        Islands.PRIVATE_ISLAND -> return IslandType.PRIVATE_ISLAND
+        Islands.GARDEN -> return IslandType.GARDEN
+        Islands.SPIDERS_DEN -> return IslandType.SPIDER_DEN
+        Islands.THE_END -> return IslandType.THE_END
+        Islands.THE_FARMING_ISLANDS -> return IslandType.THE_FARMING_ISLANDS
+        Islands.JERRYS_WORKSHOP -> return IslandType.WINTER
+        Islands.THE_RIFT -> return IslandType.THE_RIFT
+        Islands.THE_PARK -> return IslandType.THE_PARK
+        Islands.DARK_AUCTION -> return IslandType.DARK_AUCTION
+        Islands.BAYOU -> return IslandType.BACKWATER_BAYOU
+        Islands.GALATEA -> return IslandType.GALATEA
+    }
+}
