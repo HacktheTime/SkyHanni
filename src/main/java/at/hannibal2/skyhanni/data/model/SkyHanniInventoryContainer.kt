@@ -18,13 +18,14 @@ class SkyHanniInventoryContainer(
     @Expose val primaryCords: LorenzVec? = null,
     @Expose val secondaryCords: LorenzVec? = null,
 ) {
-    fun toRenderable(scale: Double = 1.0): Renderable = with(Renderable) {
+    fun toRenderable(scale: Double = 1.0, highlightSlots: List<Int> = listOf()): Renderable = with(Renderable) {
         vertical(
             text(displayName, scale),
             fakeInventory(
                 items,
                 rowSize,
                 scale,
+                highlightSlots
             ),
         )
     }
