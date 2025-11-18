@@ -480,6 +480,30 @@ object ChatUtils {
         )
     }
 
+    fun clickToActionOrEnableAuto(
+        message: String,
+        option: KProperty0<*>,
+        actionName: String,
+        action: () -> Unit,
+        oneTimeClick: Boolean = false,
+    ) {
+        val hint = if (SkyHanniMod.feature.chat.hideClickableHint) "" else
+            "\n§e[CLICK to $actionName one Time or Enable automatic]"
+        clickableChat(
+            "$message$hint",
+            onClick = {
+                if (KeyboardManager.isShiftKeyDown() || KeyboardManager.isModifierKeyDown()) {
+                    option.jumpToEditor()
+                } else {
+                    action()
+                }
+            },
+            hover = "§eClick to $actionName!\n§eShift-Click or Control-Click to do it automatically in the Future!",
+            oneTimeClick = oneTimeClick,
+            replaceSameMessage = true,
+        )
+    }
+
     var ChatLine.fullComponent: IChatComponent
         get() = (this as ChatLineData).skyHanni_fullComponent
         set(value) {

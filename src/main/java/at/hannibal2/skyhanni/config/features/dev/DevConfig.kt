@@ -185,4 +185,12 @@ class DevConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     var ignoreTermSignal: Boolean = false
+
+    @Expose
+    @ConfigOption(name = "Auto Error Report (Bingo Net) (§c⚠ Closed Source Server!§r)",
+        desc = "Automatically send all Errors over the Bingo Net Connection to the Bingo Net Server. This allows better handling of " +
+            "Issues and triage by the Bingo Net Team." +
+            " §c§l⚠ Depends on Hype_the_Time closed source Server that SkyHanni has no access to.")
+    @ConfigEditorBoolean
+    var autoThirdPartyErrorReporting: Boolean = false
 }

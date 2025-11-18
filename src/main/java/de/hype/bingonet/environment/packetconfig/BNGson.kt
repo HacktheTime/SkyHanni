@@ -8,6 +8,7 @@ import de.hype.bingonet.shared.json.DurationSerializer
 import de.hype.bingonet.shared.json.InstantSerializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import de.hype.bingonet.shared.json.ThrowableTypeAdapter
 
 object BNGson {
     var ownSerializer: Gson = GsonBuilder().create()
@@ -24,4 +25,5 @@ object BNGson {
             .registerTypeAdapter(Color::class.java, ColorSerializer())
             .registerTypeAdapter(Duration::class.java, DurationSerializer())
             .registerTypeAdapter(Instant::class.java, InstantSerializer())
+            .registerTypeAdapter(Throwable::class.java, ThrowableTypeAdapter())
 }
