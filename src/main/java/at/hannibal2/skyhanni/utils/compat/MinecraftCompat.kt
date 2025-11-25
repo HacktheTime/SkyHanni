@@ -24,8 +24,10 @@ object MinecraftCompat {
 
     //#if MC < 1.16
     val showDebugHud get(): Boolean = Minecraft.getMinecraft().gameSettings.showDebugInfo
-    //#else
+    //#elseif MC < 1.21.9
     //$$ val showDebugHud get(): Boolean = MinecraftClient.getInstance().debugHud.shouldShowDebugHud()
+    //#else
+    //$$ val showDebugHud get(): Boolean = MinecraftClient.getInstance().debugHudEntryList.isF3Enabled
     //#endif
 
 }
