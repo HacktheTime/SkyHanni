@@ -138,14 +138,14 @@ object BNConnection {
     fun launchHook(event: ConfigLoadEvent) {
         if (bnConfig.useBN) {
             SkyHanniMod.launchCoroutine("BN Load → Config Load Event") {
-                if (!isConnected) connect("hackthetime.de", bnConfig.system.port)
+                reconnectToBNServer(true)
             }
         } else {
             disconnect()
         }
     }
 
-
+   @Synchronized
     fun connect(serverIP: kotlin.String = "hackthetime.de", serverPort: Int) {
         try {
             val sslContext = createSSLContext()
@@ -347,8 +347,8 @@ object BNConnection {
             }
         }
     }
-
-    suspend fun BNConnection.reconnectToBNServer(
+    @Synchronized
+    fun BNConnection.reconnectToBNServer(
         ignoreIfConnected: Boolean = true,
         system: BingoNetSystem = bnConfig.system,
         packetIntercepts: List<InterceptPacketInfo<*>> = emptyList(),
@@ -454,7 +454,7 @@ object BNConnection {
                     i.seconds,
                     {
                         SkyHanniMod.launchNoScopeCoroutine(
-                            "BN Reconnect after Disconnect Packet"
+                            "BN Reconnect after Disconnect Packet",
                         ) {
                             reconnectToBNServer(true)
                         }
