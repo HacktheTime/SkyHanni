@@ -138,7 +138,7 @@ object HubSelectorKeybinds {
             }
         }
         bestClick?.let {
-            InventoryUtils.clickSlot(bestClick.second, chest.inventorySlots.windowId, mouseButton = 2, mode = 3)
+            InventoryUtils.clickSlot(bestClick.second, chest.inventorySlots.windowId, mouseButton = 2, clickType = GuiContainerEvent.ClickType.NORMAL)
         }
     }
 

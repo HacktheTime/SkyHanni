@@ -18,6 +18,7 @@ import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.Category
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
@@ -520,6 +521,7 @@ class MiscConfig {
         name = "Island Change Default Intermediate",
         desc = "The island to swap to unless specified otherwise when using the /shswapisland commands",
     )
+    @ConfigEditorDropdown
     var defaultSwapMiddleIsland: Islands = Islands.HUB
 
     @Expose
