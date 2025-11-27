@@ -62,7 +62,7 @@ class PetConfig {
     @Expose
     @ConfigOption(
         name = "Hide Autopet Messages",
-        desc = "Hide autopet messages in chat."
+        desc = "Hide autopet messages in chat.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -71,12 +71,12 @@ class PetConfig {
     @Expose
     @ConfigOption(
         name = "Show Pet Item",
-        desc = "Specify the pet items for which icons should be displayed next to pets."
+        desc = "Specify the pet items for which icons should be displayed next to pets.",
     )
     @ConfigEditorDraggableList
     val petItemDisplay: MutableList<PetItemsDisplay> = mutableListOf(
         PetItemsDisplay.XP_SHARE,
-        PetItemsDisplay.TIER_BOOST
+        PetItemsDisplay.TIER_BOOST,
     )
 
     @Expose
@@ -87,7 +87,7 @@ class PetConfig {
     enum class PetItemsDisplay(
         val icon: String,
         itemDisplayName: String,
-        val item: String
+        val item: String,
     ) {
         XP_SHARE("§5⚘", "Exp Share", "PET_ITEM_EXP_SHARE"),
         TIER_BOOST("§c●", "Tier Boost", "PET_ITEM_TIER_BOOST"),

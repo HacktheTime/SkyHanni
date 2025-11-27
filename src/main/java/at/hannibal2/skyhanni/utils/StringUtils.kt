@@ -1,3 +1,5 @@
+@file:Suppress("UsePropertyAccessSyntax")
+
 package at.hannibal2.skyhanni.utils
 
 import at.hannibal2.skyhanni.SkyHanniMod
@@ -25,8 +27,10 @@ import java.util.NavigableSet
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import java.util.TreeMap
 //#if FORGE
 import io.github.notenoughupdates.moulconfig.internal.ForgeFontRenderer
+
 //#else
 //$$ import net.minecraft.client.util.ChatMessages
 //$$ import net.minecraft.text.TextColor
@@ -610,5 +614,14 @@ object StringUtils {
         return if (matcher.find() && matcher.start() == 0) {
             this.substring(matcher.end())
         } else this
+    }
+
+    fun subMapOfStringsContains(
+        string: String,
+        map: NavigableMap<String, NeuInternalName>,
+    ): NavigableMap<String, NeuInternalName> {
+        if ("" == string) return map
+        val ignoreCase = SkyHanniMod.feature.chat.tabIgnoreCaseSuggestion
+        return TreeMap(map.filterKeys { it.contains(string, ignoreCase) }.toMap())
     }
 }

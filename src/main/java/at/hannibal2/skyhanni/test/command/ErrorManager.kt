@@ -16,6 +16,8 @@ import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedSet
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
+import de.hype.bingonet.BNConnection
+import de.hype.bingonet.shared.packets.network.ErrorReportPacket
 import net.minecraft.client.Minecraft
 import net.minecraft.crash.CrashReport
 import kotlin.time.Duration.Companion.minutes
@@ -52,6 +54,7 @@ object ErrorManager {
 
     private val replace = mapOf(
         "at.hannibal2.skyhanni." to "SH.",
+        "de.hype.bingonet" to "BN",
         "io.moulberry.notenoughupdates." to "NEU.",
         "net.minecraft." to "MC.",
         "net.minecraftforge.fml." to "FML.",
@@ -227,19 +230,58 @@ object ErrorManager {
         val rawMessage = message.removeColor()
         val shVersion = SkyHanniMod.VERSION
         val mcVersion = PlatformUtils.MC_VERSION
-        val label = "SkyHanni $shVersion $mcVersion"
+        val label = "SkyHanni (Bingo Net) $shVersion $mcVersion"
         errorMessages[randomId] = "```\n$label: $rawMessage\n \n$stackTrace\n$extraDataString```"
-        fullErrorMessages[randomId] =
-            "```\n$label: $rawMessage\n(full stack trace)\n \n$fullStackTrace\n$extraDataString```"
+        val full = "```\n$label: $rawMessage\n(full stack trace)\n \n$fullStackTrace\n$extraDataString```"
+        fullErrorMessages[randomId] = full
 
         val finalMessage = buildFinalMessage(message) ?: return false
-        ChatUtils.clickableChat(
-            "§c[$label]: $finalMessage Click here to copy the error into the clipboard.",
-            onClick = { copyError(randomId) },
-            "§eClick to copy!",
-            prefix = false,
-        )
+
+        if (SkyHanniMod.feature.event.bingo.bingoNetworks.useBN) {
+            ChatUtils.clickableChat(
+                "§c[$label]: $finalMessage Click here to copy the error into the clipboard.",
+                onClick = { copyError(randomId) },
+                "§eClick to copy!",
+                prefix = false,
+            )
+            if (SkyHanniMod.feature.dev.autoThirdPartyErrorReporting) {
+                reportErrorToBingoNet(
+                    originalThrowable,
+                    full
+                )
+            } else {
+                ChatUtils.clickToActionOrEnableAuto(
+                    "§c[$label]: $finalMessage Click here to report the Error to Bingo Net.",
+                    action = { reportErrorToBingoNet(originalThrowable, full) },
+                    option = SkyHanniMod.feature.dev::autoThirdPartyErrorReporting,
+                    actionName = "Auto BingoNet Report",
+                )
+            }
+        } else {
+            ChatUtils.clickableChat(
+                "§c[$label]: $finalMessage Click here to copy the error into the clipboard.",
+                onClick = { copyError(randomId) },
+                "§eClick to copy!",
+                prefix = false,
+            )
+        }
         return true
+    }
+
+    fun reportErrorToBingoNet(original: Throwable, fullErrorData: String, vararg extraData: Pair<String, Any?> = emptyArray()) {
+        val mcVersion = PlatformUtils.MC_VERSION
+        val shVersion = SkyHanniMod.VERSION
+        val extraData: List<Pair<String, String?>> = extraData.map { it.first to it.second?.toString() }
+
+        BNConnection.sendPacket(
+            ErrorReportPacket(
+                original,
+                fullErrorData,
+                mcVersion,
+                shVersion,
+                extraData,
+            )
+        )
     }
 
     private fun getExtraDataOrCached(extraData: Array<out Pair<String, Any?>>): String {

@@ -188,9 +188,7 @@ class GraphNode(val id: Int, override val position: LorenzVec, val name: String?
 
         other as GraphNode
 
-        if (id != other.id) return false
-
-        return true
+        return id == other.id
     }
 
     fun sameNameAndTags(other: GraphNode): Boolean = name == other.name && allowedTags == other.allowedTags

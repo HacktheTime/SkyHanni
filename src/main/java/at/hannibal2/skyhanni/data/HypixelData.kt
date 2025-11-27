@@ -626,4 +626,12 @@ object HypixelData {
         if (event.isClear()) return
         playerAmountOnIsland = playerAmountOnIslandPattern.allMatches(event.lines).size
     }
+
+    fun isInMega(): Boolean {
+        return serverId?.startsWith("mega") ?: false
+    }
+
+    fun getRemainingSpace(): Int {
+        return getMaxPlayersForCurrentServer() - getPlayersOnCurrentServer()
+    }
 }

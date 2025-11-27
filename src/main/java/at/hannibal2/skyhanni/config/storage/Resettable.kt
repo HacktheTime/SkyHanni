@@ -78,11 +78,16 @@ interface Resettable {
             val mutableProp = this as KMutableProperty1<Any, Any?>
             mutableProp.set(this@Resettable, mutableProp.get(defaults))
         }
+
         current is Property<*> -> {
             val propRef = this as KProperty1<Resettable, Property<Any?>>
+            val defaultProp = propRef.get(defaults)
+
+            @Suppress("UNCHECKED_CAST")
             val propCurrent = current as Property<Any?>
             propCurrent.set(propRef.get(defaults).get())
         }
+
         current is Resettable -> current.reset()
         current is MutableCollection<*> -> current.clear()
         current is MutableMap<*, *> -> current.clear()

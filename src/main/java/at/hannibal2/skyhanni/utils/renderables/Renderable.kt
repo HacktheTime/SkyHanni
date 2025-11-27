@@ -7,6 +7,7 @@ import at.hannibal2.skyhanni.data.HighlightOnHoverSlot
 import at.hannibal2.skyhanni.data.RenderData
 import at.hannibal2.skyhanni.data.ToolTipData
 import at.hannibal2.skyhanni.data.model.TextInput
+import at.hannibal2.skyhanni.mixins.hooks.RenderLivingEntityHelper
 import at.hannibal2.skyhanni.utils.ColorUtils
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.ColorUtils.darker
@@ -38,18 +39,24 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiIngameMenu
 import net.minecraft.client.gui.inventory.GuiEditSign
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.max
+import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 //#if TODO
 import at.hannibal2.skyhanni.features.chroma.ChromaShaderManager
 import at.hannibal2.skyhanni.features.chroma.ChromaType
 import at.hannibal2.skyhanni.features.misc.DarkenShader
 import at.hannibal2.skyhanni.utils.shader.ShaderManager
 //#endif
-//#if MC > 1.21
+//#if MC < 1.21
+import net.minecraft.client.gui.inventory.GuiInventory.drawEntityOnScreen
+
+//#else
+//$$ import net.minecraft.client.gui.screen.ingame.InventoryScreen.drawEntity
 //$$ import at.hannibal2.skyhanni.utils.compat.RenderCompat
 //$$ import at.hannibal2.skyhanni.utils.render.SkyHanniRenderLayers
 //#endif
@@ -697,7 +704,7 @@ interface Renderable {
             hoveredColor: (Color) -> Color = { it.darker(0.5) },
             onClick: (Boolean) -> Unit,
             onHover: (Boolean) -> Unit = {},
-            button: Int = KeyboardManager.LEFT_MOUSE,
+            button: Int = LEFT_MOUSE,
             bypassChecks: Boolean = false,
             condition: (Boolean) -> Boolean = { true },
             startState: Boolean = false,
@@ -740,7 +747,7 @@ interface Renderable {
             content: Renderable,
             onClick: (Boolean) -> Unit,
             onHover: (Boolean) -> Unit = {},
-            button: Int = KeyboardManager.LEFT_MOUSE,
+            button: Int = LEFT_MOUSE,
             bypassChecks: Boolean = false,
             condition: (Boolean) -> Boolean = { true },
             startState: Boolean = false,
@@ -1242,6 +1249,69 @@ interface Renderable {
                 DrawContextUtils.translate(padding.toFloat(), padding.toFloat(), 0f)
                 input.render(mouseOffsetX + padding, mouseOffsetY + padding)
                 DrawContextUtils.translate(-padding.toFloat(), -padding.toFloat(), 0f)
+            }
+        }
+
+        fun textBox(
+            prefix: String,
+            input: TextInput,
+            /**
+             * Does not limit the input, just where it visuals breaks
+             */
+            maxWidth: Int,
+            scale: Double = 1.0,
+            color: Color = Color.WHITE,
+            bypassChecks: Boolean = false,
+            condition: () -> Boolean = { true },
+            horizontalAlign: HorizontalAlignment = HorizontalAlignment.LEFT,
+            verticalAlign: VerticalAlignment = VerticalAlignment.TOP,
+        ) = object : StringRenderable(prefix, scale, color, horizontalAlign, verticalAlign) {
+            override val text get() = prefix + input.editText()
+
+            override val width = maxWidth
+            override val height = (9 * scale).toInt() + 6 // Add padding for the box
+
+            override fun render(mouseOffsetX: Int, mouseOffsetY: Int) {
+                // Draw dark background box
+                val hovered = isHovered(mouseOffsetX, mouseOffsetY)
+                val boxColor = if (hovered) {
+                    0xFF404040.toInt() // Lighter when hovered
+                } else {
+                    0xFF202020.toInt() // Dark background
+                }
+                GuiRenderUtils.drawRect(0, 0, width, height, boxColor)
+
+                // Draw border
+                val borderColor = if (input.isActive) {
+                    0xFF00AAFF.toInt() // Blue when active
+                } else if (hovered) {
+                    0xFF888888.toInt() // Light gray when hovered
+                } else {
+                    0xFF555555.toInt() // Dark gray normally
+                }
+                GuiRenderUtils.drawRect(0, 0, width, 1, borderColor) // Top
+                GuiRenderUtils.drawRect(0, height - 1, width, height, borderColor) // Bottom
+                GuiRenderUtils.drawRect(0, 0, 1, height, borderColor) // Left
+                GuiRenderUtils.drawRect(width - 1, 0, width, height, borderColor) // Right
+
+                // Activation: previously this activated & handled only while hovered, disabling otherwise.
+                // That prevented deletions when mouse left the box. Now we only activate on hover+condition
+                // but keep it active until ESC (or other logic) disables it.
+                if (hovered && condition() && shouldAllowLink(true, bypassChecks)) {
+                    input.makeActive()
+                    if (RIGHT_MOUSE.isKeyClicked()) {
+                        input.clear()
+                    }
+                }
+                // Always handle keyboard input while active so user can continue editing even when not hovered.
+                if (input.isActive) {
+                    input.handle()
+                }
+
+                // Render text with some padding
+                DrawContextUtils.translate(3f, 3f, 0f)
+                super.render(mouseOffsetX - 3, mouseOffsetY - 3)
+                DrawContextUtils.translate(-3f, -3f, 0f)
             }
         }
     }

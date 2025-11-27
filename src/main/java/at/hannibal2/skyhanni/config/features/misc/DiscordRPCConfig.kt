@@ -36,7 +36,7 @@ class DiscordRPCConfig {
     @ConfigOption(
         name = "Dynamic Priority",
         desc = "Disable certain dynamic statuses, or change the priority in case " +
-            "two are triggered at the same time (higher up means higher priority)."
+            "two are triggered at the same time (higher up means higher priority).",
     )
     @ConfigEditorDraggableList
     val autoPriority: MutableList<PriorityEntry> = mutableListOf(

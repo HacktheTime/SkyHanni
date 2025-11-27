@@ -29,4 +29,5 @@ object MinecraftCompat {
     //#else
     //$$ val showDebugHud get(): Boolean = MinecraftClient.getInstance().debugHudEntryList.isF3Enabled
     //#endif
+
 }

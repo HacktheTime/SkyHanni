@@ -22,7 +22,7 @@ class HelperConfig {
         @Expose
         @ConfigOption(
             name = "Quick Restart",
-            desc = "Once you've launched the Harp, quickly hit the close button in the Harp Menu to initiate the selected song."
+            desc = "Once you've launched the Harp, quickly hit the close button in the Harp Menu to initiate the selected song.",
         )
         @ConfigEditorBoolean
         @FeatureToggle
@@ -31,7 +31,7 @@ class HelperConfig {
         @Expose
         @ConfigOption(
             name = "Use Keybinds",
-            desc = "In the Harp, press buttons with your number row on the keyboard instead of clicking."
+            desc = "In the Harp, press buttons with your number row on the keyboard instead of clicking.",
         )
         @ConfigEditorBoolean
         @FeatureToggle
@@ -40,7 +40,7 @@ class HelperConfig {
         @Expose
         @ConfigOption(
             name = "Show Numbers",
-            desc = "In the Harp, show buttons as stack size (intended to be used with the Keybinds)."
+            desc = "In the Harp, show buttons as stack size (intended to be used with the Keybinds).",
         )
         @ConfigEditorBoolean
         var showNumbers: Boolean = false

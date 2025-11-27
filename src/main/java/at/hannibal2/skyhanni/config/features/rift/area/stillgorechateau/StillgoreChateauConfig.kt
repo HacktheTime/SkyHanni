@@ -15,7 +15,7 @@ class StillgoreChateauConfig {
     @Expose
     @ConfigOption(
         name = "Highlight Splatter Hearts",
-        desc = "Highlight heart particles of hearts removed by Splatter Cruxes."
+        desc = "Highlight heart particles of hearts removed by Splatter Cruxes.",
     )
     @ConfigEditorBoolean
     @FeatureToggle

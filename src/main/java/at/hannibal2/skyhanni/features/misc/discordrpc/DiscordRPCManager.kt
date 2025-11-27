@@ -33,6 +33,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.INFINITE
+import dev.cbyrne.kdiscordipc.data.user.User
+import java.lang.Thread.sleep
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -64,12 +66,14 @@ object DiscordRPCManager {
         }
     }
 
-    private fun stop() {
+    fun stop() {
         if (!isConnected()) return
         updateDebugStatus("Stopped")
         client?.disconnect()
         started = false
     }
+
+    fun isStarted() = started
 
     private suspend fun setup(fromCommand: Boolean) {
         try {
@@ -98,7 +102,7 @@ object DiscordRPCManager {
         }
     }
 
-    private fun isConnected() = client?.connected == true
+    fun isConnected() = client?.connected == true
 
     @HandleEvent(ConfigLoadEvent::class)
     fun onConfigLoad() {
@@ -128,8 +132,8 @@ object DiscordRPCManager {
             buttons.add(
                 Activity.Button(
                     label = "Open EliteBot",
-                    url = "https://elitebot.dev/@${PlayerUtils.getName()}/${HypixelData.profileName}"
-                )
+                    url = "https://elitebot.dev/@${PlayerUtils.getName()}/${HypixelData.profileName}",
+                ),
             )
         }
 
@@ -137,8 +141,8 @@ object DiscordRPCManager {
             buttons.add(
                 Activity.Button(
                     label = "Open SkyCrypt",
-                    url = "https://sky.shiiyu.moe/stats/${PlayerUtils.getName()}/${HypixelData.profileName}"
-                )
+                    url = "https://sky.shiiyu.moe/stats/${PlayerUtils.getName()}/${HypixelData.profileName}",
+                ),
             )
         }
 
@@ -148,14 +152,14 @@ object DiscordRPCManager {
                 state = getStatusByConfigId(config.secondLine.get()).getDisplayString(),
                 timestamps = Activity.Timestamps(
                     start = startTimestamp.toMillis(),
-                    end = null
+                    end = null,
                 ),
                 assets = Activity.Assets(
                     largeImage = discordIconKey,
-                    largeText = location
+                    largeText = location,
                 ),
-                buttons = buttons.ifEmpty { null }
-            )
+                buttons = buttons.ifEmpty { null },
+            ),
         )
     }
 
@@ -281,5 +285,28 @@ object DiscordRPCManager {
             category = CommandCategory.USERS_ACTIVE
             callback { startCommand() }
         }
+    }
+
+    suspend fun getSelfUser(): User? {
+        val manager = client?.userManager ?: return null
+        if (manager.currentUser == null) {
+            manager.subscribeToUserUpdates()
+        }
+        var max = 50
+        while (max > 0) {
+            max--
+            manager.currentUser?.let { return it }
+            sleep(100)
+        }
+        return null
+    }
+
+
+    suspend fun getDiscordUserId(): String? {
+        return getSelfUser()?.id
+    }
+
+    suspend fun getDiscordUsername(): String? {
+        return getSelfUser()?.username
     }
 }

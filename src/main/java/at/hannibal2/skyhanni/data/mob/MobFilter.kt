@@ -76,7 +76,7 @@ object MobFilter {
      */
     val slayerNameFilter by patternGroup.pattern(
         "filter.slayer",
-        "^$mobType. (?<name>.*)(?: (?<tier>[IV]+)|(?<=Atoned Horror|Conjoined Brood)) \\d+.*"
+        "^$mobType. (?<name>.*)(?: (?<tier>[IV]+)|(?<=Atoned Horror|Conjoined Brood)) \\d+.*",
     )
 
     /**
@@ -94,6 +94,7 @@ object MobFilter {
         "filter.boss",
         "^. $level$mobType(?<name>[^ᛤ\n]*?)(?: ᛤ)?(?: [\\d\\/BMk.,❤]+| █+)? .$",
     )
+
     @Suppress("MaxLineLength")
     val dungeonNameFilter by patternGroup.pattern(
         "filter.dungeon",
@@ -121,6 +122,7 @@ object MobFilter {
         "pattern.petcare",
         "^\\[\\w+ (?<level>\\d+)\\] (?<name>.*)",
     )
+
     // TODO fix pattern
     val wokeSleepingGolemPattern by patternGroup.pattern(
         "pattern.dungeon.woke.golem",

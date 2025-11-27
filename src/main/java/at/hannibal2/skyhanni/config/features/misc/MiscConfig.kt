@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.NoConfigLink
 import at.hannibal2.skyhanni.config.OnlyLegacy
 import at.hannibal2.skyhanni.config.OnlyModern
+import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.enums.OutsideSBFeature
 import at.hannibal2.skyhanni.config.features.commands.CommandsConfig
@@ -12,6 +13,7 @@ import at.hannibal2.skyhanni.config.features.misc.frogmask.FrogMaskFeaturesConfi
 import at.hannibal2.skyhanni.config.features.pets.PetConfig
 import at.hannibal2.skyhanni.config.features.stranded.StrandedConfig
 import com.google.gson.annotations.Expose
+import de.hype.bingonet.shared.constants.Islands
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.Category
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -506,4 +508,27 @@ class MiscConfig {
     @FeatureToggle
     @OnlyModern
     var fixDoubleClicks: Boolean = true
+
+
+    @Expose
+    @ConfigOption(name = "Hide Party Messages", desc = "Hides party chat messages.")
+    @Accordion
+    val hidePartyMessagesConfig: HidePartyMessagesConfig = HidePartyMessagesConfig()
+
+    @Expose
+    @ConfigOption(
+        name = "Island Change Default Intermediate",
+        desc = "The island to swap to unless specified otherwise when using the /shswapisland commands",
+    )
+    var defaultSwapMiddleIsland: Islands = Islands.HUB
+
+    @Expose
+    @ConfigOption(name = "Swap Lobbies Keybind", desc = "Keybind to swap lobbies when using the /shswapisland command.")
+    @Accordion
+    val swapKeybind: KeyBind = KeyBind()
+
+
+    // Persisted saved keybinds stored in FEATURES config under misc
+    @Expose
+    var keybinds: MutableList<SavedKeybind> = mutableListOf()
 }

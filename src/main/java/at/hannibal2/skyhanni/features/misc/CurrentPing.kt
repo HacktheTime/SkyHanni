@@ -18,6 +18,7 @@ import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import net.hypixel.modapi.packet.impl.clientbound.ClientboundPingPacket
 import net.hypixel.modapi.packet.impl.serverbound.ServerboundPingPacket
 import kotlin.time.Duration.Companion.seconds
+
 //#else
 //$$ import net.minecraft.client.MinecraftClient
 //#endif

@@ -11,6 +11,7 @@ import at.hannibal2.skyhanni.utils.compat.Text
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
+
 //#if MC > 1.21
 //$$ import at.hannibal2.skyhanni.mixins.hooks.renderToolTip
 //$$ import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets

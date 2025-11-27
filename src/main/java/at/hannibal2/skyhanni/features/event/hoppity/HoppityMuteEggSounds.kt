@@ -18,7 +18,7 @@ object HoppityMuteEggSounds {
         pattern = HoppityRabbitTheFishChecker.mealEggInventoryPattern,
         onCloseInventory = {
             lastInInventory = SimpleTimeMark.now()
-        }
+        },
     )
 
     @HandleEvent

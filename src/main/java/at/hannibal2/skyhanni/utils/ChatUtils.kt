@@ -2,6 +2,8 @@ package at.hannibal2.skyhanni.utils
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.core.config.KeyBind
+import at.hannibal2.skyhanni.config.features.chat.ChatPromptUtils
 import at.hannibal2.skyhanni.data.ChatManager.deleteChatLine
 import at.hannibal2.skyhanni.data.ChatManager.editChatLine
 import at.hannibal2.skyhanni.events.MessageSendToServerEvent
@@ -11,6 +13,9 @@ import at.hannibal2.skyhanni.mixins.hooks.ChatLineData
 import at.hannibal2.skyhanni.mixins.transformers.AccessorMixinGuiNewChat
 //#endif
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.ChatUtils.CHAT_PREFIX
+import at.hannibal2.skyhanni.utils.ChatUtils.DEBUG_PREFIX
+import at.hannibal2.skyhanni.utils.ChatUtils.USER_ERROR_PREFIX
 import at.hannibal2.skyhanni.utils.ConfigUtils.jumpToEditor
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.StringUtils.stripHypixelMessage
@@ -165,6 +170,49 @@ object ChatUtils {
     }
 
     /**
+     * Sends a message to the user that they can click the message or use the given [keyBind] to run the [code] block.
+     *
+     * [message] supports the %KEY% placeholder which will be replaced with the effective key string of the [keyBind].
+     */
+    fun chatConsumerPrompt(
+        message: String,
+        keyBind: KeyBind,
+        consumer: () -> Boolean,
+        hover: String = "§eThis Message is a Chat Prompt and can be clicked!",
+        prefix: Boolean = true,
+        prefixColor: String = "§e",
+    ) {
+        val msgPrefix = if (prefix) prefixColor + CHAT_PREFIX else ""
+
+        // TODO isnt the permanent click action essentially a small memory leak that bunches up over time?
+        val rawText = msgPrefix + message.replace("%KEY%", keyBind.getEffectiveKeyString())
+        val text = TextHelper.text(rawText) {
+            this.onClick(SimpleTimeMark.now().plus(keyBind.getEffectiveExpirationDuration()), true, consumer)
+            this.hover = hover.asComponent()
+        }
+        ChatPromptUtils.setActivePrompt(keyBind, consumer)
+        chat(text)
+    }
+
+    fun chatPrompt(
+        message: String,
+        keyBind: KeyBind,
+        code: () -> Unit,
+        hover: String = "§eThis Message is a Chat Prompt and can be clicked!",
+        prefix: Boolean = true,
+        prefixColor: String = "§e",
+    ) {
+        chatConsumerPrompt(
+            message, keyBind,
+            consumer = {
+                code.invoke()
+                true
+            },
+            hover, prefix, prefixColor,
+        )
+    }
+
+    /**
      * Sends the message in chat.
      * Show the lines when on hover.
      * Offer option to click on the chat message to copy the lines to clipboard.
@@ -266,6 +314,17 @@ object ChatUtils {
     ) {
         val msgPrefix = if (prefix) prefixColor + CHAT_PREFIX else ""
         chat(TextHelper.join(components).prefix(msgPrefix))
+    }
+
+    /**
+     * This does the same as if you entered the given string in the chat gui and pressed enter with the only differnce of no history.
+     */
+    fun executeAsChatInput(message: String) {
+//         //#if MC < 1.21
+//         ClientCommandHandler.instance.executeCommand(MinecraftCompat.localPlayer, message)
+//         //#else
+//         //$$ MinecraftClient.getInstance().networkHandler.sendChatMessage(message)
+//         //#endif
     }
 
     private val chatGui get() = Minecraft.getMinecraft().ingameGUI.chatGUI
@@ -421,6 +480,30 @@ object ChatUtils {
         )
     }
 
+    fun clickToActionOrEnableAuto(
+        message: String,
+        option: KProperty0<*>,
+        actionName: String,
+        action: () -> Unit,
+        oneTimeClick: Boolean = false,
+    ) {
+        val hint = if (SkyHanniMod.feature.chat.hideClickableHint) "" else
+            "\n§e[CLICK to $actionName one Time or Enable automatic]"
+        clickableChat(
+            "$message$hint",
+            onClick = {
+                if (KeyboardManager.isShiftKeyDown() || KeyboardManager.isModifierKeyDown()) {
+                    option.jumpToEditor()
+                } else {
+                    action()
+                }
+            },
+            hover = "§eClick to $actionName!\n§eShift-Click or Control-Click to do it automatically in the Future!",
+            oneTimeClick = oneTimeClick,
+            replaceSameMessage = true,
+        )
+    }
+
     var ChatLine.fullComponent: IChatComponent
         get() = (this as ChatLineData).skyHanni_fullComponent
         set(value) {
@@ -440,6 +523,12 @@ object ChatUtils {
 
     fun consoleLog(text: String) {
         SkyHanniMod.consoleLog(text)
+    }
+
+    @Suppress("UnusedParameter")
+    fun suggestInChat(message: String) {
+        // TODO
+        chat("Chat Suggestion is not implemented yet!")
     }
 
 }

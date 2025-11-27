@@ -15,7 +15,7 @@ class BlazeHellionConfig {
     @Expose
     @ConfigOption(
         name = "Colored Mobs",
-        desc = "Color the Blaze Slayer boss and the demons in the right hellion shield color and show the name."
+        desc = "Color the Blaze Slayer boss and the demons in the right hellion shield color."
     )
     @ConfigEditorBoolean
     @FeatureToggle

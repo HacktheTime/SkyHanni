@@ -7,6 +7,7 @@ import at.hannibal2.skyhanni.events.minecraft.ClientDisconnectEvent
 import at.hannibal2.skyhanni.events.minecraft.ResourcePackReloadEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniTickEvent
 import at.hannibal2.skyhanni.events.minecraft.WorldChangeEvent
+import at.hannibal2.skyhanni.events.minecraft.WorldLeaveEvent
 import at.hannibal2.skyhanni.events.player.ClickAction
 import at.hannibal2.skyhanni.events.player.PlayerInteractionEvent
 import at.hannibal2.skyhanni.events.utils.PreInitFinishedEvent
@@ -47,6 +48,12 @@ object ClientEvents {
     fun onWorldChange(event: WorldEvent.Load) {
         WorldChangeEvent().post()
     }
+
+    @SubscribeEvent
+    fun onWorldLeave(event: WorldEvent.Unload) {
+        WorldLeaveEvent().post()
+    }
+
 
     var totalTicks = 0
         private set
