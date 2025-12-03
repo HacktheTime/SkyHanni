@@ -101,14 +101,12 @@ object HubSelectorKeybinds {
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onKeyPress(event: GuiKeyPressEvent) {
-        if (HypixelData.joinedWorld.passedSince() <= 3.seconds) return
         if (!mainInventory.isInside()) return
-        val cache = openedCache ?: return
-
-        val chest = event.guiContainer as? GuiChest ?: return
-
         val key = config.splashHubWarp.getEffectiveKey()
         if (!key.isKeyHeld() || lastClick.passedSince() < 250.milliseconds) return
+        if (HypixelData.joinedWorld.passedSince() <= 3.seconds) return
+        val cache = openedCache ?: return
+        val chest = event.guiContainer as? GuiChest ?: return
         lastClick = SimpleTimeMark.now()
         event.cancel()
         // First Score | Second Index
