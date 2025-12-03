@@ -5,7 +5,6 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.events.ConfigLoadEvent
-import at.hannibal2.skyhanni.events.utils.PreInitFinishedEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.PlayerUtils
@@ -13,7 +12,6 @@ import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
 import de.hype.bingonet.environment.packetconfig.PacketUtils.gson
-import kotlinx.coroutines.isActive
 import java.io.IOException
 
 @SkyHanniModule
@@ -26,17 +24,24 @@ object BingoBrewersClient {
 
     @HandleEvent
     fun event(event: ConfigLoadEvent) {
+        init()
+    }
+
+    @Synchronized
+    fun init() {
         if (isEnabled()) {
             SkyHanniMod.launchCoroutine("Init BingoBrewersClient after ConfigLoadEvent") {
-                if (client?.isConnected != true) init()
+                if (client?.isConnected != true) connect()
             }
         } else {
             stop()
         }
     }
 
+
     @Throws(IOException::class)
-    private fun init() {
+    @Synchronized
+    private fun connect() {
         client?.stop()
         val client = Client(16384, 16384)
         listener = getListener()
@@ -92,7 +97,7 @@ object BingoBrewersClient {
         while (repeat) {
             try {
                 println("Reconnecting to Bingo Brewers server...")
-                init()
+                connect()
                 repeat = false
             } catch (e: Exception) {
                 client?.close()
@@ -126,7 +131,7 @@ object BingoBrewersClient {
                 description = "Reload the Bingo Brewers Client"
                 simpleCallback {
                     client?.close()
-                    init()
+                    connect()
                 }
             },
         )
