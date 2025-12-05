@@ -96,7 +96,7 @@ object HubSelectorKeybinds {
             openedCache = cache
         },
         onCloseInventory = { openedCache = null },
-        pattern = hubSelectorGuiNamePattern
+        pattern = hubSelectorGuiNamePattern,
     )
 
     @HandleEvent(onlyOnSkyblock = true)
@@ -106,7 +106,7 @@ object HubSelectorKeybinds {
         if (!key.isKeyHeld() || lastClick.passedSince() < 250.milliseconds) return
         if (HypixelData.joinedWorld.passedSince() <= 3.seconds) return
         val cache = openedCache ?: return
-        val chest = event.guiContainer as? GuiChest ?: return
+        event.guiContainer as? GuiChest ?: return
         lastClick = SimpleTimeMark.now()
         event.cancel()
         // First Score | Second Index
@@ -136,7 +136,7 @@ object HubSelectorKeybinds {
             }
         }
         bestClick?.let {
-            InventoryUtils.clickSlot(bestClick.second, chest.inventorySlots.windowId, mouseButton = 2, clickType = GuiContainerEvent.ClickType.NORMAL)
+            InventoryUtils.clickSlot(bestClick.second, clickType = GuiContainerEvent.ClickType.NORMAL)
         }
     }
 
