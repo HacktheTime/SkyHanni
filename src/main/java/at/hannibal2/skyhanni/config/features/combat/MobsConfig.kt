@@ -10,7 +10,6 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 class MobsConfig {
 
-
     @Expose
     @ConfigOption(
         name = "Area Boss Highlighter",
@@ -143,5 +142,12 @@ class MobsConfig {
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 1f)
     val arachneOtherEntitiesOpacity: Int = 100
+
+    @Expose
+    @ConfigOption(name = "Witch Highlighter", desc = "Highlight witches on Private Islands.")
+    @ConfigEditorBoolean
+    @FeatureToggle
+    val privateIslandWitchHighlight: Boolean = true
+
 
 }
