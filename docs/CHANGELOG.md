@@ -4,9 +4,9 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Added support for Error reporting over Bingo Net
-    - When Bingo Net is enabled and sh detects an error you can click to send the error to the Bingo Net Team. (Automatic reporting can be enabled)
-    - Thus allows triage by the Bingo Net Team and error analysis to avoid duplicates as well as effect and affected game/mod versions
+- Fixed Issue with in Hub Selector Keybind for Splash Warp
+- Fixed Chat Prompts activating while in GUIs like normal chat or Hub Selector etc
+- Added Witch Highlighting on private Island. (Similar to Runic Highlighting)
 
 ## Static Info for modrinth:
 
