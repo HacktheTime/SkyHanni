@@ -7,8 +7,8 @@ import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
-import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyClicked
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
+import net.minecraft.client.Minecraft
 
 @SkyHanniModule
 object ChatPromptUtils {
@@ -18,6 +18,7 @@ object ChatPromptUtils {
     @HandleEvent
     fun key(event: KeyDownEvent) {
         val activePrompt = activePromptBlock ?: return
+        if (Minecraft.getMinecraft().currentScreen != null) return
         if (event.keyCode != activePrompt.keyCode || !event.keyCode.isKeyHeld()) return
         activePromptBlock = null
         if (SkyHanniMod.feature.dev.debug.enabled){
