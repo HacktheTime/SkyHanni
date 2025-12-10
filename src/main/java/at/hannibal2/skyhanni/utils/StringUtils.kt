@@ -624,4 +624,32 @@ object StringUtils {
         val ignoreCase = SkyHanniMod.feature.chat.tabIgnoreCaseSuggestion
         return TreeMap(map.filterKeys { it.contains(string, ignoreCase) }.toMap())
     }
+
+    fun String.chunkAtLastNewline(maxLen: Int): List<String> {
+        if (isEmpty()) return emptyList()
+        val out = ArrayList<String>()
+        var i = 0
+        val n = length
+        while (i < n) {
+            val remaining = n - i
+            if (remaining <= maxLen) {
+                out.add(substring(i))
+                break
+            }
+            val windowEnd = i + maxLen
+            val window = substring(i, windowEnd)
+            val lastNl = window.lastIndexOf('\n')
+            if (lastNl >= 0) {
+                // include the newline in the chunk
+                val cut = i + lastNl + 1
+                out.add(substring(i, cut))
+                i = cut
+            } else {
+                // no newline in window -> hard split at maxLen
+                out.add(window)
+                i = windowEnd
+            }
+        }
+        return out
+    }
 }

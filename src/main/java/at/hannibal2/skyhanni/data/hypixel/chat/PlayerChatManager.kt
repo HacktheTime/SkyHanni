@@ -119,6 +119,9 @@ object PlayerChatManager {
 
     @HandleEvent
     fun onChat(event: SkyHanniChatEvent) {
+
+        //IMPORTANT: When adding new types make sure to register them in the Discord Bot too!
+
         val chatComponent = event.chatComponent.intoSpan().stripHypixelMessage()
         coopPattern.matchStyledMatcher(chatComponent) {
             val author = groupOrThrow("author")
@@ -166,6 +169,8 @@ object PlayerChatManager {
         globalPattern.matchStyledMatcher(chatComponent) {
             if (isGlobalChat(event)) return
         }
+
+        //IMPORTANT: When adding new types make sure to register them in the Discord Bot too!
 
         sendSystemMessage(event)
     }

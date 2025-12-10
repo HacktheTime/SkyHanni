@@ -15,6 +15,7 @@ import at.hannibal2.skyhanni.config.features.gui.GuiConfig
 import at.hannibal2.skyhanni.config.features.hunting.HuntingConfig
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig
 import at.hannibal2.skyhanni.config.features.mining.MiningConfig
+import at.hannibal2.skyhanni.config.features.misc.DiscordBotConfig
 import at.hannibal2.skyhanni.config.features.rift.RiftConfig
 import at.hannibal2.skyhanni.config.features.skillprogress.SkillProgressConfig
 import at.hannibal2.skyhanni.config.features.slayer.SlayerConfig
@@ -32,6 +33,8 @@ import io.github.notenoughupdates.moulconfig.processor.ProcessedCategory
 
 import at.hannibal2.skyhanni.config.features.misc.NumpadConfig
 import at.hannibal2.skyhanni.config.features.misc.MiscConfig
+import io.github.notenoughupdates.moulconfig.annotations.Accordion
+import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 class Features : Config() {
     private val discord = MyResourceLocation("skyhanni", "social/discord.png")
@@ -101,6 +104,12 @@ class Features : Config() {
     @Expose
     @Category(name = "Mining", desc = "Features that help you break blocks.")
     var mining: MiningConfig = MiningConfig()
+
+
+    @Expose
+    @Category(name = "Discord Bot", desc = "Integrated Discord Bot features.")
+    @Accordion
+    val discordBot: DiscordBotConfig = DiscordBotConfig()
 
     @Expose
     @Category(name = "Foraging", desc = "Features that help you cut down trees.")
