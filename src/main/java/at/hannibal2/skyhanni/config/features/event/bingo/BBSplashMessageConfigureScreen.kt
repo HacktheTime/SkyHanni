@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.event.bingo
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.config.ConfigFileType
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
@@ -11,6 +12,7 @@ import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRender
 import at.hannibal2.skyhanni.utils.renderables.primitives.WrappedStringRenderable.Companion.wrappedText
 import at.hannibal2.skyhanni.data.model.TextInput
 import at.hannibal2.skyhanni.utils.RenderUtils
+import at.hannibal2.skyhanni.utils.renderables.primitives.WrappedStringRenderable
 import sun.awt.X11.XConstants.buttons
 
 /**
@@ -24,7 +26,7 @@ class BBSplashMessageConfigureScreen : SkyHanniBaseScreen() {
 
     private var feedback: String? = null
 
-    private val requiredPlaceholders = listOf( SERVER_ID, HUB, ROLE_MENTIONS, SPLASHER )
+    private val requiredPlaceholders = listOf(SERVER_ID, HUB, ROLE_MENTIONS, SPLASHER)
 
     override fun onInitGui() {
         // ensure TextInput is not active by default
@@ -50,38 +52,63 @@ class BBSplashMessageConfigureScreen : SkyHanniBaseScreen() {
         val textWidth = contentW - 32
 
         val elems = mutableListOf<Renderable>()
-        elems.add(wrappedText("§b§lConfigure Bingo Brewers Splash Message", textWidth, horizontalAlign = RenderUtils.HorizontalAlignment.CENTER))
-        elems.add(wrappedText("\nThe message must contain the placeholders: ${requiredPlaceholders.joinToString(", ")}", textWidth))
-        elems.add(wrappedText("You can also add the optional placeholder: $EXTRA_MESSAGE", textWidth))
+        elems.add(
+            Renderable.wrappedText(
+                "§b§lConfigure Bingo Brewers Splash Message", textWidth,
+                horizontalAlign =
+                    RenderUtils
+                        .HorizontalAlignment.CENTER,
+            ),
+        )
+        elems.add(
+            Renderable.wrappedText(
+                "\nThe message must contain the placeholders: ${requiredPlaceholders.joinToString(", ")}",
+                textWidth,
+            ),
+        )
+        elems.add(Renderable.wrappedText("You can also add the optional placeholder: $EXTRA_MESSAGE", textWidth))
         //FIXME the user must be forced to make it so the BB system detects them as the splasher since otherwise the dual send causes
         // issues.
         elems.add(Renderable.textBox("Message", textInput, textWidth))
-        feedback?.let { elems.add(wrappedText(it, textWidth)) }
+        feedback?.let { elems.add(Renderable.wrappedText(it, textWidth)) }
 
         // buttons
-        val buttons = vertical(listOf(
-            darkRectButton(wrappedText("Save Message", textWidth), onClick = {
-                val msg = textInput.textBox.trim()
-                val missing = requiredPlaceholders.filter { !msg.contains(it) }
-                if (missing.isNotEmpty()) {
-                    feedback = "§cMissing placeholders: ${missing.joinToString(", ")}. They are required."
-                    return@darkRectButton
-                }
-                // persist to config
-                SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig.bbSplashMessage = msg
-                SkyHanniMod.configManager.saveConfig(at.hannibal2.skyhanni.config.ConfigFileType.FEATURES, "save-bb-splash-message")
-                feedback = "§aSaved."
-            }, horizontalAlign = RenderUtils.HorizontalAlignment.CENTER),
-            darkRectButton(wrappedText("Cancel", textWidth), onClick = {
-                mc.displayGuiScreen(null)
-            }, horizontalAlign = RenderUtils.HorizontalAlignment.CENTER)
-        ), spacing = 6)
+        val buttons = Renderable.vertical(
+            listOf(
+                darkRectButton(
+                    Renderable.wrappedText("Save Message", textWidth),
+                    onClick = {
+                        val msg = textInput.textBox.trim()
+                        val missing = requiredPlaceholders.filter { !msg.contains(it) }
+                        if (missing.isNotEmpty()) {
+                            feedback = "§cMissing placeholders: ${missing.joinToString(", ")}. They are required."
+                            return@darkRectButton
+                        }
+                        // persist to config
+                        SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig.bbSplashMessage = msg
+                        SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "save-bb-splash-message")
+                        feedback = "§aSaved."
+                    },
+                    horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+                ),
+                darkRectButton(
+                    Renderable.wrappedText("Cancel", textWidth),
+                    onClick = {
+                        mc.displayGuiScreen(null)
+                    },
+                    horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+                ),
+            ),
+            6, RenderUtils.HorizontalAlignment.CENTER,
+            RenderUtils.VerticalAlignment.CENTER,
+        )
 
         elems.add(buttons)
 
         // Render within the current mouse position context so child renderables can access mouse coords correctly
         Renderable.withMousePosition(mouseX - left - 16, mouseY - top - 12) {
-            Renderable.vertical(elems, spacing = 8, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT).renderXYAligned(0, 0, textWidth, contentH)
+            Renderable.vertical(elems, spacing = 8, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT)
+                .renderXYAligned(0, 0, textWidth, contentH)
         }
 
         DrawContextUtils.translate(-16f, -12f, 0f)
@@ -96,9 +123,9 @@ class BBSplashMessageConfigureScreen : SkyHanniBaseScreen() {
         }
 
         const val SERVER_ID = "{serverID}"
-        const val HUB= "{hub}"
+        const val HUB = "{hub}"
         const val ROLE_MENTIONS = "{role_mention}"
-        const val SPLASHER = "{splasher}" //must contain a line Splasher: <name>!
+        const val SPLASHER = "{IGN}" //must contain a line Splasher: <name>!
         const val EXTRA_MESSAGE = "{extra_message}" //Optional
     }
 }
