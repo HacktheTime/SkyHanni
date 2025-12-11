@@ -96,5 +96,11 @@ class SplasherConfig {
     val openBBSplashMessage: Runnable = Runnable(BBSplashMessageConfigureScreen::openScreen)
 
     @Expose
-    var bbSplashMessage: String = ""
+    var bbSplashMessage: String = """
+        ${BBSplashMessageConfigureScreen.HUB}
+        ServerId: ${BBSplashMessageConfigureScreen.SERVER_ID}
+        IGN: ${BBSplashMessageConfigureScreen.SPLASHER}
+        ${BBSplashMessageConfigureScreen.EXTRA_MESSAGE}
+        ${BBSplashMessageConfigureScreen.ROLE_MENTIONS}
+    """.trimIndent()
 }
