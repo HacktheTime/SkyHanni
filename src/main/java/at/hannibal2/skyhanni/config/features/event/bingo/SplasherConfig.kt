@@ -2,9 +2,12 @@ package at.hannibal2.skyhanni.config.features.event.bingo
 
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.features.garden.pests.PestSpawnTimer
+import at.hannibal2.skyhanni.features.garden.pests.PestSpawnTimer.playUserSound
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
@@ -78,4 +81,20 @@ class SplasherConfig {
     )
     @ConfigEditorBoolean
     var lowestPlayerHub: Boolean = false
+
+    @Expose
+    @ConfigOption(
+        name = "Dual Announce",
+        desc = "Announce your Splashes in both Bingo Net and Bingo Brewers",
+    )
+    val dualAnnounce : Boolean = false
+
+    @Expose
+    @ConfigEditorButton(
+        buttonText = "Configure Bingo Brewers Message"
+    )
+    val openBBSplashMessage: Runnable = Runnable(BBSplashMessageConfigureScreen::openScreen)
+
+    @Expose
+    var bbSplashMessage: String = ""
 }
