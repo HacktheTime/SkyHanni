@@ -21,6 +21,13 @@ pluginManagement {
         }
     }
     resolutionStrategy.eachPlugin {
+        // Explicit override: if you forked the SkyHanni preprocessor under HacktheTime and
+        // published it via JitPack (tag 1.0.9), map the original plugin id to your JitPack coordinate.
+        if (requested.id.id == "com.github.SkyHanniStudios.SkyHanni-Preprocessor") {
+            useModule("com.github.HacktheTime:SkyHanni-Preprocessor:1.0.9")
+            return@eachPlugin
+        }
+
         requested.apply {
             if ("$id".startsWith("com.github.")) {
                 val (_, _, user, name) = "$id".split(".", limit = 4)
@@ -51,4 +58,3 @@ ProjectTarget.activeVersions().forEach { target ->
     p.projectDir = file("versions/${target.projectName}")
     p.buildFileName = "../../build.gradle.kts"
 }
-

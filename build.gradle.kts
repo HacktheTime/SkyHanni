@@ -213,7 +213,9 @@ dependencies {
 
     headlessLwjgl(libs.headlessLwjgl)
 
-    ksp(project(":annotation-processors"))?.let { compileOnly(it) }
+    // Register the local annotation-processor project with KSP and make its API available at compile time
+    ksp(project(":annotation-processors"))
+    compileOnly(project(":annotation-processors"))
 
     ksp(libs.autoservice.ksp)
     implementation(libs.autoservice.annotations)
@@ -260,6 +262,10 @@ dependencies {
         exclude(module = "unspecified")
         isTransitive = false
     }
+
+    shadowImpl("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.2.21")
+    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.2.21")
+
 
     if (target == ProjectTarget.MAIN) {
         shadowModImpl(libs.moulconfig)
@@ -314,11 +320,19 @@ afterEvaluate {
             programArgs("--quickPlayMultiplayer", "hypixel.net")
         }
     }
-    tasks.named("kspKotlin", KspAATask::class) {
-        val options = this.kspConfig.apOptions
-        options.put("skyhanni.modver", "$version")
-        options.put("skyhanni.mcver", target.minecraftVersion.versionName)
-        options.put("skyhanni.buildpaths", project.file("buildpaths-excluded.txt").absolutePath)
+}
+
+// Configure KSP processor options per-project using the ksp extension so they are available
+// to the SymbolProcessorProvider at creation time. Guard with plugins.withId so this only
+// runs in projects where the KSP plugin is applied. Put it at configuration time (not afterEvaluate)
+plugins.withId("com.google.devtools.ksp") {
+    println("KSP Configuration for project ${project.name}, target ${target.projectName}:")
+    println("options: $version : ${target.minecraftVersion.versionName}")
+    // Use the ksp extension API to pass processor options reliably across KSP versions
+    ksp {
+        arg("skyhanni.modver", "$version")
+        arg("skyhanni.mcver", target.minecraftVersion.versionName)
+        arg("skyhanni.buildpaths", project.file("buildpaths-excluded.txt").absolutePath)
     }
 }
 

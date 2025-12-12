@@ -19,9 +19,7 @@ import java.io.OutputStreamWriter
 class ModuleProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
-    private val modVersion: String,
-    private val mcVersion: String,
-    private val buildPaths: String?,
+    private val options: Map<String, String>,
 ) : SymbolProcessor {
 
     companion object {
@@ -31,6 +29,11 @@ class ModuleProcessor(
     private var skyHanniEvent: KSType? = null
     private var minecraftForgeEvent: KSType? = null
     private val warnings = mutableListOf<String>()
+
+    // Derived values with defaults to keep previous behavior
+    private val modVersion: String = options["skyhanni.modver"] ?: "0.0.0"
+    private val mcVersion: String = options["skyhanni.mcver"] ?: "1.8.9"
+    private val buildPaths: String? = options["skyhanni.buildpaths"]
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         if (!processedVersions.add(mcVersion) || modVersion == "0.0.0") {

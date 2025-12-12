@@ -10,6 +10,7 @@ repositories {
 dependencies {
     this.implementation("com.google.code.gson:gson:2.10.1")
     this.implementation("com.google.guava:guava:33.2.1-jre")
+    this.implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.2.21")
 }
 
 sourceSets.main {
