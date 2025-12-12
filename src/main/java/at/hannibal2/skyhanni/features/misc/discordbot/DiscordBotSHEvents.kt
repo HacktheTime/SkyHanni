@@ -121,7 +121,7 @@ object DiscordBotSHEvents {
         messagesToSend.forEachIndexed { index, content ->
             val isLast = index == lastIndex
             dms.sendMessage(
-                "ansi\n${content.trim()}\n```",
+                "```ansi\n${content.trim()}\n```",
             ).setSuppressedNotifications(isLast).complete()
         }
     }

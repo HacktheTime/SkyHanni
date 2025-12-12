@@ -90,7 +90,6 @@ class SplasherConfig {
     @ConfigEditorBoolean
     val dualAnnounce : Boolean = false
 
-    @Expose
     @ConfigEditorButton(
         buttonText = "Configure Bingo Brewers Message"
     )

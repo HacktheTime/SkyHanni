@@ -52,7 +52,9 @@ object DiscordBotManager {
             ).build()
         } catch (_: Throwable) {
             JDABuilder.createLight(tok).build()
-        }.also { it.awaitReady() }
+        }.also { it.awaitReady()
+            it.addEventListener(DiscordBotListener)
+        }
     }
 
     val applicationInfo get() = jda.retrieveApplicationInfo().complete()
@@ -118,25 +120,6 @@ object DiscordBotManager {
                     developerTokenExpiry = Instant.now().plusSeconds(expiresIn.toLong())
                     return accessToken
                 }
-            }
-        }
-    }
-
-    /**
-     * Persist the bot token and try to initialize JDA in background (accesses lazy jda).
-     */
-    fun startJdaWithToken(botTokenValue: String) {
-        val tok = botTokenValue.trim()
-        config.botToken = tok
-        // persist config immediately
-        feature.saveNow()
-        ChatUtils.chat("Starting Discord bot in background...")
-        SkyHanniMod.launchCoroutine("Start JDA") {
-            try {
-                // accessing `jda` will initialize it lazily; directly read application id
-                ChatUtils.chat("Discord bot started. Application id: ${applicationInfo.id}")
-            } catch (t: Throwable) {
-                ChatUtils.userError("Failed to start Discord JDA: ${t.message}")
             }
         }
     }
