@@ -34,37 +34,37 @@ object DiscordBotSHEvents {
 
     @HandleEvent
     fun coopChat(event: PrivateMessageChatEvent) {
-        if (baseCheck) return
+        if (!baseCheck) return
         handleChat(event.message, chatConfig.coop)
     }
 
     @HandleEvent
     fun partyChat(event: PrivateMessageChatEvent) {
-        if (baseCheck) return
+        if (!baseCheck) return
         handleChat(event.message, chatConfig.party)
     }
 
     @HandleEvent
     fun guildChat(event: PrivateMessageChatEvent) {
-        if (baseCheck) return
+        if (!baseCheck) return
         handleChat(event.message, chatConfig.guild)
     }
 
     @HandleEvent
     fun msgChat(event: PrivateMessageChatEvent) {
-        if (baseCheck) return
+        if (!baseCheck) return
         handleChat(event.message, chatConfig.msg)
     }
 
     @HandleEvent
     fun allChat(event: PlayerAllChatEvent) {
-        if (baseCheck) return
+        if (!baseCheck) return
         handleChat(event.message, chatConfig.allChat)
     }
 
     @HandleEvent
     fun serverChat(event: SystemMessageEvent) {
-        if (baseCheck) return
+        if (!baseCheck) return
         handleChat(event.message, chatConfig.server)
     }
 
@@ -121,11 +121,7 @@ object DiscordBotSHEvents {
         messagesToSend.forEachIndexed { index, content ->
             val isLast = index == lastIndex
             dms.sendMessage(
-                """
-                ```ansi
-                $content
-                ```
-                """.trimIndent(),
+                "ansi\n${content.trim()}\n```",
             ).setSuppressedNotifications(isLast).complete()
         }
     }
