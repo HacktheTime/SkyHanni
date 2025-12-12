@@ -29,7 +29,18 @@ object DiscordBotManager {
 
     // Lazy JDA - will be initialized on first access when token is set and feature enabled
     private val jda: JDA by lazy {
-        val tok = token ?: throw IllegalStateException("Discord bot token is not set or bot is disabled")
+        val tok = token.let {
+            if (it != null) return@let it
+            if (config.enable) ChatUtils.clickableChat(
+                "The Discord Bot Feature you have enabled requires setup. click here to open the setup " +
+                    "screen.",
+                onClick = {
+                    SkyHanniMod.screenToOpen = DiscordBotSetupScreen()
+                },
+            )
+            throw IllegalStateException("Discord bot token is not set or bot is disabled")
+        }
+
         try {
             JDABuilder.create(
                 tok,
@@ -83,8 +94,11 @@ object DiscordBotManager {
 
             val httpClient: CloseableHttpClient = HttpClients.createDefault()
             val post = HttpPost("https://discord.com/api/v10/oauth2/token")
-            post.setHeader("Authorization", "Basic " + Base64.getEncoder()
-                .encodeToString(("$clientId:$clientSecret").toByteArray(StandardCharsets.UTF_8)))
+            post.setHeader(
+                "Authorization",
+                "Basic " + Base64.getEncoder()
+                    .encodeToString(("$clientId:$clientSecret").toByteArray(StandardCharsets.UTF_8)),
+            )
             post.setHeader("Content-Type", "application/x-www-form-urlencoded")
             val body = URLEncodedUtils.format(params, StandardCharsets.UTF_8)
             post.entity = StringEntity(body, ContentType.create("application/x-www-form-urlencoded", StandardCharsets.UTF_8))
@@ -120,9 +134,9 @@ object DiscordBotManager {
         SkyHanniMod.launchCoroutine("Start JDA") {
             try {
                 // accessing `jda` will initialize it lazily; directly read application id
-                ChatUtils.chat("Discord bot started. Application id: ${'$'}{jda.applicationInfo.id}")
+                ChatUtils.chat("Discord bot started. Application id: ${applicationInfo.id}")
             } catch (t: Throwable) {
-                ChatUtils.userError("Failed to start Discord JDA: ${'$'}{t.message}")
+                ChatUtils.userError("Failed to start Discord JDA: ${t.message}")
             }
         }
     }

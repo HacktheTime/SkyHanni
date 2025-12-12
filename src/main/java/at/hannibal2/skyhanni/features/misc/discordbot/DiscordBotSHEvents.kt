@@ -2,7 +2,10 @@ package at.hannibal2.skyhanni.features.misc.discordbot
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.commands.CommandCategory
+import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.features.misc.DiscordBotConfig
+import at.hannibal2.skyhanni.config.features.misc.PingBehaviour
 import at.hannibal2.skyhanni.data.hypixel.chat.event.PlayerAllChatEvent
 import at.hannibal2.skyhanni.data.hypixel.chat.event.PrivateMessageChatEvent
 import at.hannibal2.skyhanni.data.hypixel.chat.event.SystemMessageEvent
@@ -24,7 +27,7 @@ object DiscordBotSHEvents {
 
     val baseCheck: Boolean
         get() {
-            if (jda == null) return false
+            if (jda == null || !chatConfig.sendMessages) return false
             if (Minecraft.getMinecraft().inGameHasFocus) return false
             return true
         }
@@ -71,13 +74,13 @@ object DiscordBotSHEvents {
     @Volatile
     var messageContentBuilder = StringBuilder()
 
-    fun handleChat(message: String, behaviour: DiscordBotConfig.ChatConfig.PingBehaviour) {
+    fun handleChat(message: String, behaviour: PingBehaviour) {
         val mention = message.contains(username, ignoreCase = true) ||
-            chatConfig.nickNames.any { message.contains(it, ignoreCase = true) }
-        if (behaviour == DiscordBotConfig.ChatConfig.PingBehaviour.NOTHING && !mention) return
+            chatConfig.nickNames.split(";").filter { it.isEmpty() }.any { message.contains(it, ignoreCase = true) }
+        if (behaviour == PingBehaviour.NOTHING && !mention) return
         messageContentBuilder.append(message).appendLine("§r")
         if (
-            behaviour == DiscordBotConfig.ChatConfig.PingBehaviour.IMMEDIATE || mention
+            behaviour == PingBehaviour.IMMEDIATE || mention
         ) {
             immediate = true
         }
@@ -124,6 +127,17 @@ object DiscordBotSHEvents {
                 ```
                 """.trimIndent(),
             ).setSuppressedNotifications(isLast).complete()
+        }
+    }
+
+    @HandleEvent
+    fun onCommandRegistration(event: CommandRegistrationEvent) {
+        event.registerBrigadier("shdiscordbotsetup") {
+            description = "Open Discord Bot setup GUI"
+            category = CommandCategory.MAIN
+            simpleCallback {
+                SkyHanniMod.screenToOpen = DiscordBotSetupScreen()
+            }
         }
     }
 }

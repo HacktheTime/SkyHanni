@@ -87,6 +87,7 @@ class SplasherConfig {
         name = "Dual Announce",
         desc = "Announce your Splashes in both Bingo Net and Bingo Brewers",
     )
+    @ConfigEditorBoolean
     val dualAnnounce : Boolean = false
 
     @Expose

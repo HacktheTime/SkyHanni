@@ -49,10 +49,10 @@ class DiscordBotSetupScreen : SkyHanniBaseScreen() {
                     DiscordBotManager.startJdaWithToken(tok)
                     // wait a bit for application info
                     sleep(1500)
-                    feedbackMessage = "§aJDA started. Application id: ${'$'}{DiscordBotManager.applicationInfo.id}"
+                    feedbackMessage = "§aJDA started. Application id: ${DiscordBotManager.applicationInfo.id}"
                     step = 3
                 } catch (t: Throwable) {
-                    feedbackMessage = "§cFailed to start JDA: ${'$'}{t.message}"
+                    feedbackMessage = "§cFailed to start JDA: ${t.message}"
                 }
             }
         }, horizontalAlign = RenderUtils.HorizontalAlignment.CENTER, bypassChecks = true)
@@ -62,8 +62,8 @@ class DiscordBotSetupScreen : SkyHanniBaseScreen() {
         Renderable.wrappedText("Step 3: Get your Client Secret. Open the OAuth2 page for your application to copy the client secret.", maxSize),
         Renderable.link(Renderable.wrappedText("Open OAuth2 page for application", maxSize), bypassChecks = true, onLeftClick = {
             try {
-                DiscordBotManager.applicationInfo.id
-                OSUtils.openBrowser("https://discord.com/developers/applications/${'$'}id/oauth2")
+                val id = DiscordBotManager.applicationInfo.id
+                OSUtils.openBrowser("https://discord.com/developers/applications/$id/oauth2")
             } catch (e: Exception) {
                 OSUtils.openBrowser("https://discord.com/developers/applications")
             }
