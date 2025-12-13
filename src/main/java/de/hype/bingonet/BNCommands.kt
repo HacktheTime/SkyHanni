@@ -7,7 +7,6 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
-import at.hannibal2.skyhanni.config.features.event.bingo.BBSplashMessageConfigureScreen
 import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetSystem
 import at.hannibal2.skyhanni.config.features.inventory.hubselector.HubSelectorKeybinds
 import at.hannibal2.skyhanni.data.HypixelData
@@ -175,13 +174,6 @@ object BNCommands {
             ChatUtils.userError("Server ID $serverId not found in Cache or Hub Selector Data outdated. Please open the Hub Selector once.")
             return
         }
-        val dualAnnounce = hubData != null && config.splasherConfig.dualAnnounce
-        if (dualAnnounce) {
-            if (!location.getName().equals("Bea") && hubData.hubType == Islands.HUB) {
-                ChatUtils.userError("BB always splashes at Bea. Due to this you must splash at Bea if Dual announce is enabled")
-                return
-            }
-        }
 
         val splashData = SplashData(
             announcer = "",
@@ -192,58 +184,6 @@ object BNCommands {
             hubSelectorData = hubData,
             status = StatusConstants.WAITING,
         )
-        if (dualAnnounce) {
-            val interceptor = object : InterceptPacketInfo<SplashNotifyPacket>(
-                clazz = SplashNotifyPacket::class.java,
-                cancelPacket = false,
-                blockIntercepts = false,
-                ignoreIfIntercepted = false,
-                blockExecutionForCompletion = true,
-            ) {
-                override fun run(packet: SplashNotifyPacket) {
-                    val username = MinecraftCompat.localPlayer.name
-                    val hype = username.equals("Hype_the_Time")
-                    val mention = if (!hype) {
-                        "<@&916461777863180328>" // BB-Splash-Ping
-                    } else {
-                        "€here"
-                    }
-                    val message: String = config.splasherConfig.bbSplashMessage
-                        .replace(BBSplashMessageConfigureScreen.SERVER_ID, serverId)
-                        .replace(BBSplashMessageConfigureScreen.EXTRA_MESSAGE, extraMessage ?: "")
-                        .replace(BBSplashMessageConfigureScreen.SPLASHER, username)
-                        .replace(
-                            BBSplashMessageConfigureScreen.HUB,
-                            if (hubData.hubType != Islands.HUB) {
-                                "**${hubData.hubType.name}** #${hubData.hubNumber} at ${location.displayString}"
-                            } else {
-                                "Hub #${hubData.hubNumber}"
-                            },
-                        ).replace(BBSplashMessageConfigureScreen.ROLE_MENTIONS, mention)
-                    if (message.isEmpty()) {
-                        ChatUtils.userError("BB Splash Message is empty or invalid. Please configure it first.")
-                        return
-                    }
-                    val channel = if (!hype) {
-                        "916074669973594123" // BB
-                    } else "1223328392263503912" //BN
-                    //We are waiting for info whether the splash is funded or not since terms of the funding.
-                    if (packet.splash.funder != null || packet.splash.lessWaste) {
-                        SkyHanniMod.launchCoroutine("Announce Splash to BB") {
-                            val space = HypixelData.getMaxPlayersForCurrentServer()
-                            if (space < 20) {
-                                ChatUtils.chat("Not sending BB Splash Message due to little space left. ($space)")
-                                return@launchCoroutine
-                            }
-                            DiscordApiClient.sendMessage(channel, message)
-                        }
-                    } else {
-                        DiscordApiClient.sendMessage(channel, message)
-                    }
-                }
-            }
-            BNConnection.packetIntercepts.add(interceptor)
-        }
         BNConnection.sendPacket(SplashNotifyPacket(splashData))
     }
 

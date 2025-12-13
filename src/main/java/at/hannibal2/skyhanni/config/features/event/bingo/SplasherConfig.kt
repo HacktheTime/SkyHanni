@@ -82,25 +82,4 @@ class SplasherConfig {
     @ConfigEditorBoolean
     var lowestPlayerHub: Boolean = false
 
-    @Expose
-    @ConfigOption(
-        name = "Dual Announce",
-        desc = "Announce your Splashes in both Bingo Net and Bingo Brewers",
-    )
-    @ConfigEditorBoolean
-    val dualAnnounce : Boolean = false
-
-    @ConfigEditorButton(
-        buttonText = "Configure Bingo Brewers Message"
-    )
-    val openBBSplashMessage: Runnable = Runnable(BBSplashMessageConfigureScreen::openScreen)
-
-    @Expose
-    var bbSplashMessage: String = """
-        ${BBSplashMessageConfigureScreen.HUB}
-        ServerId: ${BBSplashMessageConfigureScreen.SERVER_ID}
-        IGN: ${BBSplashMessageConfigureScreen.SPLASHER}
-        ${BBSplashMessageConfigureScreen.EXTRA_MESSAGE}
-        ${BBSplashMessageConfigureScreen.ROLE_MENTIONS}
-    """.trimIndent()
 }
