@@ -16,6 +16,7 @@ import at.hannibal2.skyhanni.config.features.hunting.HuntingConfig
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig
 import at.hannibal2.skyhanni.config.features.mining.MiningConfig
 import at.hannibal2.skyhanni.config.features.rift.RiftConfig
+import at.hannibal2.skyhanni.config.features.consent.ThirdPartyConsentConfig
 import at.hannibal2.skyhanni.config.features.skillprogress.SkillProgressConfig
 import at.hannibal2.skyhanni.config.features.slayer.SlayerConfig
 import at.hannibal2.skyhanni.config.storage.Storage
@@ -79,6 +80,10 @@ class Features : Config() {
     @Expose
     @Category(name = "GUI", desc = "Change the locations of GUI elements (§e/sh gui§7).")
     var gui: GuiConfig = GuiConfig()
+
+    @Expose
+    @Category(name = "Third-Party Consent", desc = "Control which third-party networks and services are allowed.")
+    var thirdPartyConsent: ThirdPartyConsentConfig = ThirdPartyConsentConfig()
 
     // Islands
     @Expose

@@ -1,17 +1,20 @@
 package at.hannibal2.skyhanni.config.features.event.bingo
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@ThirdPartyDependency(ThirdParty.BINGO_NET)
 class BingoNetConfig {
     @Expose
     @ConfigOption(
-        name = "Enable Bingo Net (§c⚠ Closed Source Server!§r)",
-        desc = "§c§lBingo Net is based on a closed Source Project by Hype_the_Time. SkyHanni has no insight nor control over the Servers.",
+        name = "Use Bingo Net",
+        desc = "Connect Skyhanni to the Bingo Net Network.\nBingo Net is the most advanced Bingo Network for Skyblock Bingo!",
     )
     @ConfigEditorBoolean
     @FeatureToggle

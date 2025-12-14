@@ -237,7 +237,7 @@ object ErrorManager {
 
         val finalMessage = buildFinalMessage(message) ?: return false
 
-        if (SkyHanniMod.feature.event.bingo.bingoNetworks.useBN) {
+        if (SkyHanniMod.feature.event.bingo.bingoNetworks.bingoNet.useBN) {
             ChatUtils.clickableChat(
                 "§c[$label]: $finalMessage Click here to copy the error into the clipboard.",
                 onClick = { copyError(randomId) },

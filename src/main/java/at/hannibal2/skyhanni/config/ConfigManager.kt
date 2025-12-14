@@ -42,6 +42,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.concurrent.fixedRateTimer
 import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.jvm.javaField
 import kotlin.time.Duration.Companion.days
 
 private fun GsonBuilder.registerIfBeta(create: TypeAdapterFactory): GsonBuilder {
@@ -326,6 +327,86 @@ class BlockingMoulConfigProcessor : MoulConfigProcessor<Features>(SkyHanniMod.fe
                 return GuiOptionEditorHidden(default)
             }
         }
+
+        // Third-party dependency handling (enum-based with inheritance)
+        resolveThirdPartyDependency(field)?.let { dep ->
+            if (isMainToggleField(dep, field)) {
+                return GuiOptionEditorThirdPartyMainToggle(default, dep.thirdParty, dep.message)
+            }
+
+            return GuiOptionEditorThirdParty(
+                default,
+                dep.thirdParty,
+                dep.usesMainToggle,
+                dep.requiresMainToggle,
+                dep.message,
+            )
+        }
         return default
+    }
+
+    private data class ResolvedThirdParty(
+        val thirdParty: ThirdParty,
+        val usesMainToggle: Boolean,
+        val requiresMainToggle: Boolean,
+        val message: String,
+        val overrideOwner: Class<*>?,
+        val overrideFieldName: String?,
+    )
+
+    private fun resolveThirdPartyDependency(field: Field): ResolvedThirdParty? {
+        var fieldAnno: ThirdPartyDependency? = field.getAnnotation(ThirdPartyDependency::class.java)
+
+        var clazz: Class<*>? = field.declaringClass
+        var classAnno: ThirdPartyDependency? = null
+        while (clazz != null && classAnno == null) {
+            classAnno = clazz.getAnnotation(ThirdPartyDependency::class.java)
+            clazz = clazz.enclosingClass
+        }
+
+        val source = fieldAnno ?: classAnno ?: return null
+        val tp = source.value
+
+        val ownerKClass = when {
+            fieldAnno != null && fieldAnno.mainToggleName.isNotBlank() -> fieldAnno.mainToggleOwner
+            classAnno != null && classAnno.mainToggleName.isNotBlank() -> classAnno.mainToggleOwner
+            else -> null
+        }
+        val overrideOwner = ownerKClass?.java
+        val overrideFieldName = when {
+            fieldAnno != null && fieldAnno.mainToggleName.isNotBlank() -> fieldAnno.mainToggleName
+            classAnno != null && classAnno.mainToggleName.isNotBlank() -> classAnno.mainToggleName
+            else -> null
+        }
+
+        val usesMainToggle = overrideFieldName != null || tp.mainToggleField != null
+
+        val requires = when (fieldAnno?.requiresMainToggle ?: classAnno?.requiresMainToggle ?: TriState.AUTO) {
+            TriState.YES -> true
+            TriState.NO -> false
+            TriState.AUTO -> usesMainToggle
+        }
+
+        val message = when {
+            fieldAnno != null && fieldAnno.message.isNotBlank() -> fieldAnno.message
+            classAnno != null && classAnno.message.isNotBlank() -> classAnno.message
+            else -> ""
+        }
+
+        return ResolvedThirdParty(tp, usesMainToggle, requires, message, overrideOwner, overrideFieldName)
+    }
+
+    private fun isMainToggleField(dep: ResolvedThirdParty, field: Field): Boolean {
+        if (dep.overrideOwner != null && dep.overrideFieldName != null) {
+            val isOwnerMatch = field.declaringClass == dep.overrideOwner ||
+                field.declaringClass.name == dep.overrideOwner.name ||
+                field.declaringClass.simpleName == dep.overrideOwner.simpleName
+            if (isOwnerMatch && field.name == dep.overrideFieldName) return true
+        }
+        val enumField = dep.thirdParty.mainToggleField ?: return false
+        enumField.javaField?.let { javaField ->
+            if (javaField.declaringClass == field.declaringClass && javaField.name == field.name) return true
+        }
+        return enumField.name == field.name && enumField.parameters.firstOrNull()?.type?.classifier == field.declaringClass.kotlin
     }
 }

@@ -145,17 +145,25 @@ class DefaultConfigOptionGui(
         for ((cat) in orderedOptions.entries) {
             val suggestionState = resetSuggestionState[cat]!!
 
+            // Determine if this category contains third-party dependent options
+            val tpList = orderedOptions[cat]?.mapNotNull { it.thirdParty }?.distinct().orEmpty()
+            val hasTp = tpList.isNotEmpty()
+
             GuiRenderUtils.drawRect(0, 0, xSize - padding * 2, 1, 0xFF808080.toInt())
             GuiRenderUtils.drawRect(0, 30, xSize - padding * 2, cardHeight + 1, 0xFF808080.toInt())
             GuiRenderUtils.drawRect(0, 0, 1, cardHeight, 0xFF808080.toInt())
             GuiRenderUtils.drawRect(xSize - padding * 2 - 1, 0, xSize - padding * 2, cardHeight, 0xFF808080.toInt())
 
-            GuiRenderUtils.drawString("§e${cat.name} ${suggestionState.label}", 4, 4)
+            val tpSuffix = if (hasTp) {
+                val names = tpList.joinToString(", ") { it.displayName }
+                " §c⚠ Third-Party: $names§r"
+            } else ""
+            GuiRenderUtils.drawString("§e${cat.name} ${suggestionState.label}$tpSuffix", 4, 4)
             GuiRenderUtils.drawStrings("§7${cat.description}".splitLines(xSize - padding * 2 - 8), 4, 14, -1)
 
             if (isMouseInScrollArea && y in 0..cardHeight) {
                 hoveringTextToDraw = listOf(
-                    "§e${cat.name}",
+                    "§e${cat.name}" + if (hasTp) " §c⚠ Third-Party§r" else "",
                     "§7${cat.description}",
                     "§7Current plan: ${suggestionState.label}",
                     "§aClick to toggle!",
@@ -163,12 +171,19 @@ class DefaultConfigOptionGui(
                 )
 
                 if (KeyboardManager.isShiftKeyDown()) {
-                    hoveringTextToDraw = listOf(
+                    val base = listOf(
                         "§e${cat.name}",
                         "§7${cat.description}",
-                    ) + orderedOptions[cat]?.let { opts ->
-                        opts.map { "§7 - §a" + it.name }
+                    )
+                    val items = orderedOptions[cat]?.let { opts ->
+                        opts.map { opt ->
+                            val tpMark = if (opt.thirdParty != null) " §c⚠ ${opt.thirdParty.displayName}§r" else ""
+                            "§7 - §a" + opt.name + tpMark
+                        }
                     }.orEmpty()
+                    hoveringTextToDraw = if (hasTp)
+                        base + listOf("§cThis category contains third-party dependent features. These won’t be auto-enabled unless consent + main toggle allows it.§r") + items
+                    else base + items
                 }
 
                 if (shouldClick) {

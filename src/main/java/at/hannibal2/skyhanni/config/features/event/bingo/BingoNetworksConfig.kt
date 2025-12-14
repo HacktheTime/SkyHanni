@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.event.bingo
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.core.config.KeyBind
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -10,23 +12,21 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 class BingoNetworksConfig {
     @Expose
     @ConfigOption(
-        name = "Bingo Net (§c⚠ Closed Source Server!§r)",
-        desc = "§c§lBingo Net is based on a closed Source Project by Hype_the_Time. SkyHanni has no insight nor control over the Servers.",
+        name = "Bingo Net",
+        desc = "Bingo Net connection Settings",
     )
     @ConfigEditorBoolean
     @Accordion
     val bingoNet: BingoNetConfig = BingoNetConfig()
-    val useBN get() = bingoNet.useBN
 
     @Expose
     @ConfigOption(
-        name = "Enable Bingo Brewers (§c⚠ Closed Source Server§r)",
-        desc = "§c§lThe Bingo Brewers Network is a closed Source Project by indigo_polecat. " +
-            "SkyHanni has no insight nor control over the Servers. " +
-            "Bingo Brewers does not support all Features and some only partially.",
+        name = "Use Bingo Brewers",
+        desc = "Connects SkyHanni to the Bingo Brewers Network.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @ThirdPartyDependency(ThirdParty.BINGO_BREWERS)
     var useBB: Boolean = false
 
 

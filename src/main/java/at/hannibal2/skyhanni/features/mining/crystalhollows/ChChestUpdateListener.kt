@@ -134,7 +134,7 @@ object ChChestUpdateListener {
             HypixelData.serverId ?: error("Old Server Id is null but Island was loaded?"),
             EntityUtils.getPlayerList(),
         )
-        if (config.useBN) BNConnection.sendPacket(unsubpacket)
+        if (config.bingoNet.useBN) BNConnection.sendPacket(unsubpacket)
         if (config.useBB) {
             val bbsub = BingoBrewersPackets.SubscribeToCHServer()
             bbsub.server = HypixelData.serverId
@@ -152,7 +152,7 @@ object ChChestUpdateListener {
             val serverId = HypixelData.serverId ?: return@launchCoroutine
             if (event.newIsland == IslandType.CRYSTAL_HOLLOWS) {
                 val packet = SubscribeToChServer(serverId, getLobbyClosingTime())
-                if (config.useBN) BNConnection.sendPacket(packet)
+                if (config.bingoNet.useBN) BNConnection.sendPacket(packet)
                 if (config.useBB) {
                     val bbsub = BingoBrewersPackets.SubscribeToCHServer()
                     bbsub.unsubscribe = false

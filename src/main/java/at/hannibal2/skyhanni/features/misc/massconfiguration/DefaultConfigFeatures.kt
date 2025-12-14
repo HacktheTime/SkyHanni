@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.features.misc.massconfiguration
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigFileType
+import at.hannibal2.skyhanni.config.ThirdPartyPolicy
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils
@@ -107,6 +108,15 @@ object DefaultConfigFeatures {
                     onState
                 } else {
                     !onState
+                }
+                // Do not auto-enable third-party dependent features unless consent allows it.
+                val tp = option.thirdParty
+                if (tp != null) {
+                    // Only skip when attempting to enable; disabling is always allowed.
+                    val isEnabling = setTo == option.isTrueEnabled
+                    if (isEnabling && ThirdPartyPolicy.shouldSkipAutoEnable(tp)) {
+                        continue
+                    }
                 }
                 option.setter(setTo)
             }
