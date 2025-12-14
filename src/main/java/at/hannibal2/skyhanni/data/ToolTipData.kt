@@ -72,11 +72,10 @@ object ToolTipData {
             }
             if (PlatformUtils.IS_LEGACY) {
                 val textTooltip = toolTip.map { Text.of(it) }.toMutableList()
-                if (ToolTipTextEvent(slot, itemStack, textTooltip).post()) {
-                    toolTip.clear()
-                }
                 toolTip.clear()
-                toolTip.addAll(textTooltip.map { it.string }.toMutableList())
+                if (!ToolTipTextEvent(slot, itemStack, textTooltip).post()) {
+                    toolTip.addAll(textTooltip.map { it.string }.toMutableList())
+                }
             }
         } catch (e: Throwable) {
             ErrorManager.logErrorWithData(

@@ -610,6 +610,9 @@ class ProfileSpecificStorage(
 
         @Expose
         var activeVinyl: VinylType? = null
+
+        @Expose
+        var overflowHoeLevels: MutableMap<String, Int> = mutableMapOf()
     }
 
     // - gui
