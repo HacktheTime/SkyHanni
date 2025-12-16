@@ -214,4 +214,9 @@ class DefaultConfigOptionGui(
         if (MouseCompat.getScrollDelta() != 0)
             scroll(currentScrollOffset - MouseCompat.getScrollDelta())
     }
+
+    override fun guiClosed() {
+        super.guiClosed()
+        ThirdPartySummaryFlow.showIfNeeded(orderedOptions)
+    }
 }

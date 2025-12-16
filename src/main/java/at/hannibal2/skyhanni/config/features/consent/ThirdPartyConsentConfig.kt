@@ -1,9 +1,7 @@
 package at.hannibal2.skyhanni.config.features.consent
 
-import at.hannibal2.skyhanni.config.ConfigFileType
 import at.hannibal2.skyhanni.config.ThirdParty
 import at.hannibal2.skyhanni.config.ThirdPartyConsentMode
-import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
@@ -23,17 +21,15 @@ class ThirdPartyConsentConfig {
 
     @Expose
     @ConfigOption(
-        name = "Never Show Configure Third Party Again",
-        desc = "If enabled, SkyHanni will not prompt to configure third-party consent. You can still enable a third party manually via its main toggle.",
+        name = "Show Third-Party after Default Options",
+        desc = "If enabled you will see the Third Party Options in the default options menu. This is in a seperated gui that will open " +
+            "after the other non third party options!",
     )
     @ConfigEditorBoolean
-    var neverShowConfigureAgain: Boolean = false
+    var showThirdPartySummary: Boolean = true
 
-    /**
-     * Per-third-party allow list; used when mode == SELECT. Stored by id for forward compatibility.
-     */
     @Expose
-    var allowedById: MutableMap<String, Boolean> = mutableMapOf()
+    var hasSeenThirdPartySummaryInfo: Boolean = false
 
     // Convenience toggles for known third parties when mode == SELECT
     @Expose
@@ -57,7 +53,7 @@ class ThirdPartyConsentConfig {
         return when (thirdParty) {
             ThirdParty.BINGO_NET -> allowBingoNet
             ThirdParty.BINGO_BREWERS -> allowBingoBrewers
-        } || allowedById[thirdParty.id] == true
+        }
     }
 
     fun setAllowed(thirdParty: ThirdParty, allowed: Boolean) {
@@ -65,6 +61,5 @@ class ThirdPartyConsentConfig {
             ThirdParty.BINGO_NET -> allowBingoNet = allowed
             ThirdParty.BINGO_BREWERS -> allowBingoBrewers = allowed
         }
-        if (allowed) allowedById[thirdParty.id] = true else allowedById.remove(thirdParty.id)
     }
 }
