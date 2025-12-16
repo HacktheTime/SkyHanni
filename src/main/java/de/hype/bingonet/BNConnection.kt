@@ -141,11 +141,11 @@ object BNConnection {
                 reconnectToBNServer(true)
             }
         } else {
-            disconnect()
+            disconnect(true)
         }
     }
 
-   @Synchronized
+    @Synchronized
     fun connect(serverIP: kotlin.String = "hackthetime.de", serverPort: Int) {
         try {
             val sslContext = createSSLContext()
@@ -347,6 +347,7 @@ object BNConnection {
             }
         }
     }
+
     @Synchronized
     fun BNConnection.reconnectToBNServer(
         ignoreIfConnected: Boolean = true,
@@ -728,7 +729,7 @@ object BNConnection {
         waypoints.removeIf { it.value.deleteOnServerSwap }
     }
 
-    fun disconnect() {
+    fun disconnect(silent: Boolean = false) {
         socket?.close()
         reader = null
         writer = null
@@ -741,7 +742,7 @@ object BNConnection {
         authenticated = null
         packetIntercepts.clear()
         waypoints.clear()
-        ChatUtils.chat("Disconnected from Bingo Net Server")
+        if (!silent) ChatUtils.chat("Disconnected from Bingo Net Server")
     }
 
     fun isEnabled(): Boolean {
