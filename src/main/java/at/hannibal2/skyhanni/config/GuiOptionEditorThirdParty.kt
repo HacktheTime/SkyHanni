@@ -8,8 +8,6 @@ import io.github.notenoughupdates.moulconfig.common.RenderContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.KeyboardEvent
 import io.github.notenoughupdates.moulconfig.gui.MouseEvent
-import java.awt.Color
-import kotlin.math.max
 
 /**
  * Unified GUI wrapper for third-party dependencies.
@@ -36,7 +34,7 @@ class GuiOptionEditorThirdParty(
         val state = resolveState().also { lastState = it }
         val font = context.minecraft.defaultFontRenderer
         val pad = (base.height * 0.08f).toInt().coerceAtLeast(2)
-        val warningHeight = max(font.height + pad * 2, WARN_BANNER_MIN_HEIGHT)
+        val warningHeight = kotlin.math.max(font.height + pad * 2, WARN_BANNER_MIN_HEIGHT)
         warningBannerHeightCache = warningHeight
         val bannerBottom = y + warningHeight
         val dueToMainToggle = usesMainToggle && requiresMainToggle && !state.mainToggleEnabled
@@ -62,6 +60,12 @@ class GuiOptionEditorThirdParty(
             add("§6-§c⚠§6 The SkyHanni Team has no access nor control for the Server this Feature depends on.")
             thirdParty.description.takeIf { it.isNotBlank() }?.let { add("§7$it") }
             if (extraMessage.isNotBlank() && extraMessage != thirdParty.description) add("§7$extraMessage")
+            // If the dependency has a main toggle field, show that with instruction
+            thirdParty.mainToggleField?.let { mt ->
+                add("")
+                add("§6Main toggle: §f${mt.name}")
+                add("§7This toggle may itself depend on other options; enabling it can unlock features.")
+            }
         }
 
         if (dueToMainToggle) {
@@ -71,28 +75,9 @@ class GuiOptionEditorThirdParty(
             val btnX = x + width - btnW - pad
             val btnY = y + (warningHeight - buttonHeight) / 2
             btnX1 = btnX; btnY1 = btnY; btnX2 = btnX + btnW; btnY2 = btnY + buttonHeight
-            val bgCol = 0xFFEAFFF0.toInt()
-            val borderCol = 0xFF1F8B44.toInt()
-            context.drawColoredRect(btnX.toFloat(), btnY.toFloat(), (btnX + btnW).toFloat(), (btnY + buttonHeight).toFloat(), bgCol.toInt())
-            context.drawColoredRect(btnX.toFloat(), btnY.toFloat(), (btnX + btnW).toFloat(), (btnY + 1).toFloat(), borderCol)
-            context.drawColoredRect(
-                btnX.toFloat(),
-                (btnY + buttonHeight - 1).toFloat(),
-                (btnX + btnW).toFloat(),
-                (btnY + buttonHeight).toFloat(),
-                borderCol,
-            )
-            context.drawColoredRect(btnX.toFloat(), btnY.toFloat(), (btnX + 1).toFloat(), (btnY + buttonHeight).toFloat(), borderCol)
-            context.drawColoredRect(btnX.toFloat(), btnY.toFloat(), (btnX + btnW - 1).toFloat(), (btnY + buttonHeight).toFloat(), borderCol)
-            context.drawStringScaledMaxWidth(
-                label.asStructuredText(),
-                font,
-                btnX + pad,
-                btnY + (buttonHeight - font.height) / 2,
-                true,
-                btnW - pad * 2,
-                borderCol,
-            )
+
+            // Use same button visuals as dependency editor for consistency
+            drawEnableButton(context, btnX, btnY, btnW, buttonHeight, label.asStructuredText())
         } else {
             btnX1 = 0; btnY1 = 0; btnX2 = 0; btnY2 = 0
         }
@@ -102,6 +87,40 @@ class GuiOptionEditorThirdParty(
 
         if (state.blocked && !dueToMainToggle) {
             context.drawColoredRect(x.toFloat(), baseY.toFloat(), (x + width).toFloat(), (baseY + base.height).toFloat(), 0x55000000)
+        }
+    }
+
+    private fun drawEnableButton(
+        context: RenderContext,
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        label: io.github.notenoughupdates.moulconfig.common.text.StructuredText,
+        mouseX: Int = -1,
+        mouseY: Int = -1,
+    ) {
+        // re-use styles from GuiOptionEditorDependencies
+        val bg = 0xFF2E7D32.toInt()
+        val border = 0xFF1B5E20.toInt()
+        val topHighlight = 0xFF66BB6A.toInt()
+        val hoverOverlay = 0x44333333
+        // fill
+        context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat(), bg)
+        // top highlight
+        context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + 1).toFloat(), topHighlight)
+        // border
+        context.drawColoredRect(x.toFloat(), (y + height - 1).toFloat(), (x + width).toFloat(), (y + height).toFloat(), border)
+        context.drawColoredRect(x.toFloat(), y.toFloat(), (x + 1).toFloat(), (y + height).toFloat(), border)
+        context.drawColoredRect((x + width - 1).toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat(), border)
+
+        val font = context.minecraft.defaultFontRenderer
+        context.drawStringScaledMaxWidth(label, font, x + 4, y + (height - font.height) / 2, true, width - 8, -0x1)
+
+        val mx = io.github.notenoughupdates.moulconfig.common.IMinecraft.INSTANCE.mouseX
+        val my = io.github.notenoughupdates.moulconfig.common.IMinecraft.INSTANCE.mouseY
+        if (mx >= x && mx <= x + width && my >= y && my <= y + height) {
+            context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat(), hoverOverlay)
         }
     }
 
@@ -125,11 +144,11 @@ class GuiOptionEditorThirdParty(
             if (dueToMainToggle) {
                 val insideBtn = mouseX in btnX1..btnX2 && mouseY in btnY1..btnY2
                 if (insideBtn && clicked) {
+                    // Enable the third-party main toggle (same as before)
                     thirdParty.setEnabled(true)
                     try {
                         SkyHanniMod.configManager.recreateConfig()
-                    } catch (_: Throwable) { /* ignore */
-                    }
+                    } catch (_: Throwable) { /* ignore */ }
                     return true
                 }
                 return base.mouseInput(x, baseY, width, mouseX, mouseY, mouseEvent)

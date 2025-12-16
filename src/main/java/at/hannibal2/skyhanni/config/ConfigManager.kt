@@ -329,11 +329,24 @@ class BlockingMoulConfigProcessor : MoulConfigProcessor<Features>(SkyHanniMod.fe
         }
 
         // Third-party dependency handling (enum-based with inheritance)
-        resolveThirdPartyDependency(field)?.let { dep ->
+        val thirdPartyDep = resolveThirdPartyDependency(field)
+        val dependencyRequirements = FeatureDependencyResolver.resolve(field)
+
+        if (thirdPartyDep == null && dependencyRequirements.isEmpty) {
+            return default
+        }
+
+        thirdPartyDep?.let { dep ->
             if (isMainToggleField(dep, field)) {
                 return GuiOptionEditorThirdPartyMainToggle(default, dep.thirdParty, dep.message)
             }
+        }
 
+        if (!dependencyRequirements.isEmpty) {
+            return GuiOptionEditorDependencies(default, dependencyRequirements, field)
+        }
+
+        thirdPartyDep?.let { dep ->
             return GuiOptionEditorThirdParty(
                 default,
                 dep.thirdParty,
@@ -342,6 +355,7 @@ class BlockingMoulConfigProcessor : MoulConfigProcessor<Features>(SkyHanniMod.fe
                 dep.message,
             )
         }
+
         return default
     }
 
