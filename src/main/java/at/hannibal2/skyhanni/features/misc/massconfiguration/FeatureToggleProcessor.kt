@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.ThirdParty
 import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.TriState
+import at.hannibal2.skyhanni.config.FeatureDependencyResolver
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
@@ -81,6 +82,34 @@ class FeatureToggleProcessor : ConfigStructureReader {
         // Resolve third-party dependency via annotation on field or owning classes
         val tpResolved = resolveThirdParty(field)
 
+        // If no explicit annotation, detect third-party dependencies referenced via FeatureDependencyResolver
+        val autoTpResolved = if (tpResolved == null) {
+            try {
+                val reqs = FeatureDependencyResolver.resolve(field)
+                if (!reqs.isEmpty) {
+                    // collect all third-party dependencies referenced
+                    val deps = reqs.groups.flatMap { it.dependencies }
+                    val tps = deps.mapNotNull { dep ->
+                        when (val s = dep.source) {
+                            is FeatureDependencyResolver.DependencySource.ThirdParty -> s.value
+                            else -> null
+                        }
+                    }.distinct()
+                    // Only mark as third-party when ALL dependencies are third-party (conservative)
+                    val allAreThird = deps.isNotEmpty() && deps.all { it.source is FeatureDependencyResolver.DependencySource.ThirdParty }
+                    if (tps.isNotEmpty() && allAreThird) {
+                        // requiresMainToggle true if any referenced third-party actually has a mainToggleField
+                        val requiresMain = tps.any { it.mainToggleField != null }
+                        tps.first() to requiresMain
+                    } else null
+                } else null
+            } catch (_: Throwable) {
+                null
+            }
+        } else null
+
+        val finalTp = tpResolved ?: autoTpResolved
+
         val optionEntry = FeatureToggleableOption(
             name,
             option.desc,
@@ -89,11 +118,11 @@ class FeatureToggleProcessor : ConfigStructureReader {
             latestCategory!!,
             setter,
             pathStack.joinToString(".") + "." + field.name,
-            tpResolved?.first,
-            tpResolved?.second ?: true,
+            finalTp?.first,
+            finalTp?.second ?: true,
         )
         allOptions.add(optionEntry)
-        tpResolved?.first?.let { tp ->
+        finalTp?.first?.let { tp ->
             thirdPartyRegistry.getOrPut(tp) { mutableListOf() }.add(optionEntry)
         }
     }

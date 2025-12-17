@@ -40,6 +40,9 @@ class DefaultConfigOptionGui(
 
     private val resetSuggestionState =
         orderedOptions.keys.associateWith { ResetSuggestionState.LEAVE_DEFAULTS }.toMutableMap()
+    private val displayOptions: Map<Category, List<FeatureToggleableOption>> = orderedOptions
+        .mapValues { (_, list) -> list.filter { it.thirdParty == null } }
+        .filterValues { it.isNotEmpty() }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun onDrawScreen(originalMouseX: Int, originalMouseY: Int, partialTicks: Float) {
@@ -97,13 +100,13 @@ class DefaultConfigOptionGui(
             i += width + 12
         }
         button("Apply choices", listOf()) {
-            DefaultConfigFeatures.applyCategorySelections(resetSuggestionState, orderedOptions)
-            mc.displayGuiScreen(null)
+            DefaultConfigFeatures.applyCategorySelections(resetSuggestionState, displayOptions)
+            ThirdPartySummaryFlow.showIfNeeded(orderedOptions)
         }
         button("Turn all on", listOf()) {
             for (entry in resetSuggestionState.entries) {
                 entry.setValue(ResetSuggestionState.TURN_ALL_ON)
-                orderedOptions[entry.key]?.let { opts ->
+                displayOptions[entry.key]?.let { opts ->
                     opts.forEach { it.toggleOverride = null }
                 }
             }
@@ -111,7 +114,7 @@ class DefaultConfigOptionGui(
         button("Turn all off", listOf()) {
             for (entry in resetSuggestionState.entries) {
                 entry.setValue(ResetSuggestionState.TURN_ALL_OFF)
-                orderedOptions[entry.key]?.let { opts ->
+                displayOptions[entry.key]?.let { opts ->
                     opts.forEach { it.toggleOverride = null }
                 }
             }
@@ -119,7 +122,7 @@ class DefaultConfigOptionGui(
         button("Leave all untouched", listOf()) {
             for (entry in resetSuggestionState.entries) {
                 entry.setValue(ResetSuggestionState.LEAVE_DEFAULTS)
-                orderedOptions[entry.key]?.let { opts ->
+                displayOptions[entry.key]?.let { opts ->
                     opts.forEach { it.toggleOverride = null }
                 }
             }
@@ -142,28 +145,20 @@ class DefaultConfigOptionGui(
             0F,
         )
 
-        for ((cat) in orderedOptions.entries) {
+        for ((cat) in displayOptions.entries) {
             val suggestionState = resetSuggestionState[cat]!!
-
-            // Determine if this category contains third-party dependent options
-            val tpList = orderedOptions[cat]?.mapNotNull { it.thirdParty }?.distinct().orEmpty()
-            val hasTp = tpList.isNotEmpty()
 
             GuiRenderUtils.drawRect(0, 0, xSize - padding * 2, 1, 0xFF808080.toInt())
             GuiRenderUtils.drawRect(0, 30, xSize - padding * 2, cardHeight + 1, 0xFF808080.toInt())
             GuiRenderUtils.drawRect(0, 0, 1, cardHeight, 0xFF808080.toInt())
             GuiRenderUtils.drawRect(xSize - padding * 2 - 1, 0, xSize - padding * 2, cardHeight, 0xFF808080.toInt())
 
-            val tpSuffix = if (hasTp) {
-                val names = tpList.joinToString(", ") { it.displayName }
-                " §c⚠ Third-Party: $names§r"
-            } else ""
-            GuiRenderUtils.drawString("§e${cat.name} ${suggestionState.label}$tpSuffix", 4, 4)
+            GuiRenderUtils.drawString("§e${cat.name} ${suggestionState.label}", 4, 4)
             GuiRenderUtils.drawStrings("§7${cat.description}".splitLines(xSize - padding * 2 - 8), 4, 14, -1)
 
             if (isMouseInScrollArea && y in 0..cardHeight) {
                 hoveringTextToDraw = listOf(
-                    "§e${cat.name}" + if (hasTp) " §c⚠ Third-Party§r" else "",
+                    "§e${cat.name}",
                     "§7${cat.description}",
                     "§7Current plan: ${suggestionState.label}",
                     "§aClick to toggle!",
@@ -175,20 +170,17 @@ class DefaultConfigOptionGui(
                         "§e${cat.name}",
                         "§7${cat.description}",
                     )
-                    val items = orderedOptions[cat]?.let { opts ->
+                    val items = displayOptions[cat]?.let { opts ->
                         opts.map { opt ->
-                            val tpMark = if (opt.thirdParty != null) " §c⚠ ${opt.thirdParty.displayName}§r" else ""
-                            "§7 - §a" + opt.name + tpMark
+                            "§7 - §a" + opt.name
                         }
                     }.orEmpty()
-                    hoveringTextToDraw = if (hasTp)
-                        base + listOf("§cThis category contains third-party dependent features. These won’t be auto-enabled unless consent + main toggle allows it.§r") + items
-                    else base + items
+                    hoveringTextToDraw = base + items
                 }
 
                 if (shouldClick) {
                     resetSuggestionState[cat] = suggestionState.next
-                    orderedOptions[cat]?.let { opts ->
+                    displayOptions[cat]?.let { opts ->
                         opts.forEach { it.toggleOverride = null }
                     }
                 }
@@ -207,7 +199,7 @@ class DefaultConfigOptionGui(
 
     private fun scroll(s: Int) {
         currentScrollOffset =
-            max(0, min(s, (orderedOptions.size + 1) * cardHeight - ySize + barSize + padding * 2))
+            max(0, min(s, (displayOptions.size + 1) * cardHeight - ySize + barSize + padding * 2))
     }
 
     override fun onHandleMouseInput() {
@@ -216,7 +208,6 @@ class DefaultConfigOptionGui(
     }
 
     override fun guiClosed() {
-        super.guiClosed()
         ThirdPartySummaryFlow.showIfNeeded(orderedOptions)
     }
 }

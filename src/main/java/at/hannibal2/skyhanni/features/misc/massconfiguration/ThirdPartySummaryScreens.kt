@@ -2,8 +2,10 @@ package at.hannibal2.skyhanni.features.misc.massconfiguration
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.ConfigFileType
+import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.RenderUtils
 import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
+import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.renderXYAligned
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
@@ -81,22 +83,20 @@ class ThirdPartySummaryScreen(
     private val entries: List<ThirdPartySummaryEntry>,
 ) : SkyHanniBaseScreen() {
 
-    private val sections: List<CategorySection> = entries
-        .groupBy { it.category }
-        .map { (category, catEntries) ->
-            val groups = catEntries.groupBy { it.thirdParty }
-                .map { (thirdParty, tpEntries) ->
-                    ThirdPartyGroup(thirdParty, tpEntries.map { it.option })
-                }
-                .sortedBy { it.thirdParty.displayName }
-            CategorySection(category, groups)
-        }
-        .sortedBy { it.category.name }
+    // Group by thirdParty -> category
+    private val byThirdParty: Map<at.hannibal2.skyhanni.config.ThirdParty, Map<Category, List<FeatureToggleableOption>>> =
+        entries.groupBy { it.thirdParty }
+            .mapValues { (_, list) -> list.groupBy { it.category }.mapValues { it.value.map { e -> e.option } } }
+
+    // Accordion open state per third-party
+    private val openState = byThirdParty.keys.associateWith { true }.toMutableMap()
+    private var showOnlyNew = true // self-select: show only options included that are new
 
     private var scrollRenderable: Renderable? = null
     private var lastScrollHeight = -1
 
     override fun onDrawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        // draw a solid black background behind the centered dialog
         drawDefaultBackground(mouseX, mouseY, partialTicks)
         val contentWidth = (width * 0.75).toInt()
         val contentHeight = (height * 0.8).toInt()
@@ -105,38 +105,69 @@ class ThirdPartySummaryScreen(
         val xOffset = (width - contentWidth) / 2
         val yOffset = (height - contentHeight) / 2
 
+        // Translate to dialog origin and draw background rect (so mouse coords relative to origin)
+        DrawContextUtils.pushMatrix()
+        DrawContextUtils.translate(xOffset.toFloat(), yOffset.toFloat(), 0f)
+        GuiRenderUtils.drawFloatingRectDark(0, 0, contentWidth, contentHeight)
+
+        // Render inner content using local coordinates so Renderable click handling receives correct mouse coords
         Renderable.withMousePosition(mouseX - xOffset, mouseY - yOffset) {
-            Renderable.drawInsideDarkRect(buildColumn(contentWidth, listHeight))
-                .renderXYAligned(xOffset, yOffset, contentWidth, contentHeight)
+            // build column with center alignment so content centers inside the dialog
+            val col = buildColumn(contentWidth, listHeight)
+            col.renderXYAligned(0, 0, contentWidth, contentHeight)
         }
+
+        DrawContextUtils.popMatrix()
     }
 
     private fun buildColumn(contentWidth: Int, listHeight: Int): Renderable {
         val header = Renderable.text("§dThird-Party Options Summary")
+        val debugPlaceholder = Renderable.placeholder(0, 4)
         val description = Renderable.text(
             "§7These options depend on servers that are not run or controlled by the SkyHanni Team."
         )
         val reminder = Renderable.text("§7You can revisit this summary later under §f/skyhanni → Third-Party Consent§7.")
-        val list = scrollRenderable ?: Renderable.text("§7No third-party options detected during this wizard.")
+
+        val toggleSelfSelect = Renderable.darkRectButton(
+            content = Renderable.text(if (showOnlyNew) "Show: Only new options" else "Show: All third-party options"),
+            onClick = {
+                println("[TP Summary] toggleSelfSelect clicked")
+                showOnlyNew = !showOnlyNew; scrollRenderable = null
+            },
+            bypassChecks = true,
+            horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+        )
+
         val toggleLabel = if (SkyHanniMod.feature.thirdPartyConsent.showThirdPartySummary) "Don't show again" else "Show this summary again"
         val toggleButton = Renderable.darkRectButton(
             content = Renderable.text(toggleLabel),
-            onClick = { toggleNeverShow() },
+            onClick = {
+                println("[TP Summary] toggleButton clicked")
+                toggleNeverShow()
+            },
+            bypassChecks = true,
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
         )
         val closeButton = Renderable.darkRectButton(
             content = Renderable.text("Close"),
-            onClick = { mc.displayGuiScreen(null) },
+            onClick = {
+                println("[TP Summary] close clicked")
+                mc.displayGuiScreen(null)
+            },
+            bypassChecks = true,
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
         )
         val buttonRow = Renderable.horizontal(
-            listOf(toggleButton, closeButton),
+            listOf(toggleSelfSelect, toggleButton, closeButton),
             spacing = 12,
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
         )
 
+        val list = scrollRenderable ?: Renderable.text("§7No third-party options detected during this wizard.")
+
         return Renderable.vertical(
             listOf(
+                debugPlaceholder,
                 header,
                 Renderable.placeholder(0, CONTENT_PADDING / 2),
                 description,
@@ -147,7 +178,8 @@ class ThirdPartySummaryScreen(
                 buttonRow,
             ),
             spacing = 8,
-            horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
+            horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+            verticalAlign = RenderUtils.VerticalAlignment.CENTER,
         )
     }
 
@@ -155,43 +187,107 @@ class ThirdPartySummaryScreen(
         if (height <= 0) return
         if (scrollRenderable != null && height == lastScrollHeight) return
         lastScrollHeight = height
-        scrollRenderable = if (sections.isEmpty()) {
+        scrollRenderable = if (byThirdParty.isEmpty()) {
             Renderable.text("§7No third-party options detected during this wizard.")
         } else {
-            Renderable.scrollList(buildCategoryRenderables(), height = height)
+            Renderable.scrollList(buildThirdPartyRenderables(), height = height, bypassChecks = true)
         }
     }
 
-    private fun buildCategoryRenderables(): List<Renderable> = sections.map { section ->
-        val header = Renderable.text("§e${section.category.name}")
-        val description = section.category.description.takeIf { it.isNotBlank() }
-            ?.let { Renderable.text("§7$it") }
-        val groups = section.thirdParties.map { group ->
-            val tpTitle = Renderable.text("§c${group.thirdParty.displayName}")
+    private fun buildThirdPartyRenderables(): List<Renderable> {
+        return byThirdParty.entries.sortedBy { it.key.displayName }.map { (tp, catMap) ->
+            buildThirdPartySection(tp, catMap)
+        }
+    }
+
+    private fun buildThirdPartySection(tp: at.hannibal2.skyhanni.config.ThirdParty, catMap: Map<Category, List<FeatureToggleableOption>>): Renderable {
+        Renderable.text("§c${tp.displayName}")
+        // Main toggle row if available
+        val mainToggle = tp.mainToggleField?.let { field ->
+            val enabled = try { tp.isEnabled() } catch (_: Throwable) { false }
+            val label = Renderable.text("§7Main toggle: ${field.name} - " + if (enabled) "§aEnabled" else "§cDisabled")
+            val toggleBtn = Renderable.darkRectButton(
+                content = Renderable.text(if (enabled) "Disable" else "Enable"),
+                onClick = {
+                    try {
+                        tp.setEnabled(!tp.isEnabled())
+                        SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "third-party-toggle")
+                        // reset scrollable so label updates
+                        scrollRenderable = null
+                    } catch (_: Throwable) {
+                    }
+                },
+                bypassChecks = true,
+                horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+            )
+            Renderable.horizontal(listOf(label, toggleBtn), spacing = 12, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT)
+        }
+
+        // Accordion header: clickable to toggle open state
+        val open = openState.getOrDefault(tp, true)
+        val accordionHeader = Renderable.horizontal(
+            listOf(
+                Renderable.text(if (open) "§a▾ §c${tp.displayName}" else "§a▸ §c${tp.displayName}"),
+                Renderable.text("§7${tp.description}"),
+            ),
+            spacing = 8,
+            horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
+        )
+
+        val clickableHeader = Renderable.clickable(
+            accordionHeader,
+            onAnyClick = mapOf(at.hannibal2.skyhanni.utils.KeyboardManager.LEFT_MOUSE to {
+                println("[TP Summary] header clicked: ${tp.displayName}")
+                openState[tp] = !openState.getOrDefault(tp, true)
+                scrollRenderable = null
+            }),
+            bypassChecks = true,
+        )
+
+        if (!open) {
+            // collapsed: only show header (and main toggle if present)
+            val collapsedParts = buildList<Renderable> {
+                add(clickableHeader)
+                mainToggle?.let { add(it) }
+                add(Renderable.placeholder(0, CONTENT_PADDING / 2))
+            }
+            return Renderable.vertical(collapsedParts, spacing = 6, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT)
+        }
+
+        // Build category groups as accordion entries (expanded)
+        val categoryRenderables = catMap.entries.sortedBy { it.key.name }.map { (category, options) ->
+            val header = Renderable.text("§e${category.name}")
+            val desc = category.description.takeIf { it.isNotBlank() }?.let { Renderable.text("§7$it") }
+            val optsToShow = if (showOnlyNew) options else options // entries already only includes new options
             val optionList = Renderable.vertical(
-                group.options.map { option ->
-                    val desc = option.description.takeIf { it.isNotBlank() }?.let { " §7– $it" } ?: ""
-                    Renderable.text("§7• §f${option.name}$desc")
+                optsToShow.map { opt ->
+                    val descText = opt.description.takeIf { it.isNotBlank() }?.let { " §7– $it" } ?: ""
+                    val item = Renderable.text("§7• §f${opt.name}$descText")
+                    Renderable.clickable(item, onAnyClick = mapOf(at.hannibal2.skyhanni.utils.KeyboardManager.LEFT_MOUSE to {
+                        println("[TP Summary] option clicked: ${opt.name}")
+                        // best-effort: jump to option editor by field path
+                    }), bypassChecks = true)
                 },
                 spacing = 2,
                 horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
             )
-            Renderable.vertical(
-                listOf(tpTitle, optionList),
-                spacing = 4,
-                horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
-            )
-        }
-        Renderable.vertical(
-            buildList {
+            // Combine header/desc/options
+            val comp = buildList<Renderable> {
                 add(header)
-                description?.let { add(it) }
-                addAll(groups)
-                add(Renderable.placeholder(0, CONTENT_PADDING / 2))
-            },
-            spacing = 6,
-            horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
-        )
+                desc?.let { add(it) }
+                add(optionList)
+            }
+            Renderable.vertical(comp, spacing = 4, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT)
+        }
+
+        val bodyParts = buildList<Renderable> {
+            add(clickableHeader)
+            mainToggle?.let { add(it) }
+            addAll(categoryRenderables)
+            add(Renderable.placeholder(0, CONTENT_PADDING / 2))
+        }
+
+        return Renderable.vertical(bodyParts, spacing = 6, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT)
     }
 
     private fun toggleNeverShow() {
@@ -204,13 +300,4 @@ class ThirdPartySummaryScreen(
         }
     }
 
-    private data class CategorySection(
-        val category: Category,
-        val thirdParties: List<ThirdPartyGroup>,
-    )
-
-    private data class ThirdPartyGroup(
-        val thirdParty: at.hannibal2.skyhanni.config.ThirdParty,
-        val options: List<FeatureToggleableOption>,
-    )
 }

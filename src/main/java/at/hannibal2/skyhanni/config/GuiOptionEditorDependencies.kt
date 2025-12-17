@@ -125,7 +125,6 @@ class GuiOptionEditorDependencies(
         } ?: run {
             // keep the async-expanded currentRequirements when possible
             // but if dependencyField exists, prefer to re-resolve live so we reflect runtime changes
-            if (dependencyField == null)
         }
         // Do not eagerly clear caches here. Keep satisfiedCache/ownerInstanceCache across frames where possible
         // to reduce flicker and expensive reflection. We still clear them when a dependency is enabled.
