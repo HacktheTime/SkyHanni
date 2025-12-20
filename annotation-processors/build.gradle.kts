@@ -13,8 +13,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    // Use the same KSP version as the root KSP plugin to avoid incompatible kotlin build-tools API
-    implementation("com.google.devtools.ksp:symbol-processing-api:2.2.21-2.0.4")
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.8.0-1.0.8")
 }
 
 tasks.withType<JavaCompile> {
