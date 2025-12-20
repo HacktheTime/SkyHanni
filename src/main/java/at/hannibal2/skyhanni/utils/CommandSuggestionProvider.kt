@@ -20,7 +20,7 @@ object CommandSuggestionProvider {
 
     fun suggest(input: String, cursor: Int = input.length): List<String> {
         if (input.isBlank()) return emptyList()
-        val mcPlayer = try { Minecraft.getMinecraft().thePlayer } catch (_: Throwable) { null } ?: return emptyList()
+        val mcPlayer = try { Minecraft.getInstance().player } catch (_: Throwable) { null } ?: return emptyList()
         val client: CommandDispatcher<Any> = try { CommandsRegistry.getDispatcher() as CommandDispatcher<Any> } catch (_: Throwable) { return emptyList() }
         val server: CommandDispatcher<Any>? = try { CommandsRegistry.mcServerDispatcher() } catch (_: Throwable) { null }
 

@@ -209,7 +209,7 @@ object NumpadCodes {
     @HandleEvent
     fun onKeyPress(event: KeyPressEvent) {
         if (!settings.enabled) return
-        if (Minecraft.getMinecraft().currentScreen != null) return
+        if (Minecraft.getInstance().screen != null) return
 
         val mapped = when (event.keyCode) {
             key_numpad0 -> "0"

@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.features.bingo.bingonet.SplashManager
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.InventoryDetector
 import at.hannibal2.skyhanni.utils.InventoryUtils
+import at.hannibal2.skyhanni.utils.InventoryUtils.slots
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.LorenzColor
@@ -24,8 +25,8 @@ import com.google.common.collect.HashBiMap
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
-import net.minecraft.client.gui.inventory.GuiChest
-import net.minecraft.item.ItemStack
+import net.minecraft.client.gui.screens.inventory.ContainerScreen
+import net.minecraft.world.item.ItemStack
 import java.time.Duration
 import java.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
@@ -106,7 +107,7 @@ object HubSelectorKeybinds {
         if (!key.isKeyHeld() || lastClick.passedSince() < 250.milliseconds) return
         if (HypixelData.joinedWorld.passedSince() <= 3.seconds) return
         val cache = openedCache ?: return
-        event.guiContainer as? GuiChest ?: return
+        if (event.guiContainer !is ContainerScreen) return
         lastClick = SimpleTimeMark.now()
         event.cancel()
         // First Score | Second Index
@@ -124,15 +125,15 @@ object HubSelectorKeybinds {
                     return@mapKeysNotNull hubIdToNumberCache.inverse()[it.value.hubSelectorData?.hubNumber]
 
                 }
-        event.guiContainer.inventorySlots.inventorySlots.forEach { slot ->
-            val data = cache[slot.slotNumber] ?: return@forEach
+        event.guiContainer.slots().forEach { slot ->
+            val data = cache[slot.index] ?: return@forEach
             val score = calculateScore(splashPool.get(data.serverId), data)
             if (score != null) {
                 if (bestClick == null) {
-                    bestClick = Pair(score, slot.slotNumber)
+                    bestClick = Pair(score, slot.index)
                     return@forEach
                 } else if (score < bestClick.first)
-                    bestClick = Pair(score, slot.slotNumber)
+                    bestClick = Pair(score, slot.index)
             }
         }
         bestClick?.let {
@@ -149,7 +150,7 @@ object HubSelectorKeybinds {
     }
 
     private fun ItemStack.parseToHubSelectorData(): HubData? {
-        val hubNumber = itemNamePattern.matchGroup(displayName, "hubNumber")?.toIntOrNull() ?: return null
+        val hubNumber = itemNamePattern.matchGroup(displayName.string, "hubNumber")?.toIntOrNull() ?: return null
         var serverId: String? = null
         var playerCount: Int? = null
         var maxPlayerCount: Int? = null
@@ -193,7 +194,7 @@ object HubSelectorKeybinds {
 
 
         InventoryUtils.getItemsInOpenChest().forEach { slot ->
-            val slotNumber = slot.slotNumber
+            val slotNumber = slot.index
             val cacheData = cache[slotNumber] ?: return@forEach
             if (splashHubs.contains(cacheData.serverId)) {
                 slot.highlight(LorenzColor.YELLOW.addOpacity(255))

@@ -9,7 +9,7 @@ import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRender
 import at.hannibal2.skyhanni.utils.renderables.primitives.ItemStackRenderable.Companion.item
 import at.hannibal2.skyhanni.utils.renderables.primitives.empty
 import at.hannibal2.skyhanni.utils.renderables.primitives.placeholder
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import java.awt.Color
 import kotlin.math.ceil
 
@@ -79,39 +79,6 @@ object RenderableInventory {
             }
             add(row.toList())
         }
-    }
-
-    fun Renderable.Companion.fakeSlot(
-        item: ItemStack,
-        scale: Double,
-        highlight: Boolean = false,
-        horizontalAlign: HorizontalAlignment = HorizontalAlignment.LEFT,
-        verticalAlign: VerticalAlignment = VerticalAlignment.TOP,
-    ): Renderable {
-        val uv = createUvList(1, 1)
-        val coords = SlotsUv.CENTER.getUvCoords()
-
-        val itemRenderable = item(item, scale, 0, 0, false)
-        val finalRenderable = if (highlight) drawInsideRoundedRect(
-            itemRenderable,
-            color = Color.GREEN,
-            padding = 0,
-            radius = 16 * (scale / 2).toInt(),
-        ) else itemRenderable
-
-        return drawInsideFixedSizedImage(
-            finalRenderable,
-            inventoryTextures,
-            (16 * scale).toInt(),
-            (16 * scale).toInt(),
-            padding = scale.toInt(),
-            uMin = coords[0],
-            uMax = coords[1],
-            vMin = coords[2],
-            vMax = coords[3],
-            horizontalAlign = horizontalAlign,
-            verticalAlign = verticalAlign
-        )
     }
 
     fun Renderable.Companion.fakeInventory(

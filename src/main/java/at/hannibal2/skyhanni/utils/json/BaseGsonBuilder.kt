@@ -20,7 +20,7 @@ import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.LegacyStringChromaColourTypeAdapter
 import io.github.notenoughupdates.moulconfig.observer.PropertyTypeAdapterFactory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration

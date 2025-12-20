@@ -33,9 +33,9 @@ import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 import at.hannibal2.skyhanni.utils.renderables.primitives.placeholder
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.item.ItemStack
-import org.lwjgl.input.Keyboard
+import com.mojang.blaze3d.opengl.GlStateManager
+import net.minecraft.world.item.ItemStack
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 
 class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen() {
@@ -81,7 +81,7 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
     )
 
     enum class SearchMode(val displayName: String, val matches: (ItemStack, String) -> Boolean) {
-        NAME("NAME", { stack, search -> stack.displayName.removeColor().contains(search, ignoreCase = true) }),
+        NAME("NAME", { stack, search -> stack.displayName.string.removeColor().contains(search, ignoreCase = true) }),
         LORE("LORE", { stack, search -> stack.getLore().any { it.removeColor().contains(search, ignoreCase = true) } }),
         NAME_LORE("NAME + LORE", { stack, search -> NAME.matches(stack, search) || LORE.matches(stack, search) })
         ;
@@ -93,8 +93,8 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
         val displayName: String,
         private val comparator: Comparator<Map.Entry<NeuInternalName, ItemData>>,
     ) {
-        NAME_ASC("NAME ⬆", compareBy { it.key.getItemStack().displayName.lowercase() }),
-        NAME_DESC("NAME ⬇", compareByDescending { it.key.getItemStack().displayName.lowercase() }),
+        NAME_ASC("NAME ⬆", compareBy { it.key.getItemStack().displayName.string.lowercase() }),
+        NAME_DESC("NAME ⬇", compareByDescending { it.key.getItemStack().displayName.string.lowercase() }),
         PRICE_ASC("PRICE ⬆", compareBy { it.key.getPrice() * it.value.amount }),
         PRICE_DESC("PRICE ⬇", compareByDescending { it.key.getPrice() * it.value.amount });
 
@@ -118,7 +118,6 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
             guiLeft = (width - display.width) / 2
             guiTop = (height - display.height) / 2
 
-            GlStateManager.disableLighting()
             DrawContextUtils.pushPop {
                 DrawContextUtils.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
                 display.render(guiLeft, guiTop)
@@ -155,7 +154,7 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
 
     override fun onKeyTyped(typedChar: Char?, keyCode: Int?) {
         when (keyCode) {
-            Keyboard.KEY_BACK -> {
+            GLFW.GLFW_KEY_PAGE_UP -> {
                 if (displayedStorages.isNotEmpty()) {
                     displayedStorages = listOf()
                     selectedItem = NeuInternalName.NONE
@@ -263,7 +262,7 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
                 val itemData = matchingItems.getOrPut(name) {
                     ItemData(grouped.first(), 0, mutableListOf())
                 }
-                itemData.amount += grouped.sumOf { it.stackSize }
+                itemData.amount += grouped.sumOf { it.count }
                 itemData.inventories += storage
             }
         }

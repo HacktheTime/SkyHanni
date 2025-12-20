@@ -49,8 +49,8 @@ object SearchableStorage {
     fun onBackgroundDrawn() {
         InventoryUtils.getItemsInOpenChest().forEach { slot ->
             val slotNumber = when (inventoryName) {
-                "Chest" -> slot.slotNumber
-                else -> slot.slotNumber - 9
+                "Chest" -> slot.index
+                else -> slot.index - 9
             }
 
             if (slotNumber in highlightSlots) {
@@ -69,7 +69,7 @@ object SearchableStorage {
 
     @HandleEvent
     fun onInventoryClose(event: InventoryCloseEvent) {
-        if (Minecraft.getMinecraft().currentScreen is SearchableStorageGui) lastCloseTime = SimpleTimeMark.now()
+        if (Minecraft.getInstance().screen is SearchableStorageGui) lastCloseTime = SimpleTimeMark.now()
         if (inventoryName.isNotBlank() && event.inventoryTitle.contains(inventoryName)) {
             highlightSlots = listOf()
             waypoints = listOf()

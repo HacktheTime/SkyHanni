@@ -1,20 +1,14 @@
 package at.hannibal2.skyhanni.utils.shader
 
 import at.hannibal2.skyhanni.utils.ChatUtils
+import org.joml.Matrix4f
 import org.lwjgl.opengl.ARBFragmentShader
 import org.lwjgl.opengl.ARBShaderObjects
 import org.lwjgl.opengl.ARBVertexShader
+import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
-//#if MC < 1.21
-import org.lwjgl.opengl.ContextCapabilities
-import org.lwjgl.opengl.GLContext
-
-//#else
-//$$ import org.lwjgl.opengl.GL
-//$$ import org.lwjgl.opengl.GLCapabilities
-//$$ import org.joml.Matrix4f
-//#endif
+import org.lwjgl.opengl.GLCapabilities
 
 /**
  * Class to check shaders support, OpenGL capabilities, and shader helper functions
@@ -35,11 +29,7 @@ object ShaderHelper {
     var GL_FRAGMENT_SHADER: Int
 
     init {
-        //#if MC < 1.21
-        val capabilities: ContextCapabilities = GLContext.getCapabilities()
-        //#else
-        //$$ val capabilities: GLCapabilities = GL.getCapabilities()
-        //#endif
+        val capabilities: GLCapabilities = GL.getCapabilities()
 
         // Check OpenGL 2.0 Capabilities
         val openGL20supported = capabilities.OpenGL20
@@ -177,14 +167,12 @@ object ShaderHelper {
         )
     }
 
-    //#if MC > 1.21
-    //$$ fun glUniformMatrix4f(location: Int, transpose: Boolean, matrix: Matrix4f) {
-    //$$    val matrixArray = FloatArray(16)
-    //$$    matrix.get(matrixArray)
-    //$$    if (USING_ARB_SHADERS) ARBShaderObjects.glUniformMatrix4fvARB(location, transpose, matrixArray)
-    //$$    else GL20.glUniformMatrix4fv(location, transpose, matrixArray)
-    //$$ }
-    //#endif
+    fun glUniformMatrix4f(location: Int, transpose: Boolean, matrix: Matrix4f) {
+        val matrixArray = FloatArray(16)
+        matrix.get(matrixArray)
+        if (USING_ARB_SHADERS) ARBShaderObjects.glUniformMatrix4fvARB(location, transpose, matrixArray)
+        else GL20.glUniformMatrix4fv(location, transpose, matrixArray)
+    }
 
     fun glGetUniformLocation(program: Int, name: CharSequence): Int {
         return if (USING_ARB_SHADERS) ARBShaderObjects.glGetUniformLocationARB(

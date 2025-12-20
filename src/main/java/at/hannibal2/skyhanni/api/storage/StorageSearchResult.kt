@@ -5,7 +5,7 @@ import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LorenzVec
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 /**
  * Represents a search result from storage with location and access information

@@ -32,7 +32,7 @@ import de.hype.bingonet.shared.packets.function.RequestServerWarpPacket
 import de.hype.bingonet.shared.packets.mining.ChChestPacket
 import de.hype.bingonet.shared.packets.mining.SubscribeToChServer
 import de.hype.bingonet.shared.packets.mining.UnSubscribeToChServer
-import net.minecraft.init.Blocks
+import net.minecraft.world.level.block.Blocks
 import java.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -249,7 +249,7 @@ object ChChestUpdateListener {
     var lastGlobalChchestCoords: LorenzVec? = null
 
     fun BlockClickEvent.getChestOpenState(): Boolean? {
-        if (position.getBlockAt() != Blocks.chest) return null
+        if (position.getBlockAt()!= Blocks.CHEST) return null
         return position.isChestOpened()
     }
 

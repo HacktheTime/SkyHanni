@@ -11,7 +11,7 @@ import at.hannibal2.skyhanni.utils.ItemUtils.repoItemName
 import at.hannibal2.skyhanni.utils.LorenzRarity
 import at.hannibal2.skyhanni.utils.RenderUtils.drawSlotText
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getDungeonQuality
-import net.minecraft.inventory.Slot
+import net.minecraft.world.inventory.Slot
 
 @SkyHanniModule
 object DungeonLootQualityHighlighting {
@@ -21,8 +21,8 @@ object DungeonLootQualityHighlighting {
     fun showQualityText(event: GuiContainerEvent.ForegroundDrawnEvent) {
         if (!config.showQualityText) return
         InventoryUtils.getItemsInOpenChest().forEach {
-            val quality = it.stack.getDungeonQuality() ?: return@forEach
-            event.drawSlotText(it.xDisplayPosition+18, it.yDisplayPosition, "$quality", 1.0f)
+            val quality = it.item.getDungeonQuality() ?: return@forEach
+            event.drawSlotText(it.x+18, it.y, "$quality", 1.0f)
         }
     }
 
@@ -45,7 +45,7 @@ object DungeonLootQualityHighlighting {
         if (!config.highlightBestItem) return
         val best: MutableMap<String, Pair<Slot, Int>> = mutableMapOf()
         InventoryUtils.getItemsInOpenChest().forEach {
-            val quality = it.stack.let {
+            val quality = it.item.let {
                 val score = it.getDungeonQuality() ?: return@let null
                 // Add bonus points for higher rarity items due to reforges. I dont have an idea on how to compare it better
                 // between items.
@@ -66,7 +66,7 @@ object DungeonLootQualityHighlighting {
     }
 
     fun getMapID(slot: Slot): String {
-        val id = slot.stack.repoItemName
+        val id = slot.item.repoItemName
         if (!config.groupBestByArmorType) return id
         for (suffix in ARMOR_SUFFIXES) {
             if (id.endsWith(suffix)) {

@@ -94,7 +94,7 @@ class BBSplashMessageConfigureScreen : SkyHanniBaseScreen() {
                 darkRectButton(
                     Renderable.wrappedText("Cancel", textWidth),
                     onClick = {
-                        mc.displayGuiScreen(null)
+                        mc.setScreen(null)
                     },
                     horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
                 ),

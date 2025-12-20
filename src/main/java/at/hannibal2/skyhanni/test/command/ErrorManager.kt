@@ -16,10 +16,10 @@ import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedSet
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
+import net.minecraft.CrashReport
 import de.hype.bingonet.BNConnection
 import de.hype.bingonet.shared.packets.network.ErrorReportPacket
 import net.minecraft.client.Minecraft
-import net.minecraft.crash.CrashReport
 import kotlin.time.Duration.Companion.minutes
 
 /** Crashes if [value] is false and in developer environment */
@@ -148,7 +148,7 @@ object ErrorManager {
 
     inline fun crashInDevEnv(reason: String, t: (String) -> Throwable = { RuntimeException(it) }) {
         if (!PlatformUtils.isDevEnvironment) return
-        Minecraft.getMinecraft().crashed(CrashReport("SkyHanni - $reason", t(reason)))
+        Minecraft.getInstance().delayCrash(CrashReport("SkyHanni - $reason", t(reason)))
     }
 
     // just log for debug cases

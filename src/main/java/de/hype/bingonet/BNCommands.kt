@@ -202,7 +202,7 @@ object BNCommands {
                 blockExecutionForCompletion = true,
             ) {
                 override fun run(packet: SplashNotifyPacket) {
-                    val username = MinecraftCompat.localPlayer.name
+                    val username = MinecraftCompat.localPlayer.name.string
                     val hype = username.equals("Hype_the_Time")
                     val mention = if (!hype) {
                         "<@&916461777863180328>" // BB-Splash-Ping

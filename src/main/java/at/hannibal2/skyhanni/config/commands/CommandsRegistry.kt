@@ -10,45 +10,24 @@ import at.hannibal2.skyhanni.test.command.requireDevEnv
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrInsert
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
+import com.mojang.authlib.minecraft.client.MinecraftClient
 import com.mojang.brigadier.CommandDispatcher
-//#if MC < 1.21
-import net.minecraftforge.client.ClientCommandHandler
-import tv.twitch.chat.Chat
-
-//#else
-//$$ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
-//$$ import com.mojang.brigadier.builder.LiteralArgumentBuilder
-//$$ import net.minecraft.client.MinecraftClient
-//#endif
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
+import net.minecraft.client.Minecraft
 
 @SkyHanniModule
 object CommandsRegistry {
-    //#if MC < 1.21
-    private val dispatcher: CommandDispatcher<Any?> = CommandDispatcher()
-
-    // shared reference accessible at runtime for suggestion queries (set on registration)
     private var brigadierDispatcher: CommandDispatcher<Any?>? = null
-
-    // Expose the dispatcher for runtime suggestion queries (returns the currently-registered dispatcher)
-    fun getDispatcher(): CommandDispatcher<Any?> = brigadierDispatcher ?: dispatcher.also { brigadierDispatcher = it }
-    //#else
-    //$$ private var brigadierDispatcher: CommandDispatcher<Any?>? = null
-    //$$ fun getDispatcher(): CommandDispatcher<Any?> = brigadierDispatcher ?: error("Brigadier dispatcher is not registered yet")
-    //#endif
+    fun getDispatcher(): CommandDispatcher<Any?> = brigadierDispatcher ?: error("Brigadier dispatcher is not registered yet")
 
     @HandleEvent(PreInitFinishedEvent::class)
     fun onPreInitFinished() {
-        //#if MC < 1.21
-        CommandRegistrationEvent(dispatcher).post()
-        // ensure shared reference is set for legacy path
-        brigadierDispatcher = dispatcher
-        //#else
-        //$$ ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
-        //$$     // store dispatcher for runtime queries
-        //$$     brigadierDispatcher = dispatcher as CommandDispatcher<Any?>
-        //$$     CommandRegistrationEvent(dispatcher as CommandDispatcher<Any?>).post()
-        //$$ }
-        //#endif
+        ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
+            val brigadierDispatcher = dispatcher as CommandDispatcher<Any?>
+            this.brigadierDispatcher = brigadierDispatcher
+            CommandRegistrationEvent(brigadierDispatcher).post()
+        }
     }
 
     private fun String.isUnique(builders: List<CommandData>) {
@@ -63,35 +42,24 @@ object CommandsRegistry {
     }
 
     fun BaseBrigadierBuilder.addToRegister(dispatcher: CommandDispatcher<Any?>, builders: MutableList<CommandData>) {
-        //#if MC < 1.21
-        val command = toCommand(dispatcher)
-        ClientCommandHandler.instance.registerCommand(command)
-        //#else
-        //$$ val original = dispatcher.register(builder as LiteralArgumentBuilder<Any?>)
-        //$$ this.node = original
-        //$$ aliases.forEach {
-        //$$     dispatcher.register(LiteralArgumentBuilder.literal<Any?>(it).redirect(original).executes(original.command))
-        //$$ }
-        //#endif
+        val original = dispatcher.register(builder as LiteralArgumentBuilder<Any?>)
+        this.node = original
+        aliases.forEach {
+            dispatcher.register(LiteralArgumentBuilder.literal<Any?>(it).redirect(original).executes(original.command))
+        }
         addBuilder(builders)
     }
 
     fun <T : CommandBuilderBase> T.addToRegister(dispatcher: CommandDispatcher<Any?>, builders: MutableList<CommandData>) {
-        //#if MC < 1.21
-        val command = this.toCommand(dispatcher)
-        ClientCommandHandler.instance.registerCommand(command)
-        addBuilder(builders)
-        //#else
-        //$$ if (this !is CommandBuilder) return // complex commands are not supported in 1.21.5 right now
-        //$$ val builder = BaseBrigadierBuilder(name).apply {
-        //$$     this.description = this@addToRegister.descriptor
-        //$$     this.aliases = this@addToRegister.aliases
-        //$$     this.category = this@addToRegister.category
-        //$$
-        //$$     legacyCallbackArgs(this@addToRegister.getCallback())
-        //$$ }
-        //$$ builder.addToRegister(dispatcher, builders)
-        //#endif
+        if (this !is CommandBuilder) return // complex commands are not supported in 1.21.5 right now
+        val builder = BaseBrigadierBuilder(name).apply {
+            this.description = this@addToRegister.descriptor
+            this.aliases = this@addToRegister.aliases
+            this.category = this@addToRegister.category
+
+            legacyCallbackArgs(this@addToRegister.getCallback())
+        }
+        builder.addToRegister(dispatcher, builders)
     }
 
     // Adds the command to the builders list in a way that all commands are ordered depending on their category and name.
@@ -108,11 +76,7 @@ object CommandsRegistry {
     }
 
     fun mcServerDispatcher(): CommandDispatcher<Any>? {
-        //#if MC < 1.21
-        return null
-        //#else
-        //$$ return MinecraftClient.getInstance().networkHandler?.commandDispatcher as CommandDispatcher<Any>?
-        //#endif
+        return Minecraft.getInstance().connection?.commands as CommandDispatcher<Any>?
     }
 
     /**

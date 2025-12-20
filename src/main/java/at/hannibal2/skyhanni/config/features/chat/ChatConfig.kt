@@ -13,14 +13,14 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.annotations.SearchTag
-import org.lwjgl.input.Keyboard
+import org.lwjgl.glfw.GLFW
 
 class ChatConfig {
 
     @Expose
     @ConfigOption(name = "Peek Chat", desc = "Hold this key to keep the chat open.")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_Z)
-    var peekChat: Int = Keyboard.KEY_NONE
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_Z)
+    var peekChat: Int = GLFW.GLFW_KEY_UNKNOWN
 
     // TODO move into own sub category
     @Expose
@@ -225,8 +225,8 @@ class ChatConfig {
             "All other Keybind can be configured to be different," +
             " but this one will be the default if no custom one is set for the related feature.",
     )
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_R)
-    val defaultChatPrompt: Int = Keyboard.KEY_R
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_R)
+    val defaultChatPrompt: Int = GLFW.GLFW_KEY_R
 
     @Expose
     @ConfigOption(
