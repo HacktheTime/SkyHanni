@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
@@ -78,4 +79,34 @@ class SplasherConfig {
     )
     @ConfigEditorBoolean
     var lowestPlayerHub: Boolean = false
+
+    @Expose
+    @ConfigOption(
+        name = "Copy Splash Message Preset to Clipboard",
+        desc = "After BN Announcement copy the configured Splash Message with filled placeholders to your Clipboard.",
+    )
+    @ConfigEditorBoolean
+    val splashAnnounceMessageToClipboard : Boolean = false
+
+    @Expose
+    @ConfigOption(
+        name = "Copies",
+        desc = "After BN Announcement open the Bingo Brewers Splash Channel in your Browser"
+    )
+    @ConfigEditorBoolean
+    val openSplashChannelInBrowser : Boolean = false
+
+    @ConfigEditorButton(
+        buttonText = "Configure Bingo Brewers Message"
+    )
+    val openBBSplashMessage: Runnable = Runnable(BBSplashMessageConfigureScreen::openScreen)
+
+    @Expose
+    var bbSplashMessage: String = """
+        ${BBSplashMessageConfigureScreen.HUB}
+        ServerId: ${BBSplashMessageConfigureScreen.SERVER_ID}
+        IGN: ${BBSplashMessageConfigureScreen.SPLASHER}
+        ${BBSplashMessageConfigureScreen.EXTRA_MESSAGE}
+        ${BBSplashMessageConfigureScreen.ROLE_MENTIONS}
+    """.trimIndent()
 }
