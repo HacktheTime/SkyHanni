@@ -16,7 +16,7 @@ object ThirdPartySummaryFlow {
         val consent = SkyHanniMod.feature.thirdPartyConsent
         if (!consent.showThirdPartySummary) return
         if (!consent.hasSeenThirdPartySummaryInfo) {
-            Minecraft.getMinecraft().displayGuiScreen(ThirdPartySummaryIntroScreen(entries))
+            Minecraft.getInstance().setScreen(ThirdPartySummaryIntroScreen(entries))
         } else {
             openSummary(entries)
         }

@@ -33,11 +33,7 @@ class PlaySoundEvent(
 
     companion object {
         private fun getSoundName(rawSoundName: String): String {
-            //#if MC < 1.21
-            return rawSoundName
-            //#else
-            //$$ return at.hannibal2.skyhanni.utils.compat.SoundCompat.getLegacySoundName(rawSoundName)
-            //#endif
+            return at.hannibal2.skyhanni.utils.compat.SoundCompat.getLegacySoundName(rawSoundName)
         }
     }
 }

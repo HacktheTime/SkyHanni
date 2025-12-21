@@ -8,11 +8,11 @@ import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.renderXYAligned
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
 import at.hannibal2.skyhanni.utils.renderables.primitives.placeholder
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screens.Screen
 
 class ThirdPartyFeaturesScreen(
     private val thirdParty: ThirdParty,
-    private val parent: GuiScreen? = null,
+    private val parent: Screen? = null,
 ) : SkyHanniBaseScreen() {
     private var scrollRenderable: Renderable? = null
 
@@ -43,7 +43,7 @@ class ThirdPartyFeaturesScreen(
         val list = scrollRenderable ?: Renderable.text("§7No features registered")
         val backButton = Renderable.darkRectButton(
             content = Renderable.text("Back"),
-            onClick = { mc.displayGuiScreen(parent) },
+            onClick = { mc.setScreen(parent) },
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
         )
 

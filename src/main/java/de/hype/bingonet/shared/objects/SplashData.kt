@@ -1,9 +1,7 @@
 package de.hype.bingonet.shared.objects
-
 import com.google.gson.annotations.SerializedName
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
-import kotlin.properties.Delegates
 
 open class SplashData @JvmOverloads constructor(
     open val announcer: String,
@@ -16,6 +14,7 @@ open class SplashData @JvmOverloads constructor(
      */
     @JvmField val hubSelectorData: HubSelectorData?,
     @JvmField var status: StatusConstants = StatusConstants.WAITING,
+    @JvmField var funder: String? = null,
 ) {
     @SerializedName("splashId")
     private var _splashId : Int? = null
@@ -39,10 +38,10 @@ open class SplashData @JvmOverloads constructor(
         packet.serverID,
         packet.hubSelectorData,
         packet.status,
+        packet.funder
     ) {
-        this.splashId = packet.splashId
+        packet._splashId?.let { this._splashId = it }
     }
-
 
     class HubSelectorData(hubNumber: Int, hubType: Islands) {
         @JvmField

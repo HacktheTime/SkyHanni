@@ -10,8 +10,8 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
-import org.lwjgl.input.Keyboard
 import at.hannibal2.skyhanni.data.IslandType
+import org.lwjgl.glfw.GLFW
 
 // New small serializable types for storing numpad codes in the FEATURES config
 data class SavedNumpadAction(
@@ -77,66 +77,66 @@ class NumpadConfig {
 
     @Expose
     @ConfigOption(name = "Numpad 0", desc = "Key for digit 0")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD0)
-    var key_numpad0: Int = Keyboard.KEY_NUMPAD0
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_0)
+    var key_numpad0: Int = GLFW.GLFW_KEY_KP_0
 
     @Expose
     @ConfigOption(name = "Numpad 1", desc = "Key for digit 1")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD1)
-    var key_numpad1: Int = Keyboard.KEY_NUMPAD1
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_1)
+    var key_numpad1: Int = GLFW.GLFW_KEY_KP_1
 
     @Expose
     @ConfigOption(name = "Numpad 2", desc = "Key for digit 2")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD2)
-    var key_numpad2: Int = Keyboard.KEY_NUMPAD2
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_2)
+    var key_numpad2: Int = GLFW.GLFW_KEY_KP_2
 
     @Expose
     @ConfigOption(name = "Numpad 3", desc = "Key for digit 3")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD3)
-    var key_numpad3: Int = Keyboard.KEY_NUMPAD3
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_3)
+    var key_numpad3: Int = GLFW.GLFW_KEY_KP_3
 
     @Expose
     @ConfigOption(name = "Numpad 4", desc = "Key for digit 4")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD4)
-    var key_numpad4: Int = Keyboard.KEY_NUMPAD4
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_4)
+    var key_numpad4: Int = GLFW.GLFW_KEY_KP_4
 
     @Expose
     @ConfigOption(name = "Numpad 5", desc = "Key for digit 5")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD5)
-    var key_numpad5: Int = Keyboard.KEY_NUMPAD5
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_5)
+    var key_numpad5: Int = GLFW.GLFW_KEY_KP_5
 
     @Expose
     @ConfigOption(name = "Numpad 6", desc = "Key for digit 6")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD6)
-    var key_numpad6: Int = Keyboard.KEY_NUMPAD6
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_6)
+    var key_numpad6: Int = GLFW.GLFW_KEY_KP_6
 
     @Expose
     @ConfigOption(name = "Numpad 7", desc = "Key for digit 7")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD7)
-    var key_numpad7: Int = Keyboard.KEY_NUMPAD7
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_7)
+    var key_numpad7: Int = GLFW.GLFW_KEY_KP_7
 
     @Expose
     @ConfigOption(name = "Numpad 8", desc = "Key for digit 8")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD8)
-    var key_numpad8: Int = Keyboard.KEY_NUMPAD8
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_8)
+    var key_numpad8: Int = GLFW.GLFW_KEY_KP_8
 
     @Expose
     @ConfigOption(name = "Numpad 9", desc = "Key for digit 9")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPAD9)
-    var key_numpad9: Int = Keyboard.KEY_NUMPAD9
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_9)
+    var key_numpad9: Int = GLFW.GLFW_KEY_KP_9
 
     @Expose
     @ConfigOption(name = "Enter (activate)", desc = "Key used to activate the entered code")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_NUMPADENTER)
-    var key_enter: Int = Keyboard.KEY_NUMPADENTER
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_ENTER)
+    var key_enter: Int = GLFW.GLFW_KEY_KP_ENTER
 
     @Expose
     @ConfigOption(name = "Delete last (+)", desc = "Key used to delete the last entered digit")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_ADD)
-    var key_deleteLast: Int = Keyboard.KEY_ADD
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_ADD)
+    var key_deleteLast: Int = GLFW.GLFW_KEY_KP_ADD
 
     @Expose
     @ConfigOption(name = "Clear (-)", desc = "Key used to clear the current input")
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_SUBTRACT)
-    var key_clear: Int = Keyboard.KEY_SUBTRACT
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_KP_SUBTRACT)
+    var key_clear: Int = GLFW.GLFW_KEY_KP_SUBTRACT
 }

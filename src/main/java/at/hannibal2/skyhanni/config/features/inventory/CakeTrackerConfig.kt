@@ -20,14 +20,6 @@ class CakeTrackerConfig {
     @FeatureToggle
     var enabled: Boolean = false
 
-    @ConfigOption(
-        name = "Note",
-        desc = "This feature is not compatible with the NEU Storage Overlay." +
-            "Backpacks/Ender Chest will not be scanned correctly with it enabled.",
-    )
-    @ConfigEditorInfoText
-    var incompatibleNote: Boolean = false
-
     @Expose
     @ConfigLink(owner = CakeTrackerConfig::class, field = "enabled")
     val cakeTrackerPosition: Position = Position(300, 300)
@@ -62,7 +54,7 @@ class CakeTrackerConfig {
     @Expose
     @ConfigOption(
         name = "Missing Color",
-        desc = "The color that should be used to highlight unobtained cakes in the Auction House.",
+        desc = "The color that should be used to highlight unobtained cakes in the Auction House."
     )
     @ConfigEditorColour
     var missingColor: ChromaColour = LorenzColor.RED.toChromaColor(255)
@@ -70,7 +62,7 @@ class CakeTrackerConfig {
     @Expose
     @ConfigOption(
         name = "Owned Color",
-        desc = "The color that should be used to highlight obtained cakes in the Auction House.",
+        desc = "The color that should be used to highlight obtained cakes in the Auction House."
     )
     @ConfigEditorColour
     var ownedColor: ChromaColour = LorenzColor.GREEN.toChromaColor(255)

@@ -3,12 +3,13 @@ package at.hannibal2.skyhanni.utils.renderables.primitives
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.RenderUtils.HorizontalAlignment
 import at.hannibal2.skyhanni.utils.RenderUtils.VerticalAlignment
 import net.minecraft.client.Minecraft
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
-import org.lwjgl.input.Keyboard
 
 /**
  * Hardened reusable text field renderable.
@@ -47,16 +48,35 @@ class TextFieldRenderable(
     private var lastClickTime = 0L
     private var clickCount = 0
 
+    // Remove direct Minecraft.getMinecraft for modern builds; use compat font access
+    private fun fontWidth(text: String): Int {
+        val fr = try {
+            Minecraft.getInstance().font
+        } catch (_: Throwable) {
+            null
+        }
+        return try {
+            fr?.width(text) ?: 0
+        } catch (_: Throwable) {
+            0
+        }
+    }
+
+    private fun computeCaretX(text: String, caret: Int): Int {
+        val safeCaret = caret.coerceIn(0, text.length)
+        val substr = if (safeCaret <= 0) "" else text.substring(0, safeCaret)
+        return fontWidth(substr)
+    }
+
     override fun render(mouseOffsetX: Int, mouseOffsetY: Int) {
         try {
             // background
             GuiRenderUtils.drawRect(0, 0, width, height, bgColor)
 
             val text = getText()
-            val fr = try { Minecraft.getMinecraft().fontRendererObj } catch (_: Throwable) { null }
 
             // ensure scroll offset within bounds
-            val totalTextWidth = if (fr != null) fr.getStringWidth(text) else 0
+            val totalTextWidth = fontWidth(text)
             val available = (width - padding * 2).coerceAtLeast(1)
             val maxScroll = (totalTextWidth - available).coerceAtLeast(0)
             scrollOffset = scrollOffset.coerceIn(0, maxScroll)
@@ -113,7 +133,7 @@ class TextFieldRenderable(
             }
             lastClickTime = now
 
-            val ctrlHeld = try { Keyboard.KEY_LCONTROL.isKeyHeld() || Keyboard.KEY_RCONTROL.isKeyHeld() } catch (_: Throwable) { false }
+            val ctrlHeld = GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_CONTROL.isKeyHeld()
 
             // helper to determine word boundaries at a caret position
             fun isWordChar(ch: Char): Boolean = Character.isLetterOrDigit(ch) || ch == '_'
@@ -124,6 +144,7 @@ class TextFieldRenderable(
                 while (j >= 0 && isWordChar(text[j])) j--
                 return (j + 1).coerceAtLeast(0)
             }
+
             fun findWordEndRight(caretPos: Int): Int {
                 val len = text.length
                 if (caretPos >= len) return len
@@ -208,32 +229,21 @@ class TextFieldRenderable(
 
     private fun computeIndexFromLocalX(localX: Int): Int {
         val text = getText()
-        val fr = try { Minecraft.getMinecraft().fontRendererObj } catch (_: Throwable) { null }
-        if (fr == null || text.isEmpty()) return 0
+        if (text.isEmpty()) return 0
         val x = (localX - padding + scrollOffset).coerceAtLeast(0)
-        // iterate over characters computing width of prefix to be robust with variable-width glyphs
         var i = 0
         while (i <= text.length) {
             val substr = if (i <= 0) "" else text.substring(0, i)
-            val w = try { fr.getStringWidth(substr) } catch (_: Throwable) { 0 }
+            val w = fontWidth(substr)
             if (w >= x) return i.coerceAtLeast(0)
             i++
         }
         return text.length
     }
 
-    private fun computeCaretX(text: String, caret: Int): Int {
-        val fr = try { Minecraft.getMinecraft().fontRendererObj } catch (_: Throwable) { null }
-        if (fr == null) return 0
-        val safeCaret = caret.coerceIn(0, text.length)
-        val substr = if (safeCaret <= 0) "" else text.substring(0, safeCaret)
-        return try { fr.getStringWidth(substr) } catch (_: Throwable) { 0 }
-    }
-
     private fun ensureCaretVisible() {
         try {
             val text = getText()
-            val fr = try { Minecraft.getMinecraft().fontRendererObj } catch (_: Throwable) { null }
             val caret = getCaret().coerceIn(0, text.length)
             val caretX = computeCaretX(text, caret)
             val available = (width - padding * 2).coerceAtLeast(1)
@@ -242,11 +252,10 @@ class TextFieldRenderable(
             if (visibleX < margin) {
                 scrollOffset = (caretX - margin).coerceAtLeast(0)
             } else if (visibleX > available - margin) {
-                val total = fr?.getStringWidth(text) ?: 0
+                val total = fontWidth(text)
                 scrollOffset = (caretX - (available - margin)).coerceAtMost((total - available).coerceAtLeast(0))
             }
-            // clamp scrollOffset to safe bounds
-            val totalTextWidth = fr?.getStringWidth(text) ?: 0
+            val totalTextWidth = fontWidth(text)
             val maxScroll = (totalTextWidth - available).coerceAtLeast(0)
             scrollOffset = scrollOffset.coerceIn(0, maxScroll)
         } catch (_: Throwable) {
@@ -264,8 +273,8 @@ class TextFieldRenderable(
             val selA = getSelectionStart()
             val selB = getSelectionEnd()
 
-            val ctrlHeld = Keyboard.KEY_LCONTROL.isKeyHeld() || Keyboard.KEY_RCONTROL.isKeyHeld()
-            val shiftHeld = Keyboard.KEY_LSHIFT.isKeyHeld() || Keyboard.KEY_RSHIFT.isKeyHeld()
+            val ctrlHeld = GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_CONTROL.isKeyHeld()
+            val shiftHeld = GLFW.GLFW_KEY_LEFT_SHIFT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_SHIFT.isKeyHeld()
 
             fun isWordChar(ch: Char): Boolean = Character.isLetterOrDigit(ch) || ch == '_'
 
@@ -287,7 +296,7 @@ class TextFieldRenderable(
             }
 
             // Backspace (with Ctrl -> delete previous word)
-            if (keyCode == Keyboard.KEY_BACK) {
+            if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
                 if (selA != null && selB != null && selA != selB) {
                     val a = selA.coerceAtMost(selB)
                     val b = selA.coerceAtLeast(selB)
@@ -312,7 +321,7 @@ class TextFieldRenderable(
             }
 
             // Delete key (Entf): delete selection or character after caret; Ctrl+Delete deletes next word
-            if (keyCode == Keyboard.KEY_DELETE) {
+            if (keyCode == GLFW.GLFW_KEY_DELETE) {
                 if (selA != null && selB != null && selA != selB) {
                     val a = selA.coerceAtMost(selB)
                     val b = selA.coerceAtLeast(selB)
@@ -337,7 +346,7 @@ class TextFieldRenderable(
             }
 
             // Ctrl+A -> select all (also supported by GUI but handle here for direct field focus)
-            if (keyCode == Keyboard.KEY_A && ctrlHeld) {
+            if (keyCode == GLFW.GLFW_KEY_A && ctrlHeld) {
                 setSelection(0, text.length)
                 setCaret(text.length)
                 ensureCaretVisible()
@@ -345,7 +354,7 @@ class TextFieldRenderable(
             }
 
             // Left / Right / Home / End navigation with optional Shift selection and Ctrl word-jump
-            if (keyCode == Keyboard.KEY_LEFT) {
+            if (keyCode == GLFW.GLFW_KEY_LEFT) {
                 val caret = getCaret().coerceIn(0, text.length)
                 val newCaret = if (ctrlHeld) findWordStartLeft(caret) else (caret - 1).coerceAtLeast(0)
                 if (shiftHeld) {
@@ -358,7 +367,7 @@ class TextFieldRenderable(
                 return
             }
 
-            if (keyCode == Keyboard.KEY_RIGHT) {
+            if (keyCode == GLFW.GLFW_KEY_RIGHT) {
                 val caret = getCaret().coerceIn(0, text.length)
                 val newCaret = if (ctrlHeld) findWordStartRight(caret) else (caret + 1).coerceAtMost(text.length)
                 if (shiftHeld) {
@@ -371,7 +380,7 @@ class TextFieldRenderable(
                 return
             }
 
-            if (keyCode == Keyboard.KEY_HOME) {
+            if (keyCode == GLFW.GLFW_KEY_HOME) {
                 val newCaret = 0
                 if (shiftHeld) {
                     val anchor = getSelectionStart() ?: getCaret()
@@ -383,7 +392,7 @@ class TextFieldRenderable(
                 return
             }
 
-            if (keyCode == Keyboard.KEY_END) {
+            if (keyCode == GLFW.GLFW_KEY_END) {
                 val newCaret = text.length
                 if (shiftHeld) {
                     val anchor = getSelectionStart() ?: getCaret()

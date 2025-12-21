@@ -8,7 +8,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
-import org.lwjgl.input.Keyboard
+import org.lwjgl.glfw.GLFW
 
 class MinionsConfig {
     @Expose
@@ -79,6 +79,6 @@ class MinionsConfig {
             " It will open the recipe for you. It is planned for it to work on hover but as of now it is only" +
             " working for the currently held item (selected hotbar slot)",
     )
-    @ConfigEditorKeybind(defaultKey = Keyboard.KEY_R)
-    var openMinionRecipeForHeldResource: Int = Keyboard.KEY_R
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_R)
+    var openMinionRecipeForHeldResource: Int = GLFW.GLFW_KEY_R
 }

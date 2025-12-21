@@ -23,14 +23,14 @@ object NPCResponseSuggestion {
                         ?: false
                 }
             }.let {
-                val filtered = it.filter { it.formattedText.contains("§a") }
+                val filtered = it.filter { it.string.contains("§a") }
                 return@let filtered.ifEmpty { it }
             }
             if (validComponents.isEmpty()) return@launchCoroutine
             val components = validComponents.first()
             val command = components.command ?: return@launchCoroutine
             ChatUtils.chatPrompt(
-                "Press §a%KEY%§e to respond with \"${components.formattedText}\"", SkyHanniMod.feature.chat.npcResponseSuggestion,
+                "Press §a%KEY%§e to respond with \"${components.string}\"", SkyHanniMod.feature.chat.npcResponseSuggestion,
                 {
                     ChatUtils.sendMessageToServer(command)
                 },

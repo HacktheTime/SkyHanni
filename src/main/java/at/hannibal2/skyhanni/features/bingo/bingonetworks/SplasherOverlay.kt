@@ -14,7 +14,8 @@ import at.hannibal2.skyhanni.utils.EntityUtils.isOnIronman
 import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderables
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.world.entity.player.Player
+
 
 @SkyHanniModule
 object SplasherOverlay {
@@ -45,7 +46,7 @@ object SplasherOverlay {
 
         val renderables = mutableListOf<Renderable>()
         renderables.add(Renderable.text("Status: ${splash.status.displayName}"))
-        val players = EntityUtils.getEntitiesNextToPlayer<EntityPlayer>(5.0)
+        val players = EntityUtils.getEntitiesNextToPlayer<Player>(5.0)
         renderables.add(Renderable.text("Hub: $players/${HypixelData.getMaxPlayersForCurrentServer()}"))
         val bingos = players.filter { it.isOnBingo() }
         val iman = players.filter { it.isOnIronman() }
@@ -53,7 +54,7 @@ object SplasherOverlay {
         renderables.add(
             Renderable.text(
                 "Leechers: \n${
-                    players.filter { !(it.isOnBingo() || it.isOnIronman()) }.joinToString("\n") { it.displayName.formattedText }
+                    players.filter { !(it.isOnBingo() || it.isOnIronman()) }.joinToString("\n") { it.displayName!!.string }
                 } ",
             ),
         )

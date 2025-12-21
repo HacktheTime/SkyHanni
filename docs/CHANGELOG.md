@@ -4,9 +4,10 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Fixed Issue with in Hub Selector Keybind for Splash Warp
-- Fixed Chat Prompts activating while in GUIs like normal chat or Hub Selector etc
-- Added Witch Highlighting on private Island. (Similar to Runic Highlighting)
+- Removed 1.8.9 support due to SH dropping it.
+    - Note that while it remains possibly to use the older 1.8.9 version published that there are likely going to be breaking changes at
+      some point and msot certainly breaking changes in some Features meaning you will loose more and more of the existing and wont get new
+      features.
 
 ## Static Info for modrinth:
 

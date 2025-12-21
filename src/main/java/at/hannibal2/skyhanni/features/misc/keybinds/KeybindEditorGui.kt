@@ -7,7 +7,6 @@ import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
-import org.lwjgl.input.Keyboard
 import at.hannibal2.skyhanni.utils.renderables.primitives.TextFieldController
 import at.hannibal2.skyhanni.utils.renderables.RenderableComponents
 import at.hannibal2.skyhanni.utils.CommandSuggestionProvider
@@ -16,6 +15,7 @@ import at.hannibal2.skyhanni.utils.compat.MouseCompat
 import at.hannibal2.skyhanni.utils.ui.CommandSuggestionController
 import at.hannibal2.skyhanni.utils.ClipboardUtils
 import kotlinx.coroutines.runBlocking
+import org.lwjgl.glfw.GLFW
 
 class KeybindEditorGui : SkyHanniBaseScreen() {
     private val manager = Keybinds
@@ -347,7 +347,7 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
             // choose scaled coords if available else fall back to raw for click position
             val clickX = if (GuiRenderUtils.isPointInRect(scaledX, scaledY, editLeft, warnY + 12, editW - 4, 20)) scaledX - editLeft else originalMouseX - editLeft
             val clickY = if (GuiRenderUtils.isPointInRect(scaledX, scaledY, editLeft, warnY + 12, editW - 4, 20)) scaledY - (warnY + 12) else originalMouseY - (warnY + 12)
-            commandField?.click(clickX, clickY, Keyboard.KEY_LSHIFT.isKeyHeld() || Keyboard.KEY_RSHIFT.isKeyHeld())
+            commandField?.click(clickX, clickY, GLFW.GLFW_KEY_LEFT_SHIFT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_SHIFT.isKeyHeld())
              updateSuggestions(); return
          } else if (commandFieldFocused) {
              // clicking outside unfocus -> hide suggestions
@@ -461,7 +461,7 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
 
     override fun onKeyTyped(typedChar: Char?, typedKeyCode: Int?) {
         val kc = typedKeyCode
-        val ctrl = Keyboard.KEY_LCONTROL.isKeyHeld() || Keyboard.KEY_RCONTROL.isKeyHeld()
+        val ctrl = GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_CONTROL.isKeyHeld()
         if (commandField == null) ensureFields()
         val field = commandField ?: return
 
@@ -469,20 +469,20 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
             // Combo capture base keys (non-modifiers)
             if (capturingCombo) {
                 when (kc) {
-                    Keyboard.KEY_ESCAPE -> {
+                    GLFW.GLFW_KEY_ESCAPE -> {
                         capturingCombo =
                             false; capturingBaseKeys.clear(); capturingBaseKeyCodes.clear(); capturingModifiersUsed.clear(); captureHasBase =
                             false; return
                     }
-                    Keyboard.KEY_RETURN, Keyboard.KEY_NUMPADENTER -> return
+                    GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER -> return
                     else -> {
                         if (kc !in listOf(
-                                Keyboard.KEY_LCONTROL,
-                                Keyboard.KEY_RCONTROL,
-                                Keyboard.KEY_LSHIFT,
-                                Keyboard.KEY_RSHIFT,
-                                Keyboard.KEY_LMENU,
-                                Keyboard.KEY_RMENU
+                                GLFW.GLFW_KEY_LEFT_CONTROL,
+                                GLFW.GLFW_KEY_RIGHT_CONTROL,
+                                GLFW.GLFW_KEY_LEFT_SHIFT,
+                                GLFW.GLFW_KEY_RIGHT_SHIFT,
+                                GLFW.GLFW_KEY_LEFT_ALT,
+                                GLFW.GLFW_KEY_RIGHT_ALT
                             )
                         ) {
                             val name = try {
@@ -491,13 +491,13 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
                                 kc.toString()
                             }
                             capturingBaseKeys += name; capturingBaseKeyCodes += kc; captureHasBase = true
-                            if (Keyboard.KEY_LCONTROL.isKeyHeld() || Keyboard.KEY_RCONTROL.isKeyHeld()) capturingModifiersUsed += "CTRL"
-                            if (Keyboard.KEY_LSHIFT.isKeyHeld() || Keyboard.KEY_RSHIFT.isKeyHeld()) capturingModifiersUsed += "SHIFT"
-                            if (Keyboard.KEY_LMENU.isKeyHeld() || Keyboard.KEY_RMENU.isKeyHeld()) capturingModifiersUsed += "ALT"
+                            if (GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_CONTROL.isKeyHeld()) capturingModifiersUsed += "CTRL"
+                            if (GLFW.GLFW_KEY_LEFT_SHIFT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_SHIFT.isKeyHeld()) capturingModifiersUsed += "SHIFT"
+                            if (GLFW.GLFW_KEY_LEFT_ALT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_ALT.isKeyHeld()) capturingModifiersUsed += "ALT"
                         } else when (kc) {
-                            Keyboard.KEY_LCONTROL, Keyboard.KEY_RCONTROL -> capturingModifiersUsed += "CTRL"
-                            Keyboard.KEY_LSHIFT, Keyboard.KEY_RSHIFT -> capturingModifiersUsed += "SHIFT"
-                            Keyboard.KEY_LMENU, Keyboard.KEY_RMENU -> capturingModifiersUsed += "ALT"
+                            GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL -> capturingModifiersUsed += "CTRL"
+                            GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_RIGHT_SHIFT -> capturingModifiersUsed += "SHIFT"
+                            GLFW.GLFW_KEY_LEFT_ALT, GLFW.GLFW_KEY_RIGHT_ALT -> capturingModifiersUsed += "ALT"
                         }
                         return
                     }
@@ -507,19 +507,19 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
             // Suggestion navigation
             if (suggestionController.visible && suggestionController.suggestions.isNotEmpty()) {
                 when (kc) {
-                    Keyboard.KEY_DOWN -> {
+                    GLFW.GLFW_KEY_DOWN -> {
                         suggestionController.navigate(1); return
                     }
-                    Keyboard.KEY_UP -> {
+                    GLFW.GLFW_KEY_UP -> {
                         suggestionController.navigate(-1); return
                     }
-                    Keyboard.KEY_NEXT, Keyboard.KEY_PRIOR -> {
-                        pageSuggestions(kc == Keyboard.KEY_NEXT); return
+                    GLFW.GLFW_KEY_PAGE_DOWN, GLFW.GLFW_KEY_PAGE_UP -> {
+                        pageSuggestions(kc == GLFW.GLFW_KEY_PAGE_DOWN); return
                     }
-                    Keyboard.KEY_TAB -> {
+                    GLFW.GLFW_KEY_TAB -> {
                         updateSuggestions(); return
                     }
-                    Keyboard.KEY_RETURN, Keyboard.KEY_NUMPADENTER -> {
+                    GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER -> {
                         acceptSuggestion(); return
                     }
                 }
@@ -528,19 +528,19 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
             if (!currentlyEditing) return
 
             // Clipboard
-            if (ctrl && kc == Keyboard.KEY_C) {
+            if (ctrl && kc == GLFW.GLFW_KEY_C) {
                 runBlocking { field.getSelectedText()?.takeIf { it.isNotEmpty() }?.let { ClipboardUtils.copyToClipboard(it) } }; return
             }
-            if (ctrl && kc == Keyboard.KEY_X) {
+            if (ctrl && kc == GLFW.GLFW_KEY_X) {
                 runBlocking {
                     field.getSelectedText()?.takeIf { it.isNotEmpty() }?.let { ClipboardUtils.copyToClipboard(it); field.writeText("") }
                 }; editCommand = field.getText(); updateSuggestions(); return
             }
-            if (ctrl && kc == Keyboard.KEY_V) {
+            if (ctrl && kc == GLFW.GLFW_KEY_V) {
                 runBlocking { ClipboardUtils.readFromClipboard()?.let { clip -> field.writeText(clip) } }; editCommand =
                     field.getText(); updateSuggestions(); return
             }
-            if (ctrl && kc == Keyboard.KEY_A) {
+            if (ctrl && kc == GLFW.GLFW_KEY_A) {
                 field.textboxKeyTyped(null, kc); return
             }
             field.textboxKeyTyped(typedChar, kc)

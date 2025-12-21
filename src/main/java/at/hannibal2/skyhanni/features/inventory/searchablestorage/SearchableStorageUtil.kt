@@ -174,7 +174,7 @@ object SearchableStorageUtil {
         val name = item.data.stack.displayName
 
         val tooltipText = Renderable.vertical {
-            add(StringRenderable(name))
+            add(StringRenderable(name.string))
             lore.forEach { add(StringRenderable(it)) }
         }
 

@@ -8,15 +8,15 @@ import at.hannibal2.skyhanni.utils.NeuItems
 import at.hannibal2.skyhanni.utils.NeuNPC
 import at.hannibal2.skyhanni.utils.compat.unformattedTextCompat
 import at.hannibal2.skyhanni.utils.getLorenzVec
-import net.minecraft.entity.Entity
-import net.minecraft.entity.item.EntityArmorStand
-import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.C02PacketUseEntity
+import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.decoration.ArmorStand
+import net.minecraft.world.item.ItemStack
 
-class EntityClickEvent(clickType: ClickType, val action: C02PacketUseEntity.Action, val clickedEntity: Entity, itemInHand: ItemStack?) :
+class EntityClickEvent(clickType: ClickType, val action: ServerboundInteractPacket.ActionType, val clickedEntity: Entity, itemInHand: ItemStack?) :
     WorldClickEvent(itemInHand, clickType) {
     fun getAsNPC(): NeuNPC? {
-        val armorStand = EntityUtils.getEntitiesNearby<EntityArmorStand>(this.clickedEntity.getLorenzVec(), 2.0)
+        val armorStand = EntityUtils.getEntitiesNearby<ArmorStand>(this.clickedEntity.getLorenzVec(), 2.0)
         val results = NeuItems.npcs.filter {
             val npc = it.value.displayName.replace("§.".toRegex(), "").trim()
             return@filter armorStand.any { it.displayName?.unformattedTextCompat() == npc }

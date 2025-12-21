@@ -13,7 +13,7 @@ class DropsStatisticsConfig {
     @Expose
     @ConfigOption(
         name = "Enabled",
-        desc = "Tally statistics about visitors and the rewards you have received from them.",
+        desc = "Tally statistics about visitors and the rewards you have received from them."
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -37,7 +37,9 @@ class DropsStatisticsConfig {
             DropsStatisticsTextEntry.GREEN_BANDANA,
             DropsStatisticsTextEntry.DEDICATION_IV,
             DropsStatisticsTextEntry.COPPER_DYE,
-        ),
+            DropsStatisticsTextEntry.HYPERCHARGE_CHIP,
+            DropsStatisticsTextEntry.QUICKDRAW_CHIP,
+        )
     )
 
     /**
@@ -75,6 +77,8 @@ class DropsStatisticsConfig {
         JUNGLE_KEY("§b1 §5Jungle Key"),
         FRUIT_BOWL("§b1 §9Fruit Bowl"),
         HARVEST_HARBINGER("§b1 §9Harvest Harbinger V"),
+        HYPERCHARGE_CHIP("§b3 §9Hypercharge Chip"),
+        QUICKDRAW_CHIP("§b7 §9Quickdraw Chip"),
         ;
 
         override fun toString() = displayName
@@ -84,7 +88,7 @@ class DropsStatisticsConfig {
     @ConfigOption(
         name = "Display Numbers First",
         desc = "Whether the number or drop name displays first.\n" +
-            "§eNote: Will not update the preview above!",
+            "§eNote: Will not update the preview above!"
     )
     @ConfigEditorBoolean
     val displayNumbersFirst: Property<Boolean> = Property.of(true)
@@ -93,7 +97,7 @@ class DropsStatisticsConfig {
     @ConfigOption(
         name = "Display Icons",
         desc = "Replace the drop names with icons.\n" +
-            "§eNote: Will not update the preview above!",
+            "§eNote: Will not update the preview above!"
     )
     @ConfigEditorBoolean
     val displayIcons: Property<Boolean> = Property.of(false)

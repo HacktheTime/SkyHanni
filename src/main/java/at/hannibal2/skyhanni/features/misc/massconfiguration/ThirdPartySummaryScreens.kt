@@ -152,7 +152,7 @@ class ThirdPartySummaryScreen(
             content = Renderable.text("Close"),
             onClick = {
                 println("[TP Summary] close clicked")
-                mc.displayGuiScreen(null)
+                mc.setScreen(null)
             },
             bypassChecks = true,
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,

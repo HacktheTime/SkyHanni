@@ -5,7 +5,7 @@ import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getExtraAttributes
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemId
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
 import at.hannibal2.skyhanni.utils.StringUtils.toUnDashedUUID
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import java.util.UUID
 import java.util.regex.Pattern
 
@@ -26,7 +26,7 @@ class ItemNameFilter(
     private val regex = Pattern.compile(pattern, if (ignoreCase) Pattern.CASE_INSENSITIVE else 0)
 
     override fun matches(item: ItemStack, storageName: String, category: StorageCategory): Boolean {
-        val displayName = item.displayName ?: ""
+        val displayName = item.displayName.string ?: ""
         return regex.matcher(displayName).find()
     }
 }

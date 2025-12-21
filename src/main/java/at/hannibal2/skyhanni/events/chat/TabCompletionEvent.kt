@@ -1,6 +1,5 @@
 package at.hannibal2.skyhanni.events.chat
 
-import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.SkyHanniEvent
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
 
@@ -11,16 +10,10 @@ class TabCompletionEvent(
 ) : SkyHanniEvent() {
     val lastWord = leftOfCursor.substringAfterLast(' ')
     private val additionalSuggestions = mutableSetOf<String>()
-    val useContainCompletion = SkyHanniMod.feature.chat.tabCompletionUseContainsSuggestion
-    val ignoreCaseCompletion = SkyHanniMod.feature.chat.tabIgnoreCaseSuggestion
 
     fun addSuggestion(suggestion: String) {
-        if (useContainCompletion) {
-            if (!suggestion.contains(lastWord, ignoreCaseCompletion)) return
-        } else {
-            if (!suggestion.startsWith(lastWord, ignoreCaseCompletion)) return
-        }
-        val adjustedSuggestion = if (PlatformUtils.IS_LEGACY) suggestion else suggestion.removePrefix("/")
+        if (!suggestion.startsWith(lastWord, ignoreCase = true)) return
+        val adjustedSuggestion = suggestion.removePrefix("/")
         additionalSuggestions.add(adjustedSuggestion)
     }
 

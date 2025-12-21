@@ -6,7 +6,6 @@ import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.ChatUtils
-import org.lwjgl.input.Keyboard
 import at.hannibal2.skyhanni.utils.ClipboardUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.compat.MouseCompat
@@ -17,6 +16,8 @@ import at.hannibal2.skyhanni.utils.renderables.primitives.TextFieldController
 import kotlin.collections.plusAssign
 import at.hannibal2.skyhanni.utils.CommandSuggestionProvider
 import at.hannibal2.skyhanni.utils.ui.CommandSuggestionController
+import com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL
+import org.lwjgl.glfw.GLFW
 
 /**
  * Clean rebuilt NumpadEditorGui with:
@@ -59,13 +60,26 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
 
     // Suggestions controller (replaces legacy fields) for action command fields only
     private val suggestionController = CommandSuggestionController(12) { text, cursor ->
-        try { CommandSuggestionProvider.suggest(text, cursor) } catch (_: Throwable) { emptyList() }
+        try {
+            CommandSuggestionProvider.suggest(text, cursor)
+        } catch (_: Throwable) {
+            emptyList()
+        }
     }
     private var suggestionSelectionVisible = true
 
     // Focus
-    private enum class FocusTarget { NONE, CODE, ACTIONS }
-    private enum class ActionField { COMMAND, DELAY }
+    private enum class FocusTarget {
+        NONE,
+        CODE,
+        ACTIONS
+    }
+
+    private enum class ActionField {
+        COMMAND,
+        DELAY
+    }
+
     private var focusTarget = FocusTarget.NONE
     private var actionFocusedIndex = -1
     private var actionFocusedField = ActionField.COMMAND
@@ -86,7 +100,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
     // Track last focused delay field to finalize on blur
     private var lastDelayFocusedIndex: Int? = null
 
-    override fun onInitGui() { refreshCodes() }
+    override fun onInitGui() {
+        refreshCodes()
+    }
 
     private fun refreshCodes() {
         codes = NumpadCodes.allCodes().toMutableList()
@@ -107,11 +123,17 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             while (editActionDelayCarets.size < editActionsList.size) editActionDelayCarets.add(0)
             while (editActionDelayCarets.size > editActionsList.size) editActionDelayCarets.removeAt(editActionDelayCarets.lastIndex)
             while (editActionDelaySelectionStarts.size < editActionsList.size) editActionDelaySelectionStarts.add(null)
-            while (editActionDelaySelectionStarts.size > editActionsList.size) editActionDelaySelectionStarts.removeAt(editActionDelaySelectionStarts.lastIndex)
+            while (editActionDelaySelectionStarts.size > editActionsList.size) editActionDelaySelectionStarts.removeAt(
+                editActionDelaySelectionStarts.lastIndex,
+            )
             while (editActionDelaySelectionEnds.size < editActionsList.size) editActionDelaySelectionEnds.add(null)
-            while (editActionDelaySelectionEnds.size > editActionsList.size) editActionDelaySelectionEnds.removeAt(editActionDelaySelectionEnds.lastIndex)
+            while (editActionDelaySelectionEnds.size > editActionsList.size) editActionDelaySelectionEnds.removeAt(
+                editActionDelaySelectionEnds.lastIndex,
+            )
             if (actionCommandControllers.size != editActionsList.size) rebuildFields()
-        } finally { ensuringSizes = false }
+        } finally {
+            ensuringSizes = false
+        }
     }
 
     private fun rebuildFields() {
@@ -138,7 +160,11 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                 { editActionCarets.getOrNull(idx) ?: editActionsList[idx].command.length },
                 { c -> if (idx < editActionCarets.size) editActionCarets[idx] = c },
                 { editActionSelectionStarts.getOrNull(idx) }, { editActionSelectionEnds.getOrNull(idx) },
-                { a, b -> if (idx < editActionSelectionStarts.size) { editActionSelectionStarts[idx] = a; editActionSelectionEnds[idx] = b } },
+                { a, b ->
+                    if (idx < editActionSelectionStarts.size) {
+                        editActionSelectionStarts[idx] = a; editActionSelectionEnds[idx] = b
+                    }
+                },
                 width = 140, height = 14,
                 showCaret = { focusTarget == FocusTarget.ACTIONS && actionFocusedIndex == idx && actionFocusedField == ActionField.COMMAND },
             )
@@ -149,7 +175,11 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                 { editActionDelayCarets.getOrNull(idx) ?: (editActionDelayText.getOrNull(idx)?.length ?: 1) },
                 { c -> if (idx < editActionDelayCarets.size) editActionDelayCarets[idx] = c },
                 { editActionDelaySelectionStarts.getOrNull(idx) }, { editActionDelaySelectionEnds.getOrNull(idx) },
-                { a, b -> if (idx < editActionDelaySelectionStarts.size) { editActionDelaySelectionStarts[idx] = a; editActionDelaySelectionEnds[idx] = b } },
+                { a, b ->
+                    if (idx < editActionDelaySelectionStarts.size) {
+                        editActionDelaySelectionStarts[idx] = a; editActionDelaySelectionEnds[idx] = b
+                    }
+                },
                 width = 50, height = 14,
                 showCaret = { focusTarget == FocusTarget.ACTIONS && actionFocusedIndex == idx && actionFocusedField == ActionField.DELAY },
             )
@@ -158,8 +188,12 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
     }
 
     private fun updateSuggestions(actions: Boolean) {
-        if (!actions) { suggestionController.reset(); return }
-        if (actionFocusedIndex !in editActionsList.indices) { suggestionController.reset(); return }
+        if (!actions) {
+            suggestionController.reset(); return
+        }
+        if (actionFocusedIndex !in editActionsList.indices) {
+            suggestionController.reset(); return
+        }
         val f = actionCommandControllers.getOrNull(actionFocusedIndex)
         val txt = f?.getText() ?: editActionsList[actionFocusedIndex].command
         val cur = f?.getCursorPosition() ?: txt.length
@@ -167,17 +201,26 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         suggestionSelectionVisible = true
     }
 
-    private fun pageSuggestions(next: Boolean) { suggestionController.page(next); suggestionSelectionVisible = true }
+    private fun pageSuggestions(next: Boolean) {
+        suggestionController.page(next); suggestionSelectionVisible = true
+    }
 
     private fun acceptSuggestion(forActions: Boolean) {
         if (!forActions) return
         if (actionFocusedIndex !in editActionsList.indices) return
         val field = actionCommandControllers.getOrNull(actionFocusedIndex) ?: return
         val text = field.getText()
-        val cursor = try { field.getCursorPosition() } catch (_: Throwable) { text.length }
+        val cursor = try {
+            field.getCursorPosition()
+        } catch (_: Throwable) {
+            text.length
+        }
         val pair = suggestionController.accept(text, cursor) ?: return
         field.setTextValue(pair.first)
-        try { field.setCursorPosition(pair.second) } catch (_: Throwable) {}
+        try {
+            field.setCursorPosition(pair.second)
+        } catch (_: Throwable) {
+        }
         editActionsList[actionFocusedIndex].command = pair.first
     }
 
@@ -262,7 +305,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                 if (delayField != null) {
                     delayField.setSize(50, 14)
                     delayField.render(delayX, y)
-                    if (i < editActionDelayText.size) editActionDelayText[i] = delayField.getText() else editActionDelayText.add(delayField.getText())
+                    if (i < editActionDelayText.size) editActionDelayText[i] =
+                        delayField.getText() else editActionDelayText.add(delayField.getText())
                 }
                 val removeX = delayX + 56
                 GuiRenderUtils.drawRect(removeX, y - 2, removeX + 18, y + 14, 0x30AA5555)
@@ -311,7 +355,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
     }
 
     override fun onDrawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        if (mouseX != lastMouseX || mouseY != lastMouseY) { suggestionSelectionVisible = true; lastMouseX = mouseX; lastMouseY = mouseY }
+        if (mouseX != lastMouseX || mouseY != lastMouseY) {
+            suggestionSelectionVisible = true; lastMouseX = mouseX; lastMouseY = mouseY
+        }
         drawDefaultBackground(mouseX, mouseY, partialTicks)
         val totalW = 960
         val totalH = 520
@@ -348,8 +394,17 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             if (selectedIndex in codes.indices) {
                 val c = codes[selectedIndex]
                 GuiRenderUtils.drawString("Code: ${c.code}", editLeft, editTop + 30)
-                GuiRenderUtils.drawString("Islands: ${c.allowedIslands.filter{it.isValidIsland()}.joinToString { it.displayName }}".take( editW - 20), editLeft, editTop + 44)
-                GuiRenderUtils.drawString("Future New Islands: ${if (IslandType.UNKNOWN in c.allowedIslands) 'Y' else 'N'}", editLeft, editTop + 58)
+                GuiRenderUtils.drawString(
+                    "Islands: ${c.allowedIslands.filter { it.isValidIsland() }.joinToString { it.displayName }}".take(
+                        editW - 20,
+                    ),
+                    editLeft, editTop + 44,
+                )
+                GuiRenderUtils.drawString(
+                    "Future New Islands: ${if (IslandType.UNKNOWN in c.allowedIslands) 'Y' else 'N'}",
+                    editLeft,
+                    editTop + 58,
+                )
                 GuiRenderUtils.drawString("Outside SB: ${if (c.allowOutsideSkyBlock) "Yes" else "No"}", editLeft, editTop + 72)
             }
         } else if (islandSelectionOpen) {
@@ -367,14 +422,27 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             GuiRenderUtils.drawRect(sx - 2, sy - 2, sx + w + 2, sy + h + 2, 0xC0202020.toInt())
             visible.forEachIndexed { i, s ->
                 val real = suggestionController.scroll + i
-                if (real == suggestionController.index && suggestionSelectionVisible) GuiRenderUtils.drawRect(sx, sy + i * itemH, sx + w, sy + (i + 1) * itemH, 0x80446699.toInt())
+                if (real == suggestionController.index && suggestionSelectionVisible) GuiRenderUtils.drawRect(
+                    sx,
+                    sy + i * itemH,
+                    sx + w,
+                    sy + (i + 1) * itemH,
+                    0x80446699.toInt(),
+                )
                 GuiRenderUtils.drawString(s, sx + 4, sy + i * itemH + 2)
             }
-            GuiRenderUtils.drawScrollbar(sx + w + 3, sy, h, suggestionController.suggestions.size * itemH, suggestionController.scroll * itemH)
+            GuiRenderUtils.drawScrollbar(
+                sx + w + 3,
+                sy,
+                h,
+                suggestionController.suggestions.size * itemH,
+                suggestionController.scroll * itemH,
+            )
         }
     }
 
-    private fun mouseIsOver(x: Int, y: Int, w: Int, h: Int) = GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, x, y, w, h)
+    private fun mouseIsOver(x: Int, y: Int, w: Int, h: Int) =
+        GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, x, y, w, h)
 
     override fun onMouseClicked(mx: Int, my: Int, btn: Int) {
         val totalW = 960
@@ -396,9 +464,15 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             }
         }
         val btnY = listTop + listH - 20
-        if (mouseIsOver(listLeft, btnY, 80, 18)) { startAdd(); return }
-        if (mouseIsOver(listLeft + 88, btnY, 80, 18)) { removeSelected(); return }
-        if (mouseIsOver(listLeft + 176, btnY, 80, 18)) { refreshCodes(); ChatUtils.chat("Refreshed numpad codes"); return }
+        if (mouseIsOver(listLeft, btnY, 80, 18)) {
+            startAdd(); return
+        }
+        if (mouseIsOver(listLeft + 88, btnY, 80, 18)) {
+            removeSelected(); return
+        }
+        if (mouseIsOver(listLeft + 176, btnY, 80, 18)) {
+            refreshCodes(); ChatUtils.chat("Refreshed numpad codes"); return
+        }
         // finalize delay on blur when clicking elsewhere
         fun finalizeDelayBlur() {
             lastDelayFocusedIndex?.let { if (it in editActionDelayText.indices) sanitizeDelay(it, finalize = true) }
@@ -435,7 +509,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             var y = startY - islandSelectionScroll
             // Unknown row
             if (mx in editLeft until (editLeft + editW - 4) && my in (y - 2) until (y - 2 + lineH)) {
-                if (IslandType.UNKNOWN in editingAllowedIslands) editingAllowedIslands.remove(IslandType.UNKNOWN) else editingAllowedIslands.add(IslandType.UNKNOWN)
+                if (IslandType.UNKNOWN in editingAllowedIslands) editingAllowedIslands.remove(IslandType.UNKNOWN) else editingAllowedIslands.add(
+                    IslandType.UNKNOWN,
+                )
                 return
             }
             y += lineH
@@ -447,7 +523,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             y += lineH
             val valid = IslandType.entries.filter { it.isValidIsland() }
             for (isl in valid) {
-                if (y + lineH < startY) { y += lineH; continue }
+                if (y + lineH < startY) {
+                    y += lineH; continue
+                }
                 if (y > startY + boxH - lineH) break
                 if (mx in editLeft until (editLeft + editW - 4) && my in (y - 2) until (y - 2 + lineH)) {
                     if (isl in editingAllowedIslands) editingAllowedIslands.remove(isl) else editingAllowedIslands.add(isl)
@@ -467,7 +545,11 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur()
             focusTarget = FocusTarget.CODE
             updateSuggestions(false)
-            codeController?.click(mx - editLeft, my - (editTop + 12), Keyboard.KEY_LSHIFT.isKeyHeld() || Keyboard.KEY_RSHIFT.isKeyHeld())
+            codeController?.click(
+                mx - editLeft,
+                my - (editTop + 12),
+                GLFW.GLFW_KEY_LEFT_SHIFT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_SHIFT.isKeyHeld(),
+            )
             return
         }
 
@@ -482,9 +564,29 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                 val delayRect = GuiRenderUtils.isPointInRect(mx, my, editLeft + 4 + cmdW + 6, rowY - 2, 50, 16)
                 val removeRect = GuiRenderUtils.isPointInRect(mx, my, editLeft + 4 + cmdW + 6 + 56, rowY - 2, 18, 16)
                 when {
-                    removeRect -> { if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex == idx) finalizeDelayBlur(); editActionsList.removeAt(idx); if (idx < editActionDelayText.size) editActionDelayText.removeAt(idx); rebuildFields() }
-                    cmdRect -> { if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex != idx) finalizeDelayBlur(); actionFocusedIndex = idx; actionFocusedField = ActionField.COMMAND; focusTarget = FocusTarget.ACTIONS; updateSuggestions(true); actionCommandControllers[idx].click(mx - (editLeft + 4), my - rowY, false) }
-                    delayRect -> { if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex != idx) finalizeDelayBlur(); actionFocusedIndex = idx; actionFocusedField = ActionField.DELAY; focusTarget = FocusTarget.ACTIONS; actionDelayControllers[idx].click(mx - (editLeft + 4 + cmdW + 6), my - rowY, false); lastDelayFocusedIndex = idx }
+                    removeRect -> {
+                        if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex == idx) finalizeDelayBlur(); editActionsList.removeAt(
+                            idx,
+                        ); if (idx < editActionDelayText.size) editActionDelayText.removeAt(idx); rebuildFields()
+                    }
+                    cmdRect -> {
+                        if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex != idx) finalizeDelayBlur(); actionFocusedIndex =
+                            idx; actionFocusedField = ActionField.COMMAND; focusTarget =
+                            FocusTarget.ACTIONS; updateSuggestions(true); actionCommandControllers[idx].click(
+                            mx - (editLeft + 4),
+                            my - rowY,
+                            false,
+                        )
+                    }
+                    delayRect -> {
+                        if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex != idx) finalizeDelayBlur(); actionFocusedIndex =
+                            idx; actionFocusedField = ActionField.DELAY; focusTarget =
+                            FocusTarget.ACTIONS; actionDelayControllers[idx].click(
+                            mx - (editLeft + 4 + cmdW + 6),
+                            my - rowY,
+                            false,
+                        ); lastDelayFocusedIndex = idx
+                    }
                 }
             }
             return
@@ -492,10 +594,19 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
 
         // Editor buttons
         val addY = (editTop + 50) + 160 + 4
-        if (mouseIsOver(editLeft, addY, 120, 18)) { if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); addAction(); return }
-        if (mouseIsOver(editLeft, addY + 24, 120, 18)) { if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); islandSelectionOpen = true; islandSelectionScroll = 0; return }
-        if (mouseIsOver(editLeft + 140, addY, 80, 18)) { if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); saveEditing(); return }
-        if (mouseIsOver(editLeft + 228, addY, 80, 18)) { if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); cancelEditing(); return }
+        if (mouseIsOver(editLeft, addY, 120, 18)) {
+            if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); addAction(); return
+        }
+        if (mouseIsOver(editLeft, addY + 24, 120, 18)) {
+            if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); islandSelectionOpen =
+                true; islandSelectionScroll = 0; return
+        }
+        if (mouseIsOver(editLeft + 140, addY, 80, 18)) {
+            if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); saveEditing(); return
+        }
+        if (mouseIsOver(editLeft + 228, addY, 80, 18)) {
+            if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur(); cancelEditing(); return
+        }
     }
 
     private fun startAdd() {
@@ -513,7 +624,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
     }
 
     private fun editSelected() {
-        if (selectedIndex !in codes.indices) { ChatUtils.userError("No code selected to edit"); return }
+        if (selectedIndex !in codes.indices) {
+            ChatUtils.userError("No code selected to edit"); return
+        }
         val c = codes[selectedIndex]
         currentlyEditing = true
         editCodeText = c.code
@@ -528,7 +641,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
     }
 
     private fun removeSelected() {
-        if (selectedIndex !in codes.indices) { ChatUtils.userError("No code selected to remove"); return }
+        if (selectedIndex !in codes.indices) {
+            ChatUtils.userError("No code selected to remove"); return
+        }
         val code = codes[selectedIndex].code
         NumpadCodes.unregister(code)
         ChatUtils.chat("Removed code $code")
@@ -569,7 +684,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         val sb = StringBuilder()
         var dotSeen = false
         for (c in raw) {
-            if (c.isDigit()) sb.append(c) else if (c == '.' && !dotSeen) { sb.append('.'); dotSeen = true }
+            if (c.isDigit()) sb.append(c) else if (c == '.' && !dotSeen) {
+                sb.append('.'); dotSeen = true
+            }
         }
         var out = sb.toString()
         if (finalize) {
@@ -579,7 +696,9 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         actionDelayControllers.getOrNull(idx)?.setTextValue(out)
     }
 
-    private fun sanitizeAllDelays(finalize: Boolean) { for (i in editActionDelayText.indices) sanitizeDelay(i, finalize) }
+    private fun sanitizeAllDelays(finalize: Boolean) {
+        for (i in editActionDelayText.indices) sanitizeDelay(i, finalize)
+    }
 
     private fun sanitizeCode() {
         val filtered = editCodeText.filter { it.isDigit() }
@@ -599,7 +718,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         sanitizeCode()
         for (i in editActionsList.indices) {
             editActionsList[i].command = actionCommandControllers.getOrNull(i)?.getText() ?: editActionsList[i].command
-            if (i < editActionDelayText.size) editActionDelayText[i] = actionDelayControllers.getOrNull(i)?.getText() ?: editActionDelayText[i]
+            if (i < editActionDelayText.size) editActionDelayText[i] =
+                actionDelayControllers.getOrNull(i)?.getText() ?: editActionDelayText[i]
             else editActionDelayText.add(actionDelayControllers.getOrNull(i)?.getText() ?: "1.0")
             sanitizeDelay(i, finalize = true)
         }
@@ -611,7 +731,10 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             val cmd = act.command.trim(); if (cmd.isBlank()) return@forEachIndexed
             val delayStr = (editActionDelayText.getOrNull(idx) ?: "1.0")
             val delay = delayStr.toDoubleOrNull()
-            if (delay == null || delay < 0.0) errors += "Action #${idx + 1} invalid delay" else parsed += NumpadEditor.EditorAction(cmd, delay)
+            if (delay == null || delay < 0.0) errors += "Action #${idx + 1} invalid delay" else parsed += NumpadEditor.EditorAction(
+                cmd,
+                delay,
+            )
         }
         if (parsed.isEmpty()) errors += "At least one action is required"
         if (errors.isNotEmpty()) return errors
@@ -662,7 +785,15 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                     islandSelectionScroll = (islandSelectionScroll - scroll * lineH).coerceIn(0, maxScroll)
                     return
                 }
-            } else if (GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, editLeft, actionsBoxTop, editW - 4, actionsBoxH)) {
+            } else if (GuiRenderUtils.isPointInRect(
+                    GuiScreenUtils.mouseX,
+                    GuiScreenUtils.mouseY,
+                    editLeft,
+                    actionsBoxTop,
+                    editW - 4,
+                    actionsBoxH,
+                )
+            ) {
                 val contentH = editActionsList.size * 18
                 val max = (contentH - actionsBoxH).coerceAtLeast(0)
                 actionsScroll = (actionsScroll - scroll * 18).coerceIn(0, max)
@@ -684,15 +815,19 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
 
     override fun onKeyTyped(ch: Char?, keyCode: Int?) {
         val kc = keyCode ?: -1
-        val ctrlHeld = Keyboard.KEY_LCONTROL.isKeyHeld() || Keyboard.KEY_RCONTROL.isKeyHeld()
+        val ctrlHeld = GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_CONTROL.isKeyHeld()
 
         // Handle clipboard shortcuts when CTRL is held
         if (ctrlHeld) {
             try {
                 when (kc) {
-                    Keyboard.KEY_V -> {
-                        val clip = try { runBlocking { ClipboardUtils.readFromClipboard() } ?: "" } catch (_: Throwable) { "" }
-                         if (clip.isEmpty()) return
+                    GLFW.GLFW_KEY_V -> {
+                        val clip = try {
+                            runBlocking { ClipboardUtils.readFromClipboard() } ?: ""
+                        } catch (_: Throwable) {
+                            ""
+                        }
+                        if (clip.isEmpty()) return
                         when (focusTarget) {
                             FocusTarget.CODE -> {
                                 val txt = codeController?.getText() ?: editCodeText
@@ -701,11 +836,19 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                                 val (s, e) = if (selA != null && selB != null) Pair(minOf(selA, selB), maxOf(selA, selB)) else Pair(-1, -1)
                                 val filtered = clip.filter { it.isDigit() }
                                 val cursor = codeController?.getCursorPosition() ?: txt.length
-                                val result = if (s >= 0 && e >= s) txt.substring(0, s) + filtered + txt.substring(e) else txt.substring(0, cursor) + filtered + txt.substring(cursor)
+                                val result =
+                                    if (s >= 0 && e >= s) txt.substring(0, s) + filtered + txt.substring(e) else txt.substring(
+                                        0,
+                                        cursor,
+                                    ) + filtered + txt.substring(cursor)
                                 editCodeText = result.filter { it.isDigit() }
                                 codeController?.setTextValue(editCodeText)
-                                val pos = (if (s >= 0 && e >= s) s + filtered.length else (cursor + filtered.length)).coerceAtMost(editCodeText.length)
-                                try { codeController?.setCursorPosition(pos) } catch (_: Throwable) {}
+                                val pos =
+                                    (if (s >= 0 && e >= s) s + filtered.length else (cursor + filtered.length)).coerceAtMost(editCodeText.length)
+                                try {
+                                    codeController?.setCursorPosition(pos)
+                                } catch (_: Throwable) {
+                                }
                                 sanitizeCode()
                             }
                             FocusTarget.ACTIONS -> {
@@ -715,24 +858,52 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                                         val txt = ctrl?.getText() ?: editActionsList[actionFocusedIndex].command
                                         val selA = editActionSelectionStarts.getOrNull(actionFocusedIndex)
                                         val selB = editActionSelectionEnds.getOrNull(actionFocusedIndex)
-                                        val (s, e) = if (selA != null && selB != null) Pair(minOf(selA, selB), maxOf(selA, selB)) else Pair(-1, -1)
+                                        val (s, e) = if (selA != null && selB != null) Pair(minOf(selA, selB), maxOf(selA, selB)) else Pair(
+                                            -1,
+                                            -1,
+                                        )
                                         val cursor = ctrl?.getCursorPosition() ?: txt.length
-                                        val result = if (s >= 0 && e >= s) txt.substring(0, s) + clip + txt.substring(e) else txt.substring(0, cursor) + clip + txt.substring(cursor)
+                                        val result =
+                                            if (s >= 0 && e >= s) txt.substring(0, s) + clip + txt.substring(e) else txt.substring(
+                                                0,
+                                                cursor,
+                                            ) + clip + txt.substring(cursor)
                                         editActionsList[actionFocusedIndex].command = result
                                         ctrl?.setTextValue(result)
-                                        try { ctrl?.setCursorPosition((if (s >= 0 && e >= s) s + clip.length else (cursor + clip.length)).coerceAtMost(result.length)) } catch (_: Throwable) {}
+                                        try {
+                                            ctrl?.setCursorPosition(
+                                                (if (s >= 0 && e >= s) s + clip.length else (cursor + clip.length)).coerceAtMost(
+                                                    result.length,
+                                                ),
+                                            )
+                                        } catch (_: Throwable) {
+                                        }
                                         updateSuggestions(true)
                                     } else {
                                         val ctrl = actionDelayControllers.getOrNull(actionFocusedIndex)
                                         val txt = ctrl?.getText() ?: editActionDelayText.getOrNull(actionFocusedIndex) ?: ""
                                         val selA = editActionDelaySelectionStarts.getOrNull(actionFocusedIndex)
                                         val selB = editActionDelaySelectionEnds.getOrNull(actionFocusedIndex)
-                                        val (s, e) = if (selA != null && selB != null) Pair(minOf(selA, selB), maxOf(selA, selB)) else Pair(-1, -1)
+                                        val (s, e) = if (selA != null && selB != null) Pair(minOf(selA, selB), maxOf(selA, selB)) else Pair(
+                                            -1,
+                                            -1,
+                                        )
                                         val cursor = ctrl?.getCursorPosition() ?: txt.length
-                                        val result = if (s >= 0 && e >= s) txt.substring(0, s) + clip + txt.substring(e) else txt.substring(0, cursor) + clip + txt.substring(cursor)
+                                        val result =
+                                            if (s >= 0 && e >= s) txt.substring(0, s) + clip + txt.substring(e) else txt.substring(
+                                                0,
+                                                cursor,
+                                            ) + clip + txt.substring(cursor)
                                         editActionDelayText[actionFocusedIndex] = result
                                         ctrl?.setTextValue(result)
-                                        try { ctrl?.setCursorPosition((if (s >= 0 && e >= s) s + clip.length else (cursor + clip.length)).coerceAtMost(result.length)) } catch (_: Throwable) {}
+                                        try {
+                                            ctrl?.setCursorPosition(
+                                                (if (s >= 0 && e >= s) s + clip.length else (cursor + clip.length)).coerceAtMost(
+                                                    result.length,
+                                                ),
+                                            )
+                                        } catch (_: Throwable) {
+                                        }
                                         sanitizeDelay(actionFocusedIndex, finalize = false)
                                     }
                                 }
@@ -741,14 +912,15 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                         }
                         return
                     }
-                    Keyboard.KEY_C -> {
+                    GLFW.GLFW_KEY_R -> {
                         when (focusTarget) {
                             FocusTarget.CODE -> {
                                 val txt = codeController?.getText() ?: editCodeText
                                 val selA = editCodeSelectionStart
                                 val selB = editCodeSelectionEnd
                                 if (selA != null && selB != null && selA != selB) {
-                                    val s = minOf(selA, selB); val e = maxOf(selA, selB)
+                                    val s = minOf(selA, selB)
+                                    val e = maxOf(selA, selB)
                                     ClipboardUtils.copyToClipboard(txt.substring(s, e))
                                 }
                             }
@@ -760,7 +932,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                                         val selA = editActionSelectionStarts.getOrNull(actionFocusedIndex)
                                         val selB = editActionSelectionEnds.getOrNull(actionFocusedIndex)
                                         if (selA != null && selB != null && selA != selB) {
-                                            val s = minOf(selA, selB); val e = maxOf(selA, selB)
+                                            val s = minOf(selA, selB)
+                                            val e = maxOf(selA, selB)
                                             ClipboardUtils.copyToClipboard(txt.substring(s, e))
                                         }
                                     } else {
@@ -769,7 +942,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                                         val selA = editActionDelaySelectionStarts.getOrNull(actionFocusedIndex)
                                         val selB = editActionDelaySelectionEnds.getOrNull(actionFocusedIndex)
                                         if (selA != null && selB != null && selA != selB) {
-                                            val s = minOf(selA, selB); val e = maxOf(selA, selB)
+                                            val s = minOf(selA, selB)
+                                            val e = maxOf(selA, selB)
                                             ClipboardUtils.copyToClipboard(txt.substring(s, e))
                                         }
                                     }
@@ -779,19 +953,23 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                         }
                         return
                     }
-                    Keyboard.KEY_X -> {
+                    GLFW.GLFW_KEY_X -> {
                         when (focusTarget) {
                             FocusTarget.CODE -> {
                                 val txt = codeController?.getText() ?: editCodeText
                                 val selA = editCodeSelectionStart
                                 val selB = editCodeSelectionEnd
                                 if (selA != null && selB != null && selA != selB) {
-                                    val s = minOf(selA, selB); val e = maxOf(selA, selB)
+                                    val s = minOf(selA, selB)
+                                    val e = maxOf(selA, selB)
                                     ClipboardUtils.copyToClipboard(txt.substring(s, e))
                                     val result = txt.substring(0, s) + txt.substring(e)
                                     editCodeText = result
                                     codeController?.setTextValue(editCodeText)
-                                    try { codeController?.setCursorPosition(s.coerceAtMost(editCodeText.length)) } catch (_: Throwable) {}
+                                    try {
+                                        codeController?.setCursorPosition(s.coerceAtMost(editCodeText.length))
+                                    } catch (_: Throwable) {
+                                    }
                                     sanitizeCode()
                                 }
                             }
@@ -803,12 +981,16 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                                         val selA = editActionSelectionStarts.getOrNull(actionFocusedIndex)
                                         val selB = editActionSelectionEnds.getOrNull(actionFocusedIndex)
                                         if (selA != null && selB != null && selA != selB) {
-                                            val s = minOf(selA, selB); val e = maxOf(selA, selB)
+                                            val s = minOf(selA, selB)
+                                            val e = maxOf(selA, selB)
                                             ClipboardUtils.copyToClipboard(txt.substring(s, e))
                                             val result = txt.substring(0, s) + txt.substring(e)
                                             editActionsList[actionFocusedIndex].command = result
                                             ctrl?.setTextValue(result)
-                                            try { ctrl?.setCursorPosition(s.coerceAtMost(result.length)) } catch (_: Throwable) {}
+                                            try {
+                                                ctrl?.setCursorPosition(s.coerceAtMost(result.length))
+                                            } catch (_: Throwable) {
+                                            }
                                             updateSuggestions(true)
                                         }
                                     } else {
@@ -817,12 +999,16 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                                         val selA = editActionDelaySelectionStarts.getOrNull(actionFocusedIndex)
                                         val selB = editActionDelaySelectionEnds.getOrNull(actionFocusedIndex)
                                         if (selA != null && selB != null && selA != selB) {
-                                            val s = minOf(selA, selB); val e = maxOf(selA, selB)
+                                            val s = minOf(selA, selB)
+                                            val e = maxOf(selA, selB)
                                             ClipboardUtils.copyToClipboard(txt.substring(s, e))
                                             val result = txt.substring(0, s) + txt.substring(e)
                                             editActionDelayText[actionFocusedIndex] = result
                                             ctrl?.setTextValue(result)
-                                            try { ctrl?.setCursorPosition(s.coerceAtMost(result.length)) } catch (_: Throwable) {}
+                                            try {
+                                                ctrl?.setCursorPosition(s.coerceAtMost(result.length))
+                                            } catch (_: Throwable) {
+                                            }
                                             sanitizeDelay(actionFocusedIndex, finalize = false)
                                         }
                                     }
@@ -833,28 +1019,47 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                         return
                     }
                 }
-            } catch (_: Throwable) {}
+            } catch (_: Throwable) {
+            }
         }
 
         // PageUp/PageDown suggestions
-        if (suggestionController.visible && suggestionController.suggestions.isNotEmpty() && (kc == Keyboard.KEY_NEXT || kc == Keyboard.KEY_PRIOR)) { pageSuggestions(kc == Keyboard.KEY_NEXT); return }
-        if ((kc == Keyboard.KEY_RETURN || kc == Keyboard.KEY_NUMPADENTER) && suggestionController.visible && suggestionController.suggestions.isNotEmpty()) { acceptSuggestion(focusTarget == FocusTarget.ACTIONS); return }
-        if (suggestionController.visible && suggestionController.suggestions.isNotEmpty() && (kc == Keyboard.KEY_DOWN || kc == Keyboard.KEY_UP)) {
-            suggestionController.navigate(if (kc == Keyboard.KEY_DOWN) 1 else -1)
+        if (suggestionController.visible && suggestionController.suggestions.isNotEmpty() && (kc == GLFW.GLFW_KEY_PAGE_DOWN || kc == GLFW
+            .GLFW_KEY_PAGE_UP)
+        ) {
+            pageSuggestions(kc == GLFW.GLFW_KEY_PAGE_DOWN); return
+        }
+        if ((kc == GLFW.GLFW_KEY_ENTER || kc == GLFW.GLFW_KEY_KP_ENTER) && suggestionController.visible && suggestionController.suggestions
+                .isNotEmpty()
+        ) {
+            acceptSuggestion(focusTarget == FocusTarget.ACTIONS); return
+        }
+        if (suggestionController.visible && suggestionController.suggestions.isNotEmpty() && (kc == GLFW.GLFW_KEY_DOWN || kc == GLFW.GLFW_KEY_UP)) {
+            suggestionController.navigate(if (kc == GLFW.GLFW_KEY_DOWN) 1 else -1)
             suggestionSelectionVisible = true
             return
         }
-        if (kc == Keyboard.KEY_TAB && focusTarget == FocusTarget.ACTIONS) { updateSuggestions(true); return }
+        if (kc == GLFW.GLFW_KEY_TAB && focusTarget == FocusTarget.ACTIONS) {
+            updateSuggestions(true); return
+        }
         // Forward char input
         try {
             if (focusTarget == FocusTarget.CODE) {
-                val allowed = (ch?.isDigit() == true) || keyCode in arrayOf(Keyboard.KEY_BACK, Keyboard.KEY_LEFT, Keyboard.KEY_RIGHT, Keyboard.KEY_DELETE)
+                val allowed = (ch?.isDigit() == true) || keyCode in arrayOf(
+                    GLFW.GLFW_KEY_BACKSPACE,
+                    GLFW.GLFW_KEY_LEFT,
+                    GLFW.GLFW_KEY_RIGHT,
+                    GLFW.GLFW_KEY_DELETE,
+                )
                 if (allowed) codeController?.textboxKeyTyped(ch ?: '\u0000', keyCode ?: -1)
                 editCodeText = codeController?.getText() ?: editCodeText
                 sanitizeCode()
                 return
             } else if (focusTarget == FocusTarget.ACTIONS && actionFocusedIndex in editActionsList.indices) {
-                val field = if (actionFocusedField == ActionField.COMMAND) actionCommandControllers.getOrNull(actionFocusedIndex) else actionDelayControllers.getOrNull(actionFocusedIndex)
+                val field =
+                    if (actionFocusedField == ActionField.COMMAND) actionCommandControllers.getOrNull(actionFocusedIndex) else actionDelayControllers.getOrNull(
+                        actionFocusedIndex,
+                    )
                 field?.textboxKeyTyped(ch ?: '\u0000', keyCode ?: -1)
                 if (actionFocusedField == ActionField.COMMAND) {
                     editActionsList[actionFocusedIndex].command = field?.getText() ?: editActionsList[actionFocusedIndex].command
@@ -867,10 +1072,11 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                 }
                 return
             }
-        } catch (_: Throwable) {}
+        } catch (_: Throwable) {
+        }
 
         // Enter adds new action if in actions focus
-        if ((kc == Keyboard.KEY_RETURN || kc == Keyboard.KEY_NUMPADENTER) && focusTarget == FocusTarget.ACTIONS) {
+        if ((kc == GLFW.GLFW_KEY_ENTER || kc == GLFW.GLFW_KEY_KP_ENTER) && focusTarget == FocusTarget.ACTIONS) {
             addAction(); return
         }
     }
@@ -891,7 +1097,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         if (focusTarget == FocusTarget.ACTIONS && actionFocusedIndex in editActionsList.indices) {
             val cmdW = (editW - 4) - 140
             when (actionFocusedField) {
-                ActionField.COMMAND -> actionCommandControllers.getOrNull(actionFocusedIndex)?.drag((originalMouseX - (editLeft + 4)).coerceAtLeast(-50))
+                ActionField.COMMAND -> actionCommandControllers.getOrNull(actionFocusedIndex)
+                    ?.drag((originalMouseX - (editLeft + 4)).coerceAtLeast(-50))
                 ActionField.DELAY -> {
                     val delayX = editLeft + 4 + cmdW + 6
                     actionDelayControllers.getOrNull(actionFocusedIndex)?.drag((originalMouseX - delayX).coerceAtLeast(-10))

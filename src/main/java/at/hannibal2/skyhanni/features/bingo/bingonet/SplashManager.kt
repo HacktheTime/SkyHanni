@@ -28,6 +28,12 @@ object SplashManager {
     var splashPool: MutableMap<Int, DisplaySplash> = HashMap<Int, DisplaySplash>()
 
     fun addSplash(splash: SplashData, source: SplashSource) {
+        if (source == SplashSource.BB) {
+            if (splashPool.values.any { it.funder == splash.funder && it.hubSelectorData?.hubNumber == splash.hubSelectorData?.hubNumber }) {
+                return //This avoids duplicate splash announcement messages when dual sending and BN Data is better.
+            }
+        }
+
         val existed = splashPool.containsKey(splash.splashId)
         splashPool[splash.splashId] = DisplaySplash(splash)
         DelayedRun.runDelayed(

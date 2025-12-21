@@ -3,11 +3,7 @@ package at.hannibal2.skyhanni.shader
 import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
 import at.hannibal2.skyhanni.utils.shader.Shader
 import at.hannibal2.skyhanni.utils.shader.Uniform
-
-//#if MC > 1.21
-//$$ import java.nio.FloatBuffer
-//$$ import org.joml.Matrix4f
-//#endif
+import org.joml.Matrix4f
 
 abstract class RoundedShader<Self : RoundedShader<Self>>(vertex: String, fragment: String) : Shader(vertex, fragment) {
     @Suppress("UNCHECKED_CAST", "PropertyName", "VariableNaming")
@@ -21,9 +17,8 @@ abstract class RoundedShader<Self : RoundedShader<Self>>(vertex: String, fragmen
         set(value) {
             field = floatArrayOf(value[0], GuiScreenUtils.displayHeight - value[1])
         }
-    //#if MC > 1.21
-    //$$ var modelViewMatrix: Matrix4f = Matrix4f()
-    //#endif
+
+    var modelViewMatrix: Matrix4f = Matrix4f()
 
     fun applyBaseUniforms(
         hasSmoothness: Boolean = true,
@@ -34,9 +29,7 @@ abstract class RoundedShader<Self : RoundedShader<Self>>(vertex: String, fragmen
         if (hasSmoothness) registerUniform(Uniform.UniformType.FLOAT, "smoothness") { smoothness }
         if (hasHalfSize) registerUniform(Uniform.UniformType.VEC2, "halfSize") { halfSize }
         registerUniform(Uniform.UniformType.VEC2, "centerPos") { centerPos }
-        //#if MC > 1.21
-        //$$ registerUniform(Uniform.UniformType.MAT4, "modelViewMatrix") { modelViewMatrix }
-        //#endif
+        registerUniform(Uniform.UniformType.MAT4, "modelViewMatrix") { modelViewMatrix }
     }
 
     override fun registerUniforms() = applyBaseUniforms()

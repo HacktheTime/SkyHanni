@@ -13,7 +13,7 @@ import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 import at.hannibal2.skyhanni.utils.renderables.primitives.placeholder
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.opengl.GlStateManager
 import java.awt.Color
 
 class SearchableStorageReminderGui(private var search: String = "") : SkyHanniBaseScreen() {
@@ -38,8 +38,6 @@ class SearchableStorageReminderGui(private var search: String = "") : SkyHanniBa
         display?.let { display ->
             guiLeft = (width - display.width) / 2
             guiTop = (height - display.height) / 2
-
-            GlStateManager.disableLighting()
             DrawContextUtils.pushPop {
                 DrawContextUtils.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
                 display.render(guiLeft, guiTop)

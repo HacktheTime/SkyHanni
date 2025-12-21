@@ -18,7 +18,7 @@ object ChatPromptUtils {
     @HandleEvent
     fun key(event: KeyDownEvent) {
         val activePrompt = activePromptBlock ?: return
-        if (Minecraft.getMinecraft().currentScreen != null) return
+        if (Minecraft.getInstance().screen != null) return
         if (event.keyCode != activePrompt.keyCode || !event.keyCode.isKeyHeld()) return
         activePromptBlock = null
         if (SkyHanniMod.feature.dev.debug.enabled){

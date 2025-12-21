@@ -2,7 +2,6 @@ package at.hannibal2.skyhanni.features.garden.farming
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.jsonobjects.repo.GardenJson
 import at.hannibal2.skyhanni.events.GuiRenderEvent
@@ -19,7 +18,7 @@ import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getHoeExp
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getHoeLevel
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemUuid
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
-import at.hannibal2.skyhanni.utils.compat.appendString
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLeadingWhiteLessResets
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
@@ -27,7 +26,6 @@ import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 @SkyHanniModule
 object HoeLevelDisplay {
 
-    val pos = Position(100, 100)
     private var hoeLevels: List<Int>? = null
     private var hoeOverflow = 200000
     private var display: List<Renderable>? = null
@@ -87,12 +85,12 @@ object HoeLevelDisplay {
         levelUpPattern.matchMatcher(event.message) {
             val heldItem = InventoryUtils.getItemInHand() ?: return
             val leveledUpTool = group("tool")
-            val heldItemName = heldItem.displayName.removeColor()
+            val heldItemName = heldItem.hoverName.formattedTextCompatLeadingWhiteLessResets().removeColor()
             if (!heldItemName.contains(leveledUpTool)) return
             val overflowLevel = addOverflowHoeLevel(heldItem.getItemUuid())
             if (isEnabled() && config.overflow && overflowLevel != null) {
                 val currentLevel = heldItem.getHoeLevel() ?: return
-                event.chatComponent = event.chatComponent.appendString(" §8(§3Level ${currentLevel + overflowLevel}§8)")
+                event.chatComponent = event.chatComponent.copy().append(" §8(§3Level ${currentLevel + overflowLevel}§8)")
             }
         }
     }
@@ -120,7 +118,7 @@ object HoeLevelDisplay {
     fun onRender(event: GuiRenderEvent.GuiOverlayRenderEvent) {
         if (!isEnabled()) return
         val renderable = display ?: return
-        pos.renderRenderables(renderable, posLabel = "amazing")
+        config.position.renderRenderables(renderable, posLabel = "Hoe Level Display")
     }
 
     @HandleEvent

@@ -28,7 +28,8 @@ enum class ModrinthInfo(
         dependencies = mapOf(
             ModrinthDependency.FABRIC_API to DependencyType.REQUIRED,
             ModrinthDependency.FABRIC_LANGUAGE_KOTLIN to DependencyType.REQUIRED,
-        ),
+            ModrinthDependency.SKYHANNI to DependencyType.INCOMPATIBLE,
+            ),
     ),
     FABRIC_1_21_10(
         minecraftVersions = listOf("1.21.10"),

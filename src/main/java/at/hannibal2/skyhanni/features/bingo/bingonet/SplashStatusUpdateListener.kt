@@ -21,7 +21,7 @@ import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.packets.function.SplashLeechReportPacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
 import kotlinx.coroutines.Job
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.world.entity.player.Player
 import java.lang.StringBuilder
 import kotlin.time.Duration.Companion.minutes
 
@@ -90,8 +90,8 @@ object SplashStatusUpdateListener {
             setStatus(StatusConstants.SPLASHING)
             if (leecherConfig.enabled && HypixelData.getRemainingSpace() <= 2) {
                 // Sends a Packet to the Server that these Player Leeched the Splash. User can then confirm the List before Sanctions are caused.
-                val data = EntityUtils.getEntitiesNextToPlayer<EntityPlayer>(5.0).filter { !it.isOnBingo() }
-                    .map { Triple(it.displayName.formattedText, it.uniqueID, it.isOnIronman()) }.toList()
+                val data = EntityUtils.getEntitiesNextToPlayer<Player>(5.0).filter { !it.isOnBingo() }
+                    .map { Triple(it.displayName!!.string, it.uuid, it.isOnIronman()) }.toList()
                 if (HypixelData.getMaxPlayersForCurrentServer() - (HypixelData.getPlayersOnCurrentServer()) <= 2) {
                     BNConnection.sendPacket(SplashLeechReportPacket(data, leecherConfig.allowIman))
                 }
@@ -111,7 +111,7 @@ object SplashStatusUpdateListener {
                 val spots = HypixelData.getRemainingSpace()
                 if (spots <= 2) {
                     val players: List<String> =
-                        EntityUtils.getEntitiesNextToPlayer<EntityPlayer>(5.0).filter { !it.isOnBingo() }.map { it.name }.toList()
+                        EntityUtils.getEntitiesNextToPlayer<Player>(5.0).filter { !it.isOnBingo() }.map { it.name.string }.toList()
                     // Splashes are done for Bingo People. Normals or Ironmans are allowed but only if theres no further need for Bingo.
                     val messages = mutableListOf(StringBuilder("Leeching Splash will result in Bingo Net Sanctions! Leave now! "))
                     for (player in players) {

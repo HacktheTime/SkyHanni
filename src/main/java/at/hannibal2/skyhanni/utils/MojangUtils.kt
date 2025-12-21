@@ -17,27 +17,18 @@ object MojangUtils {
      */
 
     fun joinServer(server: String) {
-        //#if MC < 1.16
-        Minecraft.getMinecraft().sessionService.joinServer(
-            Minecraft
-                .getMinecraft()
-                .session
-                .profile,
-            Minecraft.getMinecraft().session.token, server,
-        )
-        //#elseif MC < 1.21.10
-        //$$ MinecraftClient.getInstance().getSessionService().joinServer(
-        //$$          MinecraftClient.getInstance().getGameProfile().getId(),
-        //$$          MinecraftClient.getInstance().getSession().getAccessToken(),
-        //$$          server,
-        //$$ )
+        val mc = Minecraft.getInstance()
+        val user = mc.user
+        //#if MC<1.21.10
+        val sessionService = mc.minecraftSessionService
         //#else
-        //$$ MinecraftClient.getInstance().apiServices.sessionService.joinServer(
-        //$$     MinecraftClient.getInstance().gameProfile.id,
-        //$$     MinecraftClient.getInstance().getSession().getAccessToken(),
-        //$$     server,
-        //$$ )
+        //$$ val sessionService = mc.services().sessionService
         //#endif
+        sessionService.joinServer(
+            user.profileId,
+            user?.accessToken,
+            server,
+        )
     }
 
     /**

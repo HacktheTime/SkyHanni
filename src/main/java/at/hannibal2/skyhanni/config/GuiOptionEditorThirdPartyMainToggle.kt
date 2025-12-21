@@ -51,7 +51,7 @@ class GuiOptionEditorThirdPartyMainToggle(
         val insideBanner = mouseX in x..(x + width) && mouseY in y..(y + bannerHeight)
         val isPrimaryClick = mouseEvent is MouseEvent.Click && mouseEvent.mouseState && mouseEvent.mouseButton == 0
         if (insideBanner && isPrimaryClick) {
-            Minecraft.getMinecraft().displayGuiScreen(ThirdPartyFeaturesScreen(thirdParty))
+            Minecraft.getInstance().setScreen(ThirdPartyFeaturesScreen(thirdParty))
             return true
         }
         return base.mouseInput(x, y + bannerHeight, width, mouseX, mouseY, mouseEvent)

@@ -182,7 +182,7 @@ object SearchItem {
             ChatUtils.userError("This item doesn't have a UUID! Only unique SkyBlock items can be tagged.")
             return
         }
-        val displayName = heldItem.displayName ?: "Unknown Item"
+        val displayName = heldItem.displayName.string ?: "Unknown Item"
         val success = ItemTagManager.addTag(uuid, tag, displayName)
         if (success) {
             ChatUtils.chat("§aSuccessfully tagged §e$displayName §awith §b$tag")

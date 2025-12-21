@@ -10,18 +10,13 @@ import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-//#if MC < 1.21
-import net.minecraft.client.Minecraft
-//#else
-//$$ import net.minecraft.client.MinecraftClient
-//$$ import net.minecraft.client.option.KeyBinding
-//#endif
-import org.lwjgl.input.Keyboard
 import at.hannibal2.skyhanni.config.commands.CommandsRegistry
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.KeyboardManager
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
+import net.minecraft.client.Minecraft
+import org.lwjgl.glfw.GLFW
 
 @SkyHanniModule
 object Keybinds {
@@ -85,52 +80,25 @@ object Keybinds {
         val map = mutableMapOf<String, String>()
         val codes = mutableSetOf<Int>()
         try {
-            //#if MC < 1.21
-            try {
-                val mc = Minecraft.getMinecraft()
-                for (kb in mc.gameSettings.keyBindings) {
-                    try {
-                        val code = kb.keyCode
-                        if (code == 0) continue
-                        val description = kb.keyDescription ?: "Unknown"
-                        // Only include core vanilla Minecraft keys, not mod keys
-                        // This ensures we get proper movement/action keys detection
-                        codes += code
-                        val keyName = keyName(code)
-                        map[keyName] = humanizeDescription(description)
-                    } catch (_: Throwable) {
-                    }
-                }
-            } catch (_: Throwable) {
-            }
-            //#else
-            //$$ try {
-            //$$     val mc = MinecraftClient.getInstance()
-            //$$     for (kb in mc.options.allKeys) {
-            //$$         try {
-            //$$             val code = kb.boundKey.code
-            //$$             if (code == null || code == -1) continue
-            //$$             val label = kb.translationKey
-            //$$             codes += code
-            //$$             val keyName = keyName(code)
-            //$$             map[keyName] = humanizeDescription(label)
-            //$$         } catch (_: Throwable) {}
-            //$$     }
-            //$$ } catch (_: Throwable) {}
-            //#endif
+             try {
+                 val mc = Minecraft.getInstance()
+                 for (kb in mc.options.keyMappings) {
+                     try {
+                         val code = kb.key.value
+                         if (code == -1) continue
+                         val label = kb.key.displayName.string
+                         codes += code
+                         val keyName = keyName(code)
+                         map[keyName] = label
+                     } catch (_: Throwable) {}
+                 }
+             } catch (_: Throwable) {}
         } catch (_: Throwable) {
         }
         cachedVanillaKeys = map
         cachedVanillaKeyCodes = codes
         lastVanillaCacheStamp = now
         return map
-    }
-
-    private fun humanizeDescription(raw: String): String {
-        val r = raw.removePrefix("key.").removePrefix("key.")
-        val base = r.substringAfterLast('.')
-            .replace('_', ' ').replace('.', ' ')
-        return base.split(' ').filter { it.isNotBlank() }.joinToString(" ") { it.lowercase().replaceFirstChar { c -> c.uppercase() } }
     }
 
     fun isVanillaBoundKeyName(name: String): Boolean = vanillaBoundKeyNames().containsKey(name.uppercase())
@@ -200,18 +168,18 @@ object Keybinds {
     }
 
     private fun isModifier(code: Int) = code in setOf(
-        Keyboard.KEY_LCONTROL,
-        Keyboard.KEY_RCONTROL,
-        Keyboard.KEY_LSHIFT,
-        Keyboard.KEY_RSHIFT,
-        Keyboard.KEY_LMENU,
-        Keyboard.KEY_RMENU,
+        GLFW.GLFW_KEY_RIGHT_CONTROL,
+        GLFW.GLFW_KEY_LEFT_CONTROL,
+        GLFW.GLFW_KEY_RIGHT_SHIFT,
+        GLFW.GLFW_KEY_LEFT_SHIFT,
+        GLFW.GLFW_KEY_RIGHT_ALT,
+        GLFW.GLFW_KEY_LEFT_ALT,
     )
 
     private fun currentModifiers(): Set<String> = buildSet {
-        if (Keyboard.KEY_LCONTROL.isKeyHeld() || Keyboard.KEY_RCONTROL.isKeyHeld()) add("CTRL")
-        if (Keyboard.KEY_LSHIFT.isKeyHeld() || Keyboard.KEY_RSHIFT.isKeyHeld()) add("SHIFT")
-        if (Keyboard.KEY_LMENU.isKeyHeld() || Keyboard.KEY_RMENU.isKeyHeld()) add("ALT")
+        if (GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_CONTROL.isKeyHeld()) add("CTRL")
+        if (GLFW.GLFW_KEY_LEFT_SHIFT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_SHIFT.isKeyHeld()) add("SHIFT")
+        if (GLFW.GLFW_KEY_LEFT_ALT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_ALT.isKeyHeld()) add("ALT")
     }
 
     private fun currentBaseKeyNames(): Set<String> = chordBaseKeyCodes.map { keyName(it) }.toSet()
@@ -290,12 +258,8 @@ object Keybinds {
     fun onKeyDown(e: KeyDownEvent) {
         if (binds.isEmpty()) return
         try {
-            //#if MC < 1.21
-            val mc = Minecraft.getMinecraft()
-            //#else
-            //$$ val mc = MinecraftClient.getInstance()
-            //#endif
-            if (mc.currentScreen != null) {
+            val mc = Minecraft.getInstance()
+            if (mc.screen != null) {
                 resetChord(); return
             }
             val code = e.keyCode
@@ -314,12 +278,8 @@ object Keybinds {
     fun onKeyUp(e: KeyUpEvent) {
         if (binds.isEmpty()) return
         try {
-            //#if MC < 1.21
-            val mc = Minecraft.getMinecraft()
-            //#else
-            //$$ val mc = MinecraftClient.getInstance()
-            //#endif
-            if (mc.currentScreen != null) {
+            val mc = Minecraft.getInstance()
+            if (mc.screen != null) {
                 resetChord(); return
             }
             val code = e.keyCode
