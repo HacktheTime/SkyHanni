@@ -39,6 +39,7 @@ import java.lang.reflect.Field
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.concurrent.fixedRateTimer
+import kotlin.jvm.java
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.jvm.javaField
 import kotlin.time.Duration.Companion.days
@@ -284,7 +285,7 @@ enum class ConfigFileType(val fileName: String, val clazz: Class<*>, val propert
     val backupFile get() = getBackupFile(file)
 }
 
-class BlockingMoulConfigProcessor : MoulConfigProcessor<Features>(SkyHanniMod.feature) {
+open class BlockingMoulConfigProcessor : MoulConfigProcessor<Features>(SkyHanniMod.feature) {
     @Suppress("ReturnCount")
     override fun createOptionGui(
         processedOption: ProcessedOption,

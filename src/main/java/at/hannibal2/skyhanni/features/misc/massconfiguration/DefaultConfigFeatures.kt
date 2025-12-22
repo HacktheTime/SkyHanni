@@ -92,7 +92,54 @@ object DefaultConfigFeatures {
             ChatUtils.chat("There are no new options to configure between $old and $new")
             return
         }
+        // Default behavior: open selective default config GUI with only new options
         SkyHanniMod.screenToOpen = DefaultConfigOptionGui(optionList, old, new)
+    }
+
+    /** Opens the default options GUI but scoped to only new options. */
+    private fun openNewOptionsOnly(old: String, new: String) {
+        val processor = FeatureToggleProcessor()
+        val driver = ConfigProcessorDriver(processor)
+        driver.warnForPrivateFields = false
+        driver.processConfig(SkyHanniMod.feature)
+        val knownToggles = SkyHanniMod.knownFeaturesData.knownFeatures
+        val togglesInNewVersion = knownToggles[new] ?: emptyList()
+        val togglesInOldVersion = knownToggles[old] ?: emptyList()
+        val allowed = processor.allOptions
+            .filter { opt ->
+                (new == "null" || opt.path in togglesInNewVersion) &&
+                    (old == "null" || opt.path !in togglesInOldVersion)
+            }
+            .map { it.path }
+            .toSet()
+        if (allowed.isEmpty()) {
+            ChatUtils.chat("No new options available between $old and $new")
+            return
+        }
+        FilteredConfigGui.open(allowed)
+    }
+
+    private fun openNewOptionsList(old: String, new: String) {
+        val processor = FeatureToggleProcessor()
+        val driver = ConfigProcessorDriver(processor)
+        driver.warnForPrivateFields = false
+        driver.processConfig(SkyHanniMod.feature)
+        val knownToggles = SkyHanniMod.knownFeaturesData.knownFeatures
+        val togglesInNewVersion = knownToggles[new] ?: emptyList()
+        val togglesInOldVersion = knownToggles[old] ?: emptyList()
+        val groups = processor.orderedOptions
+            .mapNotNull { (cat, opts) ->
+                val newOpts = opts.filter { opt ->
+                    (new == "null" || opt.path in togglesInNewVersion) &&
+                        (old == "null" || opt.path !in togglesInOldVersion)
+                }
+                if (newOpts.isEmpty()) null else NewOptionsListScreen.OptionGroup(cat.name, newOpts)
+            }
+        if (groups.isEmpty()) {
+            ChatUtils.chat("No new options to list between $old and $new")
+            return
+        }
+        SkyHanniMod.screenToOpen = NewOptionsListScreen("§dNew Options", groups)
     }
 
     fun applyCategorySelections(
@@ -141,6 +188,38 @@ object DefaultConfigFeatures {
             }
             simpleCallback {
                 onCommand("null", "null")
+            }
+        }
+        event.registerBrigadier("shnewoptions") {
+            description = "Open MoulConfig with only new options"
+            arg("oldVersion", BrigadierArguments.string(), BrigadierUtils.dynamicSuggestionProvider { autocomplete }) { oldVersion ->
+                arg("newVersion", BrigadierArguments.string(), BrigadierUtils.dynamicSuggestionProvider { autocomplete }) { newVersion ->
+                    callback {
+                        openNewOptionsOnly(getArg(oldVersion), getArg(newVersion))
+                    }
+                }
+                callback {
+                    openNewOptionsOnly(getArg(oldVersion), "null")
+                }
+            }
+            simpleCallback {
+                openNewOptionsOnly("null", "null")
+            }
+        }
+        event.registerBrigadier("shnewoptionslist") {
+            description = "List only new options (simple viewer)"
+            arg("oldVersion", BrigadierArguments.string(), BrigadierUtils.dynamicSuggestionProvider { autocomplete }) { oldVersion ->
+                arg("newVersion", BrigadierArguments.string(), BrigadierUtils.dynamicSuggestionProvider { autocomplete }) { newVersion ->
+                    callback {
+                        openNewOptionsList(getArg(oldVersion), getArg(newVersion))
+                    }
+                }
+                callback {
+                    openNewOptionsList(getArg(oldVersion), "null")
+                }
+            }
+            simpleCallback {
+                openNewOptionsList("null", "null")
             }
         }
     }

@@ -95,7 +95,6 @@ object StorageApi {
             "Private Island Chest",
             storage,
         )
-    val islandChest: Map<String, SkyHanniInventoryContainer> get() = mutableIslandChest
 
     var currentStorage: SkyHanniInventoryContainer? = null
         private set

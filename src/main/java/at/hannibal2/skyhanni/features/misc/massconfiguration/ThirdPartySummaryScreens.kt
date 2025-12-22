@@ -28,19 +28,36 @@ class ThirdPartySummaryIntroScreen(
         val xOffset = (width - contentWidth) / 2
         val yOffset = (height - contentHeight) / 2
 
+        DrawContextUtils.pushMatrix()
+        DrawContextUtils.translate(xOffset.toFloat(), yOffset.toFloat(), 0f)
+        GuiRenderUtils.drawFloatingRectDark(0, 0, contentWidth, contentHeight)
         Renderable.withMousePosition(mouseX - xOffset, mouseY - yOffset) {
-            Renderable.drawInsideDarkRect(buildColumn(contentWidth))
-                .renderXYAligned(xOffset, yOffset, contentWidth, contentHeight)
+            Renderable.drawInsideDarkRect(buildColumn(contentWidth - CONTENT_PADDING * 2))
+                .renderXYAligned(0, 0, contentWidth, contentHeight)
         }
+        DrawContextUtils.popMatrix()
     }
 
     private fun buildColumn(contentWidth: Int): Renderable {
+        val textWidth = (contentWidth - CONTENT_PADDING * 2).coerceAtLeast(120)
         val title = Renderable.text("§dThird-Party Services Notice")
-        val lines = listOf(
-            "§7Some of the configurable options rely on external services.",
-            "§7Those services are run by their own teams, so the SkyHanni Team cannot control data handling or availability.",
-            "§7We'll highlight these options so you can decide yourself whether you want to enable them or not.",
-        ).map(Renderable::text)
+        val body = listOf(
+            massConfigMultilineText(
+                "§7Some of the configurable options rely on external services.",
+                textWidth,
+                RenderUtils.HorizontalAlignment.LEFT,
+            ),
+            massConfigMultilineText(
+                "§7Those services are run by their own teams, so the SkyHanni Team cannot control data handling or availability.",
+                textWidth,
+                RenderUtils.HorizontalAlignment.LEFT,
+            ),
+            massConfigMultilineText(
+                "§7We'll highlight these options so you can decide yourself whether you want to enable them or not.",
+                textWidth,
+                RenderUtils.HorizontalAlignment.LEFT,
+            ),
+        )
         val continueButton = Renderable.darkRectButton(
             content = Renderable.text("Continue"),
             onClick = { proceed() },
@@ -52,7 +69,7 @@ class ThirdPartySummaryIntroScreen(
             buildList {
                 add(title)
                 add(Renderable.placeholder(0, CONTENT_PADDING))
-                addAll(lines)
+                add(Renderable.vertical(body, spacing = 4, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT))
                 add(Renderable.placeholder(0, CONTENT_PADDING))
                 add(continueButton)
                 add(escHint)
@@ -94,13 +111,18 @@ class ThirdPartySummaryScreen(
 
     private var scrollRenderable: Renderable? = null
     private var lastScrollHeight = -1
+    private var listContentWidth = 0
 
     override fun onDrawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        // draw a solid black background behind the centered dialog
         drawDefaultBackground(mouseX, mouseY, partialTicks)
         val contentWidth = (width * 0.75).toInt()
         val contentHeight = (height * 0.8).toInt()
         val listHeight = (contentHeight - 160).coerceAtLeast(80)
+        val calculatedListWidth = (contentWidth - CONTENT_PADDING * 2).coerceAtLeast(140)
+        if (calculatedListWidth != listContentWidth) {
+            listContentWidth = calculatedListWidth
+            scrollRenderable = null
+        }
         ensureScrollRenderable(listHeight)
         val xOffset = (width - contentWidth) / 2
         val yOffset = (height - contentHeight) / 2
@@ -121,18 +143,41 @@ class ThirdPartySummaryScreen(
     }
 
     private fun buildColumn(contentWidth: Int, listHeight: Int): Renderable {
+        val textWidth = (contentWidth - CONTENT_PADDING * 2).coerceAtLeast(140)
         val header = Renderable.text("§dThird-Party Options Summary")
         val debugPlaceholder = Renderable.placeholder(0, 4)
-        val description = Renderable.text(
-            "§7These options depend on servers that are not run or controlled by the SkyHanni Team."
+        val description = massConfigMultilineText(
+            "§7These options depend on servers that are not run or controlled by the SkyHanni Team.",
+            textWidth,
+            RenderUtils.HorizontalAlignment.CENTER,
         )
-        val reminder = Renderable.text("§7You can revisit this summary later under §f/skyhanni → Third-Party Consent§7.")
+        val reminder = massConfigMultilineText(
+            "§7You can revisit this summary later under §f/skyhanni → Third-Party Consent§7.",
+            textWidth,
+            RenderUtils.HorizontalAlignment.CENTER,
+        )
 
         val toggleSelfSelect = Renderable.darkRectButton(
             content = Renderable.text(if (showOnlyNew) "Show: Only new options" else "Show: All third-party options"),
             onClick = {
                 println("[TP Summary] toggleSelfSelect clicked")
                 showOnlyNew = !showOnlyNew; scrollRenderable = null
+            },
+            bypassChecks = true,
+            horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+        )
+
+        val openConfigButton = Renderable.darkRectButton(
+            content = Renderable.text("Open new-only config view"),
+            onClick = {
+                println("[TP Summary] open config clicked")
+                val filtered = buildNewOnlyMap(showOnlyNew)
+                if (filtered.isEmpty()) {
+                    println("[TP Summary] no entries to open")
+                    return@darkRectButton
+                }
+                val allowed = filtered.values.flatten().map { it.path }.toSet()
+                FilteredConfigGui.open(allowed)
             },
             bypassChecks = true,
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
@@ -158,7 +203,7 @@ class ThirdPartySummaryScreen(
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
         )
         val buttonRow = Renderable.horizontal(
-            listOf(toggleSelfSelect, toggleButton, closeButton),
+            listOf(toggleSelfSelect, openConfigButton, toggleButton, closeButton),
             spacing = 12,
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
         )
@@ -184,35 +229,55 @@ class ThirdPartySummaryScreen(
     }
 
     private fun ensureScrollRenderable(height: Int) {
-        if (height <= 0) return
+        if (height <= 0 || listContentWidth <= 0) return
         if (scrollRenderable != null && height == lastScrollHeight) return
         lastScrollHeight = height
         scrollRenderable = if (byThirdParty.isEmpty()) {
             Renderable.text("§7No third-party options detected during this wizard.")
         } else {
-            Renderable.scrollList(buildThirdPartyRenderables(), height = height, bypassChecks = true)
+            Renderable.scrollList(buildThirdPartyRenderables(listContentWidth), height = height, bypassChecks = true)
         }
     }
 
-    private fun buildThirdPartyRenderables(): List<Renderable> {
+    private fun buildThirdPartyRenderables(contentWidth: Int): List<Renderable> {
         return byThirdParty.entries.sortedBy { it.key.displayName }.map { (tp, catMap) ->
-            buildThirdPartySection(tp, catMap)
+            buildThirdPartySection(tp, catMap, contentWidth)
         }
     }
 
-    private fun buildThirdPartySection(tp: at.hannibal2.skyhanni.config.ThirdParty, catMap: Map<Category, List<FeatureToggleableOption>>): Renderable {
-        Renderable.text("§c${tp.displayName}")
-        // Main toggle row if available
+    private fun buildNewOnlyMap(onlyNew: Boolean): Map<Category, List<FeatureToggleableOption>> {
+        val grouped = mutableMapOf<Category, MutableList<FeatureToggleableOption>>()
+        entries.forEach { entry ->
+            val opt = entry.option
+            if (!onlyNew || !opt.previouslyEnabled) {
+                grouped.getOrPut(entry.category) { mutableListOf() }.add(opt)
+            }
+        }
+        return grouped.filterValues { it.isNotEmpty() }
+    }
+
+    private fun buildThirdPartySection(
+        tp: at.hannibal2.skyhanni.config.ThirdParty,
+        catMap: Map<Category, List<FeatureToggleableOption>>,
+        contentWidth: Int,
+    ): Renderable {
+        val textWidth = (contentWidth - CONTENT_PADDING).coerceAtLeast(140)
         val mainToggle = tp.mainToggleField?.let { field ->
-            val enabled = try { tp.isEnabled() } catch (_: Throwable) { false }
-            val label = Renderable.text("§7Main toggle: ${field.name} - " + if (enabled) "§aEnabled" else "§cDisabled")
+            val enabled = try {
+                tp.isEnabled()
+            } catch (_: Throwable) {
+                false
+            }
+            val label = massConfigMultilineText(
+                "§7Main toggle: ${field.name} - " + if (enabled) "§aEnabled" else "§cDisabled",
+                textWidth,
+            )
             val toggleBtn = Renderable.darkRectButton(
                 content = Renderable.text(if (enabled) "Disable" else "Enable"),
                 onClick = {
                     try {
                         tp.setEnabled(!tp.isEnabled())
                         SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "third-party-toggle")
-                        // reset scrollable so label updates
                         scrollRenderable = null
                     } catch (_: Throwable) {
                     }
@@ -220,17 +285,23 @@ class ThirdPartySummaryScreen(
                 bypassChecks = true,
                 horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
             )
-            Renderable.horizontal(listOf(label, toggleBtn), spacing = 12, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT)
+            Renderable.horizontal(
+                listOf(label, toggleBtn),
+                spacing = 12,
+                horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
+            )
         }
 
-        // Accordion header: clickable to toggle open state
         val open = openState.getOrDefault(tp, true)
-        val accordionHeader = Renderable.horizontal(
-            listOf(
-                Renderable.text(if (open) "§a▾ §c${tp.displayName}" else "§a▸ §c${tp.displayName}"),
-                Renderable.text("§7${tp.description}"),
-            ),
-            spacing = 8,
+        val headerText = if (open) "§a▾ §c${tp.displayName}" else "§a▸ §c${tp.displayName}"
+        val accordionHeader = Renderable.vertical(
+            buildList {
+                add(Renderable.text(headerText))
+                tp.description.takeIf { it.isNotBlank() }?.let {
+                    add(massConfigMultilineText("§7$it", textWidth))
+                }
+            },
+            spacing = 2,
             horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
         )
 
@@ -255,23 +326,36 @@ class ThirdPartySummaryScreen(
         }
 
         // Build category groups as accordion entries (expanded)
-        val categoryRenderables = catMap.entries.sortedBy { it.key.name }.map { (category, options) ->
+        val categoryRenderables = catMap.entries.sortedBy { it.key.name }.mapNotNull { (category, options) ->
+            val optsToShow = if (showOnlyNew) options.filterNot { it.previouslyEnabled } else options
+            if (optsToShow.isEmpty()) return@mapNotNull null
             val header = Renderable.text("§e${category.name}")
-            val desc = category.description.takeIf { it.isNotBlank() }?.let { Renderable.text("§7$it") }
-            val optsToShow = if (showOnlyNew) options else options // entries already only includes new options
+            val desc = category.description.takeIf { it.isNotBlank() }?.let { massConfigMultilineText("§7$it", textWidth) }
             val optionList = Renderable.vertical(
                 optsToShow.map { opt ->
-                    val descText = opt.description.takeIf { it.isNotBlank() }?.let { " §7– $it" } ?: ""
-                    val item = Renderable.text("§7• §f${opt.name}$descText")
-                    Renderable.clickable(item, onAnyClick = mapOf(at.hannibal2.skyhanni.utils.KeyboardManager.LEFT_MOUSE to {
-                        println("[TP Summary] option clicked: ${opt.name}")
-                        // best-effort: jump to option editor by field path
-                    }), bypassChecks = true)
+                    val bulletWidth = 10
+                    val optionWidth = (textWidth - bulletWidth).coerceAtLeast(120)
+                    val descText = opt.description.takeIf { it.isNotBlank() }?.let { massConfigMultilineText("§7$it", optionWidth) }
+                    val lines = buildList {
+                        add(Renderable.text("§f${opt.name}"))
+                        descText?.let { add(it) }
+                    }
+                    val content = Renderable.vertical(lines, spacing = 2, horizontalAlign = RenderUtils.HorizontalAlignment.LEFT)
+                    Renderable.clickable(
+                        Renderable.horizontal(
+                            listOf(Renderable.text("§7•"), content),
+                            spacing = 4,
+                            horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
+                        ),
+                        onAnyClick = mapOf(at.hannibal2.skyhanni.utils.KeyboardManager.LEFT_MOUSE to {
+                            println("[TP Summary] option clicked: ${opt.name}")
+                        }),
+                        bypassChecks = true,
+                    )
                 },
-                spacing = 2,
+                spacing = 4,
                 horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
             )
-            // Combine header/desc/options
             val comp = buildList<Renderable> {
                 add(header)
                 desc?.let { add(it) }
