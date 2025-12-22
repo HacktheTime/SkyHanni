@@ -76,8 +76,8 @@ class HoppityWaypointsConfig {
 
     @Expose
     @ConfigOption(
-       name = "Load from SkyBlock PV",
-       desc = "Load Hoppity Egg Location data from API when opening the SkyBlock Profile Viewer mod.",
+        name = "Load from SkyBlock PV",
+        desc = "Load Hoppity Egg Location data from API when opening the SkyBlock Profile Viewer mod.",
     )
     @ConfigEditorBoolean
     @FeatureToggle

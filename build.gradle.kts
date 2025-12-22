@@ -19,7 +19,7 @@ plugins {
     idea
     java
     id("com.gradleup.shadow") version "8.3.4"
-    id("gg.essential.loom")
+    id("fabric-loom")
     id("com.github.SkyHanniStudios.SkyHanni-Preprocessor")
     kotlin("jvm")
     id("com.google.devtools.ksp")
@@ -38,7 +38,6 @@ java {
     // causing crashes during tests. You can still manually select DCEVM in the Minecraft Client
     // IntelliJ run configuration.
     toolchain.vendor.set(JvmVendorSpec.ADOPTIUM)
-    // Enable generation of standard sources jar (classifier 'sources') so remapSourcesJar exists.
     withSourcesJar()
 }
 val runDirectory = rootProject.file("run")
@@ -46,23 +45,12 @@ runDirectory.mkdirs()
 
 // Minecraft configuration:
 loom {
-    if (this.isForgeLike) {
-        forge {
-            pack200Provider.set(
-                dev.architectury.pack200.java
-                    .Pack200Adapter(),
-            )
-            mixinConfig("mixins.skyhanni.json")
-        }
+    val accessWidenerFile = when (target) {
+        ProjectTarget.MODERN_12105 -> rootProject.file("src/main/resources/skyhanni.accesswidener")
+        else -> file("src/main/resources/skyhanni.accesswidener")
     }
-    if (target.isModern) {
-        val accessWidenerFile = when (target) {
-            ProjectTarget.MODERN_12105 -> rootProject.file("src/main/resources/skyhanni.accesswidener")
-            else -> file("src/main/resources/skyhanni.accesswidener")
-        }
-        if (accessWidenerFile.exists()) {
-            accessWidenerPath = accessWidenerFile
-        }
+    if (accessWidenerFile.exists()) {
+        accessWidenerPath = accessWidenerFile
     }
     @Suppress("UnstableApiUsage")
     mixin {
@@ -71,11 +59,9 @@ loom {
     }
     runs {
         named("client") {
-            if (target.isModern) {
-                isIdeConfigGenerated = true
-                appendProjectPathToConfigName.set(true)
-                this.runDir(rootProject.file("versions/${target.projectName}/run").relativeTo(projectDir).toString())
-            }
+            isIdeConfigGenerated = true
+            appendProjectPathToConfigName.set(true)
+            this.runDir(rootProject.file("versions/${target.projectName}/run").relativeTo(projectDir).toString())
             property("mixin.debug", "true")
             if (System.getenv("repo_action") != "true") {
                 property("devauth.configDir", rootProject.file(".devauth").absolutePath)
@@ -94,16 +80,6 @@ val shadowImpl: Configuration by configurations.creating {
 
 val shadowModImpl: Configuration by configurations.creating {
     configurations.modImplementation.get().extendsFrom(this)
-}
-
-val devenvMod: Configuration by configurations.creating {
-    isTransitive = false
-    isVisible = false
-}
-
-val headlessLwjgl: Configuration by configurations.creating {
-    isTransitive = false
-    isVisible = false
 }
 
 val includeBackupRepo by tasks.registering(DownloadBackupRepo::class) {
@@ -136,25 +112,30 @@ tasks.named("classes") {
     dependsOn(cleanLibs)
 }
 
-// Configure remapSourcesJar on all projects so sources land in root build/libs with '-sources' classifier
-tasks.named<net.fabricmc.loom.task.RemapSourcesJarTask>("remapSourcesJar") {
-    destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
-    archiveClassifier.set("sources")
-}
-
 // Register root-only publishToModrinth that depends on all remap tasks
 if (project == rootProject) {
     tasks.register("publishToModrinth", PublishToModrinth::class) {
         group = "publishing"
         description = "Publish all built jars to Modrinth (root-only) and update GitHub release."
         // Ensure this project builds
-        dependsOn(tasks.named("remapJar"))
+        dependsOn(tasks.named("build"))
         // Ensure sources for this project
-        dependsOn(tasks.named("remapSourcesJar"))
-        // Ensure all subprojects produce their remapped jars and sources
-        dependsOn(subprojects.mapNotNull { sp -> sp.tasks.findByName("remapJar") })
-        dependsOn(subprojects.mapNotNull { sp -> sp.tasks.findByName("remapSourcesJar") })
+        dependsOn(sourcesJar)
     }
+}
+
+tasks.runClient {
+    this.javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(target.minecraftVersion.javaLanguageVersion)
+        },
+    )
+}
+
+tasks.register("checkPrDescription", ChangelogVerification::class) {
+    this.outputDirectory.set(layout.buildDirectory)
+    this.prTitle = project.findProperty("prTitle") as? String ?: ""
+    this.prBody = project.findProperty("prBody") as? String ?: ""
 }
 
 dependencies {
@@ -164,9 +145,6 @@ dependencies {
         mappings(loom.officialMojangMappings())
     } else {
         mappings(target.mappingDependency)
-    }
-    if (target.forgeDep != null) {
-        "forge"(target.forgeDep!!)
     }
 
     //Bingo Net / Bingo Brewers
@@ -179,67 +157,38 @@ dependencies {
         exclude("org.jetbrains.kotlinx")
     }
     compileOnly(libs.jbAnnotations)
-
-    headlessLwjgl(libs.headlessLwjgl)
-
     ksp(project(":annotation-processors"))?.let { compileOnly(it) }
 
     ksp(libs.autoservice.ksp)
     implementation(libs.autoservice.annotations)
 
-    val mixinVersion = "0.8.2"
-
-
-    if (!target.isFabric) {
-        shadowImpl("org.spongepowered:mixin:$mixinVersion") {
-            isTransitive = false
-        }
-        annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
-        annotationProcessor("com.google.code.gson:gson:2.10.1")
-        annotationProcessor("com.google.guava:guava:17.0")
-    } else {
-        target.fabricLoaderVersion?.let { modImplementation(it) }
-        target.fabricApiVersion?.let { modImplementation(it) }
-        modImplementation(libs.fabricLanguageKotlin)
-        target.modMenuVersion?.let { modImplementation("maven.modrinth:modmenu:$it") }
-    }
+    target.fabricLoaderVersion?.let { modImplementation(it) }
+    target.fabricApiVersion?.let { modImplementation(it) }
+    modImplementation(libs.fabricLanguageKotlin)
+    target.modMenuVersion?.let { modImplementation("maven.modrinth:modmenu:$it") }
 
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 
-    // Brigadier comes bundled with more recent versions of Minecraft
-    if (target.minecraftVersion == MinecraftVersion.MC189) {
-        shadowImpl("com.mojang:brigadier:1.0.18")
-    }
+    val moulconfigVersion = target.minecraftVersion.moulconfigMinecraftVersionOverride ?: target.minecraftVersion.versionName
+    shadowModImpl("org.notenoughupdates.moulconfig:modern-$moulconfigVersion:${libs.versions.moulconfig.get()}")
+    include("org.notenoughupdates.moulconfig:modern-$moulconfigVersion:${libs.versions.moulconfig.get()}")
 
-    if (target.isModern) {
-        val moulconfigVersion = target.minecraftVersion.moulconfigMinecraftVersionOverride ?: target.minecraftVersion.versionName
-        shadowModImpl("org.notenoughupdates.moulconfig:modern-$moulconfigVersion:${libs.versions.moulconfig.get()}")
-        include("org.notenoughupdates.moulconfig:modern-$moulconfigVersion:${libs.versions.moulconfig.get()}")
-    }
     @Suppress("UnstableApiUsage")
     shadowImpl(libs.libautoupdate) {
         exclude(module = "gson")
-    }
-    if (!target.isModern) {
-        shadowImpl("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
     testImplementation("io.mockk:mockk:1.12.5")
 
-    if (target.minecraftVersion == MinecraftVersion.MC189) {
-        compileOnly(libs.hypixelmodapi.forge)
-        shadowImpl(libs.hypixelmodapitweaker)
-    } else if (target.isModern) {
-        modImplementation(libs.hypixelmodapi)
-        include(libs.hypixelmodapi.fabric)
+    modImplementation(libs.hypixelmodapi)
+    include(libs.hypixelmodapi.fabric)
+
+
+    modCompileOnly(libs.roughlyenoughitems) {
+        exclude(group = "net.fabricmc.fabric-api")
     }
 
-    if (target.isModern) {
-        modCompileOnly(libs.roughlyenoughitems) {
-            exclude(group = "net.fabricmc.fabric-api")
-        }
-    }
 
     // getting clock offset
     shadowImpl("commons-net:commons-net:3.11.1")
@@ -251,9 +200,7 @@ dependencies {
 
 afterEvaluate {
     loom.runs.named("client") {
-        if (target.isModern) {
-            programArgs("--quickPlayMultiplayer", "hypixel.net")
-        }
+        programArgs("--quickPlayMultiplayer", "hypixel.net")
     }
     tasks.named("kspKotlin", KspTaskJvm::class) {
         this.options.add(SubpluginOption("apoption", "skyhanni.modver=$version"))
@@ -283,12 +230,9 @@ tasks.processResources {
     from(includeBackupRepo)
     from(includeBackupNeuRepo)
     inputs.property("version", version)
-    filesMatching(listOf("mcmod.info", "fabric.mod.json")) {
+    filesMatching("fabric.mod.json") {
         expand("version" to version)
     }
-    if (target.isFabric) {
-        exclude("mcmod.info")
-    } // else do NOT exclude fabric.mod.json. We use fabric.mod.json in order to show a logo in prism launcher.
 }
 
 if (target == ProjectTarget.MODERN_12105) {
@@ -312,12 +256,6 @@ if (target == ProjectTarget.MODERN_12105) {
         useXVFB = true
     }
     loom.runs.removeIf { it.name == "clientGameTest" }
-}
-
-if (false) {
-    tasks.compileJava {
-        dependsOn(tasks.processResources)
-    }
 }
 
 fun excludeBuildPaths(buildPathsFile: File, sourceSet: Provider<SourceSet>) {
@@ -415,17 +353,20 @@ if (!MultiVersionStage.activeState.shouldCompile(target)) {
 
 preprocess {
     vars.put("MC", target.minecraftVersion.versionNumber)
-    vars.put("FORGE", if (target.isForge) 1 else 0)
-    vars.put("FABRIC", if (target.isFabric) 1 else 0)
     vars.put("JAVA", target.minecraftVersion.javaVersion)
     vars.put("TODO", 0)
+}
+
+val sourcesJar by tasks.named<Jar>("sourcesJar") {
+    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+    archiveClassifier.set("src")
+    from(sourceSets.main.get().allSource)
 }
 
 publishing.publications {
     create<MavenPublication>("maven") {
         artifact(tasks.remapJar)
-        // Include remapped sources jar produced by Loom
-        tasks.findByName("remapSourcesJar")?.let { artifact(it) }
+        artifact(sourcesJar) { classifier = "sources" }
         pom {
             name.set("SkyHanni")
             licenses {
