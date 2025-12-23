@@ -78,6 +78,7 @@ class SplasherConfig {
         desc = "Shows the Hub with the lowest amount of players in the Hub Selector.",
     )
     @ConfigEditorBoolean
+    @FeatureToggle
     var lowestPlayerHub: Boolean = false
 
     @Expose

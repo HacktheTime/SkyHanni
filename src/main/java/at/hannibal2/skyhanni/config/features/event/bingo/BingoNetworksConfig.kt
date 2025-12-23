@@ -37,6 +37,7 @@ class BingoNetworksConfig {
     @Expose
     @ConfigOption(name = "Show Splashes", desc = "Show Splashes announcements")
     @ConfigEditorBoolean
+    @FeatureToggle
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
     var showSplashes: Boolean = true
@@ -46,6 +47,7 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
+    @FeatureToggle
     var highlightSplashHub: Boolean = true
 
     @Expose
@@ -53,6 +55,7 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
+    @FeatureToggle
     var chestWaypoints: Boolean = true
 
     @Expose
@@ -63,6 +66,7 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
+    @FeatureToggle
     var allowBNServerPartyManagement: Boolean = true
 
     @Expose
@@ -70,6 +74,7 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
+    @FeatureToggle
     var showBingoChat: Boolean = true
 
     @Expose
@@ -161,6 +166,7 @@ class BingoNetworksConfig {
     @Expose
     @ConfigOption(name = "Ch Chest Overlay", desc = "Show an Overlay with the Ch Chest Items in the Lobby.")
     @ConfigEditorBoolean
+    @FeatureToggle
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
     var chChestOverlay: Boolean = true
