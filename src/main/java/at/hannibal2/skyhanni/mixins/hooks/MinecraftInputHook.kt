@@ -25,7 +25,8 @@ object MinecraftInputHook {
             }
 
             HitResult.Type.BLOCK -> {
-                val position = blockHitResult.location.toLorenzVec()
+                val blockHitResult = blockHitResult as BlockHitResult
+                val position = blockHitResult.blockPos.toLorenzVec()
                 BlockClickEvent(
                     ClickType.RIGHT_CLICK,
                     position,
