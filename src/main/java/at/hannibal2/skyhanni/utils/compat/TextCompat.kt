@@ -176,13 +176,17 @@ fun Component.appendComponent(component: Component): Component =
     (this as MutableComponent).append(component)
 
 fun addChatMessageToChat(message: Component) {
-    Minecraft.getInstance().player?.displayClientMessage(message, false)
+    val mc = Minecraft.getInstance()
+    mc.executeBlocking {
+        mc.player?.displayClientMessage(message, false)
+    }
 }
 
 fun addDeletableMessageToChat(component: Component, id: Int) {
-    Minecraft.getInstance().execute {
-        Minecraft.getInstance().gui.chat.deleteMessage(idToMessageSignature(id))
-        Minecraft.getInstance().gui.chat.addMessage(component, idToMessageSignature(id), GuiMessageTag.system())
+    val mc = Minecraft.getInstance()
+    mc.execute {
+        mc.gui.chat.deleteMessage(idToMessageSignature(id))
+        mc.gui.chat.addMessage(component, idToMessageSignature(id), GuiMessageTag.system())
     }
 }
 
