@@ -36,6 +36,10 @@ import net.minecraft.world.level.block.ChestBlock
 import java.util.NavigableMap
 import java.util.TreeMap
 import java.util.UUID
+import kotlin.collections.drop
+import kotlin.collections.forEachIndexed
+import kotlin.collections.map
+import kotlin.collections.toList
 
 @SkyHanniModule
 @Suppress("ReturnCount")
@@ -233,17 +237,18 @@ object StorageApi {
         if (event.clickType != ClickType.RIGHT_CLICK) return
         if (!isPrivateIslandStorageEnabled()) return
         val chest = event.getBlockState.block as? ChestBlock ?: return
+        val position = event.flatPosition
         // Double Chest Check
-        val otherChest = getNeighbourBlocks(event.position).firstOrNull { it.second == chest }?.first
+        val otherChest = getNeighbourBlocks(position).firstOrNull { it.second == chest }?.first
         if (otherChest == null) {
-            lastChestClicked = event.position
+            lastChestClicked = position
             doubleChestCord = null
-        } else if (otherChest.lengthSquared() > event.position.lengthSquared()) {
-            lastChestClicked = event.position
+        } else if (otherChest.lengthSquared() > position.lengthSquared()) {
+            lastChestClicked = position
             doubleChestCord = otherChest
         } else {
             lastChestClicked = otherChest
-            doubleChestCord = event.position
+            doubleChestCord = position
         }
     }
 
