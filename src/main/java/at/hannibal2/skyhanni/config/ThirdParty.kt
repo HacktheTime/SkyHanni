@@ -53,6 +53,26 @@ enum class ThirdParty(
             } catch (_: Throwable) { /* ignore in case of early init */
             }
         }
+    },
+    BINGO_SPLASH_COMMUNITY(
+        id = "bingo_splash_community",
+        displayName = "Bingo Splash Community",
+        description = "Very basic splash announcement server by the Bingo Splash Community Discord Server. Hosted by Morazzer",
+        mainToggleField = BingoNetworksConfig::useBSC
+    ){
+        override fun isEnabled(): Boolean =
+            try {
+                SkyHanniMod.feature.event.bingo.bingoNetworks.useBSC
+            } catch (_: Throwable) {
+                false
+            }
+
+        override fun setEnabled(enabled: Boolean) {
+            try {
+                SkyHanniMod.feature.event.bingo.bingoNetworks.useBSC = enabled
+            } catch (_: Throwable) { /* ignore in case of early init */
+            }
+        }
     };
 
     abstract fun isEnabled(): Boolean

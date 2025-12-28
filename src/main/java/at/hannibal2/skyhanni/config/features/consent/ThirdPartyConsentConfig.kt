@@ -48,11 +48,20 @@ class ThirdPartyConsentConfig {
     @ConfigEditorBoolean
     var allowBingoBrewers: Boolean = false
 
+    @Expose
+    @ConfigOption(
+        name = "Allow Bingo Splash Community",
+        desc = "Permit features that depend on Bingo Splash Community when in SELECT mode.",
+    )
+    @ConfigEditorBoolean
+    var allowBSC: Boolean = false
+
     fun isAllowed(thirdParty: ThirdParty): Boolean {
         // Prefer explicit toggles for known entries
         return when (thirdParty) {
             ThirdParty.BINGO_NET -> allowBingoNet
             ThirdParty.BINGO_BREWERS -> allowBingoBrewers
+            ThirdParty.BINGO_SPLASH_COMMUNITY -> allowBSC
         }
     }
 
@@ -60,6 +69,7 @@ class ThirdPartyConsentConfig {
         when (thirdParty) {
             ThirdParty.BINGO_NET -> allowBingoNet = allowed
             ThirdParty.BINGO_BREWERS -> allowBingoBrewers = allowed
+            ThirdParty.BINGO_SPLASH_COMMUNITY -> allowBSC = allowed
         }
     }
 }

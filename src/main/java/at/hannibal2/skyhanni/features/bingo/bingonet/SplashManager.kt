@@ -66,7 +66,8 @@ object SplashManager {
 
     enum class SplashSource {
         BN,
-        BB
+        BB,
+        BSC
     }
 
     fun display(splashId: Int, source: SplashSource) {

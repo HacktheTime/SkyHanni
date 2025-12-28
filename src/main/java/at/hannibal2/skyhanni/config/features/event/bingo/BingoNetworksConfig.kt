@@ -31,6 +31,16 @@ class BingoNetworksConfig {
     @ThirdPartyDependency(ThirdParty.BINGO_BREWERS)
     var useBB: Boolean = false
 
+    @Expose
+    @ConfigOption(
+        name = "Use Bingo Splash Community",
+        desc = "Connects SkyHanni to the Bingo Splash Community Splash announcement server",
+    )
+    @ConfigEditorBoolean
+    @FeatureToggle
+    @ThirdPartyDependency(ThirdParty.BINGO_SPLASH_COMMUNITY)
+    var useBSC : Boolean = false
+
 
     // TODO requires restart rn still so fix somehow?
 
@@ -40,6 +50,7 @@ class BingoNetworksConfig {
     @FeatureToggle
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
+    @FeatureDependencyRequirement("#useBSC")
     var showSplashes: Boolean = true
 
     @Expose
@@ -47,6 +58,7 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
+    @FeatureDependencyRequirement("#useBSC")
     @FeatureToggle
     var highlightSplashHub: Boolean = true
 
