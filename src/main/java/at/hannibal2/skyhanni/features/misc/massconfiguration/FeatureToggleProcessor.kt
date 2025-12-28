@@ -110,6 +110,9 @@ class FeatureToggleProcessor : ConfigStructureReader {
 
         val finalTp = tpResolved ?: autoTpResolved
 
+        // Build consistent option path without leading dots when the path stack is empty
+        val optionPath = listOfNotNull(pathStack.joinToString(".").takeIf { it.isNotEmpty() }, field.name).joinToString(".")
+
         val optionEntry = FeatureToggleableOption(
             name,
             option.desc,
@@ -117,7 +120,7 @@ class FeatureToggleProcessor : ConfigStructureReader {
             featureToggle.trueIsEnabled,
             latestCategory!!,
             setter,
-            pathStack.joinToString(".") + "." + field.name,
+            optionPath,
             finalTp?.first,
             finalTp?.second ?: true,
         )
