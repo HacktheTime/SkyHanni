@@ -17,14 +17,22 @@ object FilteredConfigGui {
 
     // Debugging helper; set to true to enable debug prints from this file.
     private const val DEBUG = true
-    private fun dbg(msg: String) { if (DEBUG) println("[FilteredConfigGui] $msg") }
+    private fun dbg(msg: String) {
+        if (DEBUG) println("[FilteredConfigGui] $msg")
+    }
 
     fun open(allowedPaths: Set<String>) {
         if (allowedPaths.isEmpty()) return
-        println("[FilteredConfigGui] open called with allowedPaths (${allowedPaths.size}): ${allowedPaths.sorted()}")
+        // Use provided set as-is; allow suffix matching to align nested paths with allowed tails.
+        val allowedExact = allowedPaths.toSet()
+        val normalizedAllowed = allowedExact.flatMap { ap ->
+            val parts = ap.split('.')
+            parts.indices.map { idx -> parts.take(idx + 1).joinToString(".") }
+        }.toSet()
+        println("[FilteredConfigGui] open called with allowedPaths (${allowedExact.size}): ${allowedExact.sorted()}")
 
         // Counting pass: determine which option full paths actually produce a visible editor.
-        val counter = CountingMoulConfigProcessor(allowedPaths)
+        val counter = CountingMoulConfigProcessor(allowedExact, normalizedAllowed)
         // Register builtin editors for the counting processor so it can create option GUIs.
         BuiltinMoulConfigGuis.addProcessors(counter)
         UpdateManager.injectConfigProcessor(counter)
@@ -36,7 +44,7 @@ object FilteredConfigGui {
         println("[FilteredConfigGui] usedPrefixes (${usedPrefixes.size}): ${usedPrefixes.sorted()}")
 
         // Real pass: only start categories/accordions that contain visible options.
-        val processor = FilteringMoulConfigProcessor(allowedPaths, usedPrefixes)
+        val processor = FilteringMoulConfigProcessor(allowedExact, normalizedAllowed, usedPrefixes)
         BuiltinMoulConfigGuis.addProcessors(processor)
         UpdateManager.injectConfigProcessor(processor)
         val driver = ConfigProcessorDriver(processor)
@@ -49,11 +57,11 @@ object FilteredConfigGui {
     }
 
     private class FilteringMoulConfigProcessor(
-        allowed: Set<String>,
+        private val allowedExact: Set<String>,
+        private val normalizedAllowed: Set<String>,
         private val usedPrefixes: Set<String>,
     ) : BlockingMoulConfigProcessor() {
 
-        private val allowedPaths = allowed.toSet()
         private val pathStack = ArrayDeque<String>()
         private val skippedCategories = ArrayDeque<Boolean>()
         private val skippedAccordions = ArrayDeque<Boolean>()
@@ -67,31 +75,36 @@ object FilteredConfigGui {
             return usedPrefixes.any { it == prefix || it.startsWith("$prefix.") }
         }
 
-        // Return true if `path` and any allowed path are in the same ancestor/descendant relation
+        // Match when the tail of the path equals an allowed entry (supports nested categories with different roots).
         private fun pathRelatedToAllowed(path: String): Boolean {
-            return allowedPaths.any { ap ->
-                // keep only strict ancestor/descendant/direct-equality relations; remove fallback suffix/search matching
-                if (ap == path || ap.startsWith("$path.") || path.startsWith("$ap.")) return@any true
-                false
+            val pathParts = path.split('.')
+            return allowedExact.any { ap ->
+                val allowParts = ap.split('.')
+                val common = allowParts.zip(pathParts).reversed().takeWhile { it.first == it.second }.size
+                when {
+                    allowParts.size == 1 || pathParts.size == 1 -> allowParts.size == pathParts.size && allowParts.last() == pathParts.last()
+                    else -> common >= 2 // need at least two matching segments from the end (ignores missing leading category like "event")
+                }
             }
         }
 
-        private fun matchesAllowedFull(path: String): Boolean {
-            return pathRelatedToAllowed(path)
-        }
+        private fun matchesAllowedFull(path: String): Boolean = pathRelatedToAllowed(path)
 
-        private fun matchesAllowedAny(paths: List<String?>): Boolean {
-            return paths.filterNotNull().any { path -> pathRelatedToAllowed(path) }
-        }
+        private fun matchesAllowedAny(paths: List<String?>): Boolean = paths.filterNotNull().any { pathRelatedToAllowed(it) }
 
         // Diagnostic helper: return allowed paths that relate to any candidate path
         private fun collectMatchingAllowed(paths: List<String?>): List<String> {
             val res = mutableListOf<String>()
             for (p in paths.filterNotNull()) {
-                for (ap in allowedPaths) {
-                    if (ap == p || ap.startsWith("$p.") || p.startsWith("$ap.")) {
-                        res.add(ap)
+                val pathParts = p.split('.')
+                allowedExact.forEach { ap ->
+                    val allowParts = ap.split('.')
+                    val common = allowParts.zip(pathParts).reversed().takeWhile { it.first == it.second }.size
+                    val matches = when {
+                        allowParts.size == 1 || pathParts.size == 1 -> allowParts.size == pathParts.size && allowParts.last() == pathParts.last()
+                        else -> common >= 2
                     }
+                    if (matches) res.add(ap)
                 }
             }
             return res.distinct()
@@ -109,26 +122,29 @@ object FilteredConfigGui {
 
         override fun setCategoryParent(field: Field) {
             if (skipDepth > 0) return
-            try { super.setCategoryParent(field) } catch (_: Throwable) {}
+            try {
+                super.setCategoryParent(field)
+            } catch (_: Throwable) {
+            }
         }
 
         override fun beginCategory(baseObject: Any?, field: Field?, name: String, description: String) {
             val prefix = listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field?.name).joinToString(".")
-            dbg("beginCategory prefix=$prefix allowedCount=${allowedPaths.size} skipDepth=$skipDepth")
+            dbg("beginCategory prefix=$prefix allowedCount=${allowedExact.size} skipDepth=$skipDepth")
             val skip = if (skipDepth > 0) {
                 true
             } else if (pathStack.isEmpty()) {
                 val fieldName = field?.name
                 val hasTop = fieldName != null && (
-                    usedPrefixes.any { up -> up == fieldName || up.startsWith("$fieldName.") } ||
-                        allowedPaths.any { ap -> ap == fieldName || ap.startsWith("$fieldName.") }
-                )
+                    usedPrefixes.any { up -> up == fieldName || up.startsWith("$fieldName.") }
+                        || allowedExact.any { ap -> ap.startsWith("$fieldName.") || ap.split('.').contains(fieldName) }
+                    )
                 dbg(" -> top-level hasAllowed=$hasTop")
                 !hasTop
             } else {
                 !hasAllowedInSubtree(prefix)
             }
-            dbg(" -> hasAllowed=${!skip && skipDepth==0}")
+            dbg(" -> hasAllowed=${!skip && skipDepth == 0}")
             skippedCategories.addLast(skip)
             if (skip) {
                 skipDepth++
@@ -182,14 +198,18 @@ object FilteredConfigGui {
             val matchFull = matchesAllowedFull(fullPath)
             dbg("emitOption fullPath=$fullPath matchFull=$matchFull skipDepth=$skipDepth fieldType=${field.type.name}")
             if (!matchFull) return
-            try { super.emitOption(baseObject, field, option) } catch (_: Throwable) {}
+            try {
+                super.emitOption(baseObject, field, option)
+            } catch (_: Throwable) {
+            }
         }
 
         override fun createOptionGui(processedOption: ProcessedOption, field: Field, option: ConfigOption): GuiOptionEditor? {
             val fullPath = listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field.name).joinToString(".")
             val processedPath = processedOption.getPath()
             val catPrefix = processedOption.category.parentCategoryId
-            val candidates = listOf(fullPath, processedPath, catPrefix, catPrefix?.let { if (processedPath != null) "$it.$processedPath" else null })
+            val candidates =
+                listOf(fullPath, processedPath, catPrefix, catPrefix?.let { if (processedPath != null) "$it.$processedPath" else null })
             val matchedAny = matchesAllowedAny(candidates)
             dbg("createOptionGui fullPath=$fullPath processedPath=$processedPath catPrefix=$catPrefix candidates=$candidates matchedAny=$matchedAny skipDepth=$skipDepth")
             if (!matchedAny) {
@@ -198,11 +218,15 @@ object FilteredConfigGui {
                 return null
             }
             if (skipDepth > 0) return null
-            val editor = try { super.createOptionGui(processedOption, field, option) } catch (_: Throwable) { null }
+            val editor = try {
+                super.createOptionGui(processedOption, field, option)
+            } catch (_: Throwable) {
+                null
+            }
             if (editor == null) return null
             // Use the earlier matchedAny (which includes fallback rules) to decide visibility
             val matching = collectMatchingAllowed(candidates)
-            dbg(" -> candidatesChecked=${candidates.filterNotNull()} matchingAllowedPaths=$matching allowedPathsSize=${allowedPaths.size}")
+            dbg(" -> candidatesChecked=${candidates.filterNotNull()} matchingAllowedPaths=$matching allowedPathsSize=${allowedExact.size}")
             dbg("createdEditor fullPath=$fullPath processedPath=$processedPath editor=${editor.javaClass.simpleName}")
             return editor
         }
@@ -210,26 +234,28 @@ object FilteredConfigGui {
 
     // Counting processor: tracks which option full paths (and their prefixes) yield a visible editor
     private class CountingMoulConfigProcessor(
-        allowed: Set<String>,
+        private val allowedExact: Set<String>,
+        private val normalizedAllowed: Set<String>,
     ) : BlockingMoulConfigProcessor() {
-        private val allowedPaths = allowed.toSet()
         val usedPrefixes = mutableSetOf<String>()
         private val pathStack = ArrayDeque<String>()
 
         private fun currentPath(): String = pathStack.joinToString(".")
 
-        // Return true if `path` and any allowed path are in the same ancestor/descendant relation
+        // Match when the tail of the path equals an allowed entry
         private fun pathRelatedToAllowed(path: String): Boolean {
-            return allowedPaths.any { ap ->
-                if (ap == path || ap.startsWith("$path.") || path.startsWith("$ap.")) return@any true
-                // removed fallback suffix/search matching here to avoid fuzzy matches in final filtering
-                false
+            val pathParts = path.split('.')
+            return allowedExact.any { ap ->
+                val allowParts = ap.split('.')
+                val common = allowParts.zip(pathParts).reversed().takeWhile { it.first == it.second }.size
+                when {
+                    allowParts.size == 1 || pathParts.size == 1 -> allowParts.size == pathParts.size && allowParts.last() == pathParts.last()
+                    else -> common >= 2
+                }
             }
         }
 
-        private fun matchesAllowedAny(paths: List<String?>): Boolean {
-            return paths.filterNotNull().any { path -> pathRelatedToAllowed(path) }
-        }
+        private fun matchesAllowedAny(paths: List<String?>): Boolean = paths.filterNotNull().any { pathRelatedToAllowed(it) }
 
         override fun pushPath(fieldPath: String) {
             pathStack.addLast(fieldPath)
@@ -261,20 +287,49 @@ object FilteredConfigGui {
             val fullPath = listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field.name).joinToString(".")
             val processedPath = processedOption.getPath()
             val catPrefix = processedOption.category.parentCategoryId
-            val candidates = listOf(fullPath, processedPath, catPrefix, catPrefix?.let { if (processedPath != null) "$it.$processedPath" else null })
+            val candidates =
+                listOf(fullPath, processedPath, catPrefix, catPrefix?.let { if (processedPath != null) "$it.$processedPath" else null })
             val matched = matchesAllowedAny(candidates)
             dbg("Counting.createOptionGui fullPath=$fullPath processedPath=$processedPath catPrefix=$catPrefix candidates=$candidates matched=$matched")
             if (!matched) return null
-            val editor = try { super.createOptionGui(processedOption, field, option) } catch (_: Throwable) { null }
+            val editor = try {
+                super.createOptionGui(processedOption, field, option)
+            } catch (_: Throwable) {
+                null
+            }
             if (editor != null) {
-                // Record the processed/opt path prefixes so Filtering can decide which
-                // categories/accordions contain visible options.
                 val optPath = processedPath ?: fullPath
-                val parts = optPath.split('.')
-                for (i in 1..parts.size) {
-                    usedPrefixes.add(parts.take(i).joinToString("."))
+                val pathsToPrefix = buildList {
+                    add(optPath)
+                    add(fullPath)
+                    add(currentPath())
+                    catPrefix?.let { add(it) }
                 }
-                dbg("Counting.createdEditor optPath=$optPath addedPrefixes=${parts}")
+                pathsToPrefix.filter { !it.isNullOrBlank() }.forEach { p ->
+                    val parts = p.split('.').filter { it.isNotBlank() }
+                    for (i in 1..parts.size) usedPrefixes.add(parts.take(i).joinToString("."))
+                    // Also add the leaf segment to catch top-level categories whose names are only present in a parent chain (e.g., "event")
+                    if (parts.isNotEmpty()) usedPrefixes.add(parts.last())
+                }
+                // Also add parent prefixes of the allowed path(s) that matched, so missing leading segments (e.g., "event") are preserved
+                val matchingAllowed = mutableSetOf<String>()
+                candidates.filterNotNull().forEach { cand ->
+                    allowedExact.forEach { ap ->
+                        val allowParts = ap.split('.')
+                        val candParts = cand.split('.')
+                        val minSize = minOf(allowParts.size, candParts.size)
+                        val matches = if (minSize == 1) {
+                            allowParts.size == candParts.size && allowParts.last() == candParts.last()
+                        } else {
+                            allowParts.takeLast(minSize) == candParts.takeLast(minSize)
+                        }
+                        if (matches) matchingAllowed.add(ap)
+                    }
+                }
+                matchingAllowed.forEach { ap ->
+                    val parts = ap.split('.')
+                    for (i in 1..parts.size) usedPrefixes.add(parts.take(i).joinToString("."))
+                }
             }
             return editor
         }
