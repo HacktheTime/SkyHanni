@@ -26,6 +26,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapterFactory
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
+import io.github.notenoughupdates.moulconfig.common.RenderContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.editors.GuiOptionEditorKeybind
 import io.github.notenoughupdates.moulconfig.processor.BuiltinMoulConfigGuis
@@ -313,35 +314,98 @@ open class BlockingMoulConfigProcessor : MoulConfigProcessor<Features>(SkyHanniM
             return GuiOptionEditorBlocked(default, extraMessage)
         }
 
-        // Third-party dependency handling (enum-based with inheritance)
-        val thirdPartyDep = resolveThirdPartyDependency(field)
-        val dependencyRequirements = FeatureDependencyResolver.resolve(field)
+        // Defer heavy dependency/third-party resolution so UI renders immediately.
+        return DeferredDependencyEditor(default, field)
+    }
 
-        if (thirdPartyDep == null && dependencyRequirements.isEmpty) {
-            return default
-        }
+    private inner class DeferredDependencyEditor(
+        private val base: GuiOptionEditor,
+        private val field: Field,
+    ) : GuiOptionEditor(base.getOption()) {
+        @Volatile
+        private var resolved: GuiOptionEditor? = null
+        @Volatile
+        private var started = false
 
-        thirdPartyDep?.let { dep ->
-            if (isMainToggleField(dep, field)) {
-                return GuiOptionEditorThirdPartyMainToggle(default, dep.thirdParty, dep.message)
+        private fun ensureStarted() {
+            if (started) return
+            synchronized(this) {
+                if (started) return
+                started = true
+                Thread({
+                    resolved = runCatching { buildDependencyAwareEditor() }.getOrElse { base }
+                }, "skyhanni-config-dep-resolver").apply { isDaemon = true }.start()
             }
         }
 
-        if (!dependencyRequirements.isEmpty) {
-            return GuiOptionEditorDependencies(default, dependencyRequirements, field)
+        private fun buildDependencyAwareEditor(): GuiOptionEditor {
+            val thirdPartyDep = resolveThirdPartyDependency(field)
+            val dependencyRequirements = FeatureDependencyResolver.resolve(field)
+
+            if (thirdPartyDep == null && dependencyRequirements.isEmpty) return base
+
+            thirdPartyDep?.let { dep ->
+                if (isMainToggleField(dep, field)) {
+                    return GuiOptionEditorThirdPartyMainToggle(base, dep.thirdParty, dep.message)
+                }
+            }
+
+            if (!dependencyRequirements.isEmpty) {
+                return GuiOptionEditorDependencies(base, dependencyRequirements, field)
+            }
+
+            thirdPartyDep?.let { dep ->
+                return GuiOptionEditorThirdParty(
+                    base,
+                    dep.thirdParty,
+                    dep.usesMainToggle,
+                    dep.requiresMainToggle,
+                    dep.message,
+                )
+            }
+
+            return base
         }
 
-        thirdPartyDep?.let { dep ->
-            return GuiOptionEditorThirdParty(
-                default,
-                dep.thirdParty,
-                dep.usesMainToggle,
-                dep.requiresMainToggle,
-                dep.message,
-            )
+        override fun render(context: RenderContext, x: Int, y: Int, width: Int) {
+            ensureStarted()
+            (resolved ?: base).render(context, x, y, width)
         }
 
-        return default
+        override fun renderOverlay(context: RenderContext, x: Int, y: Int, width: Int) {
+            (resolved ?: base).renderOverlay(context, x, y, width)
+        }
+
+        override fun mouseInput(
+            x: Int,
+            y: Int,
+            width: Int,
+            mouseX: Int,
+            mouseY: Int,
+            mouseEvent: io.github.notenoughupdates.moulconfig.gui.MouseEvent?,
+        ): Boolean {
+            ensureStarted()
+            return (resolved ?: base).mouseInput(x, y, width, mouseX, mouseY, mouseEvent)
+        }
+
+        override fun mouseInputOverlay(
+            x: Int,
+            y: Int,
+            width: Int,
+            mouseX: Int,
+            mouseY: Int,
+            mouseEvent: io.github.notenoughupdates.moulconfig.gui.MouseEvent?,
+        ): Boolean {
+            return (resolved ?: base).mouseInputOverlay(x, y, width, mouseX, mouseY, mouseEvent)
+        }
+
+        override fun keyboardInput(event: io.github.notenoughupdates.moulconfig.gui.KeyboardEvent?): Boolean {
+            return (resolved ?: base).keyboardInput(event)
+        }
+
+        override fun getHeight(): Int {
+            return (resolved ?: base).height
+        }
     }
 
     private data class ResolvedThirdParty(
