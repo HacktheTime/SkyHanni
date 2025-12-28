@@ -101,7 +101,7 @@ class DefaultConfigOptionGui(
         }
         button("Apply choices", listOf()) {
             DefaultConfigFeatures.applyCategorySelections(resetSuggestionState, displayOptions)
-            ThirdPartySummaryFlow.showIfNeeded(orderedOptions)
+            mc.setScreen(null)
         }
         button("Turn all on", listOf()) {
             for (entry in resetSuggestionState.entries) {
@@ -205,9 +205,5 @@ class DefaultConfigOptionGui(
     override fun onHandleMouseInput() {
         if (MouseCompat.getScrollDelta() != 0)
             scroll(currentScrollOffset - MouseCompat.getScrollDelta())
-    }
-
-    override fun guiClosed() {
-        ThirdPartySummaryFlow.showIfNeeded(orderedOptions)
     }
 }

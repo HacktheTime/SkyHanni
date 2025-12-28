@@ -19,18 +19,6 @@ class ThirdPartyConsentConfig {
     @ConfigEditorDropdown
     var mode: ThirdPartyConsentMode = ThirdPartyConsentMode.NONE
 
-    @Expose
-    @ConfigOption(
-        name = "Show Third-Party after Default Options",
-        desc = "If enabled you will see the Third Party Options in the default options menu. This is in a seperated gui that will open " +
-            "after the other non third party options!",
-    )
-    @ConfigEditorBoolean
-    var showThirdPartySummary: Boolean = true
-
-    @Expose
-    var hasSeenThirdPartySummaryInfo: Boolean = false
-
     // Convenience toggles for known third parties when mode == SELECT
     @Expose
     @ConfigOption(

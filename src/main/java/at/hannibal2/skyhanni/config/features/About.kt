@@ -23,6 +23,11 @@ class About {
     @Transient
     var currentVersion: Unit? = null
 
+    @ConfigOption(name = "Skyhanni Default Options Screen", desc = "Select which type of options screen you want to see for new features.")
+    @ConfigEditorDropdown
+    @Transient
+    var shDefaultOptionsScreen : ShDefaultOptionsScreen = ShDefaultOptionsScreen.UNSET
+
     @ConfigOption(name = "Check for Updates", desc = "Automatically check for updates on each startup")
     @Expose
     @ConfigEditorBoolean
@@ -76,5 +81,11 @@ class About {
         @ConfigOption(name = "DiscordIPC", desc = "DiscordIPC is available under the Apache License 2.0")
         @ConfigEditorButton(buttonText = "GitHub")
         val discordRPC: Runnable = Runnable { openBrowser("https://github.com/jagrosh/DiscordIPC") }
+    }
+
+    enum class ShDefaultOptionsScreen{
+        GROUPING,
+        ONLY_NEW_MOUL_CONFIG,
+        UNSET
     }
 }

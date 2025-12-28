@@ -81,10 +81,6 @@ class Features : Config() {
     @Category(name = "GUI", desc = "Change the locations of GUI elements (§e/sh gui§7).")
     var gui: GuiConfig = GuiConfig()
 
-    @Expose
-    @Category(name = "Third-Party Consent", desc = "Control which third-party networks and services are allowed.")
-    var thirdPartyConsent: ThirdPartyConsentConfig = ThirdPartyConsentConfig()
-
     // Islands
     @Expose
     @Category(name = "Garden", desc = "Features for the Garden island.")
@@ -153,6 +149,10 @@ class Features : Config() {
     @Expose
     @Category(name = "Numpad Codes", desc = "Configure the numpad codes system (/sh numpad).")
     var numpad: NumpadConfig = NumpadConfig()
+
+    @Expose
+    @Category(name = "Third-Party Consent", desc = "Control which third-party networks and services are allowed.")
+    var thirdPartyConsent: ThirdPartyConsentConfig = ThirdPartyConsentConfig()
 
     // Bottom
     @Expose

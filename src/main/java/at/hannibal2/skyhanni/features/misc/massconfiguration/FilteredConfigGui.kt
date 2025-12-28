@@ -15,12 +15,6 @@ import java.lang.reflect.Field
 /** Opens a MoulConfig editor that renders only whitelisted option paths. */
 object FilteredConfigGui {
 
-    // Debugging helper; set to true to enable debug prints from this file.
-    private const val DEBUG = true
-    private fun dbg(msg: String) {
-        if (DEBUG) println("[FilteredConfigGui] $msg")
-    }
-
     fun open(allowedPaths: Set<String>) {
         if (allowedPaths.isEmpty()) return
         // Use provided set as-is; allow suffix matching to align nested paths with allowed tails.
@@ -130,7 +124,6 @@ object FilteredConfigGui {
 
         override fun beginCategory(baseObject: Any?, field: Field?, name: String, description: String) {
             val prefix = listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field?.name).joinToString(".")
-            dbg("beginCategory prefix=$prefix allowedCount=${allowedExact.size} skipDepth=$skipDepth")
             val skip = if (skipDepth > 0) {
                 true
             } else if (pathStack.isEmpty()) {
@@ -139,12 +132,10 @@ object FilteredConfigGui {
                     usedPrefixes.any { up -> up == fieldName || up.startsWith("$fieldName.") }
                         || allowedExact.any { ap -> ap.startsWith("$fieldName.") || ap.split('.').contains(fieldName) }
                     )
-                dbg(" -> top-level hasAllowed=$hasTop")
                 !hasTop
             } else {
                 !hasAllowedInSubtree(prefix)
             }
-            dbg(" -> hasAllowed=${!skip && skipDepth == 0}")
             skippedCategories.addLast(skip)
             if (skip) {
                 skipDepth++
@@ -170,9 +161,7 @@ object FilteredConfigGui {
                 return
             }
             val prefix = listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field?.name).joinToString(".")
-            dbg("beginAccordion prefix=$prefix")
             val skip = !hasAllowedInSubtree(prefix)
-            dbg(" -> hasAllowed=${!skip}")
             skippedAccordions.addLast(skip)
             if (skip) {
                 skipDepth++
@@ -196,7 +185,6 @@ object FilteredConfigGui {
             if (field.type.name == "kotlin.Unit") return
             val fullPath = listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field.name).joinToString(".")
             val matchFull = matchesAllowedFull(fullPath)
-            dbg("emitOption fullPath=$fullPath matchFull=$matchFull skipDepth=$skipDepth fieldType=${field.type.name}")
             if (!matchFull) return
             try {
                 super.emitOption(baseObject, field, option)
@@ -210,13 +198,6 @@ object FilteredConfigGui {
             val catPrefix = processedOption.category.parentCategoryId
             val candidates =
                 listOf(fullPath, processedPath, catPrefix, catPrefix?.let { if (processedPath != null) "$it.$processedPath" else null })
-            val matchedAny = matchesAllowedAny(candidates)
-            dbg("createOptionGui fullPath=$fullPath processedPath=$processedPath catPrefix=$catPrefix candidates=$candidates matchedAny=$matchedAny skipDepth=$skipDepth")
-            if (!matchedAny) {
-                val matches = collectMatchingAllowed(candidates)
-                dbg(" -> no match for candidates=$candidates; matchingAllowedPaths=${matches}")
-                return null
-            }
             if (skipDepth > 0) return null
             val editor = try {
                 super.createOptionGui(processedOption, field, option)
@@ -225,9 +206,7 @@ object FilteredConfigGui {
             }
             if (editor == null) return null
             // Use the earlier matchedAny (which includes fallback rules) to decide visibility
-            val matching = collectMatchingAllowed(candidates)
-            dbg(" -> candidatesChecked=${candidates.filterNotNull()} matchingAllowedPaths=$matching allowedPathsSize=${allowedExact.size}")
-            dbg("createdEditor fullPath=$fullPath processedPath=$processedPath editor=${editor.javaClass.simpleName}")
+            collectMatchingAllowed(candidates)
             return editor
         }
     }
@@ -274,8 +253,7 @@ object FilteredConfigGui {
             // could omit options from the counting pass. Removing that heuristics means
             // we will attempt to create editors for all emitted options so usedPrefixes
             // accurately reflects what actually creates a GUI editor.
-            val fullPath = listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field.name).joinToString(".")
-            dbg("Counting.emitOption fullPath=$fullPath (no pre-search filtering)")
+            listOfNotNull(currentPath().takeIf { it.isNotEmpty() }, field.name).joinToString(".")
             try {
                 super.emitOption(baseObject, field, option)
             } catch (_: Throwable) {
@@ -290,7 +268,6 @@ object FilteredConfigGui {
             val candidates =
                 listOf(fullPath, processedPath, catPrefix, catPrefix?.let { if (processedPath != null) "$it.$processedPath" else null })
             val matched = matchesAllowedAny(candidates)
-            dbg("Counting.createOptionGui fullPath=$fullPath processedPath=$processedPath catPrefix=$catPrefix candidates=$candidates matched=$matched")
             if (!matched) return null
             val editor = try {
                 super.createOptionGui(processedOption, field, option)

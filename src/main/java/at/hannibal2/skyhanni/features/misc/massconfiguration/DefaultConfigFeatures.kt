@@ -7,6 +7,7 @@ import at.hannibal2.skyhanni.config.ThirdPartyPolicy
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils
+import at.hannibal2.skyhanni.config.features.About
 import at.hannibal2.skyhanni.events.hypixel.HypixelJoinEvent
 import at.hannibal2.skyhanni.features.misc.update.ChangelogViewer
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -64,36 +65,57 @@ object DefaultConfigFeatures {
     }
 
     private fun onCommand(old: String, new: String) {
-        val processor = FeatureToggleProcessor()
-        val driver = ConfigProcessorDriver(processor)
-        driver.warnForPrivateFields = false
-        driver.processConfig(SkyHanniMod.feature)
-        var optionList = processor.orderedOptions
-        val knownToggles = SkyHanniMod.knownFeaturesData.knownFeatures
-        val togglesInNewVersion = knownToggles[new]
-        if (new != "null" && togglesInNewVersion == null) {
-            ChatUtils.chat("Unknown version $new")
-            return
-        }
-        val togglesInOldVersion = knownToggles[old]
-        if (old != "null" && togglesInOldVersion == null) {
-            ChatUtils.chat("Unknown version $old")
-            return
-        }
-        optionList = optionList
-            .mapValues { option ->
-                option.value.filter {
-                    (togglesInNewVersion == null || it.path in togglesInNewVersion) &&
-                        (togglesInOldVersion == null || it.path !in togglesInOldVersion)
-                }
-            }
-            .filter { (_, filteredOptions) -> filteredOptions.isNotEmpty() }
-        if (optionList.isEmpty()) {
-            ChatUtils.chat("There are no new options to configure between $old and $new")
-            return
-        }
         // Default behavior: open selective default config GUI with only new options
-        SkyHanniMod.screenToOpen = DefaultConfigOptionGui(optionList, old, new)
+        val newDefaultOptionsScreen = SkyHanniMod.feature.about.shDefaultOptionsScreen
+        if (newDefaultOptionsScreen == About.ShDefaultOptionsScreen.GROUPING || (old == "null" && new == "null")) {
+            val processor = FeatureToggleProcessor()
+            val driver = ConfigProcessorDriver(processor)
+            driver.warnForPrivateFields = false
+            driver.processConfig(SkyHanniMod.feature)
+            var optionList = processor.orderedOptions
+            val knownToggles = SkyHanniMod.knownFeaturesData.knownFeatures
+            val togglesInNewVersion = knownToggles[new]
+            if (new != "null" && togglesInNewVersion == null) {
+                ChatUtils.chat("Unknown version $new")
+                return
+            }
+            val togglesInOldVersion = knownToggles[old]
+            if (old != "null" && togglesInOldVersion == null) {
+                ChatUtils.chat("Unknown version $old")
+                return
+            }
+            optionList = optionList
+                .mapValues { option ->
+                    option.value.filter {
+                        (togglesInNewVersion == null || it.path in togglesInNewVersion) &&
+                            (togglesInOldVersion == null || it.path !in togglesInOldVersion)
+                    }
+                }
+                .filter { (_, filteredOptions) -> filteredOptions.isNotEmpty() }
+            if (optionList.isEmpty()) {
+                ChatUtils.chat("There are no new options to configure between $old and $new")
+                return
+            }
+            SkyHanniMod.screenToOpen = DefaultConfigOptionGui(optionList, old, new)
+            return
+        } else if (newDefaultOptionsScreen == null) {
+            ChatUtils.clickableChat(
+                "Do you want to use a grouped version to enable all features (click here)",
+                onClick = {
+                    SkyHanniMod.feature.about.shDefaultOptionsScreen = About.ShDefaultOptionsScreen.GROUPING
+                    onCommand(old, new)
+                },
+            )
+            ChatUtils.clickableChat(
+                "or a config screen to select all individually but with only new options (click here)?",
+                onClick = {
+                    SkyHanniMod.feature.about.shDefaultOptionsScreen = About.ShDefaultOptionsScreen.ONLY_NEW_MOUL_CONFIG
+                    onCommand(old, new)
+                },
+            )
+        } else if (newDefaultOptionsScreen == About.ShDefaultOptionsScreen.ONLY_NEW_MOUL_CONFIG) {
+            openNewOptionsOnly(old, new)
+        }
     }
 
     /** Opens the default options GUI but scoped to only new options. */
