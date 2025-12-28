@@ -47,13 +47,14 @@ class RewardWarningConfig {
         VisitorReward.CULTIVATING,
         VisitorReward.REPLENISH,
         VisitorReward.COPPER_DYE,
+        VisitorReward.FARMING_EXP_BOOST_EPIC,
     )
 
     @Expose
     @ConfigOption(
         name = "Coins per Copper",
         desc = "The price to use for the options below.\n" +
-            "Requires at least one of them to be on.",
+            "Requires at least one of them to be on."
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 50_000f, minStep = 250f)
     var coinsPerCopperPrice: Int = 6_000
@@ -61,7 +62,7 @@ class RewardWarningConfig {
     @Expose
     @ConfigOption(
         name = "Block Refusing Copper",
-        desc = "Prevent refusing visitors with a coins per copper lower than the set value.",
+        desc = "Prevent refusing visitors with a coins per copper lower than the set value."
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -70,7 +71,7 @@ class RewardWarningConfig {
     @Expose
     @ConfigOption(
         name = "Block Accepting Copper",
-        desc = "Prevent accepting visitors with a coins per copper higher than the set value.",
+        desc = "Prevent accepting visitors with a coins per copper higher than the set value."
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -81,7 +82,7 @@ class RewardWarningConfig {
         name = "Acceptable Coin Loss",
         desc = "The price to use for the below options.\n" +
             "Requires one of the below options to be on.\n" +
-            "Above options take precedence.",
+            "Above options take precedence."
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 500_000f, minStep = 1_000f)
     var coinsLossThreshold: Int = 150_000
@@ -89,7 +90,7 @@ class RewardWarningConfig {
     @Expose
     @ConfigOption(
         name = "Block Refusing Low Loss",
-        desc = "Prevent refusing a visitor with a net loss lower than a certain value.",
+        desc = "Prevent refusing a visitor with a net loss lower than a certain value."
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -98,7 +99,7 @@ class RewardWarningConfig {
     @Expose
     @ConfigOption(
         name = "Block Accepting High Loss",
-        desc = "Prevent accepting a visitor with a net loss higher than a certain value.",
+        desc = "Prevent accepting a visitor with a net loss higher than a certain value."
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -108,7 +109,7 @@ class RewardWarningConfig {
     @ConfigOption(
         name = "Block Refusing New Visitors",
         desc = "Prevents refusing a visitor you've never completed an offer with.\n" +
-            "§eDisabled while on bingo.",
+            "§eDisabled while on bingo."
     )
     @ConfigEditorBoolean
     @FeatureToggle

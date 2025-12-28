@@ -6,7 +6,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.ChestBlockEntity
-import net.minecraft.world.level.block.state.BlockState
 
 object BlockCompat {
     fun LorenzVec.isChestOpened(): Boolean {

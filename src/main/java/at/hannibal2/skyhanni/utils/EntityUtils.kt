@@ -166,7 +166,7 @@ object EntityUtils {
 
     @Deprecated("Use specific methods instead, such as wearingSkullTexture or holdingSkullTexture")
     fun ArmorStand.hasSkullTexture(skin: String): Boolean {
-        val inventory = this.getAllEquipment() ?: return false
+        val inventory = this.getAllEquipment()
         return inventory.any { it != null && it.getSkullTexture() == skin }
     }
 
