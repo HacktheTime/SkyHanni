@@ -122,13 +122,13 @@ object BSCClient {
                 connect()
             }
             literalCallback("stop"){
-                ChatUtils.chat("§eDisconnecting from BSC Server...")
                 stop()
             }
         }
     }
 
     fun stop() {
+        ChatUtils.chat("§eDisconnecting from BSC Server...")
         client?.close()
         thread.interrupt()
     }
