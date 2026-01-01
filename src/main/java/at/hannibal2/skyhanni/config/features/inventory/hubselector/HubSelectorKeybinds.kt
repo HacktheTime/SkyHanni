@@ -20,6 +20,7 @@ import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.StringUtils.convertToUnformatted
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapKeysNotNull
+import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIf
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
@@ -27,6 +28,7 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
+import net.minecraft.commands.arguments.SlotArgument.slot
 import net.minecraft.world.item.ItemStack
 import java.time.Duration
 import java.time.Instant
@@ -184,7 +186,7 @@ object HubSelectorKeybinds {
         if (!SkyHanniMod.feature.event.bingo.bingoNetworks.highlightSplashHub || !mainInventory.isInside()) return
         val cache = openedCache ?: return
 
-        val splashHubs = SplashManager.splashPool.filter { it.value.status == StatusConstants.WAITING }.map { it.value.serverID }
+        val splashHubs = SplashManager.splashPool.filter { it.value.status == StatusConstants.WAITING }.toMutableMap()
         val minPlayerCount = SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig.lowestPlayerHub.let {
             if (it) {
                 cache.maxBy { it.value.maxPlayerCount - it.value.playerCount }.value.serverId
@@ -193,15 +195,25 @@ object HubSelectorKeybinds {
             }
         }
 
-
-        InventoryUtils.getItemsInOpenChest().forEach { slot ->
+        val items = InventoryUtils.getItemsInOpenChest()
+        items.forEach { slot ->
             val slotNumber = slot.index
             val cacheData = cache[slotNumber] ?: return@forEach
-            if (splashHubs.contains(cacheData.serverId)) {
+            if (splashHubs.any { it.value.serverID == cacheData.serverId }) {
                 slot.highlight(LorenzColor.YELLOW.addOpacity(255))
+                splashHubs.removeIf { cacheData.serverId == it.value.serverID }
             }
             if (minPlayerCount == cacheData.serverId) {
                 slot.highlight(LorenzColor.LIGHT_PURPLE.addOpacity(255))
+            }
+        }
+        val currentIsland = HypixelData.skyBlockIsland.toBNIsland()
+        items.forEach {slot ->
+            val slotNumber = slot.index
+            val cacheData = cache[slotNumber] ?: return@forEach
+            if (splashHubs.any { it.value.hubSelectorData?.hubNumber == cacheData.hubNumber && it.value.hubSelectorData?.hubType ==
+                    currentIsland }) {
+                slot.highlight(LorenzColor.YELLOW.addOpacity(255))
             }
         }
     }
