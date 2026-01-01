@@ -4,7 +4,9 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
+import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetworksConfig
 import at.hannibal2.skyhanni.events.ConfigLoadEvent
+import at.hannibal2.skyhanni.features.chat.CurrentChatDisplay
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.PlayerUtils
@@ -22,6 +24,10 @@ object BingoBrewersClient {
 
     fun isEnabled() = config.useBB
 
+    init {
+        init()
+    }
+
     @HandleEvent
     fun event(event: ConfigLoadEvent) {
         init()
@@ -30,7 +36,7 @@ object BingoBrewersClient {
     @Synchronized
     fun init() {
         if (isEnabled()) {
-            SkyHanniMod.launchCoroutine("Init BingoBrewersClient after ConfigLoadEvent") {
+            SkyHanniMod.launchCoroutine("Init BingoBrewersClient") {
                 if (client?.isConnected != true) connect()
             }
         } else {
@@ -43,6 +49,11 @@ object BingoBrewersClient {
     @Synchronized
     private fun connect() {
         client?.stop()
+        if (!isEnabled()){
+            ChatUtils.chatAndOpenConfig("Bingo Brewers is not enabled right now. Please enable it first,", SkyHanniMod.feature.event.bingo
+                .bingoNetworks::useBB)
+            return
+        }
         val client = Client(16384, 16384)
         listener = getListener()
         BingoBrewersPackets.registerPackets(client)
@@ -55,6 +66,7 @@ object BingoBrewersClient {
         response.hello = "${PlayerUtils.getName()}|v0.3.8|Beta|${PlayerUtils.getUuid()}"
         println("Sending BingoBrewers Hello " + response.hello)
         client.sendTCP(response)
+        ChatUtils.chat("§aConnected to Bingo Brewers server!")
     }
 
 
@@ -96,7 +108,7 @@ object BingoBrewersClient {
         repeat = true
         while (repeat) {
             try {
-                println("Reconnecting to Bingo Brewers server...")
+                ChatUtils.chat("Reconnecting to Bingo Brewers server...")
                 connect()
                 repeat = false
             } catch (e: Exception) {
