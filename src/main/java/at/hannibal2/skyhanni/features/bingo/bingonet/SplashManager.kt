@@ -6,6 +6,7 @@ import de.hype.bingonet.BNConnection
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.PartyApi
+import at.hannibal2.skyhanni.data.PartyApi.joinParty
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
@@ -20,6 +21,7 @@ import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
 import kotlinx.coroutines.delay
 import java.lang.Thread.sleep
 import java.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
 // Not needed since the SH Message Event is asked for by the Player. Not needed to be a module.
@@ -121,8 +123,10 @@ object SplashManager {
                     currentIsland == IslandType.GOLD_MINES
                 ) {
                     // Double warp needed
-                    HypixelCommands.warp(Islands.HUB.warpArgument!!)
-                    sleep(250)
+                    SkyHanniMod.launchCoroutine("Hub double warp",250.milliseconds) {
+                        delay(250)
+                        HypixelCommands.warp(Islands.HUB.warpArgument!!)
+                    }
                 }
                 HypixelCommands.warp(Islands.HUB.warpArgument!!)
             } else {
@@ -139,7 +143,7 @@ object SplashManager {
             awaitingPartyInvite = splash.announcer
         } else if (source == SplashSource.BB) {
             PartyApi.leaveParty()
-            PartyApi.joinParty(splash.announcer)
+            joinParty(splash.announcer)
         }
     }
 

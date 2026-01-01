@@ -22,6 +22,6 @@ class SuperCraftingCoinWasteConfig {
     val warnCoinWaste: Double = 10.0
 
     @Expose
-    @ConfigLink(owner = CFConfig::class, field = "warnCoinWaste")
+    @ConfigLink(owner = SuperCraftingCoinWasteConfig::class, field = "warnCoinWaste")
     val warnCoinWastePosition: Position = Position(300, 300)
 }
