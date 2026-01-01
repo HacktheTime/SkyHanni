@@ -33,7 +33,7 @@ object StorageNavigationUtils {
                 {
                     first.runAccess(true)
                 },
-                hover = items.joinToString("\n") { "${it.item.displayName} x${it.item.count}" },
+                hover = items.joinToString("\n") { "${it.item.hoverName.string} x${it.item.count}" },
             )
         }
     }

@@ -19,6 +19,7 @@ import at.hannibal2.skyhanni.api.storage.filterByDescription
 import at.hannibal2.skyhanni.api.storage.filterByItemId
 import at.hannibal2.skyhanni.api.storage.outputToChat
 import at.hannibal2.skyhanni.utils.NeuItems
+import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLeadingWhiteLessResets
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import java.util.UUID
 
@@ -182,7 +183,7 @@ object SearchItem {
             ChatUtils.userError("This item doesn't have a UUID! Only unique SkyBlock items can be tagged.")
             return
         }
-        val displayName = heldItem.displayName.string ?: "Unknown Item"
+        val displayName = heldItem.hoverName?.formattedTextCompatLeadingWhiteLessResets() ?: "Unknown Item"
         val success = ItemTagManager.addTag(uuid, tag, displayName)
         if (success) {
             ChatUtils.chat("§aSuccessfully tagged §e$displayName §awith §b$tag")

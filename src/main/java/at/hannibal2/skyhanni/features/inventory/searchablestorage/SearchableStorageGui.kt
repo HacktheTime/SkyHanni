@@ -81,7 +81,7 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
     )
 
     enum class SearchMode(val displayName: String, val matches: (ItemStack, String) -> Boolean) {
-        NAME("NAME", { stack, search -> stack.displayName.string.removeColor().contains(search, ignoreCase = true) }),
+        NAME("NAME", { stack, search -> stack.hoverName.string.removeColor().contains(search, ignoreCase = true) }),
         LORE("LORE", { stack, search -> stack.getLore().any { it.removeColor().contains(search, ignoreCase = true) } }),
         NAME_LORE("NAME + LORE", { stack, search -> NAME.matches(stack, search) || LORE.matches(stack, search) })
         ;
@@ -93,8 +93,8 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
         val displayName: String,
         private val comparator: Comparator<Map.Entry<NeuInternalName, ItemData>>,
     ) {
-        NAME_ASC("NAME ⬆", compareBy { it.key.getItemStack().displayName.string.lowercase() }),
-        NAME_DESC("NAME ⬇", compareByDescending { it.key.getItemStack().displayName.string.lowercase() }),
+        NAME_ASC("NAME ⬆", compareBy { it.key.getItemStack().hoverName.string.lowercase() }),
+        NAME_DESC("NAME ⬇", compareByDescending { it.key.getItemStack().hoverName.string.lowercase() }),
         PRICE_ASC("PRICE ⬆", compareBy { it.key.getPrice() * it.value.amount }),
         PRICE_DESC("PRICE ⬇", compareByDescending { it.key.getPrice() * it.value.amount });
 

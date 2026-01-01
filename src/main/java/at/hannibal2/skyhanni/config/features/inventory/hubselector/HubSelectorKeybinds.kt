@@ -18,6 +18,7 @@ import at.hannibal2.skyhanni.utils.RegexUtils.matchGroup
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
+import at.hannibal2.skyhanni.utils.StringUtils.convertToUnformatted
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapKeysNotNull
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.common.collect.BiMap
@@ -62,7 +63,7 @@ object HubSelectorKeybinds {
      */
     private val itemNamePattern by patternGroup.pattern(
         "item-name",
-        "§.(?<type>(SkyBlock)|(Dungeon)) Hub #(?<hubNumber>\\d+)",
+        "(?<type>(SkyBlock)|(Dungeon)) Hub #(?<hubNumber>\\d+)",
     )
 
     /**
@@ -150,7 +151,7 @@ object HubSelectorKeybinds {
     }
 
     private fun ItemStack.parseToHubSelectorData(): HubData? {
-        val hubNumber = itemNamePattern.matchGroup(displayName.string, "hubNumber")?.toIntOrNull() ?: return null
+        val hubNumber = itemNamePattern.matchGroup(hoverName.string.convertToUnformatted(), "hubNumber")?.toIntOrNull() ?: return null
         var serverId: String? = null
         var playerCount: Int? = null
         var maxPlayerCount: Int? = null

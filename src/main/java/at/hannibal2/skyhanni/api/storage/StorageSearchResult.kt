@@ -43,7 +43,7 @@ data class StorageSearchResult(
      * Returns a human-readable display name for this result
      */
     fun getDisplayName(): String {
-        val itemName = item.displayName
+        val itemName = item.hoverName.string
         return when (category) {
             StorageCategory.ENDER_CHEST -> "$itemName§f in Ender Chest${if (page != null) " (Page $page)" else ""}"
             StorageCategory.BACKPACK -> "$itemName§f in Backpack${if (page != null) " (Page $page)" else ""}"
