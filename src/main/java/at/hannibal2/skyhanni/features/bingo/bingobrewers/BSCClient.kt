@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.events.ConfigLoadEvent
+import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersClient.isEnabled
 import at.hannibal2.skyhanni.features.bingo.bingonet.SplashManager
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -48,6 +49,12 @@ object BSCClient {
     @Synchronized
     private fun connect() {
         client?.close()
+        if (!isEnabled()){
+            ChatUtils.chatAndOpenConfig("Bingo Splash Community is not enabled right now. Please enable it first,", SkyHanniMod.feature
+                .event.bingo
+                .bingoNetworks::useBSC)
+            return
+        }
         val client = Socket("bsn.morazzer.dev", 1807)
         this.client = client
         thread = Thread {
