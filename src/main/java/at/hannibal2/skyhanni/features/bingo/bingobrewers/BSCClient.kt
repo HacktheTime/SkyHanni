@@ -15,14 +15,17 @@ import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.objects.SplashLocations
 import java.io.IOException
 import java.net.Socket
-import java.util.concurrent.CountDownLatch
+import java.net.SocketTimeoutException
 import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Job
 
 @SkyHanniModule
 object BSCClient {
     val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks
     val enabled get() = config.useBSC
+    @Volatile
+    private var connectJob: Job? = null
     var client: Socket? = null
     var thread: Thread? = null
 
@@ -45,16 +48,20 @@ object BSCClient {
     }
 
     fun asyncConnect() {
-        SkyHanniMod.launchCoroutine("BSC Connect", 70.seconds) {
+        if (client?.isConnected == true) return
+        val existing = connectJob
+        if (existing != null && existing.isActive) return
+        connectJob = SkyHanniMod.launchCoroutine("BSC Connect", 70.seconds) {
             //BSC does not answer immediately for some reason.
             connect()
+        }.also { job ->
+            job.invokeOnCompletion { connectJob = null }
         }
     }
 
     @Throws(IOException::class)
     @Synchronized
     private fun connect() {
-        val lock = CountDownLatch(1)
         stop()
         if (!isEnabled()) {
             ChatUtils.chatAndOpenConfig(
@@ -65,13 +72,19 @@ object BSCClient {
             )
             return
         }
-        val client = Socket("bsn.morazzer.dev", 1807)
+        val client = Socket("bsn.morazzer.dev", 1807).apply {
+            soTimeout = 10_000 // avoid blocking the render thread by timing out reads
+        }
         this.client = client
         thread = Thread {
             while (!Thread.currentThread().isInterrupted && client.isConnected) {
                 val inputStream = client.getInputStream()
                 val buffer = ByteArray(1024)
-                val read = inputStream.read(buffer)
+                val read = try {
+                    inputStream.read(buffer)
+                } catch (timeout: SocketTimeoutException) {
+                    continue // re-check loop conditions without parking a thread forever
+                }
                 if (read == -1) {
                     ChatUtils.clickableChat(
                         "Error trying to connect to BSC Server",
@@ -80,11 +93,10 @@ object BSCClient {
                         },
                     )
                     BSCClient.client?.close()
-                    lock.countDown()
-                }else {
+                    return@Thread
+                } else {
                     ChatUtils.chat("§aSuccessfully connected to BSC Server")
                 }
-                lock.countDown()
                 val id = buffer[0]
                 if (id == 0.toByte()) {
                     //Ignore
@@ -123,7 +135,6 @@ object BSCClient {
             }
         }
         thread?.start()
-        lock.await()
     }
 
 
@@ -151,6 +162,8 @@ object BSCClient {
 
     fun stop() {
         if (client?.isConnected == true) ChatUtils.chat("§eDisconnecting from BSC Server...")
+        connectJob?.cancel()
+        connectJob = null
         client?.close()
         thread?.interrupt()
     }
