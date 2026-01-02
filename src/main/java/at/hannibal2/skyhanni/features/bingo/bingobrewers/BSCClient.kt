@@ -15,11 +15,13 @@ import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.objects.SplashLocations
 import java.io.IOException
 import java.net.Socket
+import java.util.concurrent.CountDownLatch
 import java.util.regex.Pattern
+import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
 object BSCClient {
-    val config = SkyHanniMod.feature.event.bingo.bingoNetworks
+    val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks
     val enabled get() = config.useBSC
     var client: Socket? = null
     var thread: Thread? = null
@@ -36,18 +38,23 @@ object BSCClient {
     @Synchronized
     fun init() {
         if (enabled) {
-            SkyHanniMod.launchCoroutine("Init BSC Client") {
-                if (client?.isConnected != true) connect()
-            }
+            if (client?.isConnected != true) asyncConnect()
         } else {
             stop()
         }
     }
 
+    fun asyncConnect() {
+        SkyHanniMod.launchCoroutine("BSC Connect", 70.seconds) {
+            //BSC does not answer immediately for some reason.
+            connect()
+        }
+    }
 
     @Throws(IOException::class)
     @Synchronized
     private fun connect() {
+        val lock = CountDownLatch(1)
         stop()
         if (!isEnabled()) {
             ChatUtils.chatAndOpenConfig(
@@ -69,11 +76,15 @@ object BSCClient {
                     ChatUtils.clickableChat(
                         "Error trying to connect to BSC Server",
                         onClick = {
-                            connect()
+                            asyncConnect()
                         },
                     )
                     BSCClient.client?.close()
+                    lock.countDown()
+                }else {
+                    ChatUtils.chat("§aSuccessfully connected to BSC Server")
                 }
+                lock.countDown()
                 val id = buffer[0]
                 if (id == 0.toByte()) {
                     //Ignore
@@ -112,6 +123,7 @@ object BSCClient {
             }
         }
         thread?.start()
+        lock.await()
     }
 
 
@@ -122,7 +134,7 @@ object BSCClient {
             category = CommandCategory.USERS_ACTIVE
             literalCallback("reconnect") {
                 ChatUtils.chat("§eReconnecting to BSC Server...")
-                connect()
+                asyncConnect()
             }
             literalCallback("stop") {
                 stop()

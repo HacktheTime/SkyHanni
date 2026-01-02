@@ -20,7 +20,7 @@ import java.io.IOException
 object BingoBrewersClient {
     private var client: Client? = null
     private var listener: Listener? = null
-    private val config = SkyHanniMod.feature.event.bingo.bingoNetworks
+    private val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks
 
     fun isEnabled() = config.useBB
 
