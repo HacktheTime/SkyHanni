@@ -54,6 +54,14 @@ object BNCommands {
             simpleCallback {
                 connectServerCommand(null)
             }
+            literalCallback("state"){
+                if (BNConnection.isConnected){
+                    val system = BNConnection.connectedSystem
+                    ChatUtils.chat("§aConnected§r to Bingo Net Server §e${system?.name ?: "Unknown"}§r.")
+                } else {
+                    ChatUtils.chat("§cDisconnected§r from Bingo Net.")
+                }
+            }
         }
 
         event.registerBrigadier("bc") {

@@ -109,7 +109,10 @@ object BNConnection {
 
     val waypoints: MutableMap<Int, WaypointData> = HashMap()
 
-
+    val connectedSystem : BingoNetSystem? get() {
+        if (!isConnected) return null
+        return BingoNetSystem.entries.firstOrNull { socket?.port == it.port }
+    }
     private fun createSSLContext(): SSLContext {
         // Load the certificate from resources/assets/public_bingonet_cert.crt
         val certificateFactory = CertificateFactory.getInstance("X.509")

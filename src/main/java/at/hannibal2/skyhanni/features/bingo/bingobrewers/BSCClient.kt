@@ -49,10 +49,13 @@ object BSCClient {
     @Synchronized
     private fun connect() {
         stop()
-        if (!isEnabled()){
-            ChatUtils.chatAndOpenConfig("Bingo Splash Community is not enabled right now. Please enable it first,", SkyHanniMod.feature
-                .event.bingo
-                .bingoNetworks::useBSC)
+        if (!isEnabled()) {
+            ChatUtils.chatAndOpenConfig(
+                "Bingo Splash Community is not enabled right now. Please enable it first,",
+                SkyHanniMod.feature
+                    .event.bingo
+                    .bingoNetworks::useBSC,
+            )
             return
         }
         val client = Socket("bsn.morazzer.dev", 1807)
@@ -117,18 +120,25 @@ object BSCClient {
         event.registerBrigadier("bsc") {
             description = "Copies information about the item in hand to the clipboard"
             category = CommandCategory.USERS_ACTIVE
-            literalCallback("reconnect"){
+            literalCallback("reconnect") {
                 ChatUtils.chat("§eReconnecting to BSC Server...")
                 connect()
             }
-            literalCallback("stop"){
+            literalCallback("stop") {
                 stop()
+            }
+            literalCallback("state") {
+                if (client?.isConnected == true) {
+                    ChatUtils.chat("§aConnected to BSC Server")
+                } else {
+                    ChatUtils.chat("§cNot connected to BSC Server")
+                }
             }
         }
     }
 
     fun stop() {
-        ChatUtils.chat("§eDisconnecting from BSC Server...")
+        if (client?.isConnected == true) ChatUtils.chat("§eDisconnecting from BSC Server...")
         client?.close()
         thread?.interrupt()
     }

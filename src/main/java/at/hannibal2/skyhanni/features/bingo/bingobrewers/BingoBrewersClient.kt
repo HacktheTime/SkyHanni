@@ -48,7 +48,7 @@ object BingoBrewersClient {
     @Throws(IOException::class)
     @Synchronized
     private fun connect() {
-        client?.stop()
+        stop()
         if (!isEnabled()){
             ChatUtils.chatAndOpenConfig("Bingo Brewers is not enabled right now. Please enable it first,", SkyHanniMod.feature.event.bingo
                 .bingoNetworks::useBB)
@@ -95,6 +95,9 @@ object BingoBrewersClient {
     }
 
     fun stop() {
+        if (client?.isConnected == true) {
+            ChatUtils.chat("§cDisconnected from Bingo Brewers server.")
+        }
         client?.stop()
         client?.close()
     }
@@ -141,9 +144,18 @@ object BingoBrewersClient {
             {
                 category = CommandCategory.BINGO_NET
                 description = "Reload the Bingo Brewers Client"
-                simpleCallback {
-                    client?.close()
+                literalCallback("reconnect"){
                     connect()
+                }
+                literalCallback("stop"){
+                    stop()
+                }
+                literalCallback("state"){
+                    if (BSCClient.client?.isConnected == true){
+                        ChatUtils.chat("§aConnected to BB Server")
+                    } else {
+                        ChatUtils.chat("§cNot connected to BB Server")
+                    }
                 }
             },
         )
