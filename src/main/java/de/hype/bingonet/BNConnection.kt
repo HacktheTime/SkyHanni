@@ -733,6 +733,7 @@ object BNConnection {
     }
 
     fun disconnect(silent: Boolean = false) {
+        if (!silent && socket?.isConnected==true) ChatUtils.chat("Disconnected from Bingo Net Server")
         socket?.close()
         reader = null
         writer = null
@@ -745,7 +746,6 @@ object BNConnection {
         authenticated = null
         packetIntercepts.clear()
         waypoints.clear()
-        if (!silent) ChatUtils.chat("Disconnected from Bingo Net Server")
     }
 
     fun isEnabled(): Boolean {
