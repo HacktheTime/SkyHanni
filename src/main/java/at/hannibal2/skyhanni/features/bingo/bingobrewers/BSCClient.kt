@@ -22,7 +22,7 @@ object BSCClient {
     val config = SkyHanniMod.feature.event.bingo.bingoNetworks
     val enabled get() = config.useBSC
     var client: Socket? = null
-    lateinit var thread: Thread
+    var thread: Thread? = null
 
     @HandleEvent
     fun event(event: ConfigLoadEvent) {
@@ -48,7 +48,7 @@ object BSCClient {
     @Throws(IOException::class)
     @Synchronized
     private fun connect() {
-        client?.close()
+        stop()
         if (!isEnabled()){
             ChatUtils.chatAndOpenConfig("Bingo Splash Community is not enabled right now. Please enable it first,", SkyHanniMod.feature
                 .event.bingo
@@ -58,7 +58,7 @@ object BSCClient {
         val client = Socket("bsn.morazzer.dev", 1807)
         this.client = client
         thread = Thread {
-            while (!thread.isInterrupted && client.isConnected) {
+            while (!Thread.currentThread().isInterrupted && client.isConnected) {
                 val inputStream = client.getInputStream()
                 val buffer = ByteArray(1024)
                 val read = inputStream.read(buffer)
@@ -108,7 +108,7 @@ object BSCClient {
                 }
             }
         }
-        thread.start()
+        thread?.start()
     }
 
 
@@ -130,6 +130,6 @@ object BSCClient {
     fun stop() {
         ChatUtils.chat("§eDisconnecting from BSC Server...")
         client?.close()
-        thread.interrupt()
+        thread?.interrupt()
     }
 }
