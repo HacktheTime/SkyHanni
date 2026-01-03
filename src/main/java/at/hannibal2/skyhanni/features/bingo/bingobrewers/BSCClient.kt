@@ -13,17 +13,20 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.objects.SplashLocations
+import kotlinx.coroutines.Job
 import java.io.IOException
 import java.net.Socket
 import java.net.SocketTimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Job
 
 @SkyHanniModule
 object BSCClient {
     val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks
     val enabled get() = config.useBSC
+    private val splashIdCounter = AtomicInteger(1)
+
     @Volatile
     private var connectJob: Job? = null
     var client: Socket? = null
@@ -76,6 +79,7 @@ object BSCClient {
             soTimeout = 10_000 // avoid blocking the render thread by timing out reads
         }
         this.client = client
+        if (client.isConnected) ChatUtils.chat("§aSuccessfully connected to BSC Server")
         thread = Thread {
             while (!Thread.currentThread().isInterrupted && client.isConnected) {
                 val inputStream = client.getInputStream()
@@ -94,14 +98,11 @@ object BSCClient {
                     )
                     BSCClient.client?.close()
                     return@Thread
-                } else {
-                    ChatUtils.chat("§aSuccessfully connected to BSC Server")
                 }
                 val id = buffer[0]
                 if (id == 0.toByte()) {
                     //Ignore
                 } else if (id == 1.toByte()) {
-                    ChatUtils.chat("§aConnected to Bingo Splash Community Splash Announcement Server!")
                     val message = String(buffer, 1, read - 1).let {
                         it.replace("<@&[0-9]+>".toRegex(), "")
                     }
@@ -117,7 +118,7 @@ object BSCClient {
                     val hubSelectorData = if (hubNumber != null) SplashData.HubSelectorData(hubNumber, island) else null
                     if (hubSelectorData == null) continue
                     val sploosh = SplashData(
-                        announcer = "BSC",
+                        announcer = "One of the BSC Splashers",
                         locationInHub = SplashLocations.KAT,
                         extraMessage = message,
                         lessWaste = false,
@@ -125,7 +126,7 @@ object BSCClient {
                         hubSelectorData = hubSelectorData,
                         status = StatusConstants.WAITING,
                         funder = null,
-                    )
+                    ).also { it.splashId = -splashIdCounter.incrementAndGet() }
                     SplashManager.addSplash(sploosh, SplashManager.SplashSource.BSC)
                 } else if (id == 2.toByte()) {
                     ChatUtils.chat("§cConnection limit on BSC server reached. Try again later with /bsc reconnect")
