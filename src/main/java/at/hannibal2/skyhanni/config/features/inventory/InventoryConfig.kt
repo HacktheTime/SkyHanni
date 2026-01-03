@@ -11,19 +11,15 @@ import at.hannibal2.skyhanni.config.features.inventory.sacks.OutsideSackValueCon
 import at.hannibal2.skyhanni.config.features.itemability.ItemAbilityConfig
 import at.hannibal2.skyhanni.config.features.misc.EstimatedItemValueConfig
 import at.hannibal2.skyhanni.config.features.misc.PocketSackInASackConfig
-import at.hannibal2.skyhanni.features.inventory.searchablestorage.SearchableStorage
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.Category
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
-import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
-import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.annotations.SearchTag
-import org.lwjgl.glfw.GLFW
 
 class InventoryConfig {
     @Expose
@@ -61,13 +57,6 @@ class InventoryConfig {
     @Expose
     @Category(name = "Chocolate Factory", desc = "Features to help you master the Chocolate Factory idle game.")
     val chocolateFactory: CFConfig = CFConfig()
-
-    @ConfigOption(
-        name = "Searchable Storage Gui",
-        desc = "Open a gui where you can search your storages by name and or lore. \n§eCommand: /shsearchstorage (search)",
-    )
-    @ConfigEditorButton(buttonText = "Open")
-    val open: Runnable = Runnable(SearchableStorage::onCommand)
 
     @Expose
     @ConfigOption(name = "Improved SB Menus", desc = "")
@@ -390,20 +379,4 @@ class InventoryConfig {
     @SearchTag("pick block")
     @OnlyModern
     var middleClickFix: Boolean = true
-
-    @Expose
-    @ConfigOption(
-        name = "Searchable Storage Reminder",
-        desc = "Reminder that tells you to enable saving private island chests when opening the searchable storage gui.",
-    )
-    @ConfigEditorBoolean
-    var searchableStorageReminder: Boolean = true
-
-    @Expose
-    @ConfigOption(
-        name = "Bulk Quick Move Keybind",
-        desc = "While holding this key you quick move all items you are hovering over. (Aka Quick Move)",
-    )
-    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
-    var bulkMoveKeybind: Int = GLFW.GLFW_KEY_UNKNOWN
 }
