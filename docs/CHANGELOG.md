@@ -4,7 +4,7 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Fixed a Issue with Item names causing Issues in multiple places such as the Hub Selector
+- Multiple Bug Fixes
 
 ## Static Info for modrinth:
 
