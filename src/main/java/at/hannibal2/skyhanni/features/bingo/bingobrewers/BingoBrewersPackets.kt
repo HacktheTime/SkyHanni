@@ -99,14 +99,17 @@ object BingoBrewersPackets {
                 )
                 return
             }
-            val regex = "(i)(mega|mini)\\d+[A-Z]+"
-            val pattern = java.util.regex.Pattern.compile(regex)
+            val regex = "(mega|mini)\\d+[A-Z]+"
+            val pattern = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.CASE_INSENSITIVE)
             val matcher = pattern.matcher(packet.message)
+            val noteMatcher = pattern.matcher(packet.note.orEmpty().joinToString("\n"))
 
             var serverId: String? = null
             var hubNumber: Int? = null
             if (matcher.find()) {
                 serverId = matcher.group()
+            } else if (noteMatcher.find()){
+                serverId = noteMatcher.group()
             } else if (packet.message.trim { it <= ' ' }.matches("^\\d+$".toRegex())) {
                 hubNumber = packet.message.trim { it <= ' ' }.toInt()
             } else {
