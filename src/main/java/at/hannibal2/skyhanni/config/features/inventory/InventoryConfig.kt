@@ -104,7 +104,6 @@ class InventoryConfig {
     @Accordion
     val superCraftingCoinWaste: SuperCraftingCoinWasteConfig = SuperCraftingCoinWasteConfig()
 
-
     @Expose
     @ConfigOption(name = "Stats Tuning", desc = "")
     @Accordion
