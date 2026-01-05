@@ -362,7 +362,7 @@ object NumpadCodes {
 
 
             val state = OverlayState(input, suggestions, highlighted, currentMcCode, currentRemaining)
-            DelayedRun.onThread.execute { overlayListener?.invoke(state) }
+            DelayedRun.runOrNextTick { overlayListener?.invoke(state) }
             lastOverlayComputeMillis.set(System.currentTimeMillis())
         }
     }
