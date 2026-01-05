@@ -361,7 +361,7 @@ object ChatUtils {
     }
 
     private fun refreshChat() {
-        DelayedRun.onThread.execute {
+        DelayedRun.runOrNextTick {
             chatGui.rescaleChat()
         }
     }

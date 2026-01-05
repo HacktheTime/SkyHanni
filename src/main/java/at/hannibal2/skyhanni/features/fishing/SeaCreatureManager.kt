@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.fishing
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.api.pet.PetStorageApi
 import at.hannibal2.skyhanni.data.jsonobjects.repo.SeaCreatureJson
 import at.hannibal2.skyhanni.events.RepositoryReloadEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
@@ -45,13 +46,18 @@ object SeaCreatureManager {
                 event.blockedReason = "double_hook"
             }
             doubleHook = true
-        } else if (!doubleHook || !thunderBottleChargedPattern.matches(event.message)) {
-            val seaCreature = getSeaCreatureFromMessage(event.message)
-            if (seaCreature != null) {
-                SeaCreatureFishEvent(seaCreature, event, doubleHook).post()
-            }
-            doubleHook = false
+            return
         }
+
+        if (thunderBottleChargedPattern.matches(event.message) ||
+            PetStorageApi.isAutopetMessage(event.message)
+        ) return
+
+        getSeaCreatureFromMessage(event.message)?.let {
+            SeaCreatureFishEvent(it, event, doubleHook).post()
+        }
+
+        doubleHook = false
     }
 
     @HandleEvent
