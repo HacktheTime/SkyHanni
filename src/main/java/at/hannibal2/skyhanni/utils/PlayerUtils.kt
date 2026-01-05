@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.utils
 import at.hannibal2.skyhanni.utils.NumberUtil.roundTo
 import at.hannibal2.skyhanni.utils.StringUtils.toUnDashedUUID
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
-import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.ai.attributes.Attributes
 import java.util.UUID
@@ -39,7 +38,10 @@ object PlayerUtils {
 
     fun getRawUuid(): UUID = MinecraftCompat.localPlayer.uuid
 
-    fun getName(): String = MinecraftCompat.localPlayer.name.string
+    fun getName(): String {
+        val player = MinecraftCompat.localPlayerOrNull ?: return Minecraft.getInstance().gameProfile.name
+        return player.name.string
+    }
 
     fun inAir(): Boolean = !MinecraftCompat.localPlayer.onGround()
 
