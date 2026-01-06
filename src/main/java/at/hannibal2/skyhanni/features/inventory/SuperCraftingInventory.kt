@@ -6,118 +6,126 @@ import at.hannibal2.skyhanni.data.BitsApi
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.title.TitleManager
 import at.hannibal2.skyhanni.events.GuiContainerEvent
+import at.hannibal2.skyhanni.features.chat.ShortenCoins.formatChatCoins
 import at.hannibal2.skyhanni.features.inventory.bazaar.BazaarApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.InventoryDetector
 import at.hannibal2.skyhanni.utils.InventoryUtils
-import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.ItemUtils.getSingleLineLore
 import at.hannibal2.skyhanni.utils.KeyboardManager
-import at.hannibal2.skyhanni.utils.NeuInternalName
+import at.hannibal2.skyhanni.utils.NumberUtil.formatLongOrNull
+import at.hannibal2.skyhanni.utils.PrimitiveItemStack
+import at.hannibal2.skyhanni.utils.PrimitiveItemStack.Companion.toPrimitiveStackOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.groupOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
-import at.hannibal2.skyhanni.utils.collection.CollectionUtils.sumAllValues
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPatternGroup
-import net.minecraft.world.item.AirItem
+import net.minecraft.world.inventory.Slot
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
 object SuperCraftingInventory {
-    val wasteConfig = SkyHanniMod.feature.inventory.superCrafting.waste
+    private val materialSlots = listOf(
+        10, 11, 12, 19, 20, 21, 28, 29, 30,
+    )
+    private const val PICKAXE_SLOT = 32
+    private const val RESULT_SLOT = 25
+    private val config get() = SkyHanniMod.feature.inventory.superCrafting.waste
 
-    val craftingPatternGroup = RepoPatternGroup("supercraftinginventory")
-    val craftingCount by craftingPatternGroup.pattern(
+    private val craftingPatternGroup = RepoPatternGroup("supercrafting-inventory")
+    /**
+     * REGEX-TEST: Crafting 1,111 items into your sacks!
+     */
+    private val craftingCount by craftingPatternGroup.pattern(
         "crafting.count",
         ".*Crafting (?<count>[0-9,]+) item.*",
     )
-    val craftingResourcePattern by craftingPatternGroup.pattern(
+
+    /**
+     * REGEX-TEST: ✔ 177,889/32 (5,559x) Enchanted Glowstone Dust
+     */
+    private val craftingResourcePattern by craftingPatternGroup.pattern(
         "crafting.resource",
-        " *([✔✖]) [0-9,]+/[0-9,]+ \\((?<amount>[0-9,]+)x\\) (?<resource>.+)",
+        " *✔ [0-9,]+/[0-9,]+ \\((?<amount>[0-9,]+)x\\) (?<resource>.+)",
     )
 
-    val inventoryPattern by craftingPatternGroup.pattern(
+    /**
+     * [REGEX-TEST]: Enchanted Redstone Recipe
+     */
+    private val inventoryPattern by craftingPatternGroup.pattern(
         "inventory.name",
         "(?<itemname>.*) Recipe",
     )
-    val invDetector = InventoryDetector(
-        onOpenInventory = { },
-        checkInventoryName = { name ->
-            inventoryPattern.matches(name)
-        },
-        onCloseInventory = {
-        },
+    private val invDetector = InventoryDetector(
+        checkInventoryName = { name -> inventoryPattern.matches(name) },
     )
 
-    fun getWarnAmount(): Double {
-        return if (BitsApi.hasCookieBuff()) wasteConfig.normal
-        else wasteConfig.withoutCookieValues.normal
+    private fun getWarnAmount(): Double {
+        return if (BitsApi.hasCookieBuff()) config.normal
+        else config.withoutCookieValues.normal
     }
 
-    fun getBulkWarnAmount(): Double {
-        return if (BitsApi.hasCookieBuff()) wasteConfig.maxResource
-        else wasteConfig.withoutCookieValues.maxResource
+    private fun getBulkWarnAmount(): Double {
+        return if (BitsApi.hasCookieBuff()) config.maxResource
+        else config.withoutCookieValues.maxResource
     }
 
     @HandleEvent
     fun onClick(event: GuiContainerEvent.SlotClickEvent) {
         if (!invDetector.isInside()) return
-        if (!wasteConfig.enabled) return
+        if (!config.enabled) return
         if (HypixelData.noTrade) return
-        val craftingAmount = getSuperCraftingCount() ?: return
-        val maxCraftingAmount = getSuperCraftingMaxCount()
-        val profit = getProfit(craftingAmount) ?: return
         if (event.clickedButton != 0) return
-        if (blockWasteClick(profit, craftingAmount, maxCraftingAmount)) {
-            SoundUtils.playErrorSound()
-            TitleManager.sendTitle(
-                "§cCraft-click Prevented (Big Loss Detected)",
-                subtitleText = "§7Hold §eControl §7to bypass. You could save §c${String.format("%,.1f", -profit)}§6 Coins§7 by " +
-                    "selling the required resources directly to the §6Bazaar§7 and then instant-buying the finished item.",
-                duration = 2.seconds,
-                location = TitleManager.TitleLocation.INVENTORY,
-            )
-            ChatUtils.chatAndOpenConfig("Blocked a craft since instant selling the materials and instant buying the item(s) directly is " +
-                "significantly cheaper. You can hold §cControl §ewhile clicking to bypass this warning. ",
-                wasteConfig::enabled )
-            event.cancel()
-        }
-    }
-
-    private fun getSuperCraftingMaxCount(): Int {
         val slots = InventoryUtils.getItemsInOpenChestWithNull()
-        val pickaxeSlot = slots[32]
-        val minimum = pickaxeSlot.item.getLore().mapNotNull {
-            val it = it.removeColor()
-            return@mapNotNull craftingResourcePattern.matchMatcher(it) {
-                groupOrNull("amount")?.replace(",", "")?.toIntOrNull()
-            }
-        }.min()
-        return minimum
+        val craftingAmount = getSuperCraftingCount(slots) ?: return
+        val profit = getProfit(slots, craftingAmount) ?: return
+        val maxCraftingAmount = getSuperCraftingMaxCount(slots)
+        if (!blockWasteClick(profit, craftingAmount, maxCraftingAmount)) return
+        SoundUtils.playErrorSound()
+        TitleManager.sendTitle(
+            "§cCraft-click Prevented (Big Loss Detected)",
+            subtitleText = "§7Hold §eControl §7to bypass. You could save §c${(-profit).formatChatCoins()} Coins §7by " +
+                "selling the required resources directly to the §6Bazaar§7 and then instant-buying the finished item.",
+            duration = 2.seconds,
+            location = TitleManager.TitleLocation.INVENTORY,
+        )
+        ChatUtils.chatAndOpenConfig(
+            "Blocked a craft since instant selling the materials and instant buying the item(s) directly is " +
+                "significantly cheaper. You can hold §cControl §ewhile clicking to bypass this warning. ",
+            config::enabled,
+        )
+        event.cancel()
     }
 
-    fun getProfit(craftingAmount: Int): Double? {
-        val materials = getRecipeMaterials()
-        if (materials.containsKey(null)) return null
-        val resultItem = getResultItem() ?: return null
+    private fun getSuperCraftingMaxCount(slots: List<Slot>) = slots[PICKAXE_SLOT].item.getLore().mapNotNull {
+        craftingResourcePattern.matchMatcher(it.removeColor()) {
+            groupOrNull("amount")?.formatLongOrNull()
+        }
+    }.minOrNull() ?: ErrorManager.skyHanniError(
+        "crafting resource line not found",
+        "lore" to slots.map { slot -> slot.item.getLore().map { line -> line.removeColor() } },
+    )
 
-        val recipeMultiplier = resultItem.second
+    private fun getProfit(slots: List<Slot>, craftingAmount: Long): Double? {
+        val materials = getRecipeMaterials(slots)
+        val resultItem = getResultItem(slots)
 
-        val itemsPrice = materials.mapValues {
-            it.value * (craftingAmount / recipeMultiplier)
-        }.mapValues {
-            //The materials are always summed up already by the getRecipeMaterials function
-            val key = it.key!!
-            val price = BazaarApi.calculatePriceOffAvailableOrders(key, it.value, BazaarApi.SimpleTransactionType.BUY_ORDER)
-            return@mapValues price?: return null
-        }.sumAllValues()
+        val recipeMultiplier = resultItem.amount
+
+        val itemsPrice = materials.sumOf { material ->
+            val totalAmount = material.amount * (craftingAmount / recipeMultiplier)
+            BazaarApi.calculatePriceOffAvailableOrders(
+                material.internalName, totalAmount, BazaarApi.SimpleTransactionType.BUY_ORDER,
+            ) ?: return null
+        }
 
         val totalResultPrice = BazaarApi.calculatePriceOffAvailableOrders(
-            resultItem.first,
+            resultItem.internalName,
             craftingAmount,
             BazaarApi.SimpleTransactionType.SELL_OFFER,
         ) ?: return null
@@ -125,47 +133,33 @@ object SuperCraftingInventory {
         return totalResultPrice - itemsPrice
     }
 
-    fun getRecipeMaterials(): Map<NeuInternalName?, Int> {
-        val slots = InventoryUtils.getItemsInOpenChestWithNull()
-        return listOf(
-            slots[10], slots[11], slots[12],
-            slots[19], slots[20], slots[21],
-            slots[28], slots[29], slots[30],
-        ).map {
-            val name = it.item.getInternalNameOrNull()
-            if (name != null) return@map name to it.item.count
-            if (it.item.item is AirItem) return@map NeuInternalName.NONE to 0
-            else return@map null to it.item.count
-        }.groupBy { it.first }.mapValues { it ->
-            it.value.sumOf {
-                it.second
-            }
-        }.filter { it.key != NeuInternalName.NONE }
+    private fun getRecipeMaterials(slots: List<Slot>) = materialSlots.mapNotNull { slotIndex ->
+        val item = slots[slotIndex].item
+        if (item.isEmpty) return@mapNotNull null
+        item.toPrimitiveStackOrNull()
+            ?: error("Unknown item in crafting slot: ${item.displayName}")
+    }.groupBy { it.internalName }.map { (name, stacks) ->
+        PrimitiveItemStack(name, stacks.sumOf { it.amount })
     }
 
-    fun getSuperCraftingCount(): Int? {
-        val slots = InventoryUtils.getItemsInOpenChestWithNull()
-        val pickaxeSlot = slots[32]
-        val lore = pickaxeSlot.item.getSingleLineLore().removeColor()
-        val craftingCount = craftingCount.matchMatcher(lore) {
-            groupOrNull("count")?.replace(",", "")?.toIntOrNull()
-        }
-        return craftingCount
-    }
-
-    fun getResultItem(): Pair<NeuInternalName, Int>? {
-        val slots = InventoryUtils.getItemsInOpenChestWithNull()
-        val resultSlot = slots[25]
-        return resultSlot.item.getInternalNameOrNull().let {
-            if (resultSlot.item.item is AirItem) return null
-            (it ?: NeuInternalName.NONE) to resultSlot.item.count
+    private fun getSuperCraftingCount(slots: List<Slot>): Long? {
+        val lore = slots[PICKAXE_SLOT].item.getSingleLineLore().removeColor()
+        return craftingCount.matchMatcher(lore) {
+            groupOrNull("count")?.formatLongOrNull()
         }
     }
 
-    private fun blockWasteClick(profit: Double, craftingAmount: Int, maxCraftingAmount: Int): Boolean {
-        if (KeyboardManager.isControlKeyDown()) return false
-        if (profit < -getWarnAmount() * 1_000_000L) return true
-        if (profit < -getBulkWarnAmount() * 1_000_000L && craftingAmount == maxCraftingAmount) return true
-        return false
+    private fun getResultItem(slots: List<Slot>): PrimitiveItemStack {
+        val item = slots[RESULT_SLOT].item
+        if (item.isEmpty) error("Result slot is empty")
+        return item.toPrimitiveStackOrNull()
+            ?: error("internal name is null: ${item.displayName}")
+    }
+
+    private fun blockWasteClick(profit: Double, craftingAmount: Long, maxCraftingAmount: Long) = when {
+        KeyboardManager.isControlKeyDown() -> false
+        profit < -getWarnAmount() * 1_000_000L -> true
+        profit < -getBulkWarnAmount() * 1_000_000L && craftingAmount == maxCraftingAmount -> true
+        else -> false
     }
 }
