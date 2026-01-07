@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.features.bingo.bingonet
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetSystem
 import at.hannibal2.skyhanni.data.model.TextInput
+import at.hannibal2.skyhanni.data.repo.ChatProgressUpdates
 import at.hannibal2.skyhanni.features.misc.discordrpc.DiscordRPCManager
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
@@ -29,7 +30,6 @@ class BNRegistrationScreen(
     val discordUserId: String,
     val discordUserName: String,
 ) : SkyHanniBaseScreen() {
-
 
     private fun title(maxSize: Int) = centeredText("§b§lBingo Net Registration", maxSize)
     private fun description(maxSize: Int) = text(
@@ -206,13 +206,18 @@ class BNRegistrationScreen(
     }
 
     companion object {
+        val discordRPCChatProgressCategory = ChatProgressUpdates.category("BN Registration Discord detection")
+
         fun openHelper() {
             SkyHanniMod.launchCoroutine("Opening BN Registration Helper") {
                 val isStarted = DiscordRPCManager.isStarted()
                 SkyHanniMod.launchCoroutine("Starting Discord RPC for BN Registration") {
                     if (!isStarted || !DiscordRPCManager.isConnected()) {
                         ChatUtils.chat("Starting Rich Presence to obtain Discord User ID and Username.")
-                        DiscordRPCManager.start(false)
+                        DiscordRPCManager.start(
+                            progress = discordRPCChatProgressCategory.start("BN Registration Discord auto detect"),
+                            false,
+                        )
                     }
                     DiscordRPCManager.getSelfUser()
                 }

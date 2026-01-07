@@ -527,5 +527,4 @@ object ChatUtils {
         // TODO
         chat("Chat Suggestion is not implemented yet!")
     }
-
 }

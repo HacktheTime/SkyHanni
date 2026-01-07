@@ -38,6 +38,7 @@ object SuperCraftingInventory {
     private val config get() = SkyHanniMod.feature.inventory.superCrafting.waste
 
     private val craftingPatternGroup = RepoPatternGroup("supercrafting-inventory")
+
     /**
      * REGEX-TEST: Crafting 1,111 items into your sacks!
      */
@@ -65,18 +66,20 @@ object SuperCraftingInventory {
         checkInventoryName = { name -> inventoryPattern.matches(name) },
     )
 
-    private fun getWarnAmount(): Double {
-        return if (BitsApi.hasCookieBuff()) config.normal
-        else config.withoutCookieValues.normal
-    }
+    private fun getWarnAmount() = if (BitsApi.hasCookieBuff()) {
+        config.threshold
+    } else {
+        config.withoutCookie.threshold
+    } * 1_000_000L
 
-    private fun getBulkWarnAmount(): Double {
-        return if (BitsApi.hasCookieBuff()) config.maxResource
-        else config.withoutCookieValues.maxResource
-    }
+    private fun getBulkWarnAmount() = if (BitsApi.hasCookieBuff()) {
+        config.bulkThreshold
+    } else {
+        config.withoutCookie.bulkThreshold
+    } * 1_000_000L
 
     @HandleEvent
-    fun onClick(event: GuiContainerEvent.SlotClickEvent) {
+    fun onSlotClick(event: GuiContainerEvent.SlotClickEvent) {
         if (!invDetector.isInside()) return
         if (!config.enabled) return
         if (HypixelData.noTrade) return
@@ -87,16 +90,16 @@ object SuperCraftingInventory {
         val maxCraftingAmount = getSuperCraftingMaxCount(slots)
         if (!blockWasteClick(profit, craftingAmount, maxCraftingAmount)) return
         SoundUtils.playErrorSound()
+        val diff = (-profit).formatChatCoins()
         TitleManager.sendTitle(
-            "§cCraft-click Prevented (Big Loss Detected)",
-            subtitleText = "§7Hold §eControl §7to bypass. You could save §c${(-profit).formatChatCoins()} Coins §7by " +
-                "selling the required resources directly to the §6Bazaar§7 and then instant-buying the finished item.",
+            "§cSuper Crafting Blocked (Potential Loss)",
+            subtitleText = "§7Hold §e${KeyboardManager.getModifierKeyName()} §7to bypass. Potential loss: §c$diff",
             duration = 2.seconds,
             location = TitleManager.TitleLocation.INVENTORY,
         )
         ChatUtils.chatAndOpenConfig(
-            "Blocked a craft since instant selling the materials and instant buying the item(s) directly is " +
-                "significantly cheaper. You can hold §cControl §ewhile clicking to bypass this warning. ",
+            "Super Craft Blocked: Instant selling the materials and instant buying the item(s) directly is " +
+                "significantly cheaper (§c$diff§e)",
             config::enabled,
         )
         event.cancel()
@@ -107,7 +110,7 @@ object SuperCraftingInventory {
             groupOrNull("amount")?.formatLongOrNull()
         }
     }.minOrNull() ?: ErrorManager.skyHanniError(
-        "crafting resource line not found",
+        "Super Crafting resource line not found",
         "lore" to slots.map { slot -> slot.item.getLore().map { line -> line.removeColor() } },
     )
 
@@ -116,15 +119,19 @@ object SuperCraftingInventory {
         val resultItem = getResultItem(slots)
 
         val recipeMultiplier = resultItem.amount
+        if (recipeMultiplier == 0) ErrorManager.skyHanniError(
+            "Result item amount is 0",
+            "item" to resultItem,
+        )
 
         val itemsPrice = materials.sumOf { material ->
             val totalAmount = material.amount * (craftingAmount / recipeMultiplier)
-            BazaarApi.calculatePriceOffAvailableOrders(
+            BazaarApi.calculatePriceOfAvailableOrders(
                 material.internalName, totalAmount, BazaarApi.SimpleTransactionType.BUY_ORDER,
             ) ?: return null
         }
 
-        val totalResultPrice = BazaarApi.calculatePriceOffAvailableOrders(
+        val totalResultPrice = BazaarApi.calculatePriceOfAvailableOrders(
             resultItem.internalName,
             craftingAmount,
             BazaarApi.SimpleTransactionType.SELL_OFFER,
@@ -136,8 +143,10 @@ object SuperCraftingInventory {
     private fun getRecipeMaterials(slots: List<Slot>) = materialSlots.mapNotNull { slotIndex ->
         val item = slots[slotIndex].item
         if (item.isEmpty) return@mapNotNull null
-        item.toPrimitiveStackOrNull()
-            ?: error("Unknown item in crafting slot: ${item.displayName}")
+        item.toPrimitiveStackOrNull() ?: ErrorManager.skyHanniError(
+            "Could not resolve internal name",
+            "item" to item,
+        )
     }.groupBy { it.internalName }.map { (name, stacks) ->
         PrimitiveItemStack(name, stacks.sumOf { it.amount })
     }
@@ -151,15 +160,18 @@ object SuperCraftingInventory {
 
     private fun getResultItem(slots: List<Slot>): PrimitiveItemStack {
         val item = slots[RESULT_SLOT].item
-        if (item.isEmpty) error("Result slot is empty")
+        if (item.isEmpty) ErrorManager.skyHanniError("Result slot is empty")
         return item.toPrimitiveStackOrNull()
-            ?: error("internal name is null: ${item.displayName}")
+            ?: ErrorManager.skyHanniError(
+                "Unknown item in result slot",
+                "item" to item,
+            )
     }
 
     private fun blockWasteClick(profit: Double, craftingAmount: Long, maxCraftingAmount: Long) = when {
-        KeyboardManager.isControlKeyDown() -> false
-        profit < -getWarnAmount() * 1_000_000L -> true
-        profit < -getBulkWarnAmount() * 1_000_000L && craftingAmount == maxCraftingAmount -> true
+        KeyboardManager.isModifierKeyDown() -> false
+        profit < -getWarnAmount() -> true
+        profit < -getBulkWarnAmount() && craftingAmount == maxCraftingAmount -> true
         else -> false
     }
 }
