@@ -610,4 +610,49 @@ object StringUtils {
             this.substring(matcher.end())
         } else this
     }
+
+    /**
+     * Returns a List of strings where the list of objects is converted to strings using the converter,
+     * and then chunked into strings of maximum length maxLength, separated by seperator,
+     * and with optional prefix and suffix added to each chunk.
+     */
+    fun <Type> List<Type>.chunkMaxStringLength(
+        maxLength: Int,
+        seperator: String,
+        prefix: String = "",
+        suffix: String = "",
+        converter: (Type) -> String,
+    ): List<String> {
+        return this.map { converter(it) }.chunkMaxStringLength(maxLength, seperator, prefix, suffix)
+    }
+
+    /**
+     * see .chunkMaxStringLength with converter
+     */
+    fun List<String>.chunkMaxStringLength(maxLength: Int, seperator: String, prefix: String = "", suffix: String = ""): List<String> {
+        val result = mutableListOf<String>()
+        var currentChunk = StringBuilder(prefix)
+        for (item in this) {
+            val itemWithSuffix = if (currentChunk.length + item.length + suffix.length <= maxLength) {
+                if (currentChunk.length > prefix.length) {
+                    "$seperator$item"
+                } else {
+                    item
+                }
+            } else {
+                // Finish the current chunk and start a new one
+                currentChunk.append(suffix)
+                result.add(currentChunk.toString())
+                currentChunk = StringBuilder(prefix + item)
+                continue
+            }
+            currentChunk.append(itemWithSuffix)
+        }
+        // Add the last chunk if it has content
+        if (currentChunk.length > prefix.length) {
+            currentChunk.append(suffix)
+            result.add(currentChunk.toString())
+        }
+        return result
+    }
 }

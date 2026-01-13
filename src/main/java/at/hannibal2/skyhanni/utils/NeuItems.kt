@@ -85,6 +85,8 @@ object NeuItems {
     fun onNeuRepoReload(event: NeuRepositoryReloadEvent) {
         DelayedRun.runOrNextTick {
             readAllNeuItems()
+            multiplierCache.clear()
+            itemIdCache.clear()
         }
     }
 
