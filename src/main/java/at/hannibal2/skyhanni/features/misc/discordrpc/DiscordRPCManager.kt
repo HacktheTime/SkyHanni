@@ -161,6 +161,14 @@ object DiscordRPCManager {
                 ),
             )
         }
+        if (config.showBingoNetButton.get()) {
+            buttons.add(
+                Activity.Button(
+                    label = "Open Bingo Net Stats",
+                    url = "https://hackthetime.de/lookup-uuid/${PlayerUtils.getUuid()}",
+                ),
+            )
+        }
 
         if (config.showSkyCryptButton.get()) {
             buttons.add(

@@ -77,6 +77,11 @@ class DiscordRPCConfig {
     @ConfigEditorBoolean
     val showEliteBotButton: Property<Boolean> = Property.of(true)
 
+    @Expose
+    @ConfigOption(name = "Show Button for Bingo Net", desc = "Add a button to the RPC that opens your Bingo Statistics.")
+    @ConfigEditorBoolean
+    val showBingoNetButton: Property<Boolean> = Property.of(true)
+
     enum class LineEntry(private val displayName: String) {
         NOTHING("Nothing"),
         LOCATION("Location"),
