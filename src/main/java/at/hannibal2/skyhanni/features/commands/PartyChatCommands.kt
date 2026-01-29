@@ -31,7 +31,7 @@ object PartyChatCommands {
         val canUse: (PartyCommandsConfig.TrustUserConfig) -> PermissionLevel,
         val requiresPartyLead: Boolean = true,
         val triggerableBySelf: Boolean = true,
-        val executable: (PartyChatEvent) -> Unit,
+        val executable: (PartyChatEvent.Allow) -> Unit,
         val offCooldown: () -> Boolean = { true },
     )
 
@@ -114,7 +114,7 @@ object PartyChatCommands {
     }
 
     @HandleEvent
-    fun onPartyCommand(event: PartyChatEvent) {
+    fun onPartyCommand(event: PartyChatEvent.Allow) {
         if (event.message.firstOrNull() !in commandPrefixes) return
         val commandLabel = event.message.substring(1).substringBefore(' ')
         val command = indexedPartyChatCommands[commandLabel.lowercase()] ?: return

@@ -19,11 +19,11 @@ object MojangUtils {
     fun joinServer(server: String) {
         val mc = Minecraft.getInstance()
         val user = mc.user
-        //#if MC<1.21.10
+        //? < 1.21.10 {
         val sessionService = mc.minecraftSessionService
-        //#else
-        //$$ val sessionService = mc.services().sessionService
-        //#endif
+        //?} else {
+        // val sessionService = mc.services().sessionService
+        //?}
         sessionService.joinServer(
             user.profileId,
             user?.accessToken,

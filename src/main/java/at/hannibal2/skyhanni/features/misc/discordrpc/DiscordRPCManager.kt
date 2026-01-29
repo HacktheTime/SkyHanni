@@ -1,6 +1,6 @@
 package at.hannibal2.skyhanni.features.misc.discordrpc
 
-// This entire file was taken from SkyblockAddons code, ported to SkyHanni
+// originally adapted from SkyblockAddons
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.SkyHanniMod.feature
@@ -28,7 +28,6 @@ import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
 import dev.cbyrne.kdiscordipc.core.event.impl.DisconnectedEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.data.activity.Activity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -41,7 +40,7 @@ import kotlin.time.Duration.Companion.seconds
 @SkyHanniModule
 object DiscordRPCManager {
 
-    private const val APPLICATION_ID = 1093298182735282176L
+    private const val APPLICATION_ID = "1093298182735282176"
 
     val config get() = feature.gui.discordRPC
 
@@ -66,12 +65,11 @@ object DiscordRPCManager {
         updateDebugStatus("Starting...")
         startTimestamp = SimpleTimeMark.now()
         progress.update("calling KDiscordIPC")
-        client = KDiscordIPC(APPLICATION_ID.toString())
+        client = KDiscordIPC(APPLICATION_ID)
         progress.update("done init client")
         try {
             progress.update("calling setup")
             setup(progress, fromCommand)
-            progress.end("setup done successfully")
         } catch (e: Throwable) {
             progress.end("error: ${e.message}")
             updateDebugStatus("Unexpected error: ${e.message}", error = true)
@@ -90,8 +88,6 @@ object DiscordRPCManager {
 
     private suspend fun setup(progress: ChatProgressUpdates, fromCommand: Boolean) {
         try {
-            progress.update("on<ReadyEvent>")
-            client?.on<ReadyEvent> { onReady() }
             progress.update("on<DisconnectedEvent>")
             client?.on<DisconnectedEvent> { onIPCDisconnect() }
             progress.update("on<ErrorEvent>")
@@ -103,7 +99,7 @@ object DiscordRPCManager {
             progress.end("Successfully started")
             updateDebugStatus("Successfully started")
             if (!fromCommand) return
-            // confirm that /shrpcstart worked
+
             ChatUtils.chat("Successfully started Rich Presence!", prefixColor = "§a")
         } catch (e: Exception) {
             updateDebugStatus("Failed to connect: ${e.message}", error = true)
@@ -139,12 +135,13 @@ object DiscordRPCManager {
 
     private fun setupPresenceJob(progress: ChatProgressUpdates) {
         progress.update("in setupPresenceJob")
-        presenceJob = SkyHanniMod.launchNoScopeCoroutine("discord rpc updatePresence", timeout = Duration.INFINITE) {
-            progress.update("started update presence loop")
-            var temp: ChatProgressUpdates? = progress
+        var updatePresenceProgress: ChatProgressUpdates? = progressCategory.start("discord rpc updatePresence")
+        presenceJob = SkyHanniMod.launchNoScopeCoroutine("discord rpc updatePresence", timeout = INFINITE) {
+            updatePresenceProgress?.update("started update presence loop first run")
             while (isConnected()) {
-                updatePresence(temp)
-                temp = null
+                updatePresence(updatePresenceProgress)
+                updatePresenceProgress?.end("update presence loop finished first run, not logging further updates")
+                updatePresenceProgress = null
                 delay(5.seconds)
             }
         }
@@ -201,10 +198,6 @@ object DiscordRPCManager {
     }
 
 
-    private fun onReady() {
-        updateDebugStatus("Discord RPC Ready.")
-    }
-
     @HandleEvent
     fun onSecondPassed() {
         if (!isConnected()) return presenceJob?.cancel() ?: Unit
@@ -231,8 +224,6 @@ object DiscordRPCManager {
 
     @HandleEvent
     fun onTick() {
-        // The mod has already started the connection process. This variable is my way of running a function when
-        // the player joins SkyBlock but only running it again once they join and leave.
         if (started || !isEnabled()) return
         if (SkyBlockUtils.inSkyBlock) {
             val progress = progressCategory.start("auto start in onTick")
@@ -244,7 +235,7 @@ object DiscordRPCManager {
     @HandleEvent
     fun onWorldChange() {
         if (nextUpdate.isInFuture()) return
-        // wait 5 seconds to check if the new world is skyblock or not before stopping the function
+
         nextUpdate = DelayedRun.runDelayed(5.seconds) {
             if (!SkyBlockUtils.inSkyBlock) stop()
         }
@@ -306,10 +297,9 @@ object DiscordRPCManager {
         }
     }
 
-    // Events that change things in DiscordStatus
     @HandleEvent(KeyPressEvent::class)
     fun onKeyPress() {
-        if (!isEnabled() || !PriorityEntry.AFK.isSelected()) return // autoPriority 4 is dynamic afk
+        if (!isEnabled() || !PriorityEntry.AFK.isSelected()) return
         beenAfkFor = SimpleTimeMark.now()
     }
 

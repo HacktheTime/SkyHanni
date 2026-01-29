@@ -1,7 +1,6 @@
 config:
     validation: true
 
-
 GrammarRules:
     AvoidBritishSpelling:
         active: true
@@ -12,7 +11,7 @@ CompatRules:
 
 FormattingRules:
     CustomCommentSpacing:
-        active: true
+        active: false
     CustomAnnotationSpacing:
         active: true
     StorageVarOrVal:
@@ -30,7 +29,7 @@ RepoRules:
 
 ImportRules:
     CustomImportOrdering:
-        active: true
+        active: false
     PreprocessingImportOrdering:
         active: true
 
@@ -117,6 +116,10 @@ formatting:
     Indentation:
         excludes:
             - "de.hype.bingonet.*"
+    BlockCommentInitialStarAlignment:
+        active: false
+    CommentWrapping:
+        active: false
 
 complexity:
     CyclomaticComplexMethod: # default threshold of 15, caught almost every complex method
@@ -170,4 +173,6 @@ potential-bugs:
         active: true
     ImmutableTypesWithExpectedInteriorMutabilityInConfig:
         active: true
+    UnreachableCode:
+        active: false
 

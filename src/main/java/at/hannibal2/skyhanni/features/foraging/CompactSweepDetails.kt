@@ -83,7 +83,7 @@ object CompactSweepDetails {
     private var sweepDetails: SweepDetails = SweepDetails()
 
     @HandleEvent
-    fun onChat(event: SkyHanniChatEvent) {
+    fun onChat(event: SkyHanniChatEvent.Allow) {
         if (!isInIsland() || !config.compactSweepDetails) return
         sweepDetailsPattern.matchMatcher(event.message) {
             if (sweepDetails.penalties.isNotEmpty()) {
@@ -188,7 +188,7 @@ object CompactSweepDetails {
             },
         )
 
-        ChatUtils.chat(chatComponent)
+        ChatUtils.chat(chatComponent, prefix = false)
         resetSweepDetailsVariables()
     }
 

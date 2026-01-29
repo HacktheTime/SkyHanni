@@ -82,9 +82,9 @@ object SplashStatusUpdateListener {
     val leecherConfig = SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig.leecherDMS
 
     @HandleEvent
-    fun onChat(event: SkyHanniChatEvent) {
+    fun onChat(event: SkyHanniChatEvent.Allow) {
         val data = data ?: return
-        selfSplashPattern.matchMatcher(event.message) {
+        selfSplashPattern.matchMatcher(event.cleanMessage) {
             val previousStatus = data.status
             if (previousStatus == StatusConstants.SPLASHING) return@matchMatcher
             setStatus(StatusConstants.SPLASHING)

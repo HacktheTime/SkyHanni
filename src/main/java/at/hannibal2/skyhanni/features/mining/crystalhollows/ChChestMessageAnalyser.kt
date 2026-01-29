@@ -36,9 +36,9 @@ object ChChestMessageAnalyser {
     )
 
     @HandleEvent(onlyOnIsland = IslandType.CRYSTAL_HOLLOWS)
-    fun onChatMessage(event: SkyHanniChatEvent) {
+    fun onChatMessage(event: SkyHanniChatEvent.Allow) {
         SkyHanniMod.launchCoroutine("ChChestMessageAnalyser") {
-            val message = event.message
+            val message = event.message //Needs color codes due to Bingo Brewers network.
             if (globalChestPattern.matches(message)) {
                 isInMessage = true
             }

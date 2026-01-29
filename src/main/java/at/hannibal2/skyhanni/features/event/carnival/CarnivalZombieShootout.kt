@@ -130,7 +130,7 @@ object CarnivalZombieShootout {
 
         for ((zombie, type) in drawZombies) {
             val entity = EntityUtils.getEntityByID(zombie.id) ?: continue
-            val isSmall = (entity as? Zombie)?.isBaby ?: false
+            (entity as? Zombie)?.isBaby ?: false
 
             val boundingBox = entity.boundingBox
 
@@ -178,7 +178,7 @@ object CarnivalZombieShootout {
     }
 
     @HandleEvent
-    fun onChat(event: SkyHanniChatEvent) {
+    fun onChat(event: SkyHanniChatEvent.Allow) {
         if (!config.enabled || HypixelData.skyBlockArea != "Carnival") return
 
         val message = event.cleanMessage

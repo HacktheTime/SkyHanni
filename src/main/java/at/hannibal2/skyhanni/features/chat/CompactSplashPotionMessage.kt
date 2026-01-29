@@ -16,25 +16,25 @@ object CompactSplashPotionMessage {
     private val config get() = SkyHanniMod.feature.chat.compactPotionMessages
 
     val selfSplashPattern =
-        "§a§lBUFF! §fYou splashed yourself with §r(?<effectName>.*)§r§f! Press TAB or type /effects to view your active effects!".toPattern()
+        "BUFF! You splashed yourself with (?<effectName>.*)! Press TAB or type /effects to view your active effects!".toPattern()
 
     @Suppress("MaxLineLength")
     private val potionEffectPatternList = listOf(
-        "§a§lBUFF! §fYou were splashed by (?<playerName>.*) §fwith §r(?<effectName>.*)§r§f! Press TAB or type /effects to view your active effects!".toPattern(),
-        "§a§lBUFF! §fYou have gained §r(?<effectName>.*)§r§f! Press TAB or type /effects to view your active effects!".toPattern(),
+        "BUFF! You were splashed by (?<playerName>.*) with (?<effectName>.*)! Press TAB or type /effects to view your active effects!".toPattern(),
+        "BUFF! You have gained (?<effectName>.*)! Press TAB or type /effects to view your active effects!".toPattern(),
         selfSplashPattern,
 
         // Fix for Hypixel having a different message for Poisoned Candy.
         // Did not make the first pattern optional to prevent conflicts with Dungeon Buffs/other things
-        "§a§lBUFF! §fYou have gained §r(?<effectName>§2Poisoned Candy I)§r§f!".toPattern(),
-        "§a§lBUFF! §fYou splashed yourself with §r(?<effectName>§2Poisoned Candy I)§r§f!".toPattern(),
-        "§a§lBUFF! §fYou were splashed by (?<playerName>.*) §fwith §r(?<effectName>§2Poisoned Candy I)§r§f!".toPattern(),
+        "BUFF! You have gained (?<effectName>Poisoned Candy I)!".toPattern(),
+        "BUFF! You splashed yourself with (?<effectName>Poisoned Candy I)!".toPattern(),
+        "BUFF! You were splashed by (?<playerName>.*) with (?<effectName>Poisoned Candy I)!".toPattern(),
     )
 
     @HandleEvent
-    fun onChat(event: SkyHanniChatEvent) {
+    fun onChat(event: SkyHanniChatEvent.Allow) {
         if (!isEnabled()) return
-        if (!event.message.isPotionMessage()) return
+        if (!event.cleanMessage.isPotionMessage()) return
         event.blockedReason = "compact_potion_effect"
     }
 
@@ -42,7 +42,7 @@ object CompactSplashPotionMessage {
         if (config.clickableChatMessage) {
             ChatUtils.hoverableChat(
                 message,
-                listOf("§eClick to view your potion effects."),
+                listOf("Click to view your potion effects."),
                 "/effects",
                 prefix = false,
             )
@@ -58,9 +58,9 @@ object CompactSplashPotionMessage {
                 // If splashed by a player, append their name.
                 val byPlayer = groupOrNull("playerName")?.let { player ->
                     val displayName = player.cleanPlayerName(displayName = true)
-                    " §aby $displayName"
+                    " by $displayName"
                 }.orEmpty()
-                sendMessage("§a§lPotion Effect! §r$effectName$byPlayer")
+                sendMessage("Potion Effect! $effectName$byPlayer")
             } != null
         }
     }

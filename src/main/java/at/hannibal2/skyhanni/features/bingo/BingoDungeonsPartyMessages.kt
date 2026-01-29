@@ -15,25 +15,25 @@ object BingoDungeonsPartyMessages {
     val patternGroup = RepoPattern.group("feature.event.bingo.dungeons")
     val skillLVLUPPattern by patternGroup.pattern(
         "skill-level-up",
-        "§r§b§lDUNGEON LEVEL UP §3§cThe Catacombs §8(?<oldLevel>\\d+)➜§3(?<newLevel>\\d+)",
+        "DUNGEON LEVEL UP The Catacombs (?<oldLevel>\\d+)➜(?<newLevel>\\d+)",
     )
 
     /**
-     * REGEX-TEST §e§lMage Milestone §r§e❶§r§7: You have dealt §r§c60,000§r§7 Total Damage so far! §r§a02s
+     * REGEX-TEST Mage Milestone ❶: You have dealt 60,000 Total Damage so far! 02s
      */
     val milestoneReachedPattern by patternGroup.pattern(
         "milestone-reached",
-        "§e§lMage Milestone §r§e(?<milestone>.)§r§7.*",
+        "Mage Milestone (?<milestone>.).*",
     )
 
     @HandleEvent
-    fun onMessage(event: SkyHanniChatEvent) {
+    fun onMessage(event: SkyHanniChatEvent.Allow) {
         if (!SkyBlockUtils.isBingoProfile) return
-        if (config.sendCataLevelUP) skillLVLUPPattern.matchMatcher(event.message) {
+        if (config.sendCataLevelUP) skillLVLUPPattern.matchMatcher(event.cleanMessage) {
             HypixelCommands.partyChat("Dungeon Skill Level Up: ${group("newLevel")}")
         }
         if (config.sendImportantCataMilestones) {
-            milestoneReachedPattern.matchMatcher(event.message) {
+            milestoneReachedPattern.matchMatcher(event.cleanMessage) {
                 val milestone = group("milestone")
                 if (milestone == "❷" || milestone == "❸") {
                     HypixelCommands.partyChat("Dungeon Milestone $milestone reached!")

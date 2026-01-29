@@ -148,7 +148,7 @@ object SplashManager {
     }
 
     @HandleEvent
-    fun handlePartyInvite(message: SkyHanniChatEvent) {
+    fun handlePartyInvite(message: SkyHanniChatEvent.Allow) {
         val awaitingPartyInvite = awaitingPartyInvite ?: return
         PartyApi.receivedInvitePattern.matchMatcher(message.message) {
             val name = group("name")
