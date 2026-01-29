@@ -15,11 +15,16 @@ import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
 import de.hype.bingonet.environment.packetconfig.PacketUtils.gson
 import java.io.IOException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 @SkyHanniModule
 object BingoBrewersClient {
     private var client: Client? = null
     private var listener: Listener? = null
+    private var reconnectJob: Job? = null
+    @Volatile private var isConnecting = false
+    @Volatile private var isStopping = false
     private val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks
 
     fun isEnabled() = config.useBB
@@ -48,25 +53,34 @@ object BingoBrewersClient {
     @Throws(IOException::class)
     @Synchronized
     private fun connect() {
-        stop()
-        if (!isEnabled()){
-            ChatUtils.chatAndOpenConfig("Bingo Brewers is not enabled right now. Please enable it first,", SkyHanniMod.feature.event.bingo
-                .bingoNetworks::useBB)
+        if (!isEnabled()) {
+            ChatUtils.chatAndOpenConfig(
+                "Bingo Brewers is not enabled right now. Please enable it first,",
+                SkyHanniMod.feature.event.bingo.bingoNetworks::useBB,
+            )
             return
         }
-        val client = Client(16384, 16384)
-        listener = getListener()
-        BingoBrewersPackets.registerPackets(client)
-        client.addListener(listener)
-        client.start()
-        client.connect(10000, "bingobrewers.com", 8282, 7070)
-        this.client = client
-        val response = BingoBrewersPackets.ConnectionIgn()
-        // IDK your server side indigo. I wanted to avoid issues on your side if I change anything since I dont have your code to look at. Otherwise I would have said sth like v0.3.8-compatible or sth.
-        response.hello = "${PlayerUtils.getName()}|v0.3.8|Beta|${PlayerUtils.getUuid()}"
-        println("Sending BingoBrewers Hello " + response.hello)
-        client.sendTCP(response)
-        ChatUtils.chat("§aConnected to Bingo Brewers server!")
+        if (isConnecting || client?.isConnected == true) return
+        isConnecting = true
+        try {
+            stop(silent = true)
+            val client = Client(16384, 16384)
+            listener = getListener()
+            BingoBrewersPackets.registerPackets(client)
+            client.addListener(listener)
+            client.start()
+            client.connect(10000, "bingobrewers.com", 8282, 7070)
+            this.client = client
+            val response = BingoBrewersPackets.ConnectionIgn()
+            response.hello = "${'$'}{PlayerUtils.getName()}|v0.3.8|Beta|${'$'}{PlayerUtils.getUuid()}"
+            println("Sending BingoBrewers Hello " + response.hello)
+            client.sendTCP(response)
+            reconnectJob?.cancel()
+            reconnectJob = null
+            ChatUtils.chat("§aConnected to Bingo Brewers server!")
+        } finally {
+            isConnecting = false
+        }
     }
 
 
@@ -89,45 +103,41 @@ object BingoBrewersClient {
             }
 
             override fun disconnected(connection: Connection?) {
-                reconnect()
+                scheduleReconnect()
             }
         }
     }
 
-    fun stop() {
-        if (client?.isConnected == true) {
+    fun stop(silent: Boolean = false) {
+        isStopping = true
+        reconnectJob?.cancel()
+        reconnectJob = null
+        if (client?.isConnected == true && !silent) {
             ChatUtils.chat("§cDisconnected from Bingo Brewers server.")
         }
         client?.stop()
         client?.close()
+        client = null
+        listener = null
+        isStopping = false
     }
 
-    fun reconnect() {
-        var waitTime: Float
-        var repeat: Boolean
-
-        waitTime = ((3000 * Math.random()).toInt() + 2000).toFloat()
-
-        repeat = true
-        while (repeat) {
-            try {
-                ChatUtils.chat("Reconnecting to Bingo Brewers server...")
-                connect()
-                repeat = false
-            } catch (e: Exception) {
-                client?.close()
-                client?.removeListener(listener)
+    private fun scheduleReconnect() {
+        if (!isEnabled() || isStopping) return
+        if (reconnectJob?.isActive == true || isConnecting) return
+        reconnectJob = SkyHanniMod.launchCoroutine("BingoBrewers reconnect") {
+            var waitTime = ((3000 * Math.random()).toInt() + 2000).toLong()
+            while (isEnabled() && !isStopping) {
+                ChatUtils.chat("§eReconnecting to Bingo Brewers server...")
                 try {
-                    println("Reconnect failed. Trying again in $waitTime milliseconds.")
-                    Thread.sleep(waitTime.toInt().toLong())
-                } catch (ex: InterruptedException) {
-                    throw RuntimeException(ex)
-                }
-                // keep reconnects under 45s between
-                if (waitTime * 1.5 < 45000) {
-                    waitTime *= 1.5f
-                } else {
-                    waitTime = (45000 - (5000 * Math.random() + 1000).toInt()).toFloat() // slightly vary time
+                    connect()
+                    return@launchCoroutine
+                } catch (e: Exception) {
+                    client?.close()
+                    client?.removeListener(listener)
+                    println("Reconnect failed. Trying again in ${'$'}waitTime milliseconds.")
+                    delay(waitTime)
+                    waitTime = (waitTime * 3 / 2).coerceAtMost(45000L)
                 }
             }
         }
@@ -145,7 +155,8 @@ object BingoBrewersClient {
                 category = CommandCategory.BINGO_NET
                 description = "Reload the Bingo Brewers Client"
                 literalCallback("reconnect"){
-                    connect()
+                    stop()
+                    scheduleReconnect()
                 }
                 literalCallback("stop"){
                     stop()
