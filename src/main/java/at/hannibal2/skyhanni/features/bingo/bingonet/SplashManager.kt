@@ -23,6 +23,7 @@ import java.lang.Thread.sleep
 import java.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 // Not needed since the SH Message Event is asked for by the Player. Not needed to be a module.
 @Suppress("SkyHanniModuleInspection")
@@ -123,7 +124,7 @@ object SplashManager {
                     currentIsland == IslandType.GOLD_MINES
                 ) {
                     // Double warp needed
-                    SkyHanniMod.launchCoroutine("Hub double warp",250.milliseconds) {
+                    SkyHanniMod.launchCoroutine("Hub double warp",2.seconds) {
                         delay(250)
                         HypixelCommands.warp(Islands.HUB.warpArgument!!)
                     }
