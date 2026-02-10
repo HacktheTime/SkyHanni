@@ -107,10 +107,11 @@ object BingoBrewersPackets {
             var serverId: String? = null
             var hubNumber: Int? = null
             if (matcher.find()) {
-                serverId = matcher.group()
+                serverId = matcher.group().lowercase()
             } else if (noteMatcher.find()){
-                serverId = noteMatcher.group()
-            } else if (packet.message.trim { it <= ' ' }.matches("^\\d+$".toRegex())) {
+                serverId = noteMatcher.group().lowercase()
+            }
+            if (packet.message.trim { it <= ' ' }.matches("^\\d+$".toRegex())) {
                 hubNumber = packet.message.trim { it <= ' ' }.toInt()
             } else {
                 return
