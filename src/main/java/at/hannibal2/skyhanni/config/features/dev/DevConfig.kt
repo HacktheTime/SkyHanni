@@ -2,6 +2,8 @@ package at.hannibal2.skyhanni.config.features.dev
 
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.NoConfigLink
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.dev.minecraftconsole.MinecraftConsoleConfig
 import com.google.gson.annotations.Expose
@@ -183,10 +185,8 @@ class DevConfig {
     var ignoreTermSignal: Boolean = false
 
     @Expose
-    @ConfigOption(name = "Auto Error Report (Bingo Net) (§c⚠ Closed Source Server!§r)",
-        desc = "Automatically send all Errors over the Bingo Net Connection to the Bingo Net Server. This allows better handling of " +
-            "Issues and triage by the Bingo Net Team." +
-            " §c§l⚠ Depends on Hype_the_Time closed source Server that SkyHanni has no access to.")
+    @ConfigOption(name = "Auto Error Report", desc = "Automatically send all Errors over the Bingo Net Connection to the Bingo Net Server. This allows better handling of Issues and triage by the Bingo Net Team.")
     @ConfigEditorBoolean
+    @ThirdPartyDependency(ThirdParty.BINGO_NET)
     var autoThirdPartyErrorReporting: Boolean = false
 }
