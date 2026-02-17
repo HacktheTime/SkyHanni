@@ -415,7 +415,7 @@ abstract class PublishToModrinth : DefaultTask() {
         }
         // Default changed to false so GitHub hiccups don't fail the whole publish unless explicitly requested.
         val failOnError = getProperty("github.failOnError")?.toBooleanStrictOrNull() ?: false
-        val allowExisting = getProperty("github.allowExisting")?.toBooleanStrictOrNull() ?: false
+        val allowExisting = getProperty("github.allowExisting")?.toBooleanStrictOrNull() ?: true
         val retryOnRedirect = getProperty("github.retryOnRedirectError")?.toBooleanStrictOrNull() ?: true
 
         val tag = "$githubTagPrefix$versionNumber"
@@ -428,30 +428,7 @@ abstract class PublishToModrinth : DefaultTask() {
             vlog("Release ID: $releaseId")
 
             // Ensure assets are updated (replace if exist)
-            val existingAssets = listGithubReleaseAssets(repo, token, releaseId)
-                .associateBy({ it.get("name").asString }, { it.get("id").asLong })
-            vlog("Existing assets: ${existingAssets.keys}")
-
-            for (jar in jars) {
-                val fname = jar.name
-                existingAssets[fname]?.let { assetId ->
-                    vlog("Deleting existing asset $fname (id=$assetId)")
-                    deleteGithubReleaseAsset(repo, token, assetId)
-                }
-                vlog("Uploading asset $fname")
-                uploadGithubReleaseAsset(repo, token, releaseId, jar)
-
-                val sourcesJar = File(jar.parentFile, jar.nameWithoutExtension + "-sources.jar")
-                if (sourcesJar.exists()) {
-                    val compileName = jar.nameWithoutExtension + "-compile-sources.jar"
-                    existingAssets[compileName]?.let { assetId ->
-                        vlog("Deleting existing sources asset $compileName (id=$assetId)")
-                        deleteGithubReleaseAsset(repo, token, assetId)
-                    }
-                    vlog("Uploading sources asset $compileName")
-                    uploadGithubReleaseAssetWithCustomName(repo, token, releaseId, sourcesJar, compileName)
-                }
-            }
+            syncGithubReleaseAssets(repo, token, releaseId, jars, verbose)
             println("GitHub release ${if (allowExisting) "created/updated" else "created"}: $repo tag $tag")
         } catch (e: Exception) {
             val rootMsg = e.message ?: e::class.qualifiedName
@@ -459,7 +436,8 @@ abstract class PublishToModrinth : DefaultTask() {
             if (isRedirectIssue && retryOnRedirect) {
                 println("[INFO] Detected 'Invalid redirection'. Retrying once with a fresh basic JDK HttpClient (NORMAL redirects)...")
                 try {
-                    retryGithubPublishBasicClient(repo, token, tag, name, body, allowExisting, verbose)
+                    val releaseId = retryGithubPublishBasicClient(repo, token, tag, name, body, allowExisting, verbose)
+                    syncGithubReleaseAssets(repo, token, releaseId, jars, verbose)
                     println("GitHub release published successfully on retry (basic client).")
                     return
                 } catch (retryEx: Exception) {
@@ -495,7 +473,7 @@ abstract class PublishToModrinth : DefaultTask() {
         body: String,
         allowExisting: Boolean,
         verbose: Boolean
-    ) {
+    ): Long {
         val client = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
             .connectTimeout(Duration.ofSeconds(30))
@@ -540,7 +518,36 @@ abstract class PublishToModrinth : DefaultTask() {
             throw RuntimeException("Retry GET failed: HTTP ${getResp.statusCode()} - ${getResp.body()}")
         }
         val releaseId = releaseJson.get("id").asLong
-        vlog("Retry releaseId=$releaseId (no assets uploaded on retry path to keep logic simple)")
+        vlog("Retry releaseId=$releaseId")
+        return releaseId
+    }
+
+    private fun syncGithubReleaseAssets(repo: String, token: String, releaseId: Long, jars: List<File>, verbose: Boolean) {
+        fun vlog(msg: String) { if (verbose) println("[GitHub] $msg") }
+        val existingAssets = listGithubReleaseAssets(repo, token, releaseId)
+            .associateBy({ it.get("name").asString }, { it.get("id").asLong })
+        vlog("Existing assets: ${existingAssets.keys}")
+
+        for (jar in jars) {
+            val fname = jar.name
+            existingAssets[fname]?.let { assetId ->
+                vlog("Deleting existing asset $fname (id=$assetId)")
+                deleteGithubReleaseAsset(repo, token, assetId)
+            }
+            vlog("Uploading asset $fname")
+            uploadGithubReleaseAsset(repo, token, releaseId, jar)
+
+            val sourcesJar = File(jar.parentFile, jar.nameWithoutExtension + "-sources.jar")
+            if (sourcesJar.exists()) {
+                val compileName = jar.nameWithoutExtension + "-compile-sources.jar"
+                existingAssets[compileName]?.let { assetId ->
+                    vlog("Deleting existing sources asset $compileName (id=$assetId)")
+                    deleteGithubReleaseAsset(repo, token, assetId)
+                }
+                vlog("Uploading sources asset $compileName")
+                uploadGithubReleaseAssetWithCustomName(repo, token, releaseId, sourcesJar, compileName)
+            }
+        }
     }
 
     private fun getOrCreateGithubRelease(
