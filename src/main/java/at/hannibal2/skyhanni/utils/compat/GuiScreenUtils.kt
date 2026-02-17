@@ -6,6 +6,8 @@ object GuiScreenUtils {
 
     private val mc get() = Minecraft.getInstance()
 
+    val isAnyScreenOpen get() = mc.screen != null
+
     val scaledWindowHeight: Int
         get() = mc.window.guiScaledHeight
 

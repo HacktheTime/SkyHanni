@@ -4,13 +4,16 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.events.GuiKeyPressEvent
+import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.CopyItemCommand.copyItemToClipboard
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.KSerializable
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.KotlinTypeAdapterFactory
+import at.hannibal2.skyhanni.utils.LocationUtils
 import at.hannibal2.skyhanni.utils.OSUtils
+import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
 import at.hannibal2.skyhanni.utils.compat.stackUnderCursor
 import at.hannibal2.skyhanni.utils.json.fromJson
 import com.google.gson.GsonBuilder
@@ -59,6 +62,15 @@ object TestExportTools {
         val json = toJson(Item, stack)
         OSUtils.copyToClipboard(json)
         ChatUtils.chat("Compressed item info copied into the clipboard!")
+    }
+
+    @HandleEvent
+    fun onNoGuiKeyPress(event: KeyPressEvent) {
+        if (config.copyLocation.isKeyHeld() && !GuiScreenUtils.isAnyScreenOpen){
+            val pos = LocationUtils.getBlockBelowPlayer()
+            OSUtils.copyToClipboard("${pos.x.toInt()}, ${pos.y.toInt()+1}, ${pos.z.toInt()}")
+            ChatUtils.chat("Copied location into clipboard!")
+        }
     }
 
     inline fun <reified T> getTestData(category: Key<T>, name: String): T {
