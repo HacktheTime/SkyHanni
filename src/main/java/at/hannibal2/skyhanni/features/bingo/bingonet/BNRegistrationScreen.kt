@@ -107,11 +107,11 @@ class BNRegistrationScreen(
         val textWidth = contentWidth - 40
         // Calculate the main area similar to ChangeLogViewerScreen
         drawDefaultBackground(mouseX, mouseY, partialTicks)
-        DrawContextUtils.translate(xTranslate - 2.0, yTranslate - 2.0, 0.0)
+        DrawContextUtils.translate(xTranslate - 2.0, yTranslate - 2.0)
         GuiRenderUtils.drawFloatingRectDark(0, 0, contentWidth, contentHeight)
-        DrawContextUtils.translate(-(xTranslate - 2.0), -(yTranslate - 2.0), 0.0)
+        DrawContextUtils.translate(-(xTranslate - 2.0), -(yTranslate - 2.0))
 
-        DrawContextUtils.translate(xTranslate.toFloat(), yTranslate.toFloat() + 5, 0f)
+        DrawContextUtils.translate(xTranslate.toFloat(), yTranslate.toFloat() + 5)
         Renderable.withMousePosition(mouseX - xTranslate, mouseY - yTranslate) {
             // Text width should be smaller than content width for proper wrapping
 
@@ -138,7 +138,7 @@ class BNRegistrationScreen(
                 verticalAlign = RenderUtils.VerticalAlignment.CENTER,
             ).renderXYAligned(0, 0, contentWidth, contentHeight)
         }
-        DrawContextUtils.translate(-xTranslate.toFloat(), -yTranslate.toFloat() - 5, 0f)
+        DrawContextUtils.translate(-xTranslate.toFloat(), -yTranslate.toFloat() - 5)
     }
 
     fun openTerms() {

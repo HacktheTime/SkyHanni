@@ -94,7 +94,7 @@ class TextFieldRenderable(
 
             // draw text with scroll offset
             DrawContextUtils.pushPop {
-                DrawContextUtils.translate((padding - scrollOffset).toFloat(), ((height - 9) / 2).toFloat(), 0f)
+                DrawContextUtils.translate((padding - scrollOffset).toFloat(), ((height - 9) / 2).toFloat())
                 try {
                     GuiRenderUtils.drawString(text, 0, 0, textColor)
                 } catch (_: Throwable) {

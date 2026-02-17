@@ -9,8 +9,7 @@ import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 import net.minecraft.world.item.Items
 import kotlin.time.Duration.Companion.minutes
 
-@JvmInline
-value class NeuInternalName private constructor(private val internalName: String) : BNNEUItem(internalName) {
+open class NeuInternalName private constructor(internalName: String) : BNNEUItem(internalName) {
 
     fun asString() = internalName
 

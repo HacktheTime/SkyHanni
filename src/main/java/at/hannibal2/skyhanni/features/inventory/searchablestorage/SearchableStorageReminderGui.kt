@@ -39,7 +39,7 @@ class SearchableStorageReminderGui(private var search: String = "") : SkyHanniBa
             guiLeft = (width - display.width) / 2
             guiTop = (height - display.height) / 2
             DrawContextUtils.pushPop {
-                DrawContextUtils.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
+                DrawContextUtils.translate(guiLeft.toFloat(), guiTop.toFloat())
                 display.render(guiLeft, guiTop)
             }
         }

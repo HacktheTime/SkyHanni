@@ -78,7 +78,7 @@ class NewOptionsListScreen(
                 horizontalAlign = RenderUtils.HorizontalAlignment.LEFT,
             )
             DrawContextUtils.pushMatrix()
-            DrawContextUtils.translate(xOffset.toFloat(), yOffset.toFloat(), 0f)
+            DrawContextUtils.translate(xOffset.toFloat(), yOffset.toFloat())
             GuiRenderUtils.drawFloatingRectDark(0, 0, contentWidth, contentHeight)
             Renderable.drawInsideDarkRect(column).renderXYAligned(0, 0, contentWidth, contentHeight)
             DrawContextUtils.popMatrix()

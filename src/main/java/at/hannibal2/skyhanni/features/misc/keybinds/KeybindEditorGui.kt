@@ -132,7 +132,7 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
 
         GuiRenderUtils.drawFloatingRectDark(left, top, totalW, totalH)
         DrawContextUtils.pushPop {
-            DrawContextUtils.translate(listLeft.toFloat(), listTop.toFloat(), 0f)
+            DrawContextUtils.translate(listLeft.toFloat(), listTop.toFloat())
             val r = RenderableComponents.keybindsList(listW, listH, { binds }, { selectedIndex })
             r.render(GuiScreenUtils.mouseX - listLeft, GuiScreenUtils.mouseY - listTop)
         }

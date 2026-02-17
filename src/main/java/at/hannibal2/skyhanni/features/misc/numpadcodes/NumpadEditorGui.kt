@@ -1,22 +1,20 @@
 package at.hannibal2.skyhanni.features.misc.numpadcodes
 
 import at.hannibal2.skyhanni.data.IslandType
-import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
-import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
-import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
-import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ClipboardUtils
-import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
-import at.hannibal2.skyhanni.utils.compat.MouseCompat
-import kotlinx.coroutines.runBlocking
-import at.hannibal2.skyhanni.utils.renderables.RenderableComponents
-import at.hannibal2.skyhanni.utils.renderables.Renderable
-import at.hannibal2.skyhanni.utils.renderables.primitives.TextFieldController
-import kotlin.collections.plusAssign
 import at.hannibal2.skyhanni.utils.CommandSuggestionProvider
+import at.hannibal2.skyhanni.utils.GuiRenderUtils
+import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
+import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
+import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
+import at.hannibal2.skyhanni.utils.compat.MouseCompat
+import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
+import at.hannibal2.skyhanni.utils.renderables.Renderable
+import at.hannibal2.skyhanni.utils.renderables.RenderableComponents
+import at.hannibal2.skyhanni.utils.renderables.primitives.TextFieldController
 import at.hannibal2.skyhanni.utils.ui.CommandSuggestionController
-import com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL
+import kotlinx.coroutines.runBlocking
 import org.lwjgl.glfw.GLFW
 
 /**
@@ -371,8 +369,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
 
         // Always show codes list
         DrawContextUtils.pushPop {
-            DrawContextUtils.translate(listLeft.toFloat(), listTop.toFloat(), 0f)
-            DrawContextUtils.translate(0f, -codesScroll.toFloat(), 0f)
+            DrawContextUtils.translate(listLeft.toFloat(), listTop.toFloat())
+            DrawContextUtils.translate(0f, -codesScroll.toFloat())
             val r: Renderable = RenderableComponents.codesList(listW, listH, { codes }, { selectedIndex })
             r.render(GuiScreenUtils.mouseX - listLeft, GuiScreenUtils.mouseY - listTop + codesScroll)
         }
@@ -613,7 +611,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         currentlyEditing = true
         selectedIndex = -1
         editCodeText = ""
-        editActionsList = mutableListOf(NumpadEditor.EditorAction("", 0.0))
+        editActionsList = mutableListOf(NumpadEditor.EditorAction(""))
         editActionDelayText = mutableListOf("0.0")
         allowOutsideSkyBlock = false // still default false, only changeable via island selection row now
         editingAllowedIslands = IslandType.entries.filter { it.isValidIsland() }.toMutableSet().apply { add(IslandType.UNKNOWN) }
@@ -1025,7 +1023,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
 
         // PageUp/PageDown suggestions
         if (suggestionController.visible && suggestionController.suggestions.isNotEmpty() && (kc == GLFW.GLFW_KEY_PAGE_DOWN || kc == GLFW
-            .GLFW_KEY_PAGE_UP)
+                .GLFW_KEY_PAGE_UP)
         ) {
             pageSuggestions(kc == GLFW.GLFW_KEY_PAGE_DOWN); return
         }

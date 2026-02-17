@@ -22,7 +22,7 @@ class TextFieldController(
     fun render(globalX: Int, globalY: Int) {
         // globalX/globalY are the absolute positions where the field should render
         DrawContextUtils.pushPop {
-            DrawContextUtils.translate(globalX.toFloat(), globalY.toFloat(), 0f)
+            DrawContextUtils.translate(globalX.toFloat(), globalY.toFloat())
             field.render(GuiScreenUtils.mouseX - globalX, GuiScreenUtils.mouseY - globalY)
         }
     }

@@ -44,11 +44,11 @@ class BBSplashMessageConfigureScreen : SkyHanniBaseScreen() {
         val left = (width - contentW) / 2
         val top = (height - contentH) / 2
 
-        DrawContextUtils.translate(left.toFloat(), top.toFloat(), 0f)
+        DrawContextUtils.translate(left.toFloat(), top.toFloat())
         // drawFloatingRectDark is on GuiRenderUtils; replicate small container without importing GuiRenderUtils to keep imports minimal
         // however other screens usually call GuiRenderUtils.drawFloatingRectDark before using Renderable.withMousePosition; we'll skip and rely on container position
 
-        DrawContextUtils.translate(16f, 12f, 0f)
+        DrawContextUtils.translate(16f, 12f)
         val textWidth = contentW - 32
 
         val elems = mutableListOf<Renderable>()
@@ -111,8 +111,8 @@ class BBSplashMessageConfigureScreen : SkyHanniBaseScreen() {
                 .renderXYAligned(0, 0, textWidth, contentH)
         }
 
-        DrawContextUtils.translate(-16f, -12f, 0f)
-        DrawContextUtils.translate(-left.toFloat(), -top.toFloat(), 0f)
+        DrawContextUtils.translate(-16f, -12f)
+        DrawContextUtils.translate(-left.toFloat(), -top.toFloat())
     }
 
     companion object {

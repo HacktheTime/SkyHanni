@@ -1234,9 +1234,9 @@ interface Renderable {
                 }
 
                 // Render text with some padding
-                DrawContextUtils.translate(3f, 3f, 0f)
+                DrawContextUtils.translate(3f, 3f)
                 super.render(mouseOffsetX - 3, mouseOffsetY - 3)
-                DrawContextUtils.translate(-3f, -3f, 0f)
+                DrawContextUtils.translate(-3f, -3f)
             }
         }
     }

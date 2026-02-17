@@ -119,12 +119,12 @@ class SearchableStorageGui(private var search: String = "") : SkyHanniBaseScreen
             guiTop = (height - display.height) / 2
 
             DrawContextUtils.pushPop {
-                DrawContextUtils.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
+                DrawContextUtils.translate(guiLeft.toFloat(), guiTop.toFloat())
                 display.render(guiLeft, guiTop)
                 if (displayedItems.isNotEmpty()) {
                     val item = displayedItems.first().renderable
                     val (relativeMouseX, relativeMouseY) = getRelativeMousePos()
-                    DrawContextUtils.translate(relativeMouseX.toFloat() + (item.width / 2), relativeMouseY.toFloat() - item.height, 0f)
+                    DrawContextUtils.translate(relativeMouseX.toFloat() + (item.width / 2), relativeMouseY.toFloat() - item.height)
                     tooltipRenderable?.render(0, 0)
                 }
             }
