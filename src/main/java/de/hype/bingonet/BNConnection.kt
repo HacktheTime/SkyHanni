@@ -690,13 +690,12 @@ object BNConnection {
 
     fun onPacketChatPromptPacket(packet: PacketChatPromptPacket) {
         ChatUtils.chatPrompt(
-            "§e[Sh-Bingo Net Server]${packet.message}", config.serverActionChatPrompt,
+            "§c[Bingo Net Server]${packet.message}", config.serverActionChatPrompt,
             {
                 for (p in packet.packets) {
                     sendPacket(p)
                 }
             },
-            prefix = false,
         )
     }
 
