@@ -51,9 +51,11 @@ class Features : Config() {
 
     override fun getSocials(): List<Social> {
         return listOf(
-            Social.forLink("Discord".asStructuredText(), discord, "https://discord.com/invite/skyhanni-997079228510117908"),
-            Social.forLink("GitHub".asStructuredText(), github, "https://github.com/hannibal002/SkyHanni"),
-            Social.forLink("Patreon".asStructuredText(), patreon, "https://www.patreon.com/hannibal2"),
+            Social.forLink("SkyHanni Patreon".asStructuredText(), patreon, "https://www.patreon.com/hannibal2"),
+            Social.forLink("SkyHanni GitHub".asStructuredText(), github, "https://github.com/hannibal002/SkyHanni"),
+            Social.forLink("SkyHanni Discord".asStructuredText(), discord, "https://discord.com/invite/skyhanni-997079228510117908"),
+            Social.forLink("Bingo Net GitHub".asStructuredText(), github, "https://github.com/HacktheTime/SkyHanni"),
+            Social.forLink("Bingo Net Discord".asStructuredText(), discord, "https://hackthetime.de/discord"),
         )
     }
 

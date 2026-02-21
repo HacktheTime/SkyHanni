@@ -174,8 +174,10 @@ object UpdateManager {
         )
     }
 
+    fun getSource() = CustomGithubReleaseUpdateSource("HacktheTime", "SkyHanni")
+
     private val context = UpdateContext(
-        CustomGithubReleaseUpdateSource("hannibal002", "SkyHanni"),
+        getSource(),
         UpdateTarget.deleteAndSaveInTheSameFolder(UpdateManager::class.java),
         object : CurrentVersion {
             private val debug get() = SkyHanniMod.feature.dev.debug.alwaysOutdated

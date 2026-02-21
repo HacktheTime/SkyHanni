@@ -365,7 +365,7 @@ publishing.publications {
         artifact(tasks.remapJar)
         artifact(sourcesJar) { classifier = "sources" }
         pom {
-            name.set("SkyHanni")
+            name.set("SkyHanni-Bingo Net")
             licenses {
                 license {
                     name.set("GNU Lesser General Public License")
@@ -373,8 +373,9 @@ publishing.publications {
                 }
             }
             developers {
-                developer { name.set("hannibal002") }
+                developer { name.set("hannibal002 (Original SkyHanni Author)") }
                 developer { name.set("The SkyHanni contributors") }
+                developer { name.set("HacktheTime / other contributors (Bingo Net Modifications)") }
             }
         }
     }

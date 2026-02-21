@@ -188,5 +188,5 @@ class DevConfig {
     @ConfigOption(name = "Auto Error Report", desc = "Automatically send all Errors over the Bingo Net Connection to the Bingo Net Server. This allows better handling of Issues and triage by the Bingo Net Team.")
     @ConfigEditorBoolean
     @ThirdPartyDependency(ThirdParty.BINGO_NET)
-    var autoThirdPartyErrorReporting: Boolean = false
+    var autoThirdPartyErrorReporting: Boolean = true
 }
