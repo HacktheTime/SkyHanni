@@ -2,7 +2,6 @@ package at.hannibal2.skyhanni.features.bingo.bingonet
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import de.hype.bingonet.BNConnection
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.PartyApi
@@ -13,15 +12,14 @@ import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.PlayerUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
+import de.hype.bingonet.BNConnection
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.objects.BNRole
 import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.packets.function.RequestDynamicSplashInvitePacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
 import kotlinx.coroutines.delay
-import java.lang.Thread.sleep
 import java.time.Instant
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -30,10 +28,10 @@ import kotlin.time.Duration.Companion.seconds
 object SplashManager {
     var splashPool: MutableMap<Int, DisplaySplash> = HashMap<Int, DisplaySplash>()
 
-    fun addSplash(splash: SplashData, source: SplashSource) {
+    fun addSplash(splash: SplashData, source: SplashSource): Boolean {
         if (source == SplashSource.BB) {
             if (splashPool.values.any { it.funder == splash.funder && it.hubSelectorData?.hubNumber == splash.hubSelectorData?.hubNumber }) {
-                return //This avoids duplicate splash announcement messages when dual sending and BN Data is better.
+                return true //This avoids duplicate splash announcement messages when dual sending and BN Data is better.
             }
         }
 
@@ -45,7 +43,11 @@ object SplashManager {
                 splashPool.remove(splash.splashId)
             },
         )
-        if (!existed) display(splash.splashId, source)
+        return existed
+    }
+
+    fun addSplashAndDisplay(splash: SplashData, source: SplashSource) {
+        if (!addSplash(splash, source)) display(splash.splashId, source)
     }
 
     fun updateSplash(packet: SplashUpdatePacket) {
@@ -125,7 +127,9 @@ object SplashManager {
                 ) {
                     // Double warp needed
                     SkyHanniMod.launchCoroutine("Hub double warp",2.seconds) {
-                        delay(250)
+                        while (HypixelData.skyBlockIsland != IslandType.HUB) {
+                            delay(250)
+                        }
                         HypixelCommands.warp(Islands.HUB.warpArgument!!)
                     }
                 }

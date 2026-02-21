@@ -15,10 +15,13 @@ import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.objects.SplashLocations
 import kotlinx.coroutines.Job
 import java.io.IOException
+import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketTimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.regex.Pattern
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -29,7 +32,11 @@ object BSCClient {
 
     @Volatile
     private var connectJob: Job? = null
+
+    @Volatile
     var client: Socket? = null
+
+    @Volatile
     var thread: Thread? = null
 
     @HandleEvent
@@ -41,10 +48,9 @@ object BSCClient {
         init()
     }
 
-    @Synchronized
     fun init() {
         if (enabled) {
-            if (client?.isConnected != true) asyncConnect()
+            asyncConnect()
         } else {
             stop()
         }
@@ -54,8 +60,7 @@ object BSCClient {
         if (client?.isConnected == true) return
         val existing = connectJob
         if (existing != null && existing.isActive) return
-        connectJob = SkyHanniMod.launchCoroutine("BSC Connect", 70.seconds) {
-            //BSC does not answer immediately for some reason.
+        connectJob = SkyHanniMod.launchCoroutine("BSC Connect", 5.minutes) {
             connect()
         }.also { job ->
             job.invokeOnCompletion { connectJob = null }
@@ -63,9 +68,8 @@ object BSCClient {
     }
 
     @Throws(IOException::class)
-    @Synchronized
     private fun connect() {
-        stop()
+        stopInternal()
         if (!isEnabled()) {
             ChatUtils.chatAndOpenConfig(
                 "Bingo Splash Community is not enabled right now. Please enable it first,",
@@ -75,8 +79,18 @@ object BSCClient {
             )
             return
         }
-        val client = Socket("bsn.morazzer.dev", 1807).apply {
-            soTimeout = 10_000 // avoid blocking the render thread by timing out reads
+        val client = try {
+            Socket().apply {
+                soTimeout = 10_000
+                connect(InetSocketAddress("bsn.morazzer.dev", 1807), 10_000)
+            }
+        } catch (e: SocketTimeoutException) {
+            // Server unreachable — don't log as error, just silently bail. connectJob completion
+            // will clear itself; the user can retry with /bsc reconnect.
+            return
+        } catch (e: IOException) {
+            // Any other connection failure — also not worth spamming the user.
+            return
         }
         this.client = client
         if (client.isConnected) ChatUtils.chat("§aSuccessfully connected to BSC Server")
@@ -86,7 +100,7 @@ object BSCClient {
                 val buffer = ByteArray(1024)
                 val read = try {
                     inputStream.read(buffer)
-                } catch (timeout: SocketTimeoutException) {
+                } catch (_: SocketTimeoutException) {
                     continue // re-check loop conditions without parking a thread forever
                 }
                 if (read == -1) {
@@ -103,9 +117,8 @@ object BSCClient {
                 if (id == 0.toByte()) {
                     //Ignore
                 } else if (id == 1.toByte()) {
-                    val message = String(buffer, 1, read - 1).let {
-                        it.replace("<@&[0-9]+>".toRegex(), "")
-                    }
+                    val message = String(buffer, 1, read - 1)
+                        .replace("<@&[0-9]+>".toRegex(), "")
                     val serverId = Pattern.compile("((mini|mega)[0-9]+[a-z])", Pattern.CASE_INSENSITIVE).matcher(message).let {
                         it.find()
                         it.group(1)
@@ -127,7 +140,7 @@ object BSCClient {
                         status = StatusConstants.WAITING,
                         funder = null,
                     ).also { it.splashId = -splashIdCounter.incrementAndGet() }
-                    SplashManager.addSplash(sploosh, SplashManager.SplashSource.BSC)
+                    SplashManager.addSplashAndDisplay(sploosh, SplashManager.SplashSource.BSC)
                 } else if (id == 2.toByte()) {
                     ChatUtils.chat("§cConnection limit on BSC server reached. Try again later with /bsc reconnect")
                     BSCClient.client?.close()
@@ -137,7 +150,6 @@ object BSCClient {
         }
         thread?.start()
     }
-
 
     @HandleEvent
     fun onCommandRegistration(event: CommandRegistrationEvent) {
@@ -161,11 +173,19 @@ object BSCClient {
         }
     }
 
-    fun stop() {
+    private fun stopInternal() {
         if (client?.isConnected == true) ChatUtils.chat("§eDisconnecting from BSC Server...")
         connectJob?.cancel()
         connectJob = null
         client?.close()
+        client = null
         thread?.interrupt()
+        thread = null
+    }
+
+    fun stop() {
+        SkyHanniMod.launchCoroutine("BSC Disconnect") {
+            stopInternal()
+        }
     }
 }

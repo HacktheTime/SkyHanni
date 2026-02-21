@@ -77,7 +77,6 @@ class BingoNetworksConfig {
     )
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
     @FeatureToggle
     var allowBNServerPartyManagement: Boolean = true
 
@@ -85,7 +84,6 @@ class BingoNetworksConfig {
     @ConfigOption(name = "Show Bingo Chat", desc = "Bingo Chat is a Chat for every Bingo Net participant.")
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
     @FeatureToggle
     var showBingoChat: Boolean = true
 
@@ -96,7 +94,6 @@ class BingoNetworksConfig {
     )
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
     var showGoalCompletions: Boolean = false
 
     @Expose
@@ -106,7 +103,6 @@ class BingoNetworksConfig {
     )
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
     var showCardCompletions: Boolean = false
 
     @Expose
@@ -121,8 +117,6 @@ class BingoNetworksConfig {
     @Expose
     @ConfigOption(name = "§dSplasher Config", desc = "Only Important if you are a Splasher.")
     @Accordion
-    @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
     val splasherConfig: SplasherConfig = SplasherConfig()
 
     @FeatureToggle
@@ -133,7 +127,7 @@ class BingoNetworksConfig {
     )
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
+    @FeatureDependencyRequirement("#showSplashes")
     var showSplashStatusUpdates: Boolean = true
 
     @Expose
@@ -142,8 +136,7 @@ class BingoNetworksConfig {
         desc = "Used to trigger Server Warp and if in Hub Selector to warp to the right splash automatically.",
     )
     @Accordion
-    @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
+    @FeatureDependencyRequirement("#showSplashes")
     var splashHubWarp: KeyBind = KeyBind()
 
     @Expose
@@ -153,8 +146,7 @@ class BingoNetworksConfig {
         desc = "Show Splashes that require you to join a party to be warped in.",
     )
     @ConfigEditorBoolean
-    @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
+    @FeatureDependencyRequirement("#showSplashes")
     var showPrivateSplashes: Boolean = true
 
     @Expose
@@ -164,7 +156,6 @@ class BingoNetworksConfig {
     )
     @Accordion
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
     val serverActionChatPrompt = KeyBind()
 
 

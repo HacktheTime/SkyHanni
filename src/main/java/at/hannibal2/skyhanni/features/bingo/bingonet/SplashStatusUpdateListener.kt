@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.events.IslandChangeEvent
+import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.TabListUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.features.chat.CompactSplashPotionMessage
@@ -22,7 +23,6 @@ import de.hype.bingonet.shared.packets.function.SplashLeechReportPacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
 import kotlinx.coroutines.Job
 import net.minecraft.world.entity.player.Player
-import java.lang.StringBuilder
 import kotlin.time.Duration.Companion.minutes
 
 @Suppress("SkyHanniModuleInspection")
@@ -38,27 +38,21 @@ object SplashStatusUpdateListener {
     // TODO fix this pattern
     private val selfSplashPattern = CompactSplashPotionMessage.selfSplashPattern
 
+    private val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig
+
     @HandleEvent
     fun onIslandChange(event: IslandChangeEvent) {
-        PlayerUtils.getName()
-        data = SplashManager.getSplashInServer(true)
+        if (!config.autoSplashStatusUpdates ) return
         maxPlayers = HypixelData.getMaxPlayersForCurrentServer() - 5
-        currentJob?.cancel()
-        currentJob = SkyHanniMod.launchCoroutine("Splash Status Updater") {
-            run()
-        }
     }
 
-    fun run() {
-        while (true) {
-            if (!full && (HypixelData.getPlayersOnCurrentServer() >= maxPlayers)) {
-                setStatus(StatusConstants.FULL)
-                full = true
-            }
-            try {
-                Thread.sleep(250)
-            } catch (ignored: InterruptedException) {
-            }
+    @HandleEvent
+    fun run(secondPassedEvent: SecondPassedEvent) {
+        if (!config.autoSplashStatusUpdates ) return
+        data = SplashManager.getSplashInServer(true)
+        if (!full && (HypixelData.getPlayersOnCurrentServer() >= maxPlayers)) {
+            setStatus(StatusConstants.FULL)
+            full = true
         }
     }
 

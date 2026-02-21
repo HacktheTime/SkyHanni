@@ -387,6 +387,7 @@ object BNConnection {
         val waitTime: Int
         if (packet.splash.announcer == PlayerUtils.getName() && config.splasherConfig.autoSplashStatusUpdates) {
             ChatUtils.chat("The Splash Update Statuses will be updatet automatically for you. If you need to do something manually go into Discord Splash Dashboard")
+            SplashManager.splashPool[packet.splash.splashId] = SplashManager.DisplaySplash(packet.splash)
         } else {
             SplashManager.addSplash(packet.splash, SplashManager.SplashSource.BN)
             if (packet.splash.lessWaste) {

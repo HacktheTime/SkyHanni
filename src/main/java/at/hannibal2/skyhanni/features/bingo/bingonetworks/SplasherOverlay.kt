@@ -1,13 +1,13 @@
 package at.hannibal2.skyhanni.features.bingo.bingonetworks
 
-import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.HypixelData
+import at.hannibal2.skyhanni.data.mob.MobFilter.isRealPlayer
 import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.features.bingo.bingonet.SplashManager
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.EntityUtils.isOnBingo
 import at.hannibal2.skyhanni.utils.EntityUtils.isOnIronman
@@ -46,19 +46,26 @@ object SplasherOverlay {
 
         val renderables = mutableListOf<Renderable>()
         renderables.add(Renderable.text("Status: ${splash.status.displayName}"))
-        val players = EntityUtils.getEntitiesNextToPlayer<Player>(5.0)
-        renderables.add(Renderable.text("Hub: $players/${HypixelData.getMaxPlayersForCurrentServer()}"))
+        val players =
+            EntityUtils.getEntitiesNextToPlayer<Player>(
+                5.0,
+                predicate = {
+                    it.isRealPlayer() && !it.isLocalPlayer
+                },
+            )
+        renderables.add(Renderable.text("Hub: ${players.size}/${HypixelData.getMaxPlayersForCurrentServer()}"))
         val bingos = players.filter { it.isOnBingo() }
         val iman = players.filter { it.isOnIronman() }
-        renderables.add(Renderable.text("Participants: Ⓑ${bingos.count()} | ♲${iman.count()} "))
+        val leechers = players.filter { !(it.isOnBingo() || it.isOnIronman()) }
         renderables.add(
-            Renderable.text(
-                "Leechers: \n${
-                    players.filter { !(it.isOnBingo() || it.isOnIronman()) }.joinToString("\n") { it.displayName!!.string }
-                } ",
-            ),
+            Renderable.text("Participants: §6Ⓑ: ${bingos.size} §r| §8♲: ${iman.size} §r| §7N: ${leechers.size} §r| Total: ${players.size}"),
         )
-
+        if (leechers.isNotEmpty()) {
+            renderables.add(Renderable.text("Leechers:"))
+            leechers.forEach {
+                renderables.add(Renderable.text(it.displayName!!.string))
+            }
+        }
         this.renderables = renderables
     }
 

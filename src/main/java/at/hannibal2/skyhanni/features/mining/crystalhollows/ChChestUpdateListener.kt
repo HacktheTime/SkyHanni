@@ -2,13 +2,13 @@ package at.hannibal2.skyhanni.features.mining.crystalhollows
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import at.hannibal2.skyhanni.api.event.HandleEvent.Companion.HIGHEST
 import at.hannibal2.skyhanni.data.ClickType
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.BlockClickEvent
 import at.hannibal2.skyhanni.events.IslandChangeEvent
+import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersClient
 import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersPackets
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -110,8 +110,8 @@ object ChChestUpdateListener {
 
     fun addOpenedChest(pos: Position) {
         if (chestsOpened.contains(pos)) return
-            chestsOpened.add(pos)
-            setWaypoints()
+        chestsOpened.add(pos)
+        setWaypoints()
     }
 
     fun addChestAndUpdate(coords: Position, items: Map<ChChestItem, IntRange>) {
@@ -125,8 +125,10 @@ object ChChestUpdateListener {
     }
 
     val config = SkyHanniMod.feature.event.bingo.bingoNetworks
+    var lastServerId : String? = null
+    var day : Int? = null
 
-    @HandleEvent(priority = HIGHEST)
+    @HandleEvent
     fun onWorldLeave(event: IslandChangeEvent) {
         if (!config.chestWaypoints) return
         if (event.oldIsland != IslandType.CRYSTAL_HOLLOWS) return
@@ -135,14 +137,22 @@ object ChChestUpdateListener {
             EntityUtils.getPlayerList(),
         )
         if (config.bingoNet.useBN) BNConnection.sendPacket(unsubpacket)
-        if (config.useBB) {
+        val day = this.day
+        if (config.useBB && day != null) {
             val bbsub = BingoBrewersPackets.SubscribeToCHServer()
-            bbsub.server = HypixelData.serverId
-            bbsub.day = WorldCompat.worldDay ?: error("World appears to be null, cannot get day")
+            bbsub.server = lastServerId
+            bbsub.day = day
             bbsub.unsubscribe = true
             BingoBrewersClient.sendTCP(bbsub)
         }
+        this.day = WorldCompat.worldDay
         reset()
+    }
+
+    @HandleEvent
+    fun minutePassed(event: SecondPassedEvent){
+        if (!event.repeatSeconds(30)) return
+        day = WorldCompat.worldDay
     }
 
     @HandleEvent
@@ -249,7 +259,7 @@ object ChChestUpdateListener {
     var lastGlobalChchestCoords: LorenzVec? = null
 
     fun BlockClickEvent.getChestOpenState(): Boolean? {
-        if (position.getBlockAt()!= Blocks.CHEST) return null
+        if (position.getBlockAt() != Blocks.CHEST) return null
         return position.isChestOpened()
     }
 

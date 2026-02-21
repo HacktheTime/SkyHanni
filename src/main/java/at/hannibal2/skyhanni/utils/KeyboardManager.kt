@@ -1,6 +1,9 @@
 package at.hannibal2.skyhanni.utils
 
+import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.inventory.AttemptedInventoryCloseEvent
+import at.hannibal2.skyhanni.events.minecraft.KeyUpEvent
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.compat.MouseCompat
 import com.mojang.blaze3d.platform.InputConstants
@@ -10,7 +13,7 @@ import net.minecraft.client.Minecraft
 import org.apache.commons.lang3.SystemUtils
 import org.lwjgl.glfw.GLFW
 import net.minecraft.client.input.KeyEvent
-
+@SkyHanniModule
 object KeyboardManager {
 
     const val LEFT_MOUSE = GLFW.GLFW_MOUSE_BUTTON_LEFT
@@ -102,6 +105,11 @@ object KeyboardManager {
     } else {
         lockedKeys[this] = false
         false
+    }
+
+    @HandleEvent
+    fun keyUpEvent(event: KeyUpEvent){
+        lockedKeys[event.keyCode] = false
     }
 
     fun getKeyName(keyCode: Int): String = IMinecraft.INSTANCE.getKeyName(keyCode).text

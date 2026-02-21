@@ -36,7 +36,7 @@ object PlayerUtils {
 
     fun getUuid() = getRawUuid().toUnDashedUUID()
 
-    fun getRawUuid(): UUID = MinecraftCompat.localPlayer.uuid
+    fun getRawUuid(): UUID = MinecraftCompat.localPlayerOrNull?.uuid ?: Minecraft.getInstance().gameProfile.id()
 
     fun getName(): String {
         val player = MinecraftCompat.localPlayerOrNull ?: return Minecraft.getInstance().gameProfile.name

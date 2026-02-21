@@ -143,7 +143,7 @@ object BingoBrewersPackets {
                 StatusConstants.WAITING,
             )
             splashData.splashId = -(splash!!.toLong() and 0xFFFFFFFFL).toInt()
-            SplashManager.addSplash(splashData, SplashManager.SplashSource.BB)
+            SplashManager.addSplashAndDisplay(splashData, SplashManager.SplashSource.BB)
         }
     }
 

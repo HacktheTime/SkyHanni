@@ -23,7 +23,7 @@ object BingoDungeonsPartyMessages {
      */
     val milestoneReachedPattern by patternGroup.pattern(
         "milestone-reached",
-        "Mage Milestone (?<milestone>.).*",
+        "(Mage|Tank|Archer|Healer|Berserker) Milestone (?<milestone>.).*",
     )
 
     @HandleEvent

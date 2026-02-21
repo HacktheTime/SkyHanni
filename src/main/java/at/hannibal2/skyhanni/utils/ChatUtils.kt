@@ -220,13 +220,9 @@ object ChatUtils {
         keyBind: KeyBind,
         consumer: () -> Boolean,
         hover: String = "§eThis Message is a Chat Prompt and can be clicked!",
-        prefix: Boolean = true,
-        prefixColor: String = "§e",
     ) {
-        val msgPrefix = if (prefix) prefixColor + CHAT_PREFIX else ""
-
         // TODO isnt the permanent click action essentially a small memory leak that bunches up over time?
-        val rawText = msgPrefix + message.replace("%KEY%", keyBind.getEffectiveKeyString())
+        val rawText = message.replace("%KEY%", keyBind.getEffectiveKeyString())
         val text = TextHelper.text(rawText) {
             this.onClick(SimpleTimeMark.now().plus(keyBind.getEffectiveExpirationDuration()), true, consumer)
             this.hover = hover.asComponent()
@@ -240,8 +236,6 @@ object ChatUtils {
         keyBind: KeyBind,
         code: () -> Unit,
         hover: String = "§eThis Message is a Chat Prompt and can be clicked!",
-        prefix: Boolean = true,
-        prefixColor: String = "§e",
     ) {
         chatConsumerPrompt(
             message, keyBind,
@@ -249,7 +243,7 @@ object ChatUtils {
                 code.invoke()
                 true
             },
-            hover, prefix, prefixColor,
+            hover,
         )
     }
 
