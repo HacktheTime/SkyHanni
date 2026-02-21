@@ -173,4 +173,11 @@ class BingoNetworksConfig {
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
     @FeatureDependencyRequirement("#useBB")
     var chChestOverlay: Boolean = true
+
+    @Expose
+    @ConfigOption(name = "Show Splash Location Waypoint", desc = "Show Path to go to and Location of the Splash.")
+    @FeatureToggle
+    @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#showSplashes")
+    var renderSplashLocationWaypoint = false
 }

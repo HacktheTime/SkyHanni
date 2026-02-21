@@ -3,30 +3,40 @@ package at.hannibal2.skyhanni.features.bingo.bingonet
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.HypixelData
+import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.PartyApi.joinParty
+import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
+import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.HypixelCommands
+import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.PlayerUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
+import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawString
+import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import de.hype.bingonet.BNConnection
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.objects.BNRole
 import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.packets.function.RequestDynamicSplashInvitePacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
+import de.hype.bingonet.toLorenz
 import kotlinx.coroutines.delay
+import java.awt.Color
 import java.time.Instant
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 // Not needed since the SH Message Event is asked for by the Player. Not needed to be a module.
-@Suppress("SkyHanniModuleInspection")
+@SkyHanniModule
 object SplashManager {
     var splashPool: MutableMap<Int, DisplaySplash> = HashMap<Int, DisplaySplash>()
+    val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks
 
     fun addSplash(splash: SplashData, source: SplashSource): Boolean {
         if (source == SplashSource.BB) {
@@ -126,7 +136,7 @@ object SplashManager {
                     currentIsland == IslandType.GOLD_MINES
                 ) {
                     // Double warp needed
-                    SkyHanniMod.launchCoroutine("Hub double warp",2.seconds) {
+                    SkyHanniMod.launchCoroutine("Hub double warp", 2.seconds) {
                         while (HypixelData.skyBlockIsland != IslandType.HUB) {
                             delay(250)
                         }
@@ -162,5 +172,30 @@ object SplashManager {
                 PartyApi.acceptParty(name)
             }
         }
+    }
+
+    private var waypointPos: LorenzVec? = null
+    private var data: DisplaySplash? = null
+
+    @HandleEvent
+    fun onIslandChange(event: IslandChangeEvent) {
+        val data = getSplashInServer(false)
+        waypointPos = data?.locationInHub?.coords?.toLorenz()
+        this.data = data
+        if (data != null && config.renderSplashLocationWaypoint) {
+            val location = data.locationInHub
+            IslandGraphs.pathFind(
+                location.coords.toLorenz(),
+                location.displayString,
+                condition = { true },
+            )
+        }
+    }
+
+    @HandleEvent
+    fun worldRender(event: SkyHanniRenderWorldEvent) {
+        val waypoint = waypointPos ?: return
+        event.drawWaypointFilled(waypoint, Color.YELLOW, true)
+        event.drawString(waypoint, "§6Splash Location", true, Color.WHITE)
     }
 }
