@@ -5,13 +5,13 @@ import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.features.bingo.bingonet.SplashManager
 import at.hannibal2.skyhanni.features.mining.crystalhollows.ChChestUpdateListener
 import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryonet.Client
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.objects.SplashLocation
-import de.hype.bingonet.shared.objects.SplashLocations
 
 object BingoBrewersPackets {
     fun registerPackets(client: Client) {
@@ -108,7 +108,7 @@ object BingoBrewersPackets {
             var hubNumber: Int? = null
             if (matcher.find()) {
                 serverId = matcher.group().lowercase()
-            } else if (noteMatcher.find()){
+            } else if (noteMatcher.find()) {
                 serverId = noteMatcher.group().lowercase()
             }
             if (packet.message.trim { it <= ' ' }.matches("^\\d+$".toRegex())) {
@@ -116,7 +116,26 @@ object BingoBrewersPackets {
             } else {
                 return
             }
-            var splashLocation: SplashLocation = SplashLocations.BEA
+            //Check the strings of the packet for coords and parse to position or null if not found
+            val coordsMatcher = Regex("(-?\\d+).*(-?\\d+).*(-?\\d+)").toPattern()
+            var splashLocation: SplashLocation? = null
+            if (location != null) {
+                splashLocation = coordsMatcher.matchMatcher(
+                    location,
+                    {
+                        return@matchMatcher SplashLocation(location, group(0).toInt(), group(1).toInt(), group(2).toInt())
+                    },
+                )
+            }
+            if (splashLocation == null && note != null) {
+                val notes = note.joinToString("\n")
+                splashLocation = coordsMatcher.matchMatcher(
+                    notes,
+                    {
+                        return@matchMatcher SplashLocation(notes, group(0).toInt(), group(1).toInt(), group(2).toInt())
+                    },
+                )
+            }
             val extraMessage = if (note != null) java.lang.String.join("\n", note) else ""
             var hubSelectorData: SplashData.HubSelectorData? = null
             val island: Islands = if (dungeonHub) Islands.DUNGEON_HUB else Islands.HUB
@@ -129,7 +148,7 @@ object BingoBrewersPackets {
                 val parts: Array<String> =
                     serverId.split("(<=\\D)(=\\d)".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 if (parts.size == 2) {
-                    hubNumber = parts[1]!!.toInt()
+                    hubNumber = parts[1].toInt()
                     hubSelectorData = SplashData.HubSelectorData(hubNumber, island)
                 }
             }

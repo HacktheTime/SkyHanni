@@ -132,7 +132,7 @@ object BSCClient {
                     if (hubSelectorData == null) continue
                     val sploosh = SplashData(
                         announcer = "One of the BSC Splashers",
-                        locationInHub = SplashLocations.KAT,
+                        locationInHub = null,
                         extraMessage = message,
                         lessWaste = false,
                         serverID = serverId,

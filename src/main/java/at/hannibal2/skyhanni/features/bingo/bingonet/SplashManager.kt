@@ -105,7 +105,9 @@ object SplashManager {
             }
 
             ChatUtils.chatPrompt(
-                "§d${splash.announcer}§r is Splashing in $islandType #${splash.hubSelectorData.hubNumber}§r at ${splash.locationInHub.displayString} (§aPress %KEY% to warp to a §d${splash.hubSelectorData.hubType}§r) §7| §6${splash.extraMessage ?: ""}",
+                "§d${splash.announcer}§r is Splashing in $islandType #${splash.hubSelectorData.hubNumber}§r at ${splash.locationInHub?.displayString ?: splash.extraMessage} (§aPress %KEY% to warp to a §d${splash.hubSelectorData.hubType}§r) §7| §6${
+                    splash.extraMessage ?: "(No Parsed Location Data)"
+                }",
                 SkyHanniMod.feature.event.bingo.bingoNetworks.splashHubWarp,
                 {
                     SkyHanniMod.launchCoroutine("Splash Hub Warp Helper") {
@@ -180,12 +182,13 @@ object SplashManager {
     @HandleEvent
     fun onIslandChange(event: IslandChangeEvent) {
         val data = getSplashInServer(false)
-        waypointPos = data?.locationInHub?.coords?.toLorenz()
+        val waypointPos = data?.locationInHub?.coords?.toLorenz()
+        this.waypointPos = waypointPos
         this.data = data
-        if (data != null && config.renderSplashLocationWaypoint) {
+        if (data != null && config.renderSplashLocationWaypoint && waypointPos != null) {
             val location = data.locationInHub
             IslandGraphs.pathFind(
-                location.coords.toLorenz(),
+                waypointPos,
                 location.displayString,
                 condition = { true },
             )

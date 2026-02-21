@@ -5,7 +5,7 @@ import de.hype.bingonet.shared.constants.StatusConstants
 
 open class SplashData @JvmOverloads constructor(
     open val announcer: String,
-    @JvmField val locationInHub: SplashLocation,
+    @JvmField val locationInHub: SplashLocation?,
     @JvmField var extraMessage: String?,
     @JvmField val lessWaste: Boolean,
     @JvmField val serverID: String?,

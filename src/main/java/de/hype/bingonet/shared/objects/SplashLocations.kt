@@ -1,15 +1,12 @@
 package de.hype.bingonet.shared.objects
 
 object SplashLocations {
-    val BEA: SplashLocation = SplashLocation("Bea", 26, 70, -93)
-    val KAT: SplashLocation = SplashLocation("Kat", 29, 71, -104)
-    val ENCHANTING_TABLE: SplashLocation = SplashLocation("Enchanting-Table", -33, 69, -109)
-    val COMMUNITY_CENTER: SplashLocation = SplashLocation("Community-Center", 2, 71, -99)
-    val HUB_SPAWN: SplashLocation = SplashLocation("Hub-Spawn", -3, 69, -70)
+    val HUB_SELECTOR: SplashLocation = SplashLocation("Hub Selector Corner", -9, 70, -21)
+
 
     @JvmStatic
     fun values(): List<SplashLocation> {
-        return listOf(BEA, KAT, ENCHANTING_TABLE, COMMUNITY_CENTER)
+        return listOf(HUB_SELECTOR)
     }
 
     @JvmStatic
