@@ -110,4 +110,9 @@ class SplasherConfig {
         ${BBSplashMessageConfigureScreen.EXTRA_MESSAGE}
         ${BBSplashMessageConfigureScreen.ROLE_MENTIONS}
     """.trimIndent()
+
+    @Accordion
+    @Expose
+    @ConfigOption(name = "Brewer Utils", desc = "Things designed to make brewing with the Brewer by flea more convenient.")
+    val brewerUtils = BrewerUtilsConfig()
 }

@@ -82,6 +82,11 @@ object InventoryUtils {
             .filter { it.container is Inventory && it.item.isNotEmpty() }
     }
 
+    fun getSlotsInOwnInventoryWithNull(): List<Slot> {
+        val guiInventory = Minecraft.getInstance().screen as? SkyHanniGuiContainer ?: return emptyList()
+        return guiInventory.slots().filter { it.container is Inventory }
+    }
+
     fun openInventoryName(): String = OtherInventoryData.currentInventoryName
 
     fun inInventory() = Minecraft.getInstance().screen is ContainerScreen
