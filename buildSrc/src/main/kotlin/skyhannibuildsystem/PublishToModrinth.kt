@@ -522,6 +522,27 @@ abstract class PublishToModrinth : DefaultTask() {
         return releaseId
     }
 
+    /**
+     * Resolves the sources jar for a given main jar.
+     * Checks alongside the main jar first, then falls back to the version-specific
+     * build directory (versions/<projectName>/build/libs/) since the build system
+     * copies main jars to the root build/libs but leaves sources jars in-place.
+     */
+    private fun findSourcesJarForMainJar(jar: File): File? {
+        // First try same directory as the main jar (covers cases where sources are also copied)
+        val sibling = File(jar.parentFile, jar.nameWithoutExtension + "-sources.jar")
+        if (sibling.exists()) return sibling
+
+        // Fall back to version-specific build/libs directory
+        val m = jarNamePattern.matcher(jar.name)
+        if (!m.matches()) return null
+        val mcVersion = m.group("mcVersion")
+        val target = ProjectTarget.findByMcVersion(mcVersion) ?: return null
+        val versionDir = project.rootProject.file("versions/${target.projectName}/build/libs")
+        val versionSourcesJar = File(versionDir, jar.nameWithoutExtension + "-sources.jar")
+        return if (versionSourcesJar.exists()) versionSourcesJar else null
+    }
+
     private fun syncGithubReleaseAssets(repo: String, token: String, releaseId: Long, jars: List<File>, verbose: Boolean) {
         fun vlog(msg: String) { if (verbose) println("[GitHub] $msg") }
         val existingAssets = listGithubReleaseAssets(repo, token, releaseId)
@@ -537,15 +558,17 @@ abstract class PublishToModrinth : DefaultTask() {
             vlog("Uploading asset $fname")
             uploadGithubReleaseAsset(repo, token, releaseId, jar)
 
-            val sourcesJar = File(jar.parentFile, jar.nameWithoutExtension + "-sources.jar")
-            if (sourcesJar.exists()) {
-                val compileName = jar.nameWithoutExtension + "-compile-sources.jar"
-                existingAssets[compileName]?.let { assetId ->
-                    vlog("Deleting existing sources asset $compileName (id=$assetId)")
+            val sourcesJar = findSourcesJarForMainJar(jar)
+            if (sourcesJar != null) {
+                val sourcesName = jar.nameWithoutExtension + "-sources.jar"
+                existingAssets[sourcesName]?.let { assetId ->
+                    vlog("Deleting existing sources asset $sourcesName (id=$assetId)")
                     deleteGithubReleaseAsset(repo, token, assetId)
                 }
-                vlog("Uploading sources asset $compileName")
-                uploadGithubReleaseAssetWithCustomName(repo, token, releaseId, sourcesJar, compileName)
+                vlog("Uploading sources asset $sourcesName from ${sourcesJar.absolutePath}")
+                uploadGithubReleaseAssetWithCustomName(repo, token, releaseId, sourcesJar, sourcesName)
+            } else {
+                vlog("No sources jar found for ${jar.name}, skipping sources upload")
             }
         }
     }
