@@ -4,8 +4,12 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Fixed relog Bingo Brewers spam.
-- Added Discord RPC Button for Bingo Net.
+- fixed an issue with bb splash announcements if it contained a valid server id.
+- fixed splash double warp not working
+- added navigate to splash option
+  - Note that this is not fully functional yet since the splash locations arent known.
+- Added a variety of useful utils for splash brewing.
+- improved several aspects causing issues with bn being an sh fork such as ingame updater etc.
 
 ## Static Info for modrinth:
 
