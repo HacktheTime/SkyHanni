@@ -12,6 +12,7 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.objects.SplashLocation
+import de.hype.bingonet.shared.objects.SplashLocations
 
 object BingoBrewersPackets {
     fun registerPackets(client: Client) {
@@ -135,6 +136,9 @@ object BingoBrewersPackets {
                         return@matchMatcher SplashLocation(notes, group(0).toInt(), group(1).toInt(), group(2).toInt())
                     },
                 )
+            }
+            if (splashLocation == null || location?.contains("Map") == true) {
+                splashLocation = SplashLocations.BB_MAP
             }
             val extraMessage = if (note != null) java.lang.String.join("\n", note) else ""
             var hubSelectorData: SplashData.HubSelectorData? = null
