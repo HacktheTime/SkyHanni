@@ -17,6 +17,10 @@ class BingoConfig {
     val bingoCard: BingoCardConfig = BingoCardConfig()
 
     @Expose
+    @ConfigOption(name = "Disable Custom Wardrobe on Bingo", desc =  "Disable the Custom Wardrobe GUI on Bingo profiles.")
+    val disableCustomWardrobeOnBingo: Boolean = true
+
+    @Expose
     @ConfigOption(
         name = "Third Party Bingo Networks",
         desc = "§cThe Bingo Networks are Third Party Services that are based on closed Source Servers above which Skyhanni has no control.",
