@@ -1,8 +1,12 @@
 package at.hannibal2.skyhanni.config.features.misc
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.features.chat.ChatPromptUtils
+import at.hannibal2.skyhanni.features.misc.keybinds.Keybinds
 import com.google.gson.annotations.Expose
+import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
@@ -87,28 +91,13 @@ class TrevorTheTrapperConfig {
     var mobDiedMessage: Boolean = true
 
     @Expose
-    @ConfigOption(name = "Warp to Trapper", desc = "Warp to Trevor's Den. Works only inside the Farming Islands.")
-    @ConfigEditorBoolean
-    @FeatureToggle
-    var warpToTrapper: Boolean = false
-
-    @Expose
     @ConfigOption(
-        name = "Accept Trapper Quest",
-        desc = "Click this key after the chat prompt to accept Trevor's quest.",
+        name = "Trapper Keybind",
+        desc = "Click this key after the chat prompt to warp to Areas for Trevor's quests.",
     )
     @ConfigEditorBoolean
-    @FeatureToggle
-    var acceptQuest: Boolean = false
-
-    @Expose
-    @ConfigOption(
-        name = "Trapper Hotkey",
-        desc = "Press this key to warp to Trevor's Den or to accept the quest. " +
-            "§eRequires the relevant above settings to be toggled",
-    )
-    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
-    var keyBind: Int = GLFW.GLFW_KEY_UNKNOWN
+    @Accordion
+    val acceptQuestKeybind =  KeyBind()
 
     @Expose
     @ConfigOption(name = "Trapper Cooldown", desc = "Change the color of Trevor and adds a cooldown over his head.")

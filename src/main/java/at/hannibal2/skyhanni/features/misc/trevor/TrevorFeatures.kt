@@ -12,38 +12,32 @@ import at.hannibal2.skyhanni.events.CheckRenderEntityEvent
 import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
-import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.events.skyblock.GraphAreaChangeEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.mixins.hooks.RenderLivingEntityHelper
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.EntityUtils
-import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LocationUtils
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
-import at.hannibal2.skyhanni.utils.RegexUtils.findMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.RenderUtils.renderString
-import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.TabListData
-import at.hannibal2.skyhanni.utils.compat.command
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import at.hannibal2.skyhanni.utils.getLorenzVec
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawString
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
-import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.decoration.ArmorStand
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
 object TrevorFeatures {
@@ -92,10 +86,6 @@ object TrevorFeatures {
         "outoftime",
         "You ran out of time and the animal disappeared!",
     )
-    private val clickOptionPattern by patternGroup.pattern(
-        "clickoption",
-        "Click an option: §r§a§l\\[YES]§r§7 - §r§c§l\\[NO]",
-    )
     private val areaTrappersDenPattern by patternGroup.pattern(
         "area.trappersden",
         "Trapper's Den",
@@ -107,10 +97,6 @@ object TrevorFeatures {
     private var currentLabel = "§2Ready"
     private const val TRAPPER_ID: Int = 56
     private const val BACKUP_TRAPPER_ID: Int = 17
-    private var timeLastWarped = SimpleTimeMark.farPast()
-    private var lastChatPrompt = ""
-    private var lastChatPromptTime = SimpleTimeMark.farPast()
-
     var questActive = false
     var inBetweenQuests = false
     var inTrapperDen = false
@@ -149,6 +135,10 @@ object TrevorFeatures {
                 currentLabel = if (timeUntilNextReady == 1) "§31 second left" else "§3$timeUntilNextReady seconds left"
             }
             TrevorSolver.mobLocation = TrapperMobArea.NONE
+
+            ChatUtils.chatConsumerPrompt("Click %KEY% to warp to the Trapper.", config.acceptQuestKeybind) {
+                WarpAPI.warpOffCooldown("trapper")
+            }
         }
 
         trapperPattern.matchMatcher(formattedMessage) {
@@ -158,7 +148,13 @@ object TrevorFeatures {
             trapperReady = false
             TrevorTracker.startQuest(this)
             updateTrapper()
-            lastChatPromptTime = SimpleTimeMark.farPast()
+
+            val location = group("location")
+            if (location.contains("oasis",true) || location.contains("desert settlement",true) || location.contains("desert mountain",true)) {
+                ChatUtils.chatConsumerPrompt("Click %KEY% to warp to the Desert Settlement.", config.acceptQuestKeybind) {
+                    WarpAPI.warpOffCooldown("desert")
+                }
+            }
         }
 
         talbotPatternAbove.matchMatcher(formattedMessage) {
@@ -175,18 +171,11 @@ object TrevorFeatures {
 
         outOfTimePattern.matchMatcher(formattedMessage) {
             resetTrapper()
-        }
-
-        clickOptionPattern.findMatcher(event.message) {
-            for (sibling in event.chatComponent.siblings) {
-                val clickEvent = sibling.command ?: continue
-
-                if (clickEvent.contains("YES")) {
-                    lastChatPromptTime = SimpleTimeMark.now()
-                    lastChatPrompt = clickEvent.substringAfter(" ")
-                }
+            ChatUtils.chatConsumerPrompt("Click %KEY% to warp to the Trapper.", config.acceptQuestKeybind) {
+                WarpAPI.warpOffCooldown("trapper")
             }
         }
+
     }
 
     @HandleEvent(GuiRenderEvent.GuiOverlayRenderEvent::class, priority = HandleEvent.LOWEST, onlyOnIsland = IslandType.THE_FARMING_ISLANDS)
@@ -290,29 +279,6 @@ object TrevorFeatures {
                 event.drawWaypointFilled(location, LorenzColor.GOLD.toColor(), seeThroughBlocks = true, beacon = true)
                 event.drawDynamicText(location.up(), TrevorSolver.mobLocation.location, 1.5)
             }
-        }
-    }
-
-    @HandleEvent(onlyOnIsland = IslandType.THE_FARMING_ISLANDS)
-    fun onKeyPress(event: KeyPressEvent) {
-        if (Minecraft.getInstance().screen != null) return
-
-        if (event.keyCode != config.keyBind) return
-
-        if (config.acceptQuest) {
-            val timeSince = lastChatPromptTime.passedSince()
-            if (timeSince > 200.milliseconds && timeSince < 5.seconds) {
-                lastChatPromptTime = SimpleTimeMark.farPast()
-                HypixelCommands.chatPrompt(lastChatPrompt)
-                lastChatPrompt = ""
-                timeLastWarped = SimpleTimeMark.now()
-                return
-            }
-        }
-
-        if (config.warpToTrapper && timeLastWarped.passedSince() > 3.seconds) {
-            HypixelCommands.warp("trapper")
-            timeLastWarped = SimpleTimeMark.now()
         }
     }
 
