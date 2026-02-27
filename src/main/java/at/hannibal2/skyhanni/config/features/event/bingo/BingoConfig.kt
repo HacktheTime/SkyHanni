@@ -18,7 +18,8 @@ class BingoConfig {
 
     @Expose
     @ConfigOption(name = "Disable Custom Wardrobe on Bingo", desc =  "Disable the Custom Wardrobe GUI on Bingo profiles.")
-    val disableCustomWardrobeOnBingo: Boolean = true
+    @ConfigEditorBoolean
+    var disableCustomWardrobeOnBingo: Boolean = true
 
     @Expose
     @ConfigOption(
