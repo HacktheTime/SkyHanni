@@ -52,6 +52,7 @@ object HypixelCommands {
         send("selectnpcoption $npc $answer")
     }
 
+    @Deprecated("Use WarpAPI.warp() instead", ReplaceWith("WarpAPI.warp(warp)"))
     fun warp(warp: String) {
         send("warp $warp")
     }

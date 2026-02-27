@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -34,7 +35,7 @@ object ReindrakeWarpHelper {
             "A Reindrake was detected. Click to warp to the Winter Island spawn!",
             config::reindrakeWarpHelper,
             actionName = "warp to winter island spawn",
-            action = { HypixelCommands.warp("winter") },
+            action = { WarpAPI.warp("winter") },
         )
     }
 

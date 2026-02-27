@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.api.storage
 
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandType
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LorenzVec
@@ -69,7 +70,7 @@ data class StorageSearchResult(
 
             StorageCategory.RIFT_STORAGE -> {
                 val consumer = {
-                    HypixelCommands.warp("rift")
+                    WarpAPI.warp("rift")
                 }
                 if (allowServerChange) consumer.invoke()
                 else {
@@ -80,7 +81,9 @@ data class StorageSearchResult(
 
             StorageCategory.PRIVATE_ISLAND_CHEST -> {
                 val consumer = {
-                    if (HypixelData.skyBlockIsland != IslandType.PRIVATE_ISLAND) HypixelCommands.warp("home")
+                    if (HypixelData.skyBlockIsland != IslandType.PRIVATE_ISLAND) {
+                        WarpAPI.warp("home")
+                    }
                 }
                 if (allowServerChange) consumer.invoke()
                 else {

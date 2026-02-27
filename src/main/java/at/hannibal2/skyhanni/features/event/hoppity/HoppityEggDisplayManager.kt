@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.events.entity.EntityOpacityActiveEvent
 import at.hannibal2.skyhanni.events.entity.EntityOpacityEvent
 import at.hannibal2.skyhanni.features.fame.ReminderUtils
 import at.hannibal2.skyhanni.features.inventory.chocolatefactory.CFApi
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceTo
@@ -95,7 +96,7 @@ object HoppityEggDisplayManager {
             if (unclaimedEggsConfig.warpClickEnabled) Renderable.clickable(
                 container,
                 tips = listOf("§eClick to ${"/warp ${unclaimedEggsConfig.warpClickDestination}".trim()}!"),
-                onLeftClick = { HypixelCommands.warp(unclaimedEggsConfig.warpClickDestination) },
+                onLeftClick = { WarpAPI.warp(unclaimedEggsConfig.warpClickDestination) },
             ) else container,
         )
     }

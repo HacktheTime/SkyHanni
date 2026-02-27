@@ -35,7 +35,6 @@ import net.minecraft.client.GuiMessage
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
-import java.lang.UnsupportedOperationException
 import java.util.LinkedList
 import java.util.Queue
 import kotlin.reflect.KProperty0
@@ -210,12 +209,26 @@ object ChatUtils {
         else logAndSendMessage(text)
     }
 
+    fun chatConsumerPrompt(
+        message: String,
+        keyBind: KeyBind,
+        consumer: () -> Unit,
+    ) {
+        complexChatConsumerPrompt(
+            message, keyBind,
+            consumer = {
+                consumer.invoke()
+                return@complexChatConsumerPrompt true
+            },
+        )
+    }
+
     /**
      * Sends a message to the user that they can click the message or use the given [keyBind] to run the [code] block.
      *
      * [message] supports the %KEY% placeholder which will be replaced with the effective key string of the [keyBind].
      */
-    fun chatConsumerPrompt(
+    fun complexChatConsumerPrompt(
         message: String,
         keyBind: KeyBind,
         consumer: () -> Boolean,
@@ -237,7 +250,7 @@ object ChatUtils {
         code: () -> Unit,
         hover: String = "§eThis Message is a Chat Prompt and can be clicked!",
     ) {
-        chatConsumerPrompt(
+        complexChatConsumerPrompt(
             message, keyBind,
             consumer = {
                 code.invoke()
@@ -564,7 +577,9 @@ object ChatUtils {
 
     var GuiMessage.fullComponent: Component
         get() = `skyhanni$getFullComponent`()
-        set(value) { `skyhanni$setFullComponent`(value) }
+        set(value) {
+            `skyhanni$setFullComponent`(value)
+        }
 
     val GuiMessage.chatMessage get() = content.formattedTextCompat().stripHypixelMessage()
     fun GuiMessage.passedSinceSent() = (Minecraft.getInstance().gui.guiTicks - addedTime()).ticks

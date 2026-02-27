@@ -13,6 +13,7 @@ import at.hannibal2.skyhanni.events.InventoryCloseEvent
 import at.hannibal2.skyhanni.events.InventoryFullyOpenedEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.features.inventory.bazaar.BazaarApi
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -89,7 +90,7 @@ object CityProjectFeatures {
             config::dailyReminder,
             actionName = "warp to Elizabeth",
             action = {
-                HypixelCommands.warp("elizabeth")
+                WarpAPI.warp("elizabeth")
                 EntityMovementData.onNextTeleport(IslandType.HUB) {
                     IslandGraphs.pathFind(
                         LorenzVec(-1.7, 72.0, -102.0),

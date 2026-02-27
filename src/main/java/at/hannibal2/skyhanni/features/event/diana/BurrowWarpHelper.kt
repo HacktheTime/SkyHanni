@@ -13,6 +13,7 @@ import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.RepositoryReloadEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -42,7 +43,6 @@ object BurrowWarpHelper {
 
     var currentWarp: WarpPoint? = null
 
-    private var lastWarpTime = SimpleTimeMark.farPast()
     private var lastWarp: WarpPoint? = null
 
     private var cannotWarpUntil: SimpleTimeMark = SimpleTimeMark.farPast()
@@ -91,18 +91,15 @@ object BurrowWarpHelper {
         if (!config.burrowNearestWarp) return
         if (Minecraft.getInstance().screen != null) return
         val warp = currentWarp ?: return
-        if (lastWarpTime.passedSince() < 1.seconds) return
-
         GriffinBurrowHelper.addDebug("warping to $warp count of bezierFitter ${PreciseGuessBurrow.getBezierFitterCount()}")
-        lastWarpTime = SimpleTimeMark.now()
-        HypixelCommands.warp(warp.name)
+        WarpAPI.warpOffCooldown(warp.name)
         lastWarp = currentWarp
     }
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onChat(event: SkyHanniChatEvent.Allow) {
         if (event.message != "§cYou haven't unlocked this fast travel destination!") return
-        if (lastWarpTime.passedSince() > 1.seconds) return
+        if (WarpAPI.lastWarp.passedSince() > 1.seconds) return
         lastWarp?.let {
             it.unlocked = false
             ChatUtils.chat("Detected not having access to warp point §b${it.displayName}§e!")

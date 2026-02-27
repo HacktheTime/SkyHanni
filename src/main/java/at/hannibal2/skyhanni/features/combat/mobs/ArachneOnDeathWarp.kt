@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.player.PlayerDeathEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -21,7 +22,7 @@ object ArachneOnDeathWarp {
                 "Press §a%KEY%§e to warp to the Arachne Sanctuary", config.arachneDeathWarpKeybind,
                 code = {
                     //TODO travel manager to check whether the user has the travel scroll unlocked.
-                    HypixelCommands.warp("arachne")
+                    WarpAPI.warp("arachne")
                 }
             )
         }

@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.data.PartyApi.joinParty
 import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
@@ -142,12 +143,12 @@ object SplashManager {
                         while (HypixelData.skyBlockIsland != IslandType.HUB) {
                             delay(250)
                         }
-                        HypixelCommands.warp(Islands.HUB.warpArgument!!)
+                        WarpAPI.warp(Islands.HUB.warpArgument!!)
                     }
                 }
-                HypixelCommands.warp(Islands.HUB.warpArgument!!)
+                WarpAPI.warp(Islands.HUB.warpArgument!!)
             } else {
-                HypixelCommands.warp(splash.hubSelectorData.hubType.warpArgument ?: error("Illegal Island Type."))
+                WarpAPI.warp(splash.hubSelectorData.hubType.warpArgument ?: error("Illegal Island Type."))
             }
         }
     }

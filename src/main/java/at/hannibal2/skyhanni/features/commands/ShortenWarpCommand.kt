@@ -7,6 +7,7 @@ import at.hannibal2.skyhanni.data.jsonobjects.repo.WarpsJson
 import at.hannibal2.skyhanni.events.MessageSendToServerEvent
 import at.hannibal2.skyhanni.events.RepositoryReloadEvent
 import at.hannibal2.skyhanni.events.chat.TabCompletionEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.HypixelCommands
 
@@ -36,7 +37,7 @@ object ShortenWarpCommand {
 
         if (command in warps) {
             event.cancel()
-            HypixelCommands.warp(command)
+            WarpAPI.warp(command)
         }
     }
 

@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.events.ItemClickEvent
 import at.hannibal2.skyhanni.events.minecraft.ToolTipTextEvent
 import at.hannibal2.skyhanni.events.minecraft.add
 import at.hannibal2.skyhanni.features.garden.GardenApi
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -58,7 +59,7 @@ object CarrolynHelper {
             ChatUtils.clickableChat(
                 "Carrolyn is on the Crimson Isle. Click here to warp there!",
                 onClick = {
-                    HypixelCommands.warp("crimson")
+                    WarpAPI.warp("crimson")
                     EntityMovementData.onNextTeleport(IslandType.CRIMSON_ISLE) {
                         startPathfind()
                     }

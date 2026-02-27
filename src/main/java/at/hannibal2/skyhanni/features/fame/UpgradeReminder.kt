@@ -9,6 +9,7 @@ import at.hannibal2.skyhanni.events.InventoryCloseEvent
 import at.hannibal2.skyhanni.events.InventoryFullyOpenedEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -204,7 +205,7 @@ object UpgradeReminder {
                 config::accountUpgradeReminder,
                 actionName = "warp to Elizabeth",
                 action = {
-                    HypixelCommands.warp("elizabeth")
+                    WarpAPI.warp("elizabeth")
                 },
             )
         }

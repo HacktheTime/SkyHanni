@@ -30,7 +30,7 @@ object JoinCrystalHollows {
             if (!IslandType.DWARVEN_MINES.isCurrent()) {
                 ChatUtils.clickableChat(
                     "Click here to warp to Dwarven Mines!",
-                    onClick = { HypixelCommands.warp("mines") },
+                    onClick = { WarpAPI.warp("mines") },
                     hover = "§eClick to run /warp mines!",
                 )
             } else {
@@ -40,7 +40,7 @@ object JoinCrystalHollows {
         if (message == "§e[NPC] §5Gwendolyn§f: §rGreat! Now hop on into the Minecart and I'll get you on your way!" && inTime()) {
             ChatUtils.clickableChat(
                 "Click here to warp to Crystal Hollows!",
-                onClick = { HypixelCommands.warp("ch") },
+                onClick = { WarpAPI.warp("ch") },
                 hover = "§eClick to run /warp ch!",
             )
         }
