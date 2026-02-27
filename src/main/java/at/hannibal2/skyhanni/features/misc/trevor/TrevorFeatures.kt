@@ -20,7 +20,6 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.EntityUtils
-import at.hannibal2.skyhanni.utils.LocationUtils
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
@@ -33,6 +32,7 @@ import at.hannibal2.skyhanni.utils.TabListData
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import at.hannibal2.skyhanni.utils.getLorenzVec
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
+import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawLineToEye
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawString
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
@@ -150,7 +150,11 @@ object TrevorFeatures {
             updateTrapper()
 
             val location = group("location")
-            if (location.contains("oasis",true) || location.contains("desert settlement",true) || location.contains("desert mountain",true)) {
+            if (location.contains("oasis", true) || location.contains("desert settlement", true) || location.contains(
+                    "desert mountain",
+                    true,
+                )
+            ) {
                 ChatUtils.chatConsumerPrompt("Click %KEY% to warp to the Desert Settlement.", config.acceptQuestKeybind) {
                     WarpAPI.warpOffCooldown("desert")
                 }
@@ -159,14 +163,16 @@ object TrevorFeatures {
 
         talbotPatternAbove.matchMatcher(formattedMessage) {
             val height = group("height").toInt()
-            TrevorSolver.findMobHeight(height, true)
+            val angle = group("angle").toInt()
+            TrevorSolver.addTheoTip(height, angle)
         }
         talbotPatternBelow.matchMatcher(formattedMessage) {
-            val height = group("height").toInt()
-            TrevorSolver.findMobHeight(height, false)
+            val height = -(group("height").toInt())
+            val angle = group("angle").toInt()
+            TrevorSolver.addTheoTip(height, angle)
         }
         talbotPatternAt.matchMatcher(formattedMessage) {
-            TrevorSolver.averageHeight = LocationUtils.playerLocation().y
+            TrevorSolver.addExactTheoTip()
         }
 
         outOfTimePattern.matchMatcher(formattedMessage) {
@@ -265,6 +271,7 @@ object TrevorFeatures {
         }
 
         if (config.solver) {
+            if (config.theodoliteSolver) TrevorSolver.renderWorld(event)
             var location = TrevorSolver.mobLocation.coordinates
             if (TrevorSolver.mobLocation == TrapperMobArea.NONE) return
             if (TrevorSolver.averageHeight != 0.0) {
@@ -275,6 +282,12 @@ object TrevorFeatures {
                 location = TrevorSolver.mobCoordinates
                 event.drawWaypointFilled(location.down(2), LorenzColor.GREEN.toColor(), seeThroughBlocks = true, beacon = true)
                 event.drawDynamicText(location.up(), displayName, 1.5)
+                if (config.solverTracer) event.drawLineToEye(
+                    location = location,
+                    color = LorenzColor.GREEN.toColor(),
+                    lineWidth = 5,
+                    depth = true,
+                )
             } else {
                 event.drawWaypointFilled(location, LorenzColor.GOLD.toColor(), seeThroughBlocks = true, beacon = true)
                 event.drawDynamicText(location.up(), TrevorSolver.mobLocation.location, 1.5)

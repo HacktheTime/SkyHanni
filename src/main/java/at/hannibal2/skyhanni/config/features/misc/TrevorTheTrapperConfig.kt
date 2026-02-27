@@ -83,6 +83,23 @@ class TrevorTheTrapperConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     var solver: Boolean = true
+    @Expose
+    @ConfigOption(
+        name = "Trapper Solver Tracer",
+        desc = "Shows a Tracer to the location found by the solver.",
+    )
+    @ConfigEditorBoolean
+    var solverTracer = true
+
+    @Expose
+    @ConfigOption(
+        name = "Trapper Solver (Theodolite Edition)",
+        desc = "Shows the Areas the mob could be in by triangulating Theodolite results. May be expensive in Performance on lower end " +
+            "systems. §cAlso not the prettiest."
+    )
+    @ConfigEditorBoolean
+    @FeatureToggle
+    var theodoliteSolver: Boolean = false
 
     @Expose
     @ConfigOption(name = "Mob Dead Warning", desc = "Show a message when Trevor's mob dies.")
