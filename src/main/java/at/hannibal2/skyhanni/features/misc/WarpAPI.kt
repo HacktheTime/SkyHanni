@@ -13,24 +13,27 @@ import kotlin.time.Duration.Companion.seconds
 object WarpAPI {
     @Suppress("DEPRECATION")
     fun warp(warp: String) {
+        lastWarp = SimpleTimeMark.now()
         HypixelCommands.warp(warp)
     }
 
     val offCooldown: Boolean get() = lastWarp.passedSince() > 3.seconds
     var lastWarp = SimpleTimeMark.farPast()
+    var lastWarpArg = ""
+    var lastIslandInternalWarp = SimpleTimeMark.farPast()
 
     /**
      * Warps when off Cooldown.
      */
     fun warpOffCooldown(warp: String) {
         val passedSince = lastWarp.passedSince()
-        if (passedSince < 3.seconds) {
+        if (passedSince > 3.seconds || (lastWarpArg == warp)) {
+            warp(warp)
+        } else {
             SkyHanniMod.launchCoroutine("WarpAPI.warpOffCooldown: $warp") {
                 delay(3.seconds - passedSince)
                 warp(warp)
             }
-        } else {
-            warp(warp)
         }
 
     }
@@ -38,6 +41,7 @@ object WarpAPI {
     @HandleEvent
     fun onIslandChange(event: IslandChangeEvent) {
         lastWarp = SimpleTimeMark.now()
+        lastIslandInternalWarp = SimpleTimeMark.farPast()
     }
 
     fun setWarpCooldown() {
