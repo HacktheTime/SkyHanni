@@ -28,6 +28,7 @@ import at.hannibal2.skyhanni.utils.toLorenzVec
 import net.minecraft.client.player.RemotePlayer
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.level.block.Blocks
+import org.apache.commons.lang3.DoubleRange
 import java.awt.Color
 import kotlin.math.cos
 import kotlin.math.sin
@@ -108,14 +109,14 @@ object TrevorSolver {
         val playerPosition = LocationUtils.playerLocation()
         val playerHight = playerPosition.y.toInt()
         //3 allowed range since is probably rounded 2 and to ease rounding errors client side.
-        val hightRange = ((height - 3) + playerHight)..((height + 3) + playerHight)
-        val yawRange = (angle - 3)..(angle + 3)
+        val hightRange = ((height - 2.5) + playerHight)..((height + 2.5) + playerHight)
+        val yawRange = (angle - 2.5)..(angle + 2.5)
         addTheoTip(TheodoliteTip(playerPosition, hightRange, yawRange))
     }
 
     fun addExactTheoTip() {
         val playerPosition = LocationUtils.playerLocation().roundTo(2)
-        addTheoTip(TheodoliteTip(playerPosition, playerPosition.y.toInt().let { it..it }, null))
+        addTheoTip(TheodoliteTip(playerPosition, playerPosition.y.let { it..it }, null))
     }
 
     /**
@@ -130,7 +131,7 @@ object TrevorSolver {
         activeTheodoliteTips.removeIf {
             val currentHighRange = it.hightRange
 
-            val outOfScope = currentHighRange.first > newHightRange.last || currentHighRange.last < newHightRange.first
+            val outOfScope = currentHighRange.minimum > newHightRange.maximum || currentHighRange.maximum < newHightRange.minimum
             if (outOfScope){
                 triangleOnlyTheodoliteTips.add(newTip)
             }
@@ -147,8 +148,8 @@ object TrevorSolver {
 
     private data class TheodoliteTip(
         val playerPosition: LorenzVec,
-        val hightRange: IntRange,
-        val yawRange: IntRange?,
+        val hightRange: DoubleRange,
+        val yawRange: DoubleRange?,
     ){
         /**
          * Uses vector calculation of player position and yaw range to calculate a possible distance range to the mob. Since the yaw range is not exact, it calculates the distance for both ends of the yaw range and uses the min and max of those as distance range.
@@ -158,12 +159,12 @@ object TrevorSolver {
             // hightRange stores absolute world Y; we need the magnitude of the relative delta.
             // The sign only encodes above/below — horizontal distance is always positive.
             val playerY = playerPosition.y.toInt()
-            val relA = Math.abs(hightRange.first - playerY)
-            val relB = Math.abs(hightRange.last - playerY)
+            val relA = Math.abs(hightRange.minimum - playerY)
+            val relB = Math.abs(hightRange.maximum - playerY)
             val minRelHight = minOf(relA, relB)
             val maxRelHight = maxOf(relA, relB)
-            val minYaw = yawRange.first
-            val maxYaw = yawRange.last
+            val minYaw = yawRange.minimum
+            val maxYaw = yawRange.maximum
             val distances = listOf(
                 calculateDistance(minRelHight, minYaw),
                 calculateDistance(minRelHight, maxYaw),
@@ -172,12 +173,12 @@ object TrevorSolver {
             )
             val minDistance = distances.min()
             val maxDistance = distances.max()
-            return@lazy minDistance - 10..maxDistance + 10
+            return@lazy minDistance ..maxDistance
         }
 
         companion object {
-            private fun calculateDistance(hight: Int, yaw: Int): Int {
-                val yawInRadians = Math.toRadians(yaw.toDouble())
+            private fun calculateDistance(hight: Double, yaw: Double): Int {
+                val yawInRadians = Math.toRadians(yaw)
                 val horizontalDistance = hight / Math.tan(yawInRadians)
                 return horizontalDistance.toInt()
             }
@@ -206,12 +207,12 @@ object TrevorSolver {
 
         // Determine the height to sample at — the narrowest overlapping Y range of active tips
         val activeHeightRange = run {
-            val minY = activeTheodoliteTips.maxOf { it.hightRange.first }
-            val maxY = activeTheodoliteTips.minOf { it.hightRange.last }
+            val minY = activeTheodoliteTips.maxOf { it.hightRange.minimum }
+            val maxY = activeTheodoliteTips.minOf { it.hightRange.maximum }
             if (minY <= maxY) minY..maxY else null
         }
-        val sampleY = activeHeightRange?.let { (it.first + it.last) / 2.0 }
-            ?: activeTheodoliteTips.map { (it.hightRange.first + it.hightRange.last) / 2.0 }.average()
+        val sampleY = activeHeightRange?.let { (it.minimum + it.maximum) / 2.0 }
+            ?: activeTheodoliteTips.map { (it.hightRange.minimum + it.hightRange.maximum) / 2.0 }.average()
 
         // Build the search bounds as the union of each tip's own bounding box
         // so we never search outside where any tip can reach
@@ -351,8 +352,8 @@ object TrevorSolver {
      */
     private fun drawTheoTipRings(event: SkyHanniRenderWorldEvent, tip: TheodoliteTip, color: Color) {
         val distRange = tip.distance
-        val minY = tip.hightRange.first.toDouble()
-        val maxY = tip.hightRange.last.toDouble()
+        val minY = tip.hightRange.minimum.toDouble()
+        val maxY = tip.hightRange.maximum.toDouble()
         val midY = (minY + maxY) / 2.0
         val origin = tip.playerPosition
 
@@ -401,4 +402,6 @@ object TrevorSolver {
         val distDesc = "Dist=${distRange.first}–${distRange.last}m"
         event.drawDynamicText(labelPos, "§e$heightDesc §7$distDesc", 1.0)
     }
+
+    operator fun Double.rangeTo(other: Double): DoubleRange = DoubleRange.of(this, other)
 }
