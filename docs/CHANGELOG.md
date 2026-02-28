@@ -4,12 +4,9 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- fixed an issue with bb splash announcements if it contained a valid server id.
-- fixed splash double warp not working
-- added navigate to splash option
-  - Note that this is not fully functional yet since the splash locations arent known.
-- Added a variety of useful utils for splash brewing.
-- improved several aspects causing issues with bn being an sh fork such as ingame updater etc.
+- Added default BB Splash location data
+- Changed Custom Wardrobe to be disabled on bingo by default (bingo disable override in events→bingo)
+- Trevor Feature Upgrades like Chat Prompt for Warps and Theodolite Triangulation 
 
 ## Static Info for modrinth:
 
