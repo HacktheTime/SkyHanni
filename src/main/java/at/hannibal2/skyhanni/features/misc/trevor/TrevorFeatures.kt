@@ -165,11 +165,13 @@ object TrevorFeatures {
 
         talbotPatternAbove.matchMatcher(formattedMessage) {
             val height = group("height").toInt()
-            TrevorSolver.findMobHeight(height, true)
+            val angle = group("angle").toInt()
+            TrevorSolver.addTheoTip(height, angle)
         }
         talbotPatternBelow.matchMatcher(formattedMessage) {
-            val height = group("height").toInt()
-            TrevorSolver.findMobHeight(height, false)
+            val height = -(group("height").toInt())
+            val angle = group("angle").toInt()
+            TrevorSolver.addTheoTip(height, angle)
         }
         talbotPatternAt.matchMatcher(formattedMessage) {
             TrevorSolver.averageHeight = LocationUtils.playerLocation().y
