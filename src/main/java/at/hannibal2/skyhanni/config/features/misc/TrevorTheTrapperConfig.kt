@@ -5,7 +5,6 @@ import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList
-import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import org.lwjgl.glfw.GLFW
@@ -79,18 +78,29 @@ class TrevorTheTrapperConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     var solver: Boolean = true
+    @Expose
+    @ConfigOption(
+        name = "Trapper Solver Tracer",
+        desc = "Shows a Tracer to the location found by the solver.",
+    )
+    @ConfigEditorBoolean
+    var solverTracer = true
+
+    @Expose
+    @ConfigOption(
+        name = "Trapper Solver (Theodolite Edition)",
+        desc = "Shows the Areas the mob could be in by triangulating Theodolite results. May be expensive in Performance on lower end " +
+            "systems. §cAlso not the prettiest."
+    )
+    @ConfigEditorBoolean
+    @FeatureToggle
+    var theodoliteSolver: Boolean = false
 
     @Expose
     @ConfigOption(name = "Mob Dead Warning", desc = "Show a message when Trevor's mob dies.")
     @ConfigEditorBoolean
     @FeatureToggle
     var mobDiedMessage: Boolean = true
-
-    @Expose
-    @ConfigOption(name = "Warp to Trapper", desc = "Warp to Trevor's Den. Works only inside the Farming Islands.")
-    @ConfigEditorBoolean
-    @FeatureToggle
-    var warpToTrapper: Boolean = false
 
     @Expose
     @ConfigOption(
@@ -100,15 +110,6 @@ class TrevorTheTrapperConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     var acceptQuest: Boolean = false
-
-    @Expose
-    @ConfigOption(
-        name = "Trapper Hotkey",
-        desc = "Press this key to warp to Trevor's Den or to accept the quest. " +
-            "§eRequires the relevant above settings to be toggled"
-    )
-    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
-    var keyBind: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
     @ConfigOption(name = "Trapper Cooldown", desc = "Change the color of Trevor and adds a cooldown over his head.")
