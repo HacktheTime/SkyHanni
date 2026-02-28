@@ -15,7 +15,7 @@ object ArachneOnDeathWarp {
     private val config get() = SkyHanniMod.feature.combat.mobs
 
     @HandleEvent(onlyOnIsland = IslandType.SPIDER_DEN)
-    fun onChatMessage(event: PlayerDeathEvent){
+    fun onChatMessage(event: PlayerDeathEvent.Allow){
         if (!event.isSelf || !config.chatPromptArachneWarpOnDeath) return
         if (event.reason.contains("Arachne")) {
             ChatUtils.chatPrompt(

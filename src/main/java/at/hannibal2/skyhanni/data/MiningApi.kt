@@ -21,7 +21,6 @@ import at.hannibal2.skyhanni.utils.BlockUtils.getBlockStateAt
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.NumberUtil.formatInt
-import at.hannibal2.skyhanni.utils.PlayerUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.firstMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.groupOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
@@ -280,7 +279,7 @@ object MiningApi {
     }
 
     @HandleEvent
-    fun onPlayerDeath(event: PlayerDeathEvent) {
+    fun onPlayerDeath(event: PlayerDeathEvent.Allow) {
         if (event.isSelf) {
             updateCold(0)
             updateHeat(0)

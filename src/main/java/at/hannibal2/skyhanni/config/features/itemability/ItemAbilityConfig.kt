@@ -44,6 +44,11 @@ class ItemAbilityConfig {
     val crownOfAvarice: CrownOfAvariceConfig = CrownOfAvariceConfig()
 
     @Expose
+    @ConfigOption(name = "Fire Freeze", desc = "")
+    @Accordion
+    val fireFreeze: FireFreezeConfig = FireFreezeConfig()
+
+    @Expose
     @ConfigOption(
         name = "Depleted Bonzo's Masks",
         desc = "Highlight used Bonzo's Masks and Spirit Masks with a background.",

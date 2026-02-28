@@ -40,7 +40,7 @@ object PlayerUtils {
 
     fun getName(): String {
         val player = MinecraftCompat.localPlayerOrNull ?: return Minecraft.getInstance().gameProfile.name
-        return player.name.string
+        return player.plainTextName
     }
 
     fun inAir(): Boolean = !MinecraftCompat.localPlayer.onGround()
