@@ -72,7 +72,7 @@ object BingoBrewersClient {
             client.connect(10000, "bingobrewers.com", 8282, 7070)
             this.client = client
             val response = BingoBrewersPackets.ConnectionIgn()
-            response.hello = "${'$'}{PlayerUtils.getName()}|v0.3.8|Beta|${'$'}{PlayerUtils.getUuid()}"
+            response.hello = "${PlayerUtils.getName()}|v0.3.8|Beta|${PlayerUtils.getUuid()}"
             println("Sending BingoBrewers Hello " + response.hello)
             client.sendTCP(response)
             reconnectJob?.cancel()
