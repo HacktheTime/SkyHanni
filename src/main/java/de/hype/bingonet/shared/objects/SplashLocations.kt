@@ -2,7 +2,7 @@ package de.hype.bingonet.shared.objects
 
 object SplashLocations {
     val HUB_SELECTOR: SplashLocation = SplashLocation("Hub Selector Corner", -9, 70, -21)
-    val BB_MAP: SplashLocation = SplashLocation("Map", -6, 70, -6)
+    val BB_MAP: SplashLocation = SplashLocation("Map", 6, 69, -6)
 
 
     @JvmStatic
