@@ -9,28 +9,26 @@ import at.hannibal2.skyhanni.utils.AllEntitiesGetter
 import at.hannibal2.skyhanni.utils.BlockUtils.getBlockAt
 import at.hannibal2.skyhanni.utils.BlockUtils.isInLoadedChunk
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
-import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
-import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.EntityUtils.baseMaxHealth
 import at.hannibal2.skyhanni.utils.EntityUtils.canBeSeen
 import at.hannibal2.skyhanni.utils.LocationUtils
+import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
+import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.compat.EffectsCompat
 import at.hannibal2.skyhanni.utils.compat.EffectsCompat.Companion.hasPotionEffect
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
-import at.hannibal2.skyhanni.utils.render.LineDrawer
-import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.toLorenzVec
 import net.minecraft.client.player.RemotePlayer
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.level.block.Blocks
 import java.awt.Color
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.abs
+import kotlin.math.tan
 
 object TrevorSolver {
 
@@ -45,8 +43,11 @@ object TrevorSolver {
     var averageHeight = (minHeight + maxHeight) / 2
 
     private val activeTheodoliteTips = mutableListOf<TheodoliteTip>()
-    private val triangleOnlyTheodoliteTips = mutableListOf<TheodoliteTip>()
+    private val theodoliteTipsWithOutdatedY = mutableListOf<TheodoliteTip>()
     private var questStartTime: SimpleTimeMark = SimpleTimeMark.farPast()
+
+    private val cellCounts = mutableMapOf<LorenzVec, Int>()
+    private var maxCount = 0
 
     // TODO: use entity events
     @OptIn(AllEntitiesGetter::class)
@@ -113,43 +114,40 @@ object TrevorSolver {
         addTheoTip(TheodoliteTip(playerPosition, hightRange, yawRange))
     }
 
-    fun addExactTheoTip() {
-        val playerPosition = LocationUtils.playerLocation().roundTo(2)
-        addTheoTip(TheodoliteTip(playerPosition, playerPosition.y.toInt().let { it..it }, null))
-    }
-
     /**
      * This method checks all existing theodolite tips and removes the ones that are not possible anymore with the new tip. Only then it
      * adds the new tip to the list.
      */
     private fun addTheoTip(newTip: TheodoliteTip) {
-        if (activeTheodoliteTips.isEmpty() && triangleOnlyTheodoliteTips.isEmpty()) {
+        if (activeTheodoliteTips.isEmpty() && theodoliteTipsWithOutdatedY.isEmpty()) {
             questStartTime = SimpleTimeMark.now()
         }
-        val newHightRange = newTip.hightRange
+        val newHeightRange = newTip.heightRange
         activeTheodoliteTips.removeIf {
-            val currentHighRange = it.hightRange
+            val currentHighRange = it.heightRange
 
-            val outOfScope = currentHighRange.first > newHightRange.last || currentHighRange.last < newHightRange.first
+            val outOfScope = currentHighRange.first > newHeightRange.last || currentHighRange.last < newHeightRange.first
             if (outOfScope){
-                triangleOnlyTheodoliteTips.add(newTip)
+                theodoliteTipsWithOutdatedY.add(newTip)
             }
             return@removeIf outOfScope
         }
         activeTheodoliteTips.add(newTip)
+        computePossibleLocations()
     }
 
     fun resetTheoTips() {
         activeTheodoliteTips.clear()
-        triangleOnlyTheodoliteTips.clear()
+        theodoliteTipsWithOutdatedY.clear()
         questStartTime = SimpleTimeMark.farPast()
+        computePossibleLocations()
     }
 
     private data class TheodoliteTip(
         val playerPosition: LorenzVec,
-        val hightRange: IntRange,
+        val heightRange: IntRange,
         val yawRange: IntRange?,
-    ){
+    ) {
         /**
          * Uses vector calculation of player position and yaw range to calculate a possible distance range to the mob. Since the yaw range is not exact, it calculates the distance for both ends of the yaw range and uses the min and max of those as distance range.
          */
@@ -158,17 +156,17 @@ object TrevorSolver {
             // hightRange stores absolute world Y; we need the magnitude of the relative delta.
             // The sign only encodes above/below — horizontal distance is always positive.
             val playerY = playerPosition.y.toInt()
-            val relA = Math.abs(hightRange.first - playerY)
-            val relB = Math.abs(hightRange.last - playerY)
-            val minRelHight = minOf(relA, relB)
-            val maxRelHight = maxOf(relA, relB)
+            val relA = abs(heightRange.first - playerY)
+            val relB = abs(heightRange.last - playerY)
+            val minRelHeight = minOf(relA, relB)
+            val maxRelHeight = maxOf(relA, relB)
             val minYaw = yawRange.first
             val maxYaw = yawRange.last
             val distances = listOf(
-                calculateDistance(minRelHight, minYaw),
-                calculateDistance(minRelHight, maxYaw),
-                calculateDistance(maxRelHight, minYaw),
-                calculateDistance(maxRelHight, maxYaw),
+                calculateDistance(minRelHeight, minYaw),
+                calculateDistance(minRelHeight, maxYaw),
+                calculateDistance(maxRelHeight, minYaw),
+                calculateDistance(maxRelHeight, maxYaw),
             )
             val minDistance = distances.min()
             val maxDistance = distances.max()
@@ -176,84 +174,17 @@ object TrevorSolver {
         }
 
         companion object {
-            private fun calculateDistance(hight: Int, yaw: Int): Int {
+            private fun calculateDistance(height: Int, yaw: Int): Int {
                 val yawInRadians = Math.toRadians(yaw.toDouble())
-                val horizontalDistance = hight / Math.tan(yawInRadians)
+                val horizontalDistance = height / tan(yawInRadians)
                 return horizontalDistance.toInt()
             }
         }
     }
 
     fun renderWorld(event: SkyHanniRenderWorldEvent) {
-        if (activeTheodoliteTips.isEmpty() && triangleOnlyTheodoliteTips.isEmpty()) return
+        if (activeTheodoliteTips.isEmpty() && theodoliteTipsWithOutdatedY.isEmpty()) return
 
-        val activeTipColor = LorenzColor.YELLOW.toColor().addAlpha(180)
-        val triangleOnlyColor = LorenzColor.GOLD.toColor().addAlpha(100)
-
-        // Draw each active theodolite tip as an annulus ring (inner + outer radius circles)
-        for (tip in activeTheodoliteTips) {
-            drawTheoTipRings(event, tip, activeTipColor)
-        }
-
-        // Draw triangle-only tips dimmer
-        for (tip in triangleOnlyTheodoliteTips) {
-            drawTheoTipRings(event, tip, triangleOnlyColor)
-        }
-
-        // Only grid-sample using tips that have distance data
-        val tipsWithDistance = activeTheodoliteTips.filter { it.distance != null }
-        if (tipsWithDistance.isEmpty()) return
-
-        // Determine the height to sample at — the narrowest overlapping Y range of active tips
-        val activeHeightRange = run {
-            val minY = activeTheodoliteTips.maxOf { it.hightRange.first }
-            val maxY = activeTheodoliteTips.minOf { it.hightRange.last }
-            if (minY <= maxY) minY..maxY else null
-        }
-        val sampleY = activeHeightRange?.let { (it.first + it.last) / 2.0 }
-            ?: activeTheodoliteTips.map { (it.hightRange.first + it.hightRange.last) / 2.0 }.average()
-
-        // Build the search bounds as the union of each tip's own bounding box
-        // so we never search outside where any tip can reach
-        val step = 3 // grid resolution in blocks
-        var searchMinX = Int.MAX_VALUE
-        var searchMaxX = Int.MIN_VALUE
-        var searchMinZ = Int.MAX_VALUE
-        var searchMaxZ = Int.MIN_VALUE
-        for (tip in tipsWithDistance) {
-            val r = (tip.distance!!.last).coerceAtMost(300)
-            val ox = tip.playerPosition.x.toInt()
-            val oz = tip.playerPosition.z.toInt()
-            if (ox - r < searchMinX) searchMinX = ox - r
-            if (ox + r > searchMaxX) searchMaxX = ox + r
-            if (oz - r < searchMinZ) searchMinZ = oz - r
-            if (oz + r > searchMaxZ) searchMaxZ = oz + r
-        }
-
-        // Count how many tips' annuli each grid cell falls into, keep track of max
-        val cellCounts = mutableMapOf<LorenzVec, Int>()
-        var maxCount = 0
-
-        var x = searchMinX
-        while (x <= searchMaxX) {
-            var z = searchMinZ
-            while (z <= searchMaxZ) {
-                // Use block-center coordinates (+0.5) for a more accurate distance check
-                val cx = x + 0.5
-                val cz = z + 0.5
-                val surfaceY = findSurfaceY(x, sampleY.toInt(), z, scanRange = 16)
-                if (surfaceY != null) {
-                    val testPos = LorenzVec(cx, surfaceY.toDouble(), cz)
-                    val count = tipsWithDistance.count { tip -> isWithinTipAnnulus(testPos, tip) }
-                    if (count > 0) {
-                        cellCounts[testPos] = count
-                        if (count > maxCount) maxCount = count
-                    }
-                }
-                z += step
-            }
-            x += step
-        }
 
         if (cellCounts.isEmpty()) return
 
@@ -296,12 +227,63 @@ object TrevorSolver {
             val color = heatColors[offset]
             event.drawWaypointFilled(pos, color, seeThroughBlocks = true, extraSize = 0.2)
         }
+    }
 
-        // Label the centroid of the best (most-overlapping) cells
-        if (bestCells.isNotEmpty() && bestCentroid != null) {
-            val labelPos = LorenzVec(bestCentroid.x, bestCentroid.y + 2.5, bestCentroid.z)
-            val label = if (maxCount >= 2) "§aBest Match (×$maxCount)" else "§ePossible Area"
-            event.drawDynamicText(labelPos, label, 1.5)
+    private fun computePossibleLocations() {
+        // Only grid-sample using tips that have distance data
+        val tipsWithDistance = activeTheodoliteTips.filter { it.distance != null }
+        if (tipsWithDistance.isEmpty()) return
+
+        // Determine the height to sample at — the narrowest overlapping Y range of active tips
+        val activeHeightRange = run {
+            val minY = activeTheodoliteTips.maxOf { it.heightRange.first }
+            val maxY = activeTheodoliteTips.minOf { it.heightRange.last }
+            if (minY <= maxY) minY..maxY else null
+        }
+        val sampleY = activeHeightRange?.let { (it.first + it.last) / 2.0 }
+            ?: activeTheodoliteTips.map { (it.heightRange.first + it.heightRange.last) / 2.0 }.average()
+
+
+        // Build the search bounds as the union of each tip's own bounding box
+        // so we never search outside where any tip can reach
+        val step = 2 // grid resolution in blocks
+        var searchMinX = Int.MAX_VALUE
+        var searchMaxX = Int.MIN_VALUE
+        var searchMinZ = Int.MAX_VALUE
+        var searchMaxZ = Int.MIN_VALUE
+        for (tip in tipsWithDistance) {
+            val r = (tip.distance!!.last).coerceAtMost(300)
+            val ox = tip.playerPosition.x.toInt()
+            val oz = tip.playerPosition.z.toInt()
+            if (ox - r < searchMinX) searchMinX = ox - r
+            if (ox + r > searchMaxX) searchMaxX = ox + r
+            if (oz - r < searchMinZ) searchMinZ = oz - r
+            if (oz + r > searchMaxZ) searchMaxZ = oz + r
+        }
+
+        // Count how many tips' annuli each grid cell falls into, keep track of max
+        cellCounts.clear()
+        maxCount = 0
+
+        var x = searchMinX
+        while (x <= searchMaxX) {
+            var z = searchMinZ
+            while (z <= searchMaxZ) {
+                // Use block-center coordinates (+0.5) for a more accurate distance check
+                val cx = x + 0.5
+                val cz = z + 0.5
+                val surfaceY = findSurfaceY(x, sampleY.toInt(), z, scanRange = 16)
+                if (surfaceY != null) {
+                    val testPos = LorenzVec(cx, surfaceY.toDouble(), cz)
+                    val count = tipsWithDistance.count { tip -> isWithinTipAnnulus(testPos, tip) }
+                    if (count > 0) {
+                        cellCounts[testPos] = count
+                        if (count > maxCount) maxCount = count
+                    }
+                }
+                z += step
+            }
+            x += step
         }
     }
 
@@ -343,62 +325,5 @@ object TrevorSolver {
             }
         }
         return null
-    }
-
-    /**
-     * Draws the inner and outer boundary circles for a [TheodoliteTip], plus vertical walls to show the height range.
-     * If the tip has no distance info (exact height match), just draws a small cross at the player position.
-     */
-    private fun drawTheoTipRings(event: SkyHanniRenderWorldEvent, tip: TheodoliteTip, color: Color) {
-        val distRange = tip.distance
-        val minY = tip.hightRange.first.toDouble()
-        val maxY = tip.hightRange.last.toDouble()
-        val midY = (minY + maxY) / 2.0
-        val origin = tip.playerPosition
-
-        if (distRange == null) {
-            // Exact height tip — draw a cross/waypoint at the player position
-            event.drawWaypointFilled(LorenzVec(origin.x, midY, origin.z), color, seeThroughBlocks = true)
-            event.drawDynamicText(LorenzVec(origin.x, midY + 1.5, origin.z), "§eExact Height", 1.2)
-            return
-        }
-
-        val minRadius = distRange.first.toDouble().coerceAtLeast(1.0)
-        val maxRadius = distRange.last.toDouble()
-
-        val segments = 48
-
-        // Draw two circles (inner and outer) at the mid-height
-        LineDrawer.draw3D(event, 2, false) {
-            for (i in 0 until segments) {
-                val angle1 = 2.0 * Math.PI * i / segments
-                val angle2 = 2.0 * Math.PI * (i + 1) / segments
-
-                // Outer ring at midY
-                val ox1 = LorenzVec(origin.x + maxRadius * cos(angle1), midY, origin.z + maxRadius * sin(angle1))
-                val ox2 = LorenzVec(origin.x + maxRadius * cos(angle2), midY, origin.z + maxRadius * sin(angle2))
-                draw3DLine(ox1, ox2, color)
-
-                // Inner ring at midY (only if meaningful radius)
-                if (minRadius > 2.0) {
-                    val ix1 = LorenzVec(origin.x + minRadius * cos(angle1), midY, origin.z + minRadius * sin(angle1))
-                    val ix2 = LorenzVec(origin.x + minRadius * cos(angle2), midY, origin.z + minRadius * sin(angle2))
-                    draw3DLine(ix1, ix2, color)
-                }
-
-                // Draw vertical connectors every 12 segments to show height range
-                if (i % 12 == 0) {
-                    val oxBottom = LorenzVec(origin.x + maxRadius * cos(angle1), minY, origin.z + maxRadius * sin(angle1))
-                    val oxTop = LorenzVec(origin.x + maxRadius * cos(angle1), maxY, origin.z + maxRadius * sin(angle1))
-                    draw3DLine(oxBottom, oxTop, color)
-                }
-            }
-        }
-
-        // Label the tip with its height and distance ranges
-        val labelPos = LorenzVec(origin.x + maxRadius * 0.5, midY + 2.0, origin.z)
-        val heightDesc = if (minY == maxY) "Y=${minY.toInt()}" else "Y=${minY.toInt()}–${maxY.toInt()}"
-        val distDesc = "Dist=${distRange.first}–${distRange.last}m"
-        event.drawDynamicText(labelPos, "§e$heightDesc §7$distDesc", 1.0)
     }
 }

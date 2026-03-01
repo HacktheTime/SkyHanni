@@ -3,6 +3,8 @@ package at.hannibal2.skyhanni.features.misc.trevor
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
+import at.hannibal2.skyhanni.config.commands.CommandCategory
+import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.Perk
 import at.hannibal2.skyhanni.data.mob.MobData
@@ -17,7 +19,6 @@ import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.events.skyblock.GraphAreaChangeEvent
 import at.hannibal2.skyhanni.mixins.hooks.RenderLivingEntityHelper
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -371,5 +372,14 @@ object TrevorFeatures {
         event.move(95, "$base.trapperReadyTitle", "$base.readyTitle")
         event.move(95, "$base.trapperCooldownGui", "$base.cooldownGui")
         event.move(95, "$base.trapperCooldownGuiPosition", "$base.cooldownGuiPosition")
+    }
+
+    @HandleEvent
+    fun onCommandRegistration(event: CommandRegistrationEvent) {
+        event.registerBrigadier("shresettheotips") {
+            description = "Reset the theodolite solver"
+            category = CommandCategory.USERS_RESET
+            simpleCallback { TrevorSolver.resetTheoTips() }
+        }
     }
 }
