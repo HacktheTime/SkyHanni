@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetSystem
 import at.hannibal2.skyhanni.data.model.TextInput
 import at.hannibal2.skyhanni.data.repo.ChatProgressUpdates
 import at.hannibal2.skyhanni.features.misc.discordrpc.DiscordRPCManager
+import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.MojangUtils
@@ -211,45 +212,50 @@ class BNRegistrationScreen(
         fun openHelper() {
             SkyHanniMod.launchCoroutine("Opening BN Registration Helper") {
                 val isStarted = DiscordRPCManager.isStarted()
-                SkyHanniMod.launchCoroutine("Starting Discord RPC for BN Registration") {
-                    if (!isStarted || !DiscordRPCManager.isConnected()) {
-                        ChatUtils.chat("Starting Rich Presence to obtain Discord User ID and Username.")
-                        DiscordRPCManager.start(
-                            progress = discordRPCChatProgressCategory.start("BN Registration Discord auto detect"),
-                            false,
-                        )
+                var userId: String? = null
+                var username: String? = null
+                try {
+                    SkyHanniMod.launchCoroutine("Starting Discord RPC for BN Registration") {
+                        if (!isStarted || !DiscordRPCManager.isConnected()) {
+                            ChatUtils.chat("Starting Rich Presence to obtain Discord User ID and Username.")
+                            DiscordRPCManager.start(
+                                progress = discordRPCChatProgressCategory.start("BN Registration Discord auto detect"),
+                                false,
+                            )
+                        }
+                        DiscordRPCManager.getSelfUser()
                     }
-                    DiscordRPCManager.getSelfUser()
-                }
-                sleep(5000)
-                val userId = DiscordRPCManager.getDiscordUserId()
-                val username = DiscordRPCManager.getDiscordUsername()
-                val hasDiscordAvailable = userId != null && username != null
-                if (hasDiscordAvailable) {
-                    ChatUtils.clickableChat(
-                        "§cYou are not registered in the Bingo Net Network. Click here to open the Registration Screen",
-                        {
-                            SkyHanniMod.screenToOpen =
-                                BNRegistrationScreen(userId, username)
-                        },
-                    )
-                } else {
-                    ChatUtils.chat(
-                        "Could not obtain Discord User ID or Username. Falling back to website Registration. " +
-                            "You may retry execution after starting Discord if it wasn't.",
-                    )
-                    ChatUtils.clickableChat(
-                        "§cYou are not registered in the Bingo Net Network." +
-                            " Click here to open the Discord Invite and follow the Bot DM instructions " +
-                            "(Will lead you to the correct place IN THE SERVER!)",
-                        {
-                            OSUtils.openBrowser("https://hackthetime.de/discord")
-                        },
+                    sleep(5000)
+                    userId = DiscordRPCManager.getDiscordUserId()
+                    username = DiscordRPCManager.getDiscordUsername()
+                    val hasDiscordAvailable = userId != null && username != null
+                    if (hasDiscordAvailable) {
+                        ChatUtils.clickableChat(
+                            "§cYou are not registered in the Bingo Net Network. Click here to open the Registration Screen",
+                            {
+                                SkyHanniMod.screenToOpen =
+                                    BNRegistrationScreen(userId, username)
+                            },
+                        )
+                        DiscordRPCManager.stop()
+                        return@launchCoroutine
+                    }
+                } catch (t: Throwable) {
+                    ErrorManager.logErrorWithData(
+                        t,
+                        "Failed to obtain Discord User ID and Username for prefill. Falling back to manual.",
                     )
                 }
-                if (!isStarted) {
-                    DiscordRPCManager.stop()
-                }
+
+                ChatUtils.clickableChat(
+                    "§cYou are not registered in the Bingo Net Network." +
+                        " Click here to open the Discord Invite and follow the Instructions. Our Bot will send a DM with instructions, BUT" +
+                        " the process is handled IN THE SERVER. The Bot will only inform you where to go and NOT handle it in the DMs. ",
+                    {
+                        OSUtils.openBrowser("https://hackthetime.de/discord")
+                    },
+                )
+                DiscordRPCManager.stop()
             }
         }
     }
