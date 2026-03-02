@@ -10,7 +10,7 @@ class SkyHanniModLoader : ModInitializer {
     override fun onInitialize() {
         val modsDir = File(FabricLoader.getInstance().gameDir.toFile(),"./mods")
         if (modsDir.listFiles().count {
-            it.name.contains("bingonet",true) || it.name.contains("skyhanni",true)
+                (it.name.contains("bingonet",true) || it.name.contains("skyhanni",true)) && it.name.endsWith(".jar",true)
         } >= 2) throw IllegalStateException("It seems like you have multiple versions of SkyHanni and/or BingoNet installed. Please " +
             "remove the duplicate SkyHanni version. (Bingo Net is an Fork of SkyHanni with additional Features but same mod id,...)")
         SkyHanniMod.preInit()
