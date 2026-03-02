@@ -138,7 +138,7 @@ object BingoBrewersPackets {
                 )
             }
             if (splashLocation == null || location?.contains("Map") == true) {
-                splashLocation = SplashLocations.BB_MAP
+                splashLocation = SplashLocations.MAP_BB
             }
             val extraMessage = if (note != null) java.lang.String.join("\n", note) else ""
             var hubSelectorData: SplashData.HubSelectorData? = null
