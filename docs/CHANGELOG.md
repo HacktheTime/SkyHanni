@@ -4,10 +4,7 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Changes BB Splash Location to other side since early info was off
-- Fixed Bingo Brewers Client Not working properly due to variables not being isnerted properly
-
--# Note that the old BSC Server got discontinued and has to be updated to the new BSC Mod
+Bug fixes only.
 
 ## Static Info for modrinth:
 
