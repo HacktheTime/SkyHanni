@@ -2,7 +2,6 @@ package at.hannibal2.skyhanni.config.features.event.bingo
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.ConfigFileType
-import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.renderables.Renderable
@@ -12,8 +11,6 @@ import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRender
 import at.hannibal2.skyhanni.utils.renderables.primitives.WrappedStringRenderable.Companion.wrappedText
 import at.hannibal2.skyhanni.data.model.TextInput
 import at.hannibal2.skyhanni.utils.RenderUtils
-import at.hannibal2.skyhanni.utils.renderables.primitives.WrappedStringRenderable
-import sun.awt.X11.XConstants.buttons
 
 /**
  * Simple screen to configure the Bingo Brewers splash message stored in SplasherConfig.bbSplashMessage
