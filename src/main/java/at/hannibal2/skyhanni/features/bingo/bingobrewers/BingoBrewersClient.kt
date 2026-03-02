@@ -150,13 +150,16 @@ object BingoBrewersClient {
     @HandleEvent
     fun commandRegistration(event: CommandRegistrationEvent) {
         event.registerBrigadier(
-            "bingobrewersreconnect",
+            "bingobrewers",
             {
                 category = CommandCategory.BINGO_NET
                 description = "Reload the Bingo Brewers Client"
                 literalCallback("reconnect"){
                     stop()
                     scheduleReconnect()
+                }
+                callback {
+                    ChatUtils.chat("§cMissing Argument!")
                 }
                 literalCallback("stop"){
                     stop()
