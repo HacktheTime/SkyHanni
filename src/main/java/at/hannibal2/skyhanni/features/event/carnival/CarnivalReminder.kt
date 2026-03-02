@@ -4,9 +4,11 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.EntityMovementData
 import at.hannibal2.skyhanni.data.IslandGraphs
+import at.hannibal2.skyhanni.data.IslandGraphs.pathFind
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.Perk
 import at.hannibal2.skyhanni.data.ProfileStorageData
+import at.hannibal2.skyhanni.data.model.GraphNodeTag
 import at.hannibal2.skyhanni.events.ProfileJoinEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
@@ -15,7 +17,6 @@ import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
-import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SimpleTimeMark.Companion.fromNow
@@ -100,7 +101,10 @@ object CarnivalReminder {
             action = {
                 WarpAPI.warp("carnival")
                 EntityMovementData.onNextTeleport(IslandType.HUB) {
-                    IslandGraphs.pathFind(LorenzVec(-89.5, 71.0, -18.7), "§aCarnival Tickets", condition = { config.reminderDailyTickets })
+                    IslandGraphs.node("Carnival Leader", GraphNodeTag.NPC).pathFind(
+                        label = "§aCarnival Tickets",
+                        condition = { config.reminderDailyTickets },
+                    )
                 }
             },
         )

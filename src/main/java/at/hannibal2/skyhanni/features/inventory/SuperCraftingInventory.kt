@@ -16,7 +16,6 @@ import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.ItemUtils.getSingleLineLore
 import at.hannibal2.skyhanni.utils.KeyboardManager
-import at.hannibal2.skyhanni.utils.MobUtils.mob
 import at.hannibal2.skyhanni.utils.NumberUtil.formatLongOrNull
 import at.hannibal2.skyhanni.utils.PrimitiveItemStack
 import at.hannibal2.skyhanni.utils.PrimitiveItemStack.Companion.toPrimitiveStackOrNull
@@ -26,7 +25,6 @@ import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPatternGroup
-import net.minecraft.client.Minecraft
 import net.minecraft.world.inventory.Slot
 import kotlin.time.Duration.Companion.seconds
 
@@ -91,8 +89,13 @@ object SuperCraftingInventory {
         if (event.slotId != PICKAXE_SLOT) return
         val slots = InventoryUtils.getItemsInOpenChestWithNull()
         val craftingAmount = getSuperCraftingCount(slots) ?: return
-        val craftMultiplier = getResultItem(slots).amount
-        val profit = getProfit(slots, craftingAmount, craftMultiplier) ?: return
+        val result = getResultItem(slots)
+        val craftMultiplier = result.amount
+        if (craftMultiplier == 0) ErrorManager.skyHanniError(
+            "Result item amount is 0",
+            "item" to result,
+        )
+        val profit = getProfit(slots, craftingAmount, craftMultiplier, result) ?: return
         val maxCraftingAmount = getSuperCraftingMaxCount(slots, craftingAmount, craftMultiplier)
         if (!blockWasteClick(profit, craftingAmount, maxCraftingAmount)) return
         SoundUtils.playErrorSound()
@@ -128,18 +131,11 @@ object SuperCraftingInventory {
             owned / matsPerCraft
         }
 
-    private fun getProfit(slots: List<Slot>, craftingAmount: Long, craftMultiplier: Int): Double? {
+    private fun getProfit(slots: List<Slot>, craftingAmount: Long, craftMultiplier: Int, resultItem: PrimitiveItemStack): Double? {
         val materials = getRecipeMaterials(slots)
 
-        val recipeMultiplier = craftMultiplier
-        val resultItem = getResultItem(slots)
-        if (recipeMultiplier == 0) ErrorManager.skyHanniError(
-            "Result item amount is 0",
-            "item" to resultItem,
-        )
-
         val itemsPrice = materials.sumOf { material ->
-            val totalAmount = material.amount * (craftingAmount / recipeMultiplier)
+            val totalAmount = material.amount * (craftingAmount / craftMultiplier)
             BazaarApi.calculatePriceOfAvailableOrders(
                 material.internalName, totalAmount, BazaarApi.SimpleTransactionType.BUY_ORDER,
             ) ?: return null
