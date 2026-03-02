@@ -161,7 +161,7 @@ object BingoBrewersPackets {
                 splashLocation,
                 extraMessage,
                 false,
-                serverId,
+                serverId?.lowercase(),
                 hubSelectorData,
                 StatusConstants.WAITING,
             )
