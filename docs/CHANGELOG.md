@@ -4,7 +4,7 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-Bug fixes only.
+Changed it so the reforge helper doesn't reset each item anymore.
 
 ## Static Info for modrinth:
 

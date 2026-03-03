@@ -14,6 +14,7 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
+import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getItemCategoryOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getItemRarityOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getLoreComponent
@@ -114,7 +115,10 @@ object ReforgeHelper {
 
     private fun itemUpdate() {
         val newItem = inventoryContainer?.getSlot(reforgeItem)?.item
-        if (newItem?.getInternalName() != itemToReforge?.getInternalName()) {
+        if (newItem?.getInternalName() != itemToReforge?.getInternalName() && newItem?.getInternalNameOrNull() != null && !newItem
+                .getCurrentMenuValidReforgesForItem()
+                .contains(reforgeToSearch)
+        ) {
             reforgeToSearch = null
         }
         itemToReforge = newItem
@@ -214,7 +218,6 @@ object ReforgeHelper {
         reforgeToSearch = null
         currentReforge = null
         hoveredReforge = null
-        sortAfter = null
         itemToReforge = null
         display = emptyList()
     }
@@ -227,17 +230,11 @@ object ReforgeHelper {
         addString("§6Reforge Overlay")
 
         val item = itemToReforge ?: run {
-            reforgeToSearch = null
             return@buildList
         }
 
-        val internalName = item.getInternalName()
-        val itemType = item.getItemCategoryOrNull()
         val itemRarity = item.getItemRarityOrNull() ?: return@buildList
-
-        val rawReforgeList =
-            if (!isInHexReforgeMenu && config.reforgeStonesOnlyHex) ReforgeApi.basicReforges else ReforgeApi.reforges
-        val reforgeList = rawReforgeList.filter { it.isValid(itemType, internalName) }
+        val reforgeList = item.getCurrentMenuValidReforgesForItem()
 
         val statTypes = reforgeList.mapNotNull { it.stats[itemRarity]?.keys }.flatten().toSet()
 
@@ -451,6 +448,13 @@ object ReforgeHelper {
             )
         val table = Renderable.table(main, 5)
         return listOf(table)
+    }
+
+    fun ItemStack.getCurrentMenuValidReforgesForItem(): List<ReforgeApi.Reforge> {
+        val rawReforgeList =
+            if (!isInHexReforgeMenu && config.reforgeStonesOnlyHex) ReforgeApi.basicReforges else ReforgeApi.reforges
+        val reforgeList = rawReforgeList.filter { it.isValid(this.getItemCategoryOrNull(), this.getInternalName()) }
+        return reforgeList
     }
 }
 
