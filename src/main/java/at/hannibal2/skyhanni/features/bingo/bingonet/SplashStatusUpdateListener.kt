@@ -6,9 +6,11 @@ import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
+import at.hannibal2.skyhanni.events.TabListUpdateComponentEvent
 import at.hannibal2.skyhanni.events.TabListUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.features.chat.CompactSplashPotionMessage
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.EntityUtils
@@ -25,7 +27,7 @@ import kotlinx.coroutines.Job
 import net.minecraft.world.entity.player.Player
 import kotlin.time.Duration.Companion.minutes
 
-@Suppress("SkyHanniModuleInspection")
+@SkyHanniModule
 object SplashStatusUpdateListener {
     private var splashed: Boolean = false
     var full: Boolean = false
@@ -126,7 +128,7 @@ object SplashStatusUpdateListener {
 
 
     @HandleEvent
-    fun tablistUpdate(event: TabListUpdateEvent) {
+    fun tablistUpdate(event: TabListUpdateComponentEvent) {
         val data = data ?: return
         if (!(data.status == StatusConstants.WAITING || data.status == StatusConstants.FULL)) return
         if (HypixelData.getPlayersOnCurrentServer() >= maxPlayers) {
