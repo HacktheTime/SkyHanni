@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.NoConfigLink
+import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.inventory.chocolatefactory.CFConfig
 import at.hannibal2.skyhanni.config.features.inventory.customwardrobe.CustomWardrobeConfig
 import at.hannibal2.skyhanni.config.features.inventory.experimentationtable.ExperimentationTableConfig
@@ -10,6 +12,7 @@ import at.hannibal2.skyhanni.config.features.itemability.ItemAbilityConfig
 import at.hannibal2.skyhanni.config.features.misc.EstimatedItemValueConfig
 import at.hannibal2.skyhanni.config.features.misc.PocketSackInASackConfig
 import at.hannibal2.skyhanni.features.inventory.searchablestorage.SearchableStorage
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.Category
@@ -382,6 +385,13 @@ class InventoryConfig {
     @FeatureToggle
     @SearchTag("pick block")
     var middleClickFix: Boolean = true
+
+    @Expose
+    val sackTrackingOverlayToTrack: MutableMap<NeuInternalName, UInt?> = mutableMapOf()
+
+    @Expose
+    @NoConfigLink
+    var sackTrackingOverlayPosition: Position = Position(0, 0)
 
     @Expose
     @ConfigOption(
