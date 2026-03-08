@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.api.enoughupdates.EnoughUpdatesManager
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.NeuItems
+import at.hannibal2.skyhanni.utils.NeuItems.getItemStack
 import de.hype.bingonet.generated.sbenums.SkyblockItems
 import de.hype.bingonet.generated.sbenums.minions.MinionTypes
 import de.hype.bingonet.shared.constants.Collections
@@ -37,7 +38,7 @@ fun Collections.getMinionType(): MinionType? {
     return EnoughUpdatesManager.getMinionType(minionId)
 }
 
-val BNNEUItem.displayName: String get() = this.toInternalName().displayName
+inline val BNNEUItem.displayName: String get() = this.toInternalName().getItemStack().displayName.string
 
 fun MinionTypes.toShared(): MinionType {
     return EnoughUpdatesManager.getMinionType(this.name)!!
