@@ -9,7 +9,9 @@ import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 import net.minecraft.world.item.Items
 import kotlin.time.Duration.Companion.minutes
 
-open class NeuInternalName private constructor(internalName: String) : BNNEUItem(internalName) {
+open class NeuInternalName private constructor(internalName: String) : BNNEUItem(internalName),  Comparable<NeuInternalName> {
+
+    override fun compareTo(other: NeuInternalName): Int = internalName.compareTo(other.internalName)
 
     fun asString() = internalName
 
@@ -25,6 +27,11 @@ open class NeuInternalName private constructor(internalName: String) : BNNEUItem
         internalName.replace(oldValue, newValue, ignoreCase = true).toInternalName()
 
     fun isKnownItem(): Boolean = getItemStackOrNull() != null || this == SKYBLOCK_COIN
+
+    fun isArmor(): Boolean = internalName.endsWith("_BOOTS") ||
+        internalName.endsWith("_HELMET") ||
+        internalName.endsWith("_CHESTPLATE") ||
+        internalName.endsWith("_LEGGINGS")
 
     fun getItemCategoryOrNull(): ItemCategory? =
         categoryCache.getOrPut(this) { getItemStackOrNull()?.getItemCategoryOrNull() ?: return null }

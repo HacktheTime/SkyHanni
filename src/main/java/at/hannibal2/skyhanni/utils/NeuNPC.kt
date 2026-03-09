@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.utils
 
+import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.recipe.NeuRecipeType
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.add
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapKeysNotNull
 import com.google.gson.annotations.Expose
@@ -175,7 +176,7 @@ class NeuNPC(
     ) {
         @Expose
         @SerializedName("type")
-        private val type = RecipeType.NPC_SHOP.name.lowercase()
+        private val type = NeuRecipeType.NPC_SHOP.name.lowercase()
 
         fun getEffectiveLimit(): Int? {
             return limit?.limit?.let { it - (it % result.count.toInt()) }
