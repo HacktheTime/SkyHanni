@@ -196,7 +196,11 @@ object SearchableStorageUtil {
     fun minecraftButtonRenderable(text: String) = drawInsideMinecraftRect(StringRenderable(text))
 
     fun fakeSlotRenderable(internalName: NeuInternalName, scale: Double = 2.0) =
-        drawInsideMinecraftRect(Renderable.item(internalName, scale))
+        drawInsideMinecraftRect(
+            Renderable.item(internalName) {
+                this.scale = scale
+            },
+        )
 
     private fun drawInsideMinecraftRect(input: Renderable) = Renderable.drawInsideRoundedRectWithOutline(
         input,

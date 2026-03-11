@@ -13,6 +13,7 @@ import at.hannibal2.skyhanni.data.title.TitleManager
 import at.hannibal2.skyhanni.events.CheckRenderEntityEvent
 import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
+import at.hannibal2.skyhanni.events.TabListUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.events.skyblock.GraphAreaChangeEvent
@@ -30,6 +31,7 @@ import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.RenderUtils.renderString
 import at.hannibal2.skyhanni.utils.SoundUtils
+import at.hannibal2.skyhanni.utils.compat.command
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.TabListData
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
@@ -188,6 +190,42 @@ object TrevorFeatures {
 
     }
 
+    @HandleEvent
+    fun onTabListUpdate(event: TabListUpdateEvent) {
+        var found = false
+        var active = false
+        val previousLocation = TrevorSolver.mobLocation
+        // TODO work with trapper widget, widget api, repo patterns, when not found, warn in chat and dont update
+        event.tabList.forEach { line ->
+            val formattedLine = line.string.drop(1)
+            if (formattedLine.startsWith("Time Left: ")) {
+                trapperReady = false
+                currentStatus = TrapperStatus.ACTIVE
+                currentLabel = "§cActive Quest"
+                active = true
+            }
+
+            TrapperMobArea.entries.firstOrNull { it.location == formattedLine }?.let {
+                TrevorSolver.mobLocation = it
+                found = true
+            }
+            locationPattern.matchMatcher(formattedLine) {
+                val zone = group("zone")
+                TrevorSolver.mobLocation = TrapperMobArea.entries.firstOrNull { it.location == zone } ?: TrapperMobArea.NONE
+                found = true
+            }
+        }
+        if (!found) TrevorSolver.mobLocation = TrapperMobArea.NONE
+
+        if (!active) trapperReady = true
+        else inBetweenQuests = true
+
+        if (TrevorSolver.mobCoordinates != LorenzVec(0.0, 0.0, 0.0) && active) {
+            TrevorSolver.mobLocation = previousLocation
+        }
+        questActive = active
+    }
+
     @HandleEvent(GuiRenderEvent.GuiOverlayRenderEvent::class, priority = HandleEvent.LOWEST, onlyOnIsland = IslandType.THE_FARMING_ISLANDS)
     fun onRenderOverlay() {
         if (!config.cooldownGui) return
@@ -220,40 +258,6 @@ object TrevorFeatures {
             currentStatus = TrapperStatus.READY
             currentLabel = "§2Ready"
         }
-
-        var found = false
-        var active = false
-        val previousLocation = TrevorSolver.mobLocation
-        // TODO work with trapper widget, widget api, repo patterns, when not found, warn in chat and dont update
-        for (line in TabListData.getTabList()) {
-            val formattedLine = line.removeColor().drop(1)
-            if (formattedLine.startsWith("Time Left: ")) {
-                trapperReady = false
-                currentStatus = TrapperStatus.ACTIVE
-                currentLabel = "§cActive Quest"
-                active = true
-            }
-
-            TrapperMobArea.entries.firstOrNull { it.location == formattedLine }?.let {
-                TrevorSolver.mobLocation = it
-                found = true
-            }
-            locationPattern.matchMatcher(formattedLine) {
-                val zone = group("zone")
-                TrevorSolver.mobLocation = TrapperMobArea.entries.firstOrNull { it.location == zone } ?: TrapperMobArea.NONE
-                found = true
-            }
-        }
-        if (!found) TrevorSolver.mobLocation = TrapperMobArea.NONE
-        if (!active) {
-            trapperReady = true
-        } else {
-            inBetweenQuests = true
-        }
-        if (TrevorSolver.mobCoordinates != LorenzVec(0.0, 0.0, 0.0) && active) {
-            TrevorSolver.mobLocation = previousLocation
-        }
-        questActive = active
     }
 
     @HandleEvent(onlyOnIsland = IslandType.THE_FARMING_ISLANDS)
@@ -264,7 +268,7 @@ object TrevorFeatures {
             // Solve for the fact that Moby also has the same ID as the Trapper
             val entityMob = MobData.entityToMob[entityTrapper] ?: return
             if (entityMob.name == "Moby") return
-            RenderLivingEntityHelper.setEntityColorWithNoHurtTime(entityTrapper, currentStatus.color) {
+            RenderLivingEntityHelper.setEntityColor(entityTrapper, currentStatus.color) {
                 config.cooldown
             }
             entityTrapper.getLorenzVec().let {

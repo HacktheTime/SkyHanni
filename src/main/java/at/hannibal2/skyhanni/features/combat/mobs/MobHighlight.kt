@@ -101,7 +101,10 @@ object MobHighlight {
             else -> return
         }
 
-        mob.highlight(color.toColor()) { isEnabled() }
+        RenderLivingEntityHelper.setEntityColor(
+            mob.baseEntity,
+            color.toColor().addAlpha(127),
+        ) { isEnabled() }
     }
 
     @HandleEvent
@@ -118,7 +121,7 @@ object MobHighlight {
         val entity = event.entity
         if (!entity.isCorrupted()) return
 
-        RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
+        RenderLivingEntityHelper.setEntityColor(
             entity,
             LorenzColor.DARK_PURPLE.toColor().addAlpha(127),
         ) { config.corruptedMobHighlight }
@@ -145,7 +148,7 @@ object MobHighlight {
             else -> return
         }
 
-        RenderLivingEntityHelper.setEntityColorWithNoHurtTime(
+        RenderLivingEntityHelper.setEntityColor(
             entity,
             color.toColor().addAlpha(alpha),
         ) { isEnabled() }

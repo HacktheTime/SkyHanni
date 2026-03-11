@@ -185,25 +185,25 @@ class Mob(
 
     private fun internalHighlight() {
         highlightColor?.let { color ->
-            RenderLivingEntityHelper.setEntityColorWithNoHurtTime(baseEntity, color) { !this.isInvisible() && condition() }
+            RenderLivingEntityHelper.setEntityColor(baseEntity, color) { !this.isInvisible() && condition() }
             extraEntities.forEach {
-                RenderLivingEntityHelper.setEntityColorWithNoHurtTime(it, color) { !this.isInvisible() && condition() }
+                RenderLivingEntityHelper.setEntityColor(it, color) { !this.isInvisible() && condition() }
             }
             // Also highlight the armor stand (e.g. the rat skull head) so mobs whose visible
             // representation is their armor stand (invisible base entity + equipped skull) are highlighted.
             armorStand?.let {
-                RenderLivingEntityHelper.setEntityColorWithNoHurtTime(it, color) { !this.isInvisible() && condition() }
+                RenderLivingEntityHelper.setEntityColor(it, color) { !this.isInvisible() && condition() }
             }
         }
     }
 
     private fun internalRemoveColor() {
         if (highlightColor == null) return
-        RenderLivingEntityHelper.removeCustomRender(baseEntity)
+        RenderLivingEntityHelper.removeEntityColor(baseEntity)
         extraEntities.forEach {
-            RenderLivingEntityHelper.removeCustomRender(it)
+            RenderLivingEntityHelper.removeEntityColor(it)
         }
-        armorStand?.let { RenderLivingEntityHelper.removeCustomRender(it) }
+        armorStand?.let { RenderLivingEntityHelper.removeEntityColor(it) }
     }
 
     val boundingBox: AABB

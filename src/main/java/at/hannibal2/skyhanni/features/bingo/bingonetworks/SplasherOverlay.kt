@@ -47,7 +47,7 @@ object SplasherOverlay {
         val renderables = mutableListOf<Renderable>()
         renderables.add(Renderable.text("Status: ${splash.status.displayName}"))
         val players =
-            EntityUtils.getEntitiesNextToPlayer<Player>(
+            EntityUtils.getEntitiesNearby<Player>(
                 5.0,
                 predicate = {
                     it.isRealPlayer() && !it.isLocalPlayer

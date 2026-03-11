@@ -6,7 +6,7 @@ import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
-import at.hannibal2.skyhanni.events.TabListUpdateComponentEvent
+import at.hannibal2.skyhanni.events.TabListUpdateEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.features.chat.CompactSplashPotionMessage
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -87,7 +87,7 @@ object SplashStatusUpdateListener {
             }
             if (leecherConfig.enabled && HypixelData.getRemainingSpace() <= 2) {
                 // Sends a Packet to the Server that these Player Leeched the Splash. User can then confirm the List before Sanctions are caused.
-                val data = EntityUtils.getEntitiesNextToPlayer<Player>(5.0).filter { !it.isOnBingo() }
+                val data = EntityUtils.getEntitiesNearby<Player>(5.0).filter { !it.isOnBingo() }
                     .map { Triple(it.displayName!!.string, it.uuid, it.isOnIronman()) }.toList()
                 if (HypixelData.getMaxPlayersForCurrentServer() - (HypixelData.getPlayersOnCurrentServer()) <= 2) {
                     BNConnection.sendPacket(SplashLeechReportPacket(data, leecherConfig.allowIman))
@@ -109,7 +109,7 @@ object SplashStatusUpdateListener {
                 val spots = HypixelData.getRemainingSpace()
                 if (spots <= 2) {
                     val players: List<String> =
-                        EntityUtils.getEntitiesNextToPlayer<Player>(5.0).filter { !it.isOnBingo() }.map { it.name.string }.toList()
+                        EntityUtils.getEntitiesNearby<Player>(5.0).filter { !it.isOnBingo() }.map { it.name.string }.toList()
                     // Splashes are done for Bingo People. Normals or Ironmans are allowed but only if theres no further need for Bingo.
                     if (players.size < 15) {
                         val messages = mutableListOf(StringBuilder("This Splash is for Bingo Players. You are asked to leave! (BN-WARN) |" +
@@ -142,7 +142,7 @@ object SplashStatusUpdateListener {
 
 
     @HandleEvent
-    fun tablistUpdate(event: TabListUpdateComponentEvent) {
+    fun tablistUpdate(event: TabListUpdateEvent) {
         val data = data ?: return
         if (!(data.status == StatusConstants.WAITING || data.status == StatusConstants.FULL)) return
         if (HypixelData.getPlayersOnCurrentServer() >= maxPlayers) {

@@ -43,7 +43,12 @@ object PlayerUtils {
         return player.plainTextName
     }
 
-    fun inAir(): Boolean = !MinecraftCompat.localPlayer.onGround()
+    fun onGround(): Boolean = MinecraftCompat.localPlayer.onGround()
+    fun inAir(): Boolean = !onGround()
+
+    fun blockPosition() = MinecraftCompat.localPlayer.blockPosition().toLorenzVec()
+
+    fun getLocation() = MinecraftCompat.localPlayer.getLorenzVec()
 
     fun isSneaking(): Boolean = MinecraftCompat.localPlayer.isShiftKeyDown
 }

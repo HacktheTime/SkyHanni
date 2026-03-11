@@ -24,13 +24,9 @@ class SkullTexturesUseRepo(config: Config) : SkyHanniRule(config) {
     )
 
     override fun visitStringTemplateExpression(expression: KtStringTemplateExpression) {
-        val text =
-            expression.text // Be aware .getText() returns the entire span of this template, including variable names contained within. This should be rare enough of a problem for us to not care about it.
-
-        for (textureStarters in scannedTextureStarts) {
-            if (text.startsWith(textureStarters)) {
-                expression.reportIssue("Avoid hard-coding skull texture text in strings.")
-            }
+        val text = expression.entries.joinToString("") { it.text }
+        if (scannedTextureStarts.any { text.startsWith(it) }) {
+            expression.reportIssue("Avoid hard-coding skull texture text in strings.")
         }
         super.visitStringTemplateExpression(expression)
     }

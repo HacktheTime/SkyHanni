@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.mapKeysNotNull
 import at.hannibal2.skyhanni.utils.compat.append
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
 import java.util.UUID
 
@@ -23,12 +24,19 @@ object ContributorManager {
         private set
 
     val bnContributors = mapOf<String, ContributorJsonEntry>(
-        "Hype_the_Time" to ContributorJsonEntry(suffix = "§c§ZⒷ", upsideDown = true, spinny = true),
-        "NPCforCommands" to ContributorJsonEntry(suffix = "§c§ZⒷ", upsideDown = true, spinny = true),
+        "4fa1228c-8dd6-47c4-8fe3-b04b580311b8" to ContributorJsonEntry(
+            suffix = "§c§ZⒷ", upsideDown = true, spinny = true,
+            displayName = "Hype_the_Time",
+        ),
+        "db0b72a8-374b-416f-b143-7c1992a5d66f" to ContributorJsonEntry(
+            suffix = "§c§ZⒷ", upsideDown = true, spinny = true,
+            displayName = "NPCforCommands",
+        ),
     )
+
     @HandleEvent
     fun onRepoReload(event: RepositoryReloadEvent) {
-        val map = event.getConstant<ContributorsJson>("ContributorList").contributors+bnContributors
+        val map = event.getConstant<ContributorsJson>("ContributorList").contributors + bnContributors
 
         contributors = map.mapKeysNotNull {
             try {
@@ -37,7 +45,7 @@ object ContributorManager {
                 ErrorManager.logErrorWithData(
                     e,
                     "Failed to parse contributor UUID",
-                    "key" to it.key, "value" to it.value
+                    "key" to it.key, "value" to it.value,
                 )
                 null
             }
@@ -55,7 +63,9 @@ object ContributorManager {
         }
     }
 
-    fun getSuffix(uuid: UUID): String? = contributors[uuid]?.suffix
+    fun getSuffix(uuid: UUID): Component? {
+        return contributors[uuid]?.componentSuffix ?: Component.literal(contributors[uuid]?.suffix ?: return null)
+    }
 
     fun shouldSpin(uuid: UUID): Boolean = contributors[uuid]?.spinny ?: false
     fun shouldBeUpsideDown(uuid: UUID): Boolean = contributors[uuid]?.upsideDown ?: false
