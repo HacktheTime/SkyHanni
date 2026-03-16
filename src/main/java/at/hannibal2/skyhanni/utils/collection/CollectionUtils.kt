@@ -563,7 +563,7 @@ object CollectionUtils {
 
     @Deprecated(
         "Use the built-in ifEmpty function with emptySet() instead",
-        ReplaceWith("this.ifEmpty { emptySet() }")
+        ReplaceWith("this.ifEmpty { emptySet() }"),
     )
     fun <T> Set<T>.optionalEmpty(): Set<T> = ifEmpty { emptySet() }
 
@@ -574,4 +574,10 @@ object CollectionUtils {
 
     @Suppress("UNCHECKED_CAST")
     fun <K, V> Map<K, V?>.filterValuesNotNull(): Map<K, V> = filterValues { it != null } as Map<K, V>
+
+    fun <T> List<T>.allIdentical(): Boolean {
+        if (isEmpty()) return true
+        val first = first()
+        return all { it == first }
+    }
 }

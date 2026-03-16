@@ -62,4 +62,37 @@ class ConsoleFiltersConfig {
     @ConfigOption(name = "Filter Biome ID Bounds", desc = "Filter message 'Biome ID is out of bounds'.")
     @ConfigEditorBoolean
     var filterBiomeIdBounds: Boolean = true
+
+    @Expose
+    @ConfigOption(
+        name = "Filter Invalid Skin Signature",
+        desc = "Filter 'Failed to verify signature on property' errors from skins with missing signatures.",
+    )
+    @ConfigEditorBoolean
+    var filterInvalidSkinSignature: Boolean = true
+
+    @Expose
+    @ConfigOption(name = "Filter Dynamic Transforms UBO", desc = "Filter 'Resizing Dynamic Transforms UBO' messages.")
+    @ConfigEditorBoolean
+    var filterDynamicTransformsUbo: Boolean = true
+
+    @Expose
+    @ConfigOption(name = "Filter Command Ambiguity", desc = "Filter 'Ambiguity between arguments' warnings from command registration.")
+    @ConfigEditorBoolean
+    var filterCommandAmbiguity: Boolean = true
+
+    @Expose
+    @ConfigOption(name = "Filter Narrator Error", desc = "Filter 'Error while loading the narrator' on Linux when flite is not installed.")
+    @ConfigEditorBoolean
+    var filterNarratorError: Boolean = true
+
+    @Expose
+    @ConfigOption(name = "Filter Mixin Messages", desc = "Filter verbose Mixin loading messages from FabricLoader.")
+    @ConfigEditorBoolean
+    var filterMixinMessages: Boolean = true
+
+    @Expose
+    @ConfigOption(name = "Filter Unknown Team Packet", desc = "Filter 'Received packet for unknown team' warnings during server changes.")
+    @ConfigEditorBoolean
+    var filterUnknownTeam: Boolean = true
 }
