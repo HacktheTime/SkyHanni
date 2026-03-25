@@ -37,7 +37,6 @@ import at.hannibal2.skyhanni.utils.TabListData
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import at.hannibal2.skyhanni.utils.getLorenzVec
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
-import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawLineToEye
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawString
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern

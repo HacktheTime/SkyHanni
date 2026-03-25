@@ -29,7 +29,7 @@ import at.hannibal2.skyhanni.utils.SoundUtils.playSound
 import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIf
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
-import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawLineToEye
+import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawLineToCrosshair
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.renderBeaconBeam
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
@@ -713,7 +713,7 @@ object BNConnection {
                 beacon = data.renderBeacon,
             )
             event.drawDynamicText(position, "§6[BN]-${data.text}", 1.0)
-            if (data.doTracer) event.drawLineToEye(
+            if (data.doTracer) event.drawLineToCrosshair(
                 position, data.color,
                 3,
                 true,
