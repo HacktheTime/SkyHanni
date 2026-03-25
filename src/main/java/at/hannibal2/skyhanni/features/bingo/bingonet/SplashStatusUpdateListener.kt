@@ -4,7 +4,6 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.data.HypixelData
-import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.IslandJoinEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.TabListUpdateEvent
@@ -24,7 +23,6 @@ import de.hype.bingonet.shared.objects.SplashData
 import de.hype.bingonet.shared.packets.function.SplashLeechReportPacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
 import kotlinx.coroutines.Job
-import net.minecraft.client.resources.SplashManager
 import net.minecraft.world.entity.player.Player
 import kotlin.time.Duration.Companion.minutes
 
