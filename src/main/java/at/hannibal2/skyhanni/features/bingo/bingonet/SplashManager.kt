@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.PartyApi.joinParty
 import at.hannibal2.skyhanni.events.IslandChangeEvent
+import at.hannibal2.skyhanni.events.IslandJoinEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.misc.WarpAPI
@@ -181,7 +182,7 @@ object SplashManager {
     private var data: DisplaySplash? = null
 
     @HandleEvent
-    fun onIslandChange(event: IslandChangeEvent) {
+    fun onIslandChange(event: IslandJoinEvent) {
         val data = getSplashInServer(false)
         val waypointPos = data?.locationInHub?.coords?.toLorenz()
         this.waypointPos = waypointPos

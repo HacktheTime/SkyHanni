@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.features.misc
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.IslandChangeEvent
+import at.hannibal2.skyhanni.events.IslandJoinEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
@@ -39,7 +40,7 @@ object WarpAPI {
     }
 
     @HandleEvent
-    fun onIslandChange(event: IslandChangeEvent) {
+    fun onIslandChange(event: IslandJoinEvent) {
         lastWarp = SimpleTimeMark.now()
         lastIslandInternalWarp = SimpleTimeMark.farPast()
     }

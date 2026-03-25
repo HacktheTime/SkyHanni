@@ -9,6 +9,7 @@ import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.effect.EffectApi
 import at.hannibal2.skyhanni.events.ConfigLoadEvent
 import at.hannibal2.skyhanni.events.IslandChangeEvent
+import at.hannibal2.skyhanni.events.IslandLeaveEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.bingo.bingonet.BNRegistrationScreen
 import at.hannibal2.skyhanni.features.bingo.bingonet.SplashManager
@@ -728,7 +729,7 @@ object BNConnection {
     }
 
     @HandleEvent
-    fun onIslandChange(event: IslandChangeEvent) {
+    fun onIslandChange(event: IslandLeaveEvent) {
         waypoints.removeIf { it.value.deleteOnServerSwap }
     }
 

@@ -7,7 +7,8 @@ import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.BlockClickEvent
-import at.hannibal2.skyhanni.events.IslandChangeEvent
+import at.hannibal2.skyhanni.events.IslandJoinEvent
+import at.hannibal2.skyhanni.events.IslandLeaveEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersClient
 import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersPackets
@@ -129,9 +130,9 @@ object ChChestUpdateListener {
     var day : Int? = null
 
     @HandleEvent
-    fun onWorldLeave(event: IslandChangeEvent) {
+    fun onWorldLeave(event: IslandLeaveEvent) {
         if (!config.chestWaypoints) return
-        if (event.oldIsland != IslandType.CRYSTAL_HOLLOWS) return
+        if (event.island != IslandType.CRYSTAL_HOLLOWS) return
         val unsubpacket = UnSubscribeToChServer(
             HypixelData.serverId ?: error("Old Server Id is null but Island was loaded?"),
             EntityUtils.getPlayerList(),
@@ -155,12 +156,14 @@ object ChChestUpdateListener {
         day = WorldCompat.worldDay
     }
 
+
     @HandleEvent
-    fun onIslandChange(event: IslandChangeEvent) {
+    fun onIslandJoin(event: IslandJoinEvent) {
         if (!config.chestWaypoints) return
+        if (event.island != IslandType.CRYSTAL_HOLLOWS) return
         SkyHanniMod.launchCoroutine("CH Chest Subscribe") {
             val serverId = HypixelData.serverId ?: return@launchCoroutine
-            if (event.newIsland == IslandType.CRYSTAL_HOLLOWS) {
+            if (event.island == IslandType.CRYSTAL_HOLLOWS) {
                 val packet = SubscribeToChServer(serverId, getLobbyClosingTime())
                 if (config.bingoNet.useBN) BNConnection.sendPacket(packet)
                 if (config.useBB) {
