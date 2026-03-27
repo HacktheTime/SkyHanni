@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.features.bingo.bingonet
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetSystem
 import at.hannibal2.skyhanni.data.model.TextInput
-import at.hannibal2.skyhanni.data.repo.ChatProgressUpdates
 import at.hannibal2.skyhanni.features.misc.discordrpc.DiscordRPCManager
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -207,37 +206,18 @@ class BNRegistrationScreen(
     }
 
     companion object {
-        val discordRPCChatProgressCategory = ChatProgressUpdates.category("BN Registration Discord detection")
-
         fun openHelper() {
             SkyHanniMod.launchCoroutine("Opening BN Registration Helper") {
-                val isStarted = DiscordRPCManager.isStarted()
-                var userId: String? = null
-                var username: String? = null
                 try {
-                    SkyHanniMod.launchCoroutine("Starting Discord RPC for BN Registration") {
-                        if (!isStarted || !DiscordRPCManager.isConnected()) {
-                            ChatUtils.chat("Starting Rich Presence to obtain Discord User ID and Username.")
-                            DiscordRPCManager.start(
-                                progress = discordRPCChatProgressCategory.start("BN Registration Discord auto detect"),
-                                false,
-                            )
-                        }
-                        DiscordRPCManager.getSelfUser()
-                    }
-                    sleep(5000)
-                    userId = DiscordRPCManager.getDiscordUserId()
-                    username = DiscordRPCManager.getDiscordUsername()
-                    val hasDiscordAvailable = userId != null && username != null
-                    if (hasDiscordAvailable) {
+                    val discordUser = DiscordRPCManager.getDiscordUser()
+                    if (discordUser != null) {
                         ChatUtils.clickableChat(
                             "§cYou are not registered in the Bingo Net Network. Click here to open the Registration Screen",
                             {
                                 SkyHanniMod.screenToOpen =
-                                    BNRegistrationScreen(userId, username)
+                                    BNRegistrationScreen(discordUser.userId, discordUser.username)
                             },
                         )
-                        DiscordRPCManager.stop()
                         return@launchCoroutine
                     }
                 } catch (t: Throwable) {
@@ -255,7 +235,6 @@ class BNRegistrationScreen(
                         OSUtils.openBrowser("https://hackthetime.de/discord")
                     },
                 )
-                DiscordRPCManager.stop()
             }
         }
     }
