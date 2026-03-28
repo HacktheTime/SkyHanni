@@ -8,8 +8,9 @@ import at.hannibal2.skyhanni.config.core.config.KeyBind
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorInfoText
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
-import kotlin.reflect.KMutableProperty1
 
 class BingoNetworksConfig {
     @Expose
@@ -180,4 +181,14 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("#showSplashes")
     var renderSplashLocationWaypoint = false
+
+    @Expose
+    @ConfigOption(
+        name = "Use Discord Splash Notification Hook",
+        desc = "Reads Discord desktop notifications (PC only) and tries to auto-detect splash announcements to highlight them ingame.",
+    )
+    @ConfigEditorBoolean
+    @FeatureToggle
+    @FeatureDependencyRequirement("#showSplashes")
+    var useDiscordSplashNotificationHook: Boolean = false
 }

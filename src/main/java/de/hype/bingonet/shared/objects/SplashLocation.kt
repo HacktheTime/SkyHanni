@@ -26,7 +26,6 @@ class SplashLocation {
 
     val displayString: String
         get() {
-            if (name.equals("bea", ignoreCase = true)) return "bea"
             return "$name (${coords.x} ${coords.y} ${coords.z})"
         }
 }

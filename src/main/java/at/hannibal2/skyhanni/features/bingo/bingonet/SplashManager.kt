@@ -7,7 +7,6 @@ import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.PartyApi.joinParty
-import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.IslandJoinEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
@@ -15,7 +14,6 @@ import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
-import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.PlayerUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
@@ -29,6 +27,7 @@ import de.hype.bingonet.shared.packets.function.RequestDynamicSplashInvitePacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
 import de.hype.bingonet.toLorenz
 import kotlinx.coroutines.delay
+import net.minecraft.advancements.criterion.LocationPredicate.Builder.location
 import java.awt.Color
 import java.time.Instant
 import kotlin.time.Duration.Companion.minutes
@@ -83,12 +82,14 @@ object SplashManager {
     enum class SplashSource {
         BN,
         BB,
-        BSC
+        BSC,
+        DISCORD_OS,
     }
 
     fun display(splashId: Int, source: SplashSource) {
         val splash = splashPool.get(splashId)
         if (splash == null) return
+        if (source == SplashSource.DISCORD_OS) ChatUtils.chat("§cPrefilled the following Splash Data via Discord Notification:")
         if (splash.hubSelectorData == null) {
             ChatUtils.chatPrompt(
                 "§d${splash.announcer} is Splashing in a §4PRIVATE§r Lobby.",
@@ -106,9 +107,12 @@ object SplashManager {
             }
 
             ChatUtils.chatPrompt(
-                "§d${splash.announcer}§r is Splashing in $islandType #${splash.hubSelectorData.hubNumber}§r at ${splash.locationInHub?.displayString ?: splash.extraMessage} (§aPress %KEY% to warp to a §d${splash.hubSelectorData.hubType}§r) §7| §6${
-                    splash.extraMessage ?: "(No Parsed Location Data)"
-                }",
+                "§d${splash.announcer}§r is Splashing in $islandType #${splash.hubSelectorData.hubNumber}§r${
+                    splash.locationInHub?.displayString.let {
+                        if (it != null) " at $it " else " "
+                    }
+                }(§aPress %KEY% to warp to a §d${splash.hubSelectorData.hubType}§r) " +
+                    "§7| §6${splash.extraMessage ?: ""}",
                 SkyHanniMod.feature.event.bingo.bingoNetworks.splashHubWarp,
                 {
                     SkyHanniMod.launchCoroutine("Splash Hub Warp Helper") {
@@ -160,10 +164,22 @@ object SplashManager {
             ChatUtils.chat("Party Request sent.")
             awaitingPartyInvite = splash.announcer
         } else if (source == SplashSource.BB) {
+            val partyHost = splash.partyhost?:splash.announcer
             PartyApi.leaveParty()
-            joinParty(splash.announcer)
+            joinParty(partyHost)
+        } else if (source == SplashSource.DISCORD_OS) {
+            val partyHost = splash.partyhost
+            if (partyHost != null) joinParty(partyHost)
+            else ChatUtils.userError("This Discord-detected splash party host could not be parsed.")
         }
     }
+
+    val SplashData.partyhost: String?
+        get() {
+            // extramessage should contain /p join {partyHost}
+            val extraMessage = this.extraMessage ?: return null
+            return "/p join (?<name>\\w+)".toPattern().matchMatcher(extraMessage) { group("name") }
+        }
 
     @HandleEvent
     fun handlePartyInvite(message: SkyHanniChatEvent.Allow) {
