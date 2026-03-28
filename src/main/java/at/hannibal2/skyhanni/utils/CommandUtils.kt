@@ -116,8 +116,7 @@ object CommandUtils {
                 internalPattern,
                 start,
                 uppercaseStart,
-                { NeuItems.findInternalNameStartingWithWithoutNPCs(it, validItems) },
-            )
+            ) { NeuItems.findInternalNameStartingWithWithoutNPCs(it, validItems) }
 
             NameSource.ITEM_NAME -> resultAdd(
                 namePattern,

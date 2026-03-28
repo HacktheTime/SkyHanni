@@ -163,7 +163,7 @@ object NeuItems {
             getPriceOrNull() ?: return@run fallbackItem
             if (ignoreItemsFilter.match(this.asString())) return@run fallbackItem
 
-            val name = this.toString()
+            val name = this.asString()
             ItemUtils.addMissingRepoItem(name, "Could not create item stack for $name")
             fallbackItem
         }

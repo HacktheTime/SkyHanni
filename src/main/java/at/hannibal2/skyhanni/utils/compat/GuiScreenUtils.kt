@@ -5,14 +5,21 @@ import net.minecraft.client.Minecraft
 object GuiScreenUtils {
 
     private val mc get() = Minecraft.getInstance()
+    private var screenMetricsOverride: ScreenMetricsOverride? = null
+
+    private data class ScreenMetricsOverride(
+        val scaledWindowWidth: Int,
+        val scaledWindowHeight: Int,
+        val scaleFactor: Int,
+    )
 
     val isAnyScreenOpen get() = mc.screen != null
 
     val scaledWindowHeight: Int
-        get() = mc.window.guiScaledHeight
+        get() = screenMetricsOverride?.scaledWindowHeight ?: mc.window.guiScaledHeight
 
     val scaledWindowWidth: Int
-        get() = mc.window.guiScaledWidth
+        get() = screenMetricsOverride?.scaledWindowWidth ?: mc.window.guiScaledWidth
 
     val displayWidth: Int
         get() = mc.window.width
@@ -21,7 +28,7 @@ object GuiScreenUtils {
         get() = mc.window.height
 
     val scaleFactor: Int
-        get() = mc.window.guiScale.toInt()
+        get() = screenMetricsOverride?.scaleFactor ?: mc.window.guiScale.toInt()
 
     private val globalMouseX get() = MouseCompat.getX()
     private val globalMouseY get() = MouseCompat.getY()
@@ -44,4 +51,19 @@ object GuiScreenUtils {
         }
 
     val mousePos: Pair<Int, Int> get() = mouseX to mouseY
+
+    fun <T> withScreenMetricsOverride(
+        scaledWindowWidth: Int,
+        scaledWindowHeight: Int,
+        scaleFactor: Int,
+        action: () -> T,
+    ): T {
+        val previousOverride = screenMetricsOverride
+        screenMetricsOverride = ScreenMetricsOverride(scaledWindowWidth, scaledWindowHeight, scaleFactor)
+        return try {
+            action()
+        } finally {
+            screenMetricsOverride = previousOverride
+        }
+    }
 }

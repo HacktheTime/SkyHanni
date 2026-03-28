@@ -315,7 +315,7 @@ object EnoughUpdatesManager {
 
     fun getDisplayName(internalName: NeuInternalName): String = displayNameCache.getOrPut(internalName) {
         // Intentionally toString() instead of asString() to indicate failure
-        val itemInfo = getItemById(internalName) ?: return@getOrPut internalName.toString()
+        val itemInfo = getItemById(internalName) ?: return@getOrPut internalName.asString()
         itemInfo.displayName ?: run {
             ErrorManager.skyHanniError("No displayname for $internalName")
         }
