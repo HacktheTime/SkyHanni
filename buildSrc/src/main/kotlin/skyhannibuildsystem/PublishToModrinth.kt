@@ -29,8 +29,8 @@ abstract class PublishToModrinth : DefaultTask() {
     @get:Internal
     val jarDirectory: Provider<Directory> = project.rootProject.layout.buildDirectory.dir("libs")
 
-    private lateinit var versionNumber: String
-    private lateinit var modrinthToken: String
+    private var versionNumber: String = ""
+    private var modrinthToken: String = ""
 
     // Optional GitHub release config
     private var githubToken: String? = null
@@ -161,7 +161,6 @@ abstract class PublishToModrinth : DefaultTask() {
     }
 
     private val jarNamePattern = "SkyHanni-(?<modVersion>[\\d.]+)-mc(?<mcVersion>[\\d.]+)\\.jar".toPattern()
-    private val client by lazy { constructClient() }
 
     private fun processJar(file: File) {
         val fileName = file.name
@@ -256,7 +255,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("Authorization", modrinthToken)
             .header("User-Agent", userAgent)
 
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val response = sendString(request)
         val responseCode = response.statusCode()
         if (responseCode !in 200..201) {
             throw RuntimeException("Failed to publish to Modrinth (create): HTTP $responseCode - ${response.body()}")
@@ -274,7 +273,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("User-Agent", userAgent)
             .header("Content-Type", "application/json")
 
-        val resp = client.send(req, HttpResponse.BodyHandlers.ofString())
+        val resp = sendString(req)
         val code = resp.statusCode()
         if (code !in 200..299) {
             throw RuntimeException("Failed to update existing Modrinth version $versionId: HTTP $code - ${resp.body()}")
@@ -305,7 +304,7 @@ abstract class PublishToModrinth : DefaultTask() {
                 .header("Authorization", modrinthToken)
                 .header("User-Agent", userAgent)
 
-            val resp = client.send(req, HttpResponse.BodyHandlers.ofString())
+            val resp = sendString(req)
             if (resp.statusCode() !in 200..299) {
                 throw RuntimeException("Failed to upload file ${f.name} to Modrinth version $versionId: HTTP ${resp.statusCode()} - ${resp.body()}")
             }
@@ -329,7 +328,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("Authorization", modrinthToken)
             .header("User-Agent", userAgent)
 
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val response = sendString(request)
         if (response.statusCode() !in 200..299) {
             throw RuntimeException("Failed to query Modrinth versions: HTTP ${response.statusCode()} - ${response.body()}")
         }
@@ -383,6 +382,10 @@ abstract class PublishToModrinth : DefaultTask() {
             .followRedirects(HttpClient.Redirect.ALWAYS)
             .executor(Runnable::run)
             .build()
+    }
+
+    private fun sendString(request: HttpRequest): HttpResponse<String> {
+        return constructClient().send(request, HttpResponse.BodyHandlers.ofString())
     }
 
     // --- GitHub release publishing ---
@@ -590,7 +593,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("User-Agent", userAgent)
             .header("Accept", "application/vnd.github+json")
         vlog("GET release by tag $tag")
-        val getResp = client.send(getReq, HttpResponse.BodyHandlers.ofString())
+        val getResp = sendString(getReq)
         vlog("GET status=${getResp.statusCode()}")
         if (getResp.statusCode() == 200) {
             if (!allowExisting) {
@@ -618,7 +621,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("Accept", "application/vnd.github+json")
             .header("Content-Type", "application/json")
         vlog("POST create release tag=$tag")
-        val createResp = client.send(createReq, HttpResponse.BodyHandlers.ofString())
+        val createResp = sendString(createReq)
         vlog("CREATE status=${createResp.statusCode()}")
         if (createResp.statusCode() !in 200..299) {
             throw RuntimeException("Failed to create GitHub release: HTTP ${createResp.statusCode()} - ${createResp.body()}")
@@ -632,7 +635,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("Authorization", "token $token")
             .header("User-Agent", userAgent)
             .header("Accept", "application/vnd.github+json")
-        val resp = client.send(req, HttpResponse.BodyHandlers.ofString())
+        val resp = sendString(req)
         if (resp.statusCode() !in 200..299) {
             throw RuntimeException("Failed to list GitHub release assets: HTTP ${resp.statusCode()} - ${resp.body()}")
         }
@@ -646,7 +649,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("Authorization", "token $token")
             .header("User-Agent", userAgent)
             .header("Accept", "application/vnd.github+json")
-        val resp = client.send(req, HttpResponse.BodyHandlers.ofString())
+        val resp = sendString(req)
         if (resp.statusCode() !in 200..299) {
             throw RuntimeException("Failed to delete GitHub asset $assetId: HTTP ${resp.statusCode()} - ${resp.body()}")
         }
@@ -661,7 +664,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("User-Agent", userAgent)
             .header("Accept", "application/vnd.github+json")
             .header("Content-Type", "application/java-archive")
-        val resp = client.send(req, HttpResponse.BodyHandlers.ofString())
+        val resp = sendString(req)
         if (resp.statusCode() !in 200..299) {
             throw RuntimeException("Failed to upload GitHub asset ${file.name}: HTTP ${resp.statusCode()} - ${resp.body()}")
         }
@@ -677,7 +680,7 @@ abstract class PublishToModrinth : DefaultTask() {
             .header("User-Agent", userAgent)
             .header("Accept", "application/vnd.github+json")
             .header("Content-Type", "application/java-archive")
-        val resp = client.send(req, HttpResponse.BodyHandlers.ofString())
+        val resp = sendString(req)
         if (resp.statusCode() !in 200..299) {
             throw RuntimeException("Failed to upload GitHub asset ${file.name} as $assetName: HTTP ${resp.statusCode()} - ${resp.body()}")
         }

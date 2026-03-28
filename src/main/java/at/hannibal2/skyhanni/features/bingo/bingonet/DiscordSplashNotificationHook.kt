@@ -13,7 +13,6 @@ import at.hannibal2.skyhanni.utils.coroutines.CoroutineConfig
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
-import de.hype.bingonet.shared.objects.SplashLocation
 import kotlinx.coroutines.Job
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -21,7 +20,6 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.INFINITE
-import kotlin.time.Duration.Companion.minutes
 
 @SkyHanniModule
 object DiscordSplashNotificationHook {
