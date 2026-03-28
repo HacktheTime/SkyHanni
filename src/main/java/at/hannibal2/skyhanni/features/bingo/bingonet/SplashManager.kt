@@ -77,8 +77,7 @@ object SplashManager {
     fun getSplashInServer(mustBeFromSelf: Boolean, serverId: String? = HypixelData.serverId): DisplaySplash? {
         if (serverId == null) return null
         return splashPool.values.filter { it.serverID == serverId }
-            .filter { !mustBeFromSelf || it.announcer.equals(PlayerUtils.getName(), ignoreCase = true) }.sortedBy { it.receivedTime }
-            .firstOrNull()
+            .filter { !mustBeFromSelf || it.announcer.equals(PlayerUtils.getName(), ignoreCase = true) }.minByOrNull { it.receivedTime }
     }
 
     enum class SplashSource {
@@ -122,7 +121,7 @@ object SplashManager {
 
     class DisplaySplash(packet: SplashData) : SplashData(packet) {
         var alreadyDisplayed: Boolean = false
-        var receivedTime: Instant? = Instant.now()
+        var receivedTime: Instant = Instant.now()
     }
 
     private fun prepareHubWarp(splash: SplashData, source: SplashSource) {
@@ -169,7 +168,7 @@ object SplashManager {
     @HandleEvent
     fun handlePartyInvite(message: SkyHanniChatEvent.Allow) {
         val awaitingPartyInvite = awaitingPartyInvite ?: return
-        PartyApi.receivedInvitePattern.matchMatcher(message.message) {
+        PartyApi.receivedInvitePattern.matchMatcher(message.cleanMessage) {
             val name = group("name")
             if (name == awaitingPartyInvite) {
                 PartyApi.leaveParty()

@@ -31,16 +31,16 @@ object PartyApi {
     private val patternGroup = RepoPattern.group("data.party")
 
     /**
-     * REGEX-TEST: §9-----------------------------------------------------
+     * REGEX-TEST: -----------------------------------------------------
      */
     private val wrapper by patternGroup.pattern("wrapper", "9m-----------------------------------------------------")
 
     /**
-     * REGEX-TEST: §eYou have joined §b[MVP§d+§b] Throwpo's §eparty!
+     * REGEX-TEST: You have joined [MVP+] Throwpo's party!
      */
     private val youJoinedPartyPattern by patternGroup.pattern(
         "you.joined",
-        "§eYou have joined (?<name>.*)'s? §eparty!",
+        "You have joined (?<name>.*)'s? party!",
     )
 
     // TODO
@@ -50,60 +50,60 @@ object PartyApi {
     )
 
     /**
-     * REGEX-TEST: §b[MVP§d+§b] Throwpo §ejoined the party.
+     * REGEX-TEST: [MVP+] Throwpo joined the party.
      */
     private val othersJoinedPartyPattern by patternGroup.pattern(
         "others.joined",
-        "(?<name>.*) §ejoined the party\\.",
+        "(?<name>.*) joined the party\\.",
     )
 
     // TODO the invited you to their party was created based on what i had in mind. has to be tested still!
     /**
-     * REGEX-TEST: §b[MVP§d+§b] Throwpo §einvited you to join their Party.
+     * REGEX-TEST: [MVP+] Throwpo invited you to join their Party.
      */
     val receivedInvitePattern by patternGroup.pattern(
         "others.joined",
-        "(?<name>.*) §einvited you to join their Party\\.",
+        "(?<name>.*) invited you to join their Party\\.",
     )
 
     /**
-     * REGEX-TEST: §eYou'll be partying with: §a[VIP] FungalBeatle550
+     * REGEX-TEST: You'll be partying with: [VIP] FungalBeatle550
      */
     private val othersInThePartyPattern by patternGroup.pattern(
         "others.inparty",
-        "§eYou'll be partying with: (?<names>.*)",
+        "You'll be partying with: (?<names>.*)",
     )
 
     /**
-     * REGEX-TEST: §7246sweets §ehas left the party.
+     * REGEX-TEST: 246sweets has left the party.
      */
     private val otherLeftPattern by patternGroup.pattern(
         "others.left",
-        "(?<name>.*) §ehas left the party\\.",
+        "(?<name>.*) has left the party\\.",
     )
 
     /**
-     * REGEX-TEST: §7riblets §ehas been removed from the party.
+     * REGEX-TEST: riblets has been removed from the party.
      */
     private val otherKickedPattern by patternGroup.pattern(
         "others.kicked",
-        "(?<name>.*) §ehas been removed from the party\\.",
+        "(?<name>.*) has been removed from the party\\.",
     )
 
     /**
-     * REGEX-TEST: §eKicked §b[MVP§d+§b] Throwpo§e because they were offline.
+     * REGEX-TEST: Kicked [MVP+] Throwpo because they were offline.
      */
     private val otherOfflineKickedPattern by patternGroup.pattern(
         "others.offline",
-        "§eKicked (?<name>.*) because they were offline\\.",
+        "Kicked (?<name>.*) because they were offline\\.",
     )
 
     /**
-     * REGEX-TEST: §b[MVP§d+§b] Throwpo §ewas removed from your party because they disconnected.
+     * REGEX-TEST: [MVP+] Throwpo was removed from your party because they disconnected.
      */
     private val otherDisconnectedPattern by patternGroup.pattern(
         "others.disconnect",
-        "(?<name>.*) §ewas removed from your party because they disconnected\\.",
+        "(?<name>.*) was removed from your party because they disconnected\\.",
     )
 
     /**
@@ -123,27 +123,27 @@ object PartyApi {
     )
 
     /**
-     * REGEX-TEST: §b[MVP§d+§b] Throwpo §ehas disbanded the party!
+     * REGEX-TEST: [MVP+] Throwpo has disbanded the party!
      */
     private val disbandedPattern by patternGroup.pattern(
         "others.disband",
-        ".* §ehas disbanded the party!",
+        ".* has disbanded the party!",
     )
 
     /**
-     * REGEX-TEST: §eYou have been kicked from the party by §b[MVP§d+§b] Throwpo §e
+     * REGEX-TEST: You have been kicked from the party by [MVP+] Throwpo 
      */
     private val kickedPattern by patternGroup.pattern(
         "you.kicked",
-        "§eYou have been kicked from the party by .* §e",
+        "You have been kicked from the party by .* ",
     )
 
     /**
-     * REGEX-TEST: §6Party Members (2)
+     * REGEX-TEST: Party Members (2)
      */
     private val partyMembersStartPattern by patternGroup.pattern(
         "members.start",
-        "§6Party Members \\(\\d+\\)",
+        "Party Members \\(\\d+\\)",
     )
 
     /**
@@ -156,15 +156,15 @@ object PartyApi {
     )
     private val kuudraFinderJoinPattern by patternGroup.pattern(
         "kuudrafinder.join",
-        "§dParty Finder §f> (?<name>.*?) §ejoined the group! \\(§[a-fA-F0-9]+Combat Level \\d+§e\\)",
+        "Party Finder > (?<name>.*?) joined the group! \\(a-fA-F0-9]+Combat Level \\d+\\)",
     )
 
     /**
-     * REGEX-TEST: §dParty Finder §f> §bGhostsTM §ejoined the dungeon group! (§bArcher Level 9§e)
+     * REGEX-TEST: Party Finder > GhostsTM joined the dungeon group! (Archer Level 9)
      */
     private val dungeonFinderJoinPattern by patternGroup.pattern(
         "dungeonfinder.join",
-        "§dParty Finder §f> (?<name>.*?) §ejoined the dungeon group! \\(§[a-fA-F0-9].* Level \\d+§[a-fA-F0-9]\\)",
+        "Party Finder > (?<name>.*?) joined the dungeon group! \\(a-fA-F0-9].* Level \\d+a-fA-F0-9]\\)",
     )
 
     val partyMembers = mutableListOf<String>()
@@ -181,18 +181,18 @@ object PartyApi {
             ChatUtils.chat("No tracked party members!")
             return
         }
-        ChatUtils.chat("Tracked party members §7($size) §f:", prefixColor = "§a")
+        ChatUtils.chat("Tracked party members ($size) :", prefixColor = "")
         for (member in partyMembers) {
-            ChatUtils.chat(" §a- §7$member" + if (partyLeader == member) " §a(Leader)" else "", false)
+            ChatUtils.chat(" - $member" + if (partyLeader == member) " (Leader)" else "", false)
         }
 
         if (partyLeader == PlayerUtils.getName()) {
-            ChatUtils.chat("§aYou are leader")
+            ChatUtils.chat("You are leader")
         }
 
         if (Random.nextDouble() < 0.1) {
             OSUtils.openBrowser("https://www.youtube.com/watch?v=iANP7ib7CPA")
-            ChatUtils.hoverableChat("§7Are You Ready To Party?", listOf("§b~Spongebob"), prefix = false)
+            ChatUtils.hoverableChat("Are You Ready To Party?", listOf("~Spongebob"), prefix = false)
         }
     }
 
@@ -204,7 +204,7 @@ object PartyApi {
 
     @HandleEvent
     fun onChat(event: SkyHanniChatEvent.Allow) {
-        val message = event.message.trimWhiteSpace().removeResets()
+        val message = event.cleanMessage.trimWhiteSpace()
 
         wrapper.matchMatcher(message) {
             if (hideConfig.hideWrapper) {
@@ -293,11 +293,11 @@ object PartyApi {
         kickedPattern.matchMatcher(message) {
             partyLeft()
         }
-        if (message == "§eYou left the party." ||
-            message == "§cThe party was disbanded because all invites expired and the party was empty." ||
-            message == "§cYou are not currently in a party." ||
-            message == "§cYou are not in a party." ||
-            message == "§cThe party was disbanded because the party leader disconnected."
+        if (message == "You left the party." ||
+            message == "The party was disbanded because all invites expired and the party was empty." ||
+            message == "You are not currently in a party." ||
+            message == "You are not in a party." ||
+            message == "The party was disbanded because the party leader disconnected."
         ) {
             partyLeft()
         }
