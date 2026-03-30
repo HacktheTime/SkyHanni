@@ -80,7 +80,7 @@ object ContributorManager {
             componentBuilder {
                 append("Be in the same lobby as a")
                 append(" SkyHanni ") {
-                    withColor(TextHelper.getChromaColorStyle())
+                    withColor(TextHelper.chromaStyle)
                 }
                 append("contributor")
             }

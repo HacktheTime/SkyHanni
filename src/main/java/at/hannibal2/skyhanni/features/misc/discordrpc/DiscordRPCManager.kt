@@ -59,11 +59,11 @@ object DiscordRPCManager {
     private var retryJob: Job? = null
     private var lastDebugInfo: Map<String, String> = emptyMap()
 
-    private val startConfig = CoroutineConfig("discord rpc start", timeout = INFINITE).withIOContext()
-    private val presenceConfig = CoroutineConfig("discord rpc updatePresence", timeout = INFINITE).withIOContext()
-    private val readerConfig = CoroutineConfig("discord rpc reader", timeout = INFINITE).withIOContext()
-    private val stopConfig = CoroutineConfig("discord rpc stop", timeout = INFINITE).withIOContext()
-    private val manualStartConfig = CoroutineConfig("discord rpc manual start", timeout = INFINITE).withIOContext()
+    private val startConfig = CoroutineConfig("discord RPC start", timeout = INFINITE).withIOContext()
+    private val presenceConfig = CoroutineConfig("discord RPC updatePresence", timeout = INFINITE).withIOContext()
+    private val readerConfig = CoroutineConfig("discord RPC reader", timeout = INFINITE).withIOContext()
+    private val stopConfig = CoroutineConfig("discord RPC stop", timeout = INFINITE).withIOContext()
+    private val manualStartConfig = CoroutineConfig("discord RPC manual start", timeout = INFINITE).withIOContext()
 
     fun start(progress: ChatProgressUpdates, fromCommand: Boolean = false) {
         progress.update("call start")
@@ -117,10 +117,10 @@ object DiscordRPCManager {
             updateDebugStatus("Retry ${retryHelper.retriesLabel} in ${retryDelay.inWholeSeconds}s: ${reason ?: "unknown"}")
             val retryCount = retryHelper.currentRetry
             retryJob = with(SkyHanniMod) {
-                CoroutineConfig("discord rpc autoretry $retryCount", timeout = INFINITE).withIOContext()
+                CoroutineConfig("discord RPC auto-retry $retryCount", timeout = INFINITE).withIOContext()
                     .launchUnScopedCoroutine {
                         delay(retryDelay)
-                        start(progressCategory.start("discord rpc autoretry $retryCount"))
+                        start(progressCategory.start("discord RPC auto-retry $retryCount"))
                     }
             }
         } else {
@@ -170,7 +170,7 @@ object DiscordRPCManager {
         presenceJob?.cancel()
         readerJob?.cancel()
         progress.update("in setupPresenceJob")
-        var updatePresenceProgress: ChatProgressUpdates? = progressCategory.start("discord rpc updatePresence")
+        var updatePresenceProgress: ChatProgressUpdates? = progressCategory.start("discord RPC updatePresence")
         presenceJob = with(SkyHanniMod) {
             presenceConfig.launchUnScopedCoroutine {
                 updatePresenceProgress?.update("started update presence loop first run")
@@ -298,7 +298,7 @@ object DiscordRPCManager {
         progress.end("launchCoroutine")
         with(SkyHanniMod) {
             manualStartConfig.launchUnScopedCoroutine {
-                start(progressCategory.start("discord rpc manual start"), fromCommand = true)
+                start(progressCategory.start("discord RPC manual start"), fromCommand = true)
             }
         }
     }

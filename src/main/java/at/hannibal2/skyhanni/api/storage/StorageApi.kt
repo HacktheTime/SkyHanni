@@ -56,7 +56,7 @@ object StorageApi {
      * REGEX-TEST: Ender Chest
      * REGEX-TEST: Ender Chest (1/9)
      */
-    private val enderchestPattern by RepoPattern.pattern(
+    private val enderChestPattern by RepoPattern.pattern(
         "storage.enderchest",
         "Ender Chest(?: \\((?<page>\\d+)/\\d+\\))?",
     )
@@ -79,7 +79,7 @@ object StorageApi {
     )
 
     val accessStorage: Map<String, SkyHanniInventoryContainer> get() = storage
-    val enderchest: Map<String, SkyHanniInventoryContainer>
+    val enderChest: Map<String, SkyHanniInventoryContainer>
         get() = StringUtils.subMapOfStringsStartingWith(
             "Ender Chest",
             storage,
@@ -105,7 +105,7 @@ object StorageApi {
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onInventoryFullyOpened(event: InventoryFullyOpenedEvent) {
-        enderchestPattern.matchMatcher(event.inventoryName) {
+        enderChestPattern.matchMatcher(event.inventoryName) {
             val page = groupOrNull("page")?.toInt() ?: 1
             handleRead("Ender Chest $page", event.inventoryItemsWithNull.values)
             return
@@ -173,7 +173,7 @@ object StorageApi {
             when {
                 chest.primaryCords.distanceSqToPlayer() > 30 * 30 -> false
                 chest.primaryCords.getBlockAt() !is ChestBlock -> true
-                chest.secondaryCords == null -> getNeighbourBlocks(chest.primaryCords).any { it.second is ChestBlock }
+                chest.secondaryCords == null -> getNeighborBlocks(chest.primaryCords).any { it.second is ChestBlock }
                 else -> chest.secondaryCords.getBlockAt() !is ChestBlock
             }.also {
                 if (it) ChatUtils.debug("Removed Private Island Chest at: ${chest.primaryCords}")
@@ -227,7 +227,7 @@ object StorageApi {
     private var lastChestClicked: LorenzVec? = null
     private var doubleChestCord: LorenzVec? = null
 
-    private fun getNeighbourBlocks(position: LorenzVec) =
+    private fun getNeighborBlocks(position: LorenzVec) =
         listOf(position.add(x = 1), position.add(x = -1), position.add(z = 1), position.add(z = -1)).map {
             it to it.getBlockAt()
         }
@@ -239,7 +239,7 @@ object StorageApi {
         val chest = event.getBlockState.block as? ChestBlock ?: return
         val position = event.flatPosition
         // Double Chest Check
-        val otherChest = getNeighbourBlocks(position).firstOrNull { it.second == chest }?.first
+        val otherChest = getNeighborBlocks(position).firstOrNull { it.second == chest }?.first
         if (otherChest == null) {
             lastChestClicked = position
             doubleChestCord = null
@@ -319,7 +319,7 @@ object StorageApi {
      */
     fun getPageFromStorageName(storageName: String): Int? {
         // First try patterns used for live inventory titles (with parentheses/page counts)
-        enderchestPattern.matchMatcher(storageName) {
+        enderChestPattern.matchMatcher(storageName) {
             return groupOrNull("page")?.toInt() ?: 1
         }
         backpackPattern.matchMatcher(storageName) {
