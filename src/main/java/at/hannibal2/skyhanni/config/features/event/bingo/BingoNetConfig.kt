@@ -12,6 +12,9 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 @ThirdPartyDependency(ThirdParty.BINGO_NET)
 class BingoNetConfig {
     @Expose
+    var firstSetup: Boolean = true
+
+    @Expose
     @ConfigOption(
         name = "Use Bingo Net",
         desc = "Connect Skyhanni to the Bingo Net Network.\nBingo Net is the most advanced Bingo Network for Skyblock Bingo!",
