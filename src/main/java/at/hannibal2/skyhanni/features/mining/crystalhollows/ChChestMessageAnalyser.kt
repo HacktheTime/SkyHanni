@@ -7,7 +7,7 @@ import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersClient
-import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersPackets
+// import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersPackets
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
 import at.hannibal2.skyhanni.utils.compat.WorldCompat
@@ -51,21 +51,21 @@ object ChChestMessageAnalyser {
                     val bnPacket = ChChestPacket(chest, serverId)
                     BNConnection.sendPacket(bnPacket)
                     if (SkyHanniMod.feature.event.bingo.bingoNetworks.chestWaypoints) {
-                        val packet = BingoBrewersPackets.sendCHItems()
-                        packet.x = coords.x
-                        packet.y = coords.y
-                        packet.z = coords.z
-                        packet.items = items.map { (item, count) ->
-                            val bItem = BingoBrewersPackets.CHChestItem()
-                            bItem.name = item.displayName
-                            bItem.count = count.toString()
-                            bItem.itemColor = item.itemFormatting.color?.rgb ?: Color.WHITE.rgb
-                            bItem.numberColor = item.countFormatting.color?.rgb ?: Color.WHITE.rgb
-                            return@map bItem
-                        }
-                        packet.server = serverId
-                        packet.day = WorldCompat.worldDay ?: error("World is null?")
-                        BingoBrewersClient.sendTCP(packet)
+//                         val packet = BingoBrewersPackets.sendCHItems()
+//                         packet.x = coords.x
+//                         packet.y = coords.y
+//                         packet.z = coords.z
+//                         packet.items = items.map { (item, count) ->
+//                             val bItem = BingoBrewersPackets.CHChestItem()
+//                             bItem.name = item.displayName
+//                             bItem.count = count.toString()
+//                             bItem.itemColor = item.itemFormatting.color?.rgb ?: Color.WHITE.rgb
+//                             bItem.numberColor = item.countFormatting.color?.rgb ?: Color.WHITE.rgb
+//                             return@map bItem
+//                         }
+//                         packet.server = serverId
+//                         packet.day = WorldCompat.worldDay ?: error("World is null?")
+//                         BingoBrewersClient.sendTCP(packet)
                     }
                 }
                 items.clear()

@@ -4,15 +4,7 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- added /shtracksack
-- added /shmobhighlight
-- improved splasher overlay
-- updated splsh locations
-- renamed /bingobrewersreconnect to /bingobrewers
-- improved splasher overlay
-- Changed it so the reforge helper doesn't reset each item anymore.
-- **LINUX ONLY**: Added a feature that reads discord notifications via dbus that should auto detect splash announcements. This has to enabled manually!
-
+- Added Splash Announcement Support for Breaking Bingo Brewer Mod changes. Support will be expanded soon.
 
 ## Static Info for modrinth:
 

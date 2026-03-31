@@ -11,7 +11,7 @@ import at.hannibal2.skyhanni.events.IslandJoinEvent
 import at.hannibal2.skyhanni.events.IslandLeaveEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersClient
-import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersPackets
+// import at.hannibal2.skyhanni.features.bingo.bingobrewers.BingoBrewersPackets
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.BlockUtils.getBlockAt
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -140,11 +140,11 @@ object ChChestUpdateListener {
         if (config.bingoNet.useBN) BNConnection.sendPacket(unsubpacket)
         val day = this.day
         if (config.useBB && day != null) {
-            val bbsub = BingoBrewersPackets.SubscribeToCHServer()
-            bbsub.server = lastServerId
-            bbsub.day = day
-            bbsub.unsubscribe = true
-            BingoBrewersClient.sendTCP(bbsub)
+//             val bbsub = BingoBrewersPackets.SubscribeToCHServer()
+//             bbsub.server = lastServerId
+//             bbsub.day = day
+//             bbsub.unsubscribe = true
+//             BingoBrewersClient.sendTCP(bbsub)
         }
         this.day = WorldCompat.worldDay
         reset()
@@ -167,12 +167,11 @@ object ChChestUpdateListener {
                 val packet = SubscribeToChServer(serverId, getLobbyClosingTime())
                 if (config.bingoNet.useBN) BNConnection.sendPacket(packet)
                 if (config.useBB) {
-                    val bbsub = BingoBrewersPackets.SubscribeToCHServer()
-                    bbsub.unsubscribe = false
-                    bbsub.server = serverId
-                    bbsub.day = WorldCompat.worldDay ?: error("World appears to be null, cannot get day")
-                    BingoBrewersClient.sendTCP(bbsub)
-                    BingoBrewersClient.sendTCP(bbsub)
+//                     val bbsub = BingoBrewersPackets.SubscribeToCHServer()
+//                     bbsub.unsubscribe = false
+//                     bbsub.server = serverId
+//                     bbsub.day = WorldCompat.worldDay ?: error("World appears to be null, cannot get day")
+//                     BingoBrewersClient.sendTCP(bbsub)
                 }
             }
         }
@@ -225,24 +224,24 @@ object ChChestUpdateListener {
         updateLobby(data.chests)
     }
 
-    fun onChLobbyDataReceived(packet: BingoBrewersPackets.receiveCHItems) {
-        if (HypixelData.serverId == packet.server) {
-            packet.chestMap.forEach {
-                val items = HashMap<ChChestItem, IntRange>()
-                it.items.forEach {
-                    val countSplit = it.count.split("-")
-                    items[
-                        ChChestItem(
-                            it.name,
-                            Formatting.getByColour(it.itemColor) ?: Formatting.WHITE,
-                            Formatting.getByColour(it.numberColor) ?: Formatting.WHITE,
-                        ),
-                    ] = IntRange(countSplit[0].toInt(), countSplit.last().toInt())
-                }
-                addChestAndUpdate(Position(it.x, it.y, it.z), items)
-            }
-        }
-    }
+//     fun onChLobbyDataReceived(packet: BingoBrewersPackets.receiveCHItems) {
+//         if (HypixelData.serverId == packet.server) {
+//             packet.chestMap.forEach {
+//                 val items = HashMap<ChChestItem, IntRange>()
+//                 it.items.forEach {
+//                     val countSplit = it.count.split("-")
+//                     items[
+//                         ChChestItem(
+//                             it.name,
+//                             Formatting.getByColour(it.itemColor) ?: Formatting.WHITE,
+//                             Formatting.getByColour(it.numberColor) ?: Formatting.WHITE,
+//                         ),
+//                     ] = IntRange(countSplit[0].toInt(), countSplit.last().toInt())
+//                 }
+//                 addChestAndUpdate(Position(it.x, it.y, it.z), items)
+//             }
+//         }
+//     }
 
     @HandleEvent(onlyOnIsland = IslandType.CRYSTAL_HOLLOWS)
     fun onBlockClick(event: BlockClickEvent) {
