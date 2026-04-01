@@ -319,6 +319,7 @@ object DiscordRPCManager {
             add("no error detected.")
             add("status: $debugStatusMessage")
             add("lastActivityJson: ${client?.lastActivityJson ?: "none yet"}")
+            add("lastDiscordResponse: ${client?.lastDiscordResponse ?: "none yet"}")
             lastDebugInfo.forEach { (k, v) -> add("$k: $v") }
         }
     }
