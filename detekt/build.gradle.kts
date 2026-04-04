@@ -1,22 +1,20 @@
-import dev.detekt.gradle.Detekt
-import dev.detekt.gradle.DetektCreateBaselineTask
-
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
     kotlin("jvm")
     id("com.google.devtools.ksp")
-    id("dev.detekt")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 dependencies {
-    compileOnly(libs.detekt.api)
+    implementation(libs.detekt.api)
     ksp(libs.autoservice.ksp)
     implementation(libs.autoservice.annotations)
-    implementation(libs.detektrules.ktlint)
+    implementation(libs.detekt.formatting)
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.detekt.test)
     detektPlugins(libs.detektrules.authors)
-    detektPlugins(libs.detektrules.ktlint)
 }
 
 tasks.withType<Detekt>().configureEach {

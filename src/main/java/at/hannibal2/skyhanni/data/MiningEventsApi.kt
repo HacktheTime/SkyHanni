@@ -141,12 +141,11 @@ object MiningEventsApi {
         }
     }
 
-    // Todo de-duplicate with MiningEventType in features.mining.eventtracker
     enum class MiningEventType(
         val duration: Duration,
-        @param:Language("RegExp") val chatFallback: String,
-        @param:Language("RegExp") val widgetEventFallback: String,
-        @param:Language("RegExp") val bossbarFallback: String,
+        @Language("RegExp") val chatFallback: String,
+        @Language("RegExp") val widgetEventFallback: String,
+        @Language("RegExp") val bossbarFallback: String,
     ) {
         // all work
         // §e§lEVENT §C§LGOBLIN RAID §e§lACTIVE IN §b§lGOBLIN BURROWS §e§lfor §a§l02:00§r

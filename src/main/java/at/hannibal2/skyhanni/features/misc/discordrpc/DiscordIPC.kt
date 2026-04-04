@@ -79,9 +79,6 @@ class DiscordIPC(
     var lastActivityJson: String? = null
         private set
 
-    var lastDiscordResponse: String? = null
-        private set
-
     /**
      * Updates the rich presence activity displayed on the user's Discord profile.
      *
@@ -175,7 +172,6 @@ class DiscordIPC(
                     }
                     else -> {
                         if (opcode == Opcode.FRAME) tryCompletePendingRequest(body)
-                        lastDiscordResponse = body
                         ChatUtils.debug("Discord RPC frame ($opcode): $body")
                     }
                 }
@@ -201,21 +197,16 @@ class DiscordIPC(
     @Suppress("ThrowsCount")
     private fun readFrame(): Pair<Opcode, String> {
         val inp = pipe?.input ?: throw DiscordIPCException("readFrame called with no active connection")
-        try {
-            val header = inp.readNBytes(8)
-            if (header.size < 8) {
-                clearSessionState()
-                throw DiscordIPCException("Discord closed the IPC pipe unexpectedly (EOF in frame header)")
-            }
-            val buffer = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN)
-            val opcodeId = buffer.int
-            val opcode = Opcode.fromId(opcodeId) ?: throw DiscordIPCException("Received unknown opcode: $opcodeId")
-            val length = buffer.int
-            return opcode to String(inp.readNBytes(length), Charsets.UTF_8)
-        } catch (e: IOException) {
-            _connected = false
-            throw DiscordIPCException("IPC read failed: ${e.message}", e)
+        val header = inp.readNBytes(8)
+        if (header.size < 8) {
+            clearSessionState()
+            throw DiscordIPCException("Discord closed the IPC pipe unexpectedly (EOF in frame header)")
         }
+        val buffer = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN)
+        val opcodeId = buffer.int
+        val opcode = Opcode.fromId(opcodeId) ?: throw DiscordIPCException("Received unknown opcode: $opcodeId")
+        val length = buffer.int
+        return opcode to String(inp.readNBytes(length), Charsets.UTF_8)
     }
 
     /**

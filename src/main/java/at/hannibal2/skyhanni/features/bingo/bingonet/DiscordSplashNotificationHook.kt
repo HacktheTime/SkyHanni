@@ -9,7 +9,7 @@ import at.hannibal2.skyhanni.events.minecraft.ClientShutdownEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.OSUtils
-import at.hannibal2.skyhanni.utils.coroutines.CoroutineConfig
+import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
@@ -30,7 +30,7 @@ object DiscordSplashNotificationHook {
     )
 
     private val progressCategory = ChatProgressUpdates.category("Discord Splash Notification Hook")
-    private val ioConfig = CoroutineConfig("discord splash notification hook", timeout = INFINITE).withIOContext()
+    private val ioConfig = CoroutineSettings("discord splash notification hook", timeout = INFINITE).withIOContext()
 
     private val splashIdCounter = AtomicInteger(-1)
 

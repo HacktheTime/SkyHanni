@@ -1,4 +1,4 @@
-package at.hannibal2.skyhanni.config.features.gui.moveablehud
+package at.hannibal2.skyhanni.config.features.gui
 
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
@@ -7,7 +7,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
-class HeldItemTooltipConfig : MoveableHudConfig {
+class HeldItemTooltipConfig {
     @Expose
     @ConfigOption(
         name = "Enabled",
@@ -15,14 +15,14 @@ class HeldItemTooltipConfig : MoveableHudConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
-    override var enabled: Boolean = false
+    var enabled: Boolean = false
 
     @Expose
     @ConfigLink(owner = HeldItemTooltipConfig::class, field = "enabled")
-    override val position: Position = Position(20, 20)
+    val position: Position = Position(20, 20)
 
     @Expose
     @ConfigOption(name = "Show Outside SkyBlock", desc = "Shows the held item tooltip outside of SkyBlock.")
     @ConfigEditorBoolean
-    override var showOutsideSkyblock: Boolean = false
+    var showOutsideSkyblock: Boolean = false
 }

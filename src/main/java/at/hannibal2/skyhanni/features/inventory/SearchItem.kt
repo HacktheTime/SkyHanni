@@ -21,6 +21,7 @@ import at.hannibal2.skyhanni.api.storage.outputToChat
 import at.hannibal2.skyhanni.utils.NeuItems
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLeadingWhiteLessResets
 import com.mojang.brigadier.suggestion.SuggestionProvider
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.util.UUID
 
 @SkyHanniModule
@@ -36,7 +37,7 @@ object SearchItem {
 
     private fun collectItemIds(): Set<String> = EnoughUpdatesManager.allSkyblockItemIds
 
-    private val nameSuggestionProvider = SuggestionProvider<Any?> { _, builder ->
+    private val nameSuggestionProvider: SuggestionProvider<FabricClientCommandSource> = SuggestionProvider { _, builder ->
         val remaining = builder.remainingLowerCase
         val names = NeuItems.findItemNameWithoutNPCs(
             remaining,
@@ -81,7 +82,7 @@ object SearchItem {
             }
             // name subcommand (regex)
             literal("name") {
-                arg("pattern", BrigadierArguments.greedyString(), nameSuggestionProvider) { pat ->
+                arg<String>("pattern", BrigadierArguments.greedyString(), nameSuggestionProvider) { pat ->
                     callback {
                         SkyHanniMod.launchCoroutine("SearchItem /searchitem name") {
                             val pattern = getArg(pat)

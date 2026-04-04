@@ -35,6 +35,8 @@ object ScoreboardElementPowder : ScoreboardElement() {
                 PowderDisplay.BOTH -> {
                     add(" §7- ${CustomScoreboardUtils.formatNumberDisplay(name, "$current/$total", color)}")
                 }
+
+                null -> {}
             }
         }
     }

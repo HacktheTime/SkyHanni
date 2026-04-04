@@ -6,7 +6,7 @@ import java.awt.Color
 
 class QuadDrawer @PublishedApi internal constructor(val event: SkyHanniRenderWorldEvent) {
 
-    fun draw(
+    inline fun draw(
         middlePoint: LorenzVec,
         sidePoint1: LorenzVec,
         sidePoint2: LorenzVec,

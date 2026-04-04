@@ -16,11 +16,12 @@ import at.hannibal2.skyhanni.utils.ColorUtils.toColor
 import at.hannibal2.skyhanni.utils.ColorUtils.toInt
 import at.hannibal2.skyhanni.utils.ConfigUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
+import at.hannibal2.skyhanni.utils.KeyboardManager
 import at.hannibal2.skyhanni.utils.KeyboardManager.LEFT_MOUSE
 import at.hannibal2.skyhanni.utils.KeyboardManager.RIGHT_MOUSE
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyClicked
 import at.hannibal2.skyhanni.utils.LorenzColor
-import at.hannibal2.skyhanni.utils.SkyHanniLogger
+import at.hannibal2.skyhanni.utils.LorenzLogger
 import at.hannibal2.skyhanni.utils.NeuItems
 import at.hannibal2.skyhanni.utils.RenderUtils.HorizontalAlignment
 import at.hannibal2.skyhanni.utils.RenderUtils.VerticalAlignment
@@ -79,7 +80,7 @@ interface Renderable {
 
     companion object {
 
-        val logger = SkyHanniLogger("debug/renderable")
+        val logger = LorenzLogger("debug/renderable")
         var currentRenderPassMousePosition: Pair<Int, Int>? = null
 
         private val scrollbarTrackColor: ChromaColour = ChromaColour.fromStaticRGB(40, 40, 60, 200)
@@ -162,7 +163,7 @@ interface Renderable {
             /**
              * This should be a direct map of key code int, to the unit that should be invoked.
              * For mouse buttons, use [LEFT_MOUSE] and [RIGHT_MOUSE] from [at.hannibal2.skyhanni.utils.KeyboardManager].
-             * For keyboard codes, use the [org.lwjgl.glfw.GLFW] enums.
+             * For keyboard codes, use the [org.lwjgl.input.Keyboard] enums.
              */
             onAnyClick: Map<Int, () -> Unit>,
             bypassChecks: Boolean = false,
@@ -176,7 +177,7 @@ interface Renderable {
             /**
              * This should be a direct map of key code int, to the unit that should be invoked.
              * For mouse buttons, use [LEFT_MOUSE] and [RIGHT_MOUSE] from [at.hannibal2.skyhanni.utils.KeyboardManager].
-             * For keyboard codes, use the [org.lwjgl.glfw.GLFW] enums.
+             * For keyboard codes, use the [org.lwjgl.input.Keyboard] enums.
              */
             onAnyClick: Map<Int, () -> Unit>,
             bypassChecks: Boolean = false,
@@ -286,15 +287,16 @@ interface Renderable {
                         if (condition() && shouldAllowLink(true, bypassChecks)) {
                             onHover.invoke()
                             HighlightOnHoverSlot.currentSlots[pair] = highlightsOnHoverSlots
-                            DrawContextUtils.pushPop {
-                                RenderableTooltips.setTooltipForRender(
-                                    tips = tipsRender,
-                                    stack = stack,
-                                    borderColor = color,
-                                    snapsToTopIfToLong = snapsToTopIfToLong,
-                                    spacedTitle = spacedTitle,
-                                )
-                            }
+                            DrawContextUtils.pushMatrix()
+
+                            RenderableTooltips.setTooltipForRender(
+                                tips = tipsRender,
+                                stack = stack,
+                                borderColor = color,
+                                snapsToTopIfToLong = snapsToTopIfToLong,
+                                spacedTitle = spacedTitle,
+                            )
+                            DrawContextUtils.popMatrix()
                         }
                     } else {
                         HighlightOnHoverSlot.currentSlots.remove(pair)
@@ -589,6 +591,11 @@ interface Renderable {
                         GuiRenderUtils.drawRect(1, 1, progress, height - 1, color.rgb)
                     }
                 } else {
+                    val scale = 0.00390625f
+
+                    val (_, _) = if (texture == SkillProgressBarConfig.TexturedBar.UsedTexture.MATCH_PACK)
+                        Pair(0f, 64f * scale) else Pair(0f, 0f)
+
                     if (texture == SkillProgressBarConfig.TexturedBar.UsedTexture.MATCH_PACK) {
                         DrawContextUtils.drawContext.blitSprite(
                             RenderCompat.getMinecraftGuiTextured(), createResourceLocation("hud/experience_bar_background"),
