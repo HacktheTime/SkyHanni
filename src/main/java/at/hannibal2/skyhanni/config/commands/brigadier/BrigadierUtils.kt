@@ -12,6 +12,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.util.concurrent.CompletableFuture
 
 object BrigadierUtils {
@@ -34,7 +35,7 @@ object BrigadierUtils {
     /**
      * Convert a static collection to be suggestions for an argument
      */
-    fun Collection<String>.toSuggestionProvider() = SuggestionProvider<Any?> { _, builder ->
+    fun Collection<String>.toSuggestionProvider() = SuggestionProvider<FabricClientCommandSource> { _, builder ->
         val useContain = useContainSuggestion
         val ignoreCase = ignoreCaseSuggestion
         for (s in this) {
@@ -53,8 +54,8 @@ object BrigadierUtils {
     /**
      * Dynamically generates suggestions for an argument based on a collection provided by a supplier.
      */
-    fun dynamicSuggestionProvider(supplier: () -> Collection<String>): SuggestionProvider<Any?> {
-        return SuggestionProvider { _, builder ->
+    fun dynamicSuggestionProvider(supplier: () -> Collection<String>) =
+        SuggestionProvider<FabricClientCommandSource> { _, builder ->
             val remaining = builder.remainingLowerCase
             val useContain = useContainSuggestion
             val ignoreCase = ignoreCaseSuggestion
@@ -70,7 +71,6 @@ object BrigadierUtils {
             }
             builder.buildFuture()
         }
-    }
 
     private fun isCharAllowed(c: Char): Boolean = StringReader.isAllowedInUnquotedString(c) || c == SINGLE_QUOTE
 
@@ -85,7 +85,7 @@ object BrigadierUtils {
             while (canRead() && isCharAllowed(peek())) {
                 skip()
             }
-            return string.substring(start, cursor)
+            string.substring(start, cursor)
         }
     }
 

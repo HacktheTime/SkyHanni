@@ -29,6 +29,8 @@ import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RegexUtils.matches
+import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderable
+import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.RenderUtils.renderString
 import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.compat.command
@@ -39,6 +41,8 @@ import at.hannibal2.skyhanni.utils.getLorenzVec
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawDynamicText
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawString
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
+import at.hannibal2.skyhanni.utils.renderables.Renderable
+import at.hannibal2.skyhanni.utils.renderables.primitives.text
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.decoration.ArmorStand
@@ -47,6 +51,7 @@ import net.minecraft.world.entity.decoration.ArmorStand
 object TrevorFeatures {
     private val patternGroup = RepoPattern.group("misc.trevor")
 
+    // <editor-fold desc="Patterns">
     /**
      * REGEX-TEST: [NPC] Trevor: You can find your TRACKABLE animal near the §eDesert Mountain.
      */
@@ -94,7 +99,9 @@ object TrevorFeatures {
         "area.trappersden",
         "Trapper's Den",
     )
+    // </editor-fold>
 
+    // TODO form to data class, use Resettable
     private var timeUntilNextReady = 0
     private var trapperReady: Boolean = true
     private var currentStatus = TrapperStatus.READY
@@ -226,17 +233,15 @@ object TrevorFeatures {
     }
 
     @HandleEvent(GuiRenderEvent.GuiOverlayRenderEvent::class, priority = HandleEvent.LOWEST, onlyOnIsland = IslandType.THE_FARMING_ISLANDS)
-    fun onRenderOverlay() {
+    fun onGuiRenderOverlay() {
         if (!config.cooldownGui) return
 
         val cooldownMessage = if (timeUntilNextReady <= 0) "Trapper Ready"
         else if (timeUntilNextReady == 1) "1 second left"
         else "$timeUntilNextReady seconds left"
 
-        config.cooldownGuiPosition.renderString(
-            "${currentStatus.colorCode}Trapper Cooldown: $cooldownMessage",
-            posLabel = "Trapper Cooldown GUI",
-        )
+        val display = Renderable.text("${currentStatus.colorCode}Trapper Cooldown: $cooldownMessage")
+        config.cooldownGuiPosition.renderRenderable(display, posLabel = "Trapper Cooldown GUI")
     }
 
     private fun updateTrapper() {
