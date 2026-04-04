@@ -71,7 +71,7 @@ object ServerConnection : Listener(), Runnable {
 
         connectionsThisSession++
 
-        client.connect(8000, "bingobrewers.com", 8080, 7070)
+        client.connect(8000, "bingobrewers.com", 8282, 7070)
 
         println("Connected to server.")
     }

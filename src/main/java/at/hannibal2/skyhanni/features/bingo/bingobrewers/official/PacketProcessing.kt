@@ -81,7 +81,7 @@ object PacketProcessing {
 
             val accountInfo = ConnectionIGN()
             accountInfo.IGN = encryptString(PlayerUtils.getName())
-            accountInfo.uuid = encryptString(PlayerUtils.getUuid())
+            accountInfo.uuid = encryptString(PlayerUtils.getRawUuid().toString())
             accountInfo.version = encryptString("v0.4")
             accountInfo.connections = connectionsThisSession
 
