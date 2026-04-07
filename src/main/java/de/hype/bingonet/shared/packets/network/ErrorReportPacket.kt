@@ -3,10 +3,9 @@ package de.hype.bingonet.shared.packets.network
 import de.hype.bingonet.environment.packetconfig.AbstractPacket
 
 class ErrorReportPacket(
-    original: Throwable,
-    fullErrorData: String,
-    mcVersion: String,
-    shVersion: String,
-    extraData: List<Pair<String, String?>>
-) : AbstractPacket() {
-}
+    val original: Throwable,
+    val fullErrorData: String,
+    val mcVersion: String,
+    val shVersion: String,
+    val extraData: List<Pair<String, String?>>
+) : AbstractPacket()

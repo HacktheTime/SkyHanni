@@ -25,5 +25,5 @@ object BNGson {
             .registerTypeAdapter(Color::class.java, ColorSerializer())
             .registerTypeAdapter(Duration::class.java, DurationSerializer())
             .registerTypeAdapter(Instant::class.java, InstantSerializer())
-            .registerTypeAdapter(Throwable::class.java, ThrowableTypeAdapter())
+            .registerTypeHierarchyAdapter(Throwable::class.java, ThrowableTypeAdapter())
 }
