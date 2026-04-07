@@ -46,7 +46,7 @@ private const val CHAT_PREFIX = "[SkyHanni] "
 object ChatUtils {
 
     // TODO log based on chat category (error, warning, debug, user error, normal)
-    private val log = LorenzLogger("chat/mod_sent")
+    private val log = SkyHanniLogger("chat/mod_sent")
     var lastButtonClicked = 0L
 
     /**

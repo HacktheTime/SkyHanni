@@ -6,7 +6,6 @@ import at.hannibal2.skyhanni.events.ConfigLoadEvent
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyUpEvent
-import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -303,10 +302,6 @@ object Keybinds {
             }
         } catch (_: Throwable) {
         }
-    }
-
-    @HandleEvent
-    fun onKeyPress(@Suppress("UNUSED_PARAMETER") e: KeyPressEvent) {
     }
 
     private fun persist() {

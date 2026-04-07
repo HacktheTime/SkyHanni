@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.collections.iterator
 import at.hannibal2.skyhanni.config.ConfigFileType
+import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
 
 // Numpad codes: structured actions, per-action delay, client/server execution, island-aware, threaded overlay
 
@@ -207,7 +208,7 @@ object NumpadCodes {
 
 
     @HandleEvent
-    fun onKeyPress(event: KeyPressEvent) {
+    fun onKeyPress(event: KeyDownEvent) {
         if (!settings.enabled) return
         if (Minecraft.getInstance().screen != null) return
 
