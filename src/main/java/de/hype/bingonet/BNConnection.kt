@@ -70,7 +70,6 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
-import java.lang.String
 import java.net.Socket
 import java.security.KeyStore
 import java.security.NoSuchAlgorithmException
@@ -150,7 +149,7 @@ object BNConnection {
     }
 
     @Synchronized
-    fun connect(serverIP: kotlin.String = "hackthetime.de", serverPort: Int) {
+    fun connect(serverIP: String = "hackthetime.de", serverPort: Int) {
         try {
             val sslContext = createSSLContext()
             val sslSocketFactory = sslContext.socketFactory
@@ -199,7 +198,7 @@ object BNConnection {
             {
                 try {
                     while (!Thread.currentThread().isInterrupted && isConnected) {
-                        messageQueue?.poll(100, TimeUnit.MILLISECONDS)?.let { message ->
+                        messageQueue?.poll(1, TimeUnit.SECONDS)?.let { message ->
                             writer?.println(message)
                             writer?.flush()
                         }
@@ -215,8 +214,8 @@ object BNConnection {
         }
     }
 
-    private val reportedErrors = mutableSetOf<kotlin.String>()
-    fun onMessageReceived(message: kotlin.String) {
+    private val reportedErrors = mutableSetOf<String>()
+    fun onMessageReceived(message: String) {
         try {
             val packet: Pair<Packet<out AbstractPacket>, AbstractPacket>? = PacketUtils.parsePacket(message)
             if (packet == null) {
@@ -337,7 +336,8 @@ object BNConnection {
                     prefix = false,
                 )
             }
-            writer!!.println("$packetName.$rawjson")
+            val payload = "$packetName.$rawjson"
+            messageQueue?.offer(payload)
         } else {
             if (retry <= 0) {
                 ChatUtils.chat("§cBN: Failed to send packet $packetName. Not connected to Bingo Net Server.")
@@ -659,7 +659,7 @@ object BNConnection {
         if (packet.serverId != null && !(HypixelData.serverId?.matches(Regex(packet.serverId)) ?: false)
         ) return
         if (packet.mega != null && packet.mega != HypixelData.isInMega()) return
-        val players: Set<kotlin.String> = EntityUtils.getPlayerList()
+        val players: Set<String> = EntityUtils.getPlayerList()
         if (packet.maximumPlayerCount != null && packet.maximumPlayerCount <= players.size) return
         if (packet.minimumPlayerCount != null && packet.minimumPlayerCount >= players.size) return
         if (packet.username != null && !players.contains(packet.username)) return
