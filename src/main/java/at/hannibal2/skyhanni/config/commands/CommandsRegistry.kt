@@ -10,7 +10,6 @@ import at.hannibal2.skyhanni.test.command.requireDevEnv
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrInsert
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
-import com.mojang.authlib.minecraft.client.MinecraftClient
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
@@ -21,6 +20,8 @@ import net.minecraft.client.Minecraft
 object CommandsRegistry {
     private var brigadierDispatcher: CommandDispatcher<Any?>? = null
     fun getDispatcher(): CommandDispatcher<Any?> = brigadierDispatcher ?: error("Brigadier dispatcher is not registered yet")
+
+    fun getDispatcherNullable(): CommandDispatcher<Any?>? = brigadierDispatcher
 
     @HandleEvent(PreInitFinishedEvent::class)
     fun onPreInitFinished() {
@@ -86,9 +87,9 @@ object CommandsRegistry {
      */
     fun execAutomaticCommand(raw: String) {
         val raw = if (raw.startsWith("/")) raw.removePrefix("/") else raw
-        val baseDispatcher = getDispatcher()
-        val baseParse = baseDispatcher.parse(raw, MinecraftCompat.localPlayer)
-        if (!baseParse.reader.canRead()) {
+        val baseDispatcher = getDispatcherNullable()
+        val baseParse = baseDispatcher?.parse(raw, MinecraftCompat.localPlayer)
+        if (baseParse!=null && !baseParse.reader.canRead()) {
             baseDispatcher.execute(baseParse)
         } else {
             val serverDispatcher = mcServerDispatcher()
