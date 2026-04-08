@@ -26,6 +26,7 @@ object CommandsRegistry {
     @HandleEvent(PreInitFinishedEvent::class)
     fun onPreInitFinished() {
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
+            this.brigadierDispatcher = dispatcher as CommandDispatcher<Any?>
             CommandRegistrationEvent(dispatcher).post()
         }
     }
