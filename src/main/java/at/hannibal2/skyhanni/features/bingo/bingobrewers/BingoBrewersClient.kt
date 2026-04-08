@@ -1,14 +1,16 @@
 package at.hannibal2.skyhanni.features.bingo.bingobrewers
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.SkyHanniMod.launch
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.events.ConfigLoadEvent
-import at.hannibal2.skyhanni.features.bingo.bingobrewers.official.ServerConnection
-import at.hannibal2.skyhanni.features.bingo.bingobrewers.official.ServerConnection.client
+import at.hannibal2.skyhanni.features.bingo.bingobrewers.official_ported.ServerConnection
+import at.hannibal2.skyhanni.features.bingo.bingobrewers.official_ported.ServerConnection.client
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 
 @SkyHanniModule
 object BingoBrewersClient {
@@ -17,7 +19,9 @@ object BingoBrewersClient {
     fun isEnabled() = config.useBB
 
     init {
-        init()
+        CoroutineSettings("BingoBrewersClient").launch {
+            init()
+        }
     }
 
     @HandleEvent

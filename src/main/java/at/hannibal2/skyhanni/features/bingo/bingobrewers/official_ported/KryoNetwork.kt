@@ -1,4 +1,6 @@
-package at.hannibal2.skyhanni.features.bingo.bingobrewers.official
+@file:Suppress("PackageDirectoryMismatch")
+
+package com.github.indigopolecat.kryo
 
 import com.esotericsoftware.kryonet.EndPoint
 import kotlin.jvm.java
@@ -32,8 +34,8 @@ object KryoNetwork {
         kryo.register(CancelWarpRequest::class.java)
         kryo.register(AbortWarpTask::class.java)
         kryo.register(QueuePosition::class.java)
-//         kryo.register(ServerSummary::class.java)
-//         kryo.register(ServersSummary::class.java)
+        kryo.register(ServerSummary::class.java)
+        kryo.register(ServersSummary::class.java)
         kryo.register(UpdateServers::class.java)
         kryo.register(RequestLiveUpdatesForServerInfo::class.java)
         kryo.register(WarningBannerInfo::class.java)
@@ -184,9 +186,17 @@ object KryoNetwork {
         var positionInWarpQueue: Int = 0
     }
 
-//     class ServersSummary {
-//         var serverInfo: HashMap<String?, ServerSummary?> = HashMap<String?, ServerSummary?>()
-//     }
+    class ServerSummary {
+        var server: String? = null
+        var serverType: String? = null
+        var availablePlayersToWarp: Int = 0
+        var lastUpdated: Long = 0
+        var condensedItems: HashMap<String?, Any?> = HashMap<String?, Any?>()
+    }
+
+    class ServersSummary {
+        var serverInfo: HashMap<String?, ServerSummary?> = HashMap<String?, ServerSummary?>()
+    }
 
     class UpdateServers {
         var serversAndLastUpdatedTime: HashMap<String?, Long?> = HashMap<String?, Long?>()

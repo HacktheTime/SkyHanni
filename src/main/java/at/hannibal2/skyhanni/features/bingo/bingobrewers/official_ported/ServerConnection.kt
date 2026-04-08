@@ -1,14 +1,13 @@
-package at.hannibal2.skyhanni.features.bingo.bingobrewers.official
+package at.hannibal2.skyhanni.features.bingo.bingobrewers.official_ported
 
 import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.config.features.event.bingo.BingoBrewersConfig
-import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.PlayerUtils.getName
 import at.hannibal2.skyhanni.utils.PlayerUtils.getUuid
 import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.minlog.Log
+import com.github.indigopolecat.kryo.KryoNetwork
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
 import java.security.KeyFactory
@@ -30,9 +29,21 @@ import kotlin.math.min
 object ServerConnection : Listener(), Runnable {
     val isConnected: Boolean
         get() = client?.isConnected ?: false
-    val thread = Thread(this, "Bingo Brewers Server Connection Thread")
+
+    @Volatile
+    private var workerThread: Thread? = null
+
+    @Volatile
+    private var manualClose = false
+
+    @Volatile
+    private var reconnecting = false
+
+    @Volatile
+    private var connectionListener: Listener? = null
+
     init {
-        thread.start()
+        init()
     }
 
     override fun run() {
@@ -54,18 +65,23 @@ object ServerConnection : Listener(), Runnable {
         Log.set(Log.LEVEL_ERROR)
         val client = client!!
         KryoNetwork.register(client)
-        client.addListener(
-            object : Listener() {
-                override fun received(connection: Connection?, `object`: Any?) {
+        val listener = object : Listener() {
+            override fun received(connection: Connection?, `object`: Any?) {
+                try {
                     PacketProcessing.processPacket(connection, `object`)
+                } catch (t: Throwable) {
+                    println("[BB] Packet handling crashed for ${`object`?.javaClass?.name}: ${t.message}")
+                    t.printStackTrace()
                 }
+            }
 
-                override fun disconnected(connection: Connection?) {
-                    println("disconnected")
-                    reconnect()
-                }
-            },
-        )
+            override fun disconnected(connection: Connection?) {
+                println("disconnected")
+                if (!manualClose) reconnect()
+            }
+        }
+        connectionListener = listener
+        client.addListener(listener)
 
         client.start()
 
@@ -89,9 +105,15 @@ object ServerConnection : Listener(), Runnable {
     }
 
     fun reconnect() {
-        val client = client ?: return
+        if (reconnecting) return
+        reconnecting = true
+        manualClose = false
+        val client = client ?: run {
+            reconnecting = false
+            return
+        }
         client.close()
-        client.removeListener(this)
+        connectionListener?.let { client.removeListener(it) }
         var waitTime = 0f
 
         waitTime = (5000 * Math.random() + 2000).toInt().toFloat()
@@ -104,11 +126,12 @@ object ServerConnection : Listener(), Runnable {
                 this.client = Client(16384, 16384)
                 connection() // there's a built in reconnect method idk that's not used but this works
                 reconnect = false
+                reconnecting = false
             } catch (e: Exception) {
                 e.printStackTrace()
                 println("[Bingo Brewers] Server Connection Error: " + e.message)
-                client.close()
-                client.removeListener(this)
+                this.client?.close()
+                connectionListener?.let { listener -> this.client?.removeListener(listener) }
 
                 try {
                     println("Reconnect failed. Trying again in " + waitTime + " milliseconds.")
@@ -124,6 +147,7 @@ object ServerConnection : Listener(), Runnable {
                 }
             }
         }
+        reconnecting = false
     }
 
         // The server sends it's public key to the client, which checks it based on this. If they don't match the connection is refused.
@@ -273,19 +297,28 @@ object ServerConnection : Listener(), Runnable {
         }
 
     fun close() {
-        client?.removeListener(this)
+        manualClose = true
+        reconnect = false
+        reconnecting = false
+        connectionListener?.let { listener -> client?.removeListener(listener) }
         client?.close()
         client = null
-        thread.interrupt()
+        workerThread?.interrupt()
+        workerThread = null
     }
 
     fun init() {
-        //Do nothing, connection is initialized in the thread
+        if (config.useBB) connect()
     }
 
     fun connect() {
-        if (client == null || !client!!.isConnected) {
-            Thread(this).start()
-        }
+        val runningThread = workerThread
+        if (runningThread != null && runningThread.isAlive) return
+
+        manualClose = false
+
+        val thread = Thread(this, "Bingo Brewers Server Connection Thread")
+        workerThread = thread
+        thread.start()
     }
 }
