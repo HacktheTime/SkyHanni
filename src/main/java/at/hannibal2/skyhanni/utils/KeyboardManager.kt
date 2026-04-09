@@ -143,6 +143,9 @@ object KeyboardManager {
     }
 
     fun getKeyName(keyCode: Int): String = IMinecraft.INSTANCE.getKeyName(keyCode).text
+    fun removeLock(key: Int) {
+        lockedKeys.remove(key)
+    }
 
     object WasdInputMatrix : Iterable<KeyMapping> {
         operator fun contains(keyBinding: KeyMapping) = when (keyBinding) {

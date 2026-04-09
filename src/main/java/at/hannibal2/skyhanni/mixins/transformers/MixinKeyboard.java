@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.events.minecraft.CharEvent;
 import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent;
 import at.hannibal2.skyhanni.events.minecraft.KeyUpEvent;
 import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent;
+import at.hannibal2.skyhanni.utils.KeyboardManager;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
@@ -44,7 +45,10 @@ public class MixinKeyboard {
         // there is also an onChar method we could mixin to and use for typing fields and replace TextInput.isActive() with that somehow
         // the extension functions such as isActive() and isKeyHeld() still work from keyboard manager
         // this only replaces the posting of events
-        if (action == 0) new KeyUpEvent(key).post();
+        if (action == 0) {
+            new KeyUpEvent(key).post();
+            KeyboardManager.INSTANCE.removeLock(key);
+        }
         if (action == 1) {
             new KeyDownEvent(key).post();
             // on 1.21 it takes like 1 full second before the key press event will get posted so im doing it here
