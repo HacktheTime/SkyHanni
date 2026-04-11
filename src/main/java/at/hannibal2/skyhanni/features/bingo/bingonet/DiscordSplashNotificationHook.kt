@@ -120,15 +120,25 @@ object DiscordSplashNotificationHook {
                     trimmed.contains("interface=org.freedesktop.Notifications") &&
                     trimmed.contains("member=Notify")
             if (trimmed.startsWith("method call ") || trimmed.startsWith("signal ")) {
-                currentBlock?.let { consumeLinuxNotifyBlock(it) }
+                currentBlock?.let { consumeLinuxNotifyBlockSafely(it) }
                 currentBlock = if (isNotifyHeader) mutableListOf(trimmed) else null
+                continue
+            }
+
+            if (trimmed.isBlank()) {
+                currentBlock?.let { consumeLinuxNotifyBlockSafely(it) }
+                currentBlock = null
                 continue
             }
 
             val block = currentBlock ?: continue
             block.add(line)
         }
-        currentBlock?.let { consumeLinuxNotifyBlock(it) }
+        currentBlock?.let { consumeLinuxNotifyBlockSafely(it) }
+    }
+
+    private fun consumeLinuxNotifyBlockSafely(lines: List<String>) {
+        runCatching { consumeLinuxNotifyBlock(lines) }
     }
 
     private fun consumeLinuxNotifyBlock(lines: List<String>) {
@@ -189,7 +199,7 @@ object DiscordSplashNotificationHook {
                 return false
             }
             if (parsed.serverId != null) return parsed.serverId == existing.serverID
-            return parsed.hubNumber != existing.hubSelectorData?.hubNumber
+            return parsed.hubNumber == existing.hubSelectorData?.hubNumber
         }
     }
 
@@ -276,8 +286,8 @@ private object DiscordSplashParser {
         )
     }
 
-    private fun parseHubNumber(text: String): Int {
-        return hubPattern.find(text)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: error("Hub number not found in text: $text")
+    private fun parseHubNumber(text: String): Int? {
+        return hubPattern.find(text)?.groupValues?.getOrNull(1)?.toIntOrNull()
     }
 
     private fun parseGuildName(title: String): String? {
