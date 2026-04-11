@@ -154,6 +154,7 @@ object BingoSplashBrewerHelpers {
             Carpets.RED -> BrewingStandData(this, "ENCHANTED_REDSTONE_BLOCK".toInternalName(), null)
             Carpets.DARK_GRAY -> BrewingStandData(this, "ENCHANTED_GUNPOWDER".toInternalName(), null)
             Carpets.LIGHT_GRAY -> BrewingStandData(this, null, null)
+            Carpets.MAGENTA -> BrewingStandData(this, "NETHER_STALK".toInternalName(), null)
         }
     }
 
@@ -178,6 +179,7 @@ object BingoSplashBrewerHelpers {
         ORANGE(DyeColor.ORANGE),
         YELLOW(DyeColor.YELLOW),
         RED(DyeColor.RED),
+        MAGENTA(DyeColor.MAGENTA),
         LIGHT_GRAY(DyeColor.LIGHT_GRAY),
         DARK_GRAY(DyeColor.GRAY),
     }
