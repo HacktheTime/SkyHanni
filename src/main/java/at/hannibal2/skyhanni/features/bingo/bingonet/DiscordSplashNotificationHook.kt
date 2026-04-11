@@ -195,12 +195,13 @@ object DiscordSplashNotificationHook {
 
     val discordSplashNotificationBlacklist: Set<String> = setOf(
         "BingoNet",
-        "BingoBrewer",//even if its Bingo Brewers using BingoBrewer means its contained anyway.
+//         "BingoBrewer",//even if its Bingo Brewers using BingoBrewer means its contained anyway.
+        //bingo brewers integration is broken rn so allow.
     )
 
     private fun isBlacklisted(parsed: ParsedDiscordSplash): Boolean {
         val blacklist = discordSplashNotificationBlacklist
-            .map { it.lowercase() }
+            .map { it.lowercase().replace(" ","") }
             .filter { it.isNotEmpty() }
             .toSet()
         if (blacklist.isEmpty()) return false
