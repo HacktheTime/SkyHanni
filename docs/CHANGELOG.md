@@ -4,7 +4,8 @@ The following List does not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Added Splash Announcement Support for Breaking Bingo Brewer Mod changes. Support will be expanded soon.
+- Bug Fixes
+- BB mod integration still broken due to unknown reason.
 
 ## Static Info for modrinth:
 
