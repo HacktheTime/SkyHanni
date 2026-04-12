@@ -1,13 +1,20 @@
 package at.hannibal2.skyhanni.features.bingo
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.SkyHanniMod.launch
 import at.hannibal2.skyhanni.api.GetFromSackApi
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.api.pet.CurrentPetApi
+import at.hannibal2.skyhanni.config.commands.CommandCategory
+import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
+import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.BlockClickEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
+import at.hannibal2.skyhanni.events.IslandJoinEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
+import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.AllEntitiesGetter
 import at.hannibal2.skyhanni.utils.BlockUtils.getBlockAt
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.EntityUtils
@@ -24,16 +31,24 @@ import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.NeuItems.getItemStack
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
+import at.hannibal2.skyhanni.utils.compat.WorldCompat
+import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
+import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
+import at.hannibal2.skyhanni.utils.toLorenzVec
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.Items
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.BrewingStandBlock
 import net.minecraft.world.level.block.WoolCarpetBlock
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
+import kotlin.concurrent.atomics.AtomicInt
 
 @SkyHanniModule
 object BingoSplashBrewerHelpers {
     val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig.brewerUtils
+    private val openedBrewingStands: MutableMap<LorenzVec, Boolean> = mutableMapOf()
     val screenDetector = InventoryDetector(
         onOpenInventory = {
             lastBrewingStandData = lastBrewingStandClick?.getBrewingStandData()
@@ -50,7 +65,7 @@ object BingoSplashBrewerHelpers {
     @Volatile
     private var lastBrewingStandData: BrewingStandData? = null
 
-    @HandleEvent
+    @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBlockClick(event: BlockClickEvent) {
         if (event.getBlockState.block is BrewingStandBlock) {
             if (config.requireWitchPet) {
@@ -70,10 +85,37 @@ object BingoSplashBrewerHelpers {
                 }
             }
             lastBrewingStandClick = event.flatPosition
+            openedBrewingStands[event.position] = true
         }
     }
 
-    @HandleEvent
+    @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
+    fun onIslandJoinEvent(event: IslandJoinEvent) {
+        val isFresh = (WorldCompat.worldTime ?: 0) <= 10_000L
+        if (isFresh) {
+            openedBrewingStands.clear()
+        } else if (openedBrewingStands.isNotEmpty()) {
+            ChatUtils.clickableChat(
+                "Your Private Island was loaded before you joined. It is unclear however if it was continously " +
+                    "loaded while you were away. Click here if you want to reset the opened brewing stands data and reopen them all.",
+                {
+                    openedBrewingStands.replaceAll { k, v ->
+                        return@replaceAll false
+                    }
+                },
+            )
+        }
+    }
+
+
+    @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
+    fun onWorldRender(event: SkyHanniRenderWorldEvent) {
+        openedBrewingStands.filterNot { it.value }.forEach { (vec, bool) ->
+            event.drawWaypointFilled(vec, Color.RED, true)
+        }
+    }
+
+    @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBackgroundDrawn(event: GuiContainerEvent.BackgroundDrawnEvent) {
         if (!config.highlightCorrectItem) return
         if (!screenDetector.isInside()) return
@@ -87,7 +129,7 @@ object BingoSplashBrewerHelpers {
         }
     }
 
-    @HandleEvent
+    @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun keybindPressed(event: KeyDownEvent) {
         if (!screenDetector.isInside()) return
         val lastBrewingStandData = lastBrewingStandData ?: return
@@ -122,6 +164,85 @@ object BingoSplashBrewerHelpers {
         }
     }
 
+    @HandleEvent
+    fun registerCommand(event: CommandRegistrationEvent) {
+        event.registerBrigadier("shhighlightmissingbrewingstands") {
+            description = "Imports the Brewing stands for the Brewer Utils for Bingo Splashers"
+            category = CommandCategory.USERS_ACTIVE
+            callback {
+                CoroutineSettings("Brewingstand Auto Detection for Brewer Utils").launch {
+                    autoDetectBrewingStands()
+                }
+            }
+        }
+    }
+
+    @OptIn(AllEntitiesGetter::class)
+    private fun autoDetectBrewingStands() {
+        val itemFrames = EntityUtils.getEntities<ItemFrame>().filter { it.item.item == Items.OAK_SIGN }.toList()
+        val size = itemFrames.size
+        if (size == 0) {
+            ChatUtils.userError("There is no marker for the mod to use. Please add the Oak Sign marker or go near it.")
+            return
+        }
+        val actualValidItemFrames = AtomicInt(0)
+        val rotations = listOf(1 to 0, 0 to 1, -1 to 0, 0 to -1)
+        fun LorenzVec.isBrewingStand(): Boolean {
+            return this.getBlockAt() == Blocks.BREWING_STAND
+        }
+        itemFrames.forEach {
+            val originPosition = it.position().toLorenzVec().roundToBlock()
+            var firstBrewingStand: Pair<LorenzVec, Pair<Int, Int>>? = null
+            for (rotation in rotations) {
+                val new = originPosition.add(rotation.first, 0, rotation.second)
+                if (new.isBrewingStand()) {
+                    firstBrewingStand = new to rotation
+                    break
+                }
+            }
+            if (firstBrewingStand == null) {
+                for (rotation in rotations) {
+                    val new = originPosition.add(rotation.first * 2, 0, rotation.second * 2)
+                    if (new.isBrewingStand()) {
+                        firstBrewingStand = new to rotation
+                        break
+                    }
+                }
+            }
+            if (firstBrewingStand == null) return@forEach
+            var columnDirection: Pair<Int, Int>? = null
+            rotations.forEach {
+                val newPos = firstBrewingStand.first.add(it.first, 1, it.second)
+                if (newPos.isBrewingStand()) {
+                    columnDirection = it
+                }
+            }
+            if (columnDirection == null) return@forEach
+            val rowDirection = firstBrewingStand.second
+            val first = firstBrewingStand.first
+
+            //Use the column and row direction to find more brewing stands recursively in their directions.
+            var currentColumn = first
+            var secondTry = false
+            while (currentColumn.isBrewingStand() || !secondTry) {
+                var row = currentColumn
+                if (row.isBrewingStand()) {
+                    openedBrewingStands.putIfAbsent(row, false)
+                    row = row.add(columnDirection.first, 1, columnDirection.second)
+                    secondTry = false
+                } else {
+                    row = row.add(columnDirection.first, 1, columnDirection.second)
+                    secondTry = true
+                }
+                while (row.isBrewingStand()) {
+                    val it = row
+                    openedBrewingStands.putIfAbsent(it, false)
+                    row = row.add(columnDirection.first, 1, columnDirection.second)
+                }
+                currentColumn = currentColumn.add(rowDirection.first, 0, rowDirection.second)
+            }
+        }
+    }
 
     private fun LorenzVec.getBrewingStandData(): BrewingStandData? {
         val carpet = this.getAssociatedCarpet() ?: return null
@@ -131,7 +252,7 @@ object BingoSplashBrewerHelpers {
                 this, 5.0,
             ) { itemFrame: ItemFrame ->
                 return@getEntitiesInBox itemFrame.item.getInternalNameOrNull()?.let(filter) == true
-            }.minBy { it.distanceTo(LorenzVec(this.x + 0.5, this.y + 0.5, this.z + 0.5)) }.item.getInternalNameOrNull()
+            }.minByOrNull { it.distanceTo(LorenzVec(this.x + 0.5, this.y + 0.5, this.z + 0.5)) }?.item?.getInternalNameOrNull()
         }
         return when (carpet) {
             Carpets.LIGHT_BLUE, Carpets.BLUE -> {
