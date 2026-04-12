@@ -38,6 +38,36 @@ enum class Formatting(val mCCode: String, @JvmField val discordFormattingCode: S
     }
 
     companion object {
+        val rainbowOrder: List<String> by lazy {
+            listOf(
+                BLACK,
+                DARK_GRAY,
+                GRAY,
+                WHITE,
+                DARK_PURPLE,
+                LIGHT_PURPLE,
+                DARK_BLUE,
+                BLUE,
+                DARK_AQUA,
+                AQUA,
+                DARK_GREEN,
+                GREEN,
+                YELLOW,
+                GOLD,
+                RED,
+                DARK_RED,
+            ).map { it.mCCode }
+        }
+
+        val splashPrioritySlotIndex: List<Int> by lazy {
+            val numbers = mutableListOf<Int>()
+            numbers.addAll(0..7)
+            numbers.addAll(9..16)
+            numbers.addAll(18..25)
+            numbers.addAll(27..34)
+            numbers.addAll(listOf(17, 26, 35))
+            return@lazy numbers
+        }
         @JvmField
         var MC_FORMAT_REGEX: String = "§[0-9a-fk-or]"
 

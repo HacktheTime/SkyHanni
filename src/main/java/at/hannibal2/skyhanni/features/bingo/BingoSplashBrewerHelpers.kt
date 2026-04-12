@@ -35,6 +35,7 @@ import at.hannibal2.skyhanni.utils.compat.WorldCompat
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.toLorenzVec
+import de.hype.bingonet.shared.constants.Formatting
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Items
@@ -64,6 +65,8 @@ object BingoSplashBrewerHelpers {
 
     @Volatile
     private var lastBrewingStandData: BrewingStandData? = null
+
+    private val rainbowOrder = Formatting.rainbowOrder
 
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBlockClick(event: BlockClickEvent) {
