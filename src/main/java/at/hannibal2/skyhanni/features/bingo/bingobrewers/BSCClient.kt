@@ -12,7 +12,6 @@ import at.hannibal2.skyhanni.utils.ChatUtils
 import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
-import de.hype.bingonet.shared.objects.SplashLocations
 import kotlinx.coroutines.Job
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -20,9 +19,7 @@ import java.net.Socket
 import java.net.SocketTimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.regex.Pattern
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
 object BSCClient {
@@ -41,11 +38,14 @@ object BSCClient {
 
     @HandleEvent
     fun event(event: ConfigLoadEvent) {
+        if (!SkyHanniMod.feature.event.bingo.bingoNetworks.useBSC) return
         init()
     }
 
     init {
-        init()
+        if (SkyHanniMod.feature.event.bingo.bingoNetworks.useBSC) {
+            init()
+        }
     }
 
     fun init() {
