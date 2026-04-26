@@ -13,8 +13,7 @@ import net.minecraft.world.item.ItemStack
 @PrimaryFunction("onBlockClick")
 class BlockClickEvent(clickType: ClickType, val position: LorenzVec, itemInHand: ItemStack?) :
     WorldClickEvent(itemInHand, clickType) {
-
-    val getBlockState by lazy { position.getBlockStateAt() }
+    val blockState by lazy { position.getBlockStateAt() }
 
     val flatPosition by lazy {
         return@lazy LorenzVec(position.x.toInt(), position.y.toInt(), position.z.toInt())

@@ -37,7 +37,6 @@ import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.toLorenzVec
 import de.hype.bingonet.shared.constants.Formatting
-import net.minecraft.world.entity.ai.village.poi.PoiType
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Items
@@ -86,7 +85,7 @@ object BingoSplashBrewerHelpers {
 
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBlockClick(event: BlockClickEvent) {
-        if (event.getBlockState.block is BrewingStandBlock) {
+        if (event.blockState.block is BrewingStandBlock) {
             if (config.requireWitchPet) {
                 val currentPet = CurrentPetApi.currentPet
                 val isWitchPet = currentPet?.fauxInternalName?.internalName?.matches("WITCH;[3-9]".toRegex()) == true
@@ -105,7 +104,7 @@ object BingoSplashBrewerHelpers {
             }
             lastBrewingStandClick = event.flatPosition
             openedBrewingStands[event.position] = true
-        } else if (event.getBlockState.block is ChestBlock) {
+        } else if (event.blockState.block is ChestBlock) {
             lastChestClick = event.flatPosition
         }
     }
