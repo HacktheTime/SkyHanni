@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.features.bingo
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.SkyHanniMod.launch
 import at.hannibal2.skyhanni.api.GetFromSackApi
+import at.hannibal2.skyhanni.api.enoughupdates.EnoughUpdatesManager
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.api.pet.CurrentPetApi
 import at.hannibal2.skyhanni.config.commands.CommandCategory
@@ -36,11 +37,13 @@ import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.toLorenzVec
 import de.hype.bingonet.shared.constants.Formatting
+import net.minecraft.world.entity.ai.village.poi.PoiType
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.BrewingStandBlock
+import net.minecraft.world.level.block.ChestBlock
 import net.minecraft.world.level.block.WoolCarpetBlock
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
@@ -64,9 +67,22 @@ object BingoSplashBrewerHelpers {
     private var lastBrewingStandClick: LorenzVec? = null
 
     @Volatile
+    private var lastChestClick: LorenzVec? = null
+
+    @Volatile
     private var lastBrewingStandData: BrewingStandData? = null
 
     private val rainbowOrder = Formatting.rainbowOrder
+
+    val allBestPotions: Set<NeuInternalName> by lazy {
+        EnoughUpdatesManager.getInternalNames().filter { it.isPotion() }.groupBy { it.internalName.replace("[0-9]+".toRegex(), "") }.map {
+            it.value.maxBy { it.internalName.replace("\\D".toRegex(), "").toIntOrNull() ?: 0 }
+        }.toSet()
+    }
+
+    fun NeuInternalName.isPotion(): Boolean {
+        return this.internalName.contains("POTION", true)
+    }
 
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBlockClick(event: BlockClickEvent) {
@@ -89,6 +105,8 @@ object BingoSplashBrewerHelpers {
             }
             lastBrewingStandClick = event.flatPosition
             openedBrewingStands[event.position] = true
+        } else if (event.getBlockState.block is ChestBlock) {
+            lastChestClick = event.flatPosition
         }
     }
 
@@ -121,13 +139,39 @@ object BingoSplashBrewerHelpers {
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBackgroundDrawn(event: GuiContainerEvent.BackgroundDrawnEvent) {
         if (!config.highlightCorrectItem) return
-        if (!screenDetector.isInside()) return
-        val lastBrewingStandData = lastBrewingStandData ?: return
-        for (slot in InventoryUtils.getSlotsInOwnInventory()) {
-            if (slot.item == null) continue
-            val internalName = slot.item.getInternalNameOrNull() ?: continue
-            if (lastBrewingStandData.material == internalName || lastBrewingStandData.inputBottle == internalName) {
-                slot.highlight(Color.GREEN)
+        if (screenDetector.isInside()) {
+            val lastBrewingStandData = lastBrewingStandData ?: return
+            for (slot in InventoryUtils.getSlotsInOwnInventory()) {
+                if (slot.item == null) continue
+                val internalName = slot.item.getInternalNameOrNull() ?: continue
+                if (lastBrewingStandData.material == internalName || lastBrewingStandData.inputBottle == internalName) {
+                    slot.highlight(Color.GREEN)
+                }
+            }
+        } else {
+            val potion = lastChestClick?.getItemFrame { it.isPotion() }?:return
+            val xpBoost = potion.internalName.contains("_XP_BOOST")
+            val potionType = potion.internalName.split(";").first()
+            InventoryUtils.getItemsInOpenChest().forEach {
+                val internalName = it.item.getInternalNameOrNull()?:return@forEach
+                var color :Color? = null
+                if (xpBoost){
+                    if (internalName.internalName.startsWith(potionType)){
+                        color = Color.YELLOW
+                    }
+                }
+                if (internalName == potion) {
+                    val allowedValues = listOf("1:00:00", "11:15", "54:00", "30:00")
+                    val maxLength = it.item.getLoreComponent().any { line ->
+                        allowedValues.any { allowedValue -> line.string.contains(allowedValue) }
+                    }
+                    if (maxLength && it.item.displayName.string.contains("Splash", true)) {
+                        color = Color.GREEN
+                    }
+                }
+                if (color != null) {
+                    it.highlight(color)
+                }
             }
         }
     }
@@ -247,16 +291,16 @@ object BingoSplashBrewerHelpers {
         }
     }
 
+    private fun LorenzVec.getItemFrame(filter: (NeuInternalName) -> Boolean): NeuInternalName? {
+        return EntityUtils.getEntitiesInBox(
+            this, 5.0,
+        ) { itemFrame: ItemFrame ->
+            return@getEntitiesInBox itemFrame.item.getInternalNameOrNull()?.let(filter) == true
+        }.minByOrNull { it.distanceTo(LorenzVec(this.x + 0.5, this.y + 0.5, this.z + 0.5)) }?.item?.getInternalNameOrNull()
+    }
+
     private fun LorenzVec.getBrewingStandData(): BrewingStandData? {
         val carpet = this.getAssociatedCarpet() ?: return null
-
-        fun getItemFrame(filter: (NeuInternalName) -> Boolean): NeuInternalName? {
-            return EntityUtils.getEntitiesInBox(
-                this, 5.0,
-            ) { itemFrame: ItemFrame ->
-                return@getEntitiesInBox itemFrame.item.getInternalNameOrNull()?.let(filter) == true
-            }.minByOrNull { it.distanceTo(LorenzVec(this.x + 0.5, this.y + 0.5, this.z + 0.5)) }?.item?.getInternalNameOrNull()
-        }
         return when (carpet) {
             Carpets.LIGHT_BLUE, Carpets.BLUE -> {
                 val bottle = getItemFrame {
