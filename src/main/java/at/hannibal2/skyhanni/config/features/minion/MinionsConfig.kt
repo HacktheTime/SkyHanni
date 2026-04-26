@@ -81,4 +81,9 @@ class MinionsConfig {
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_R)
     var openMinionRecipeForHeldResource: Int = GLFW.GLFW_KEY_R
+
+    @Expose
+    @ConfigOption(name = "Inferno Minion Profit Tracker", desc = "")
+    @Accordion
+    val infernoProfitTracker: InfernoProfitTrackerConfig = InfernoProfitTrackerConfig()
 }
