@@ -1,6 +1,6 @@
 # Bingo Net
 
-The following List does not include Bug Fixes. If empty may be only Bug Fixes.
+The following List may not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
