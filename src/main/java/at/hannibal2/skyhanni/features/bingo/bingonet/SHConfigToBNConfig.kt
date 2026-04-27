@@ -28,8 +28,9 @@ object SHConfigToBNConfig {
                 {
                     bingoNetConfig.useBN = true
                     SkyHanniMod.feature.event.bingo.bingoNetworks.also {
-                        it.useBB = false
+                        it.useBB = true
                         it.useBSC = true
+                        it.bingoNet.useBN = true
                     }
                     BNConnection.reconnectToBNServer()
                     SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "Bingo Net Default values set")
