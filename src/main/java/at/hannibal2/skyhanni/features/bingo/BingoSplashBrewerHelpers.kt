@@ -36,6 +36,7 @@ import at.hannibal2.skyhanni.utils.compat.WorldCompat
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.toLorenzVec
+import de.hype.bingonet.environment.displayName
 import de.hype.bingonet.shared.constants.Formatting
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.DyeColor
@@ -182,29 +183,53 @@ object BingoSplashBrewerHelpers {
         if (config.insertKeyBind == event.keyCode && event.keyCode.isKeyClicked()) {
             val standInv = InventoryUtils.getItemsInOpenChestWithNull()
             val selfItems = InventoryUtils.getSlotsInOwnInventoryWithNull()
+            val brewingMaterial = lastBrewingStandData.material
+            val materialCount = config.gfsMaterialCount.let {
+                if (brewingMaterial?.internalName.equals("ENCHANTED_CAKE")) return@let 1
+                else it
+            }
 
             val missingBrews = BREWING_STAND_BOTTLE_SLOT_INDEXES.any { standInv.get(it).item.isEmpty } && lastBrewingStandData
                 .inputBottle != null && selfItems.any { it.item.getInternalNameOrNull() == lastBrewingStandData.inputBottle }
-
-            val missingMaterial =
-                lastBrewingStandData.material != null && BREWING_STAND_MATERIAL_SLOT_INDEX.let { standInv[it] }.item.isEmpty
-            val hasMaterial =
-                lastBrewingStandData.material != null && selfItems.any { it.item.getInternalNameOrNull() == lastBrewingStandData.material }
+            val materialSlot = BREWING_STAND_MATERIAL_SLOT_INDEX.let { standInv[it] }
+            val missingMaterial = materialSlot.item.isEmpty
+            val wrongMaterial = !missingMaterial && materialSlot.item.count != materialCount
+            val filtered = selfItems.filter { it.item.getInternalNameOrNull() == lastBrewingStandData.material }
+            val gfsDiff = if (filtered.any { it.item.count == materialCount }) {
+                0
+            } else {
+                var count = 0
+                var foundAnyUpgradeable = false
+                for (it in filtered) {
+                    if (it.item.count > materialCount) {
+                        count += it.getMaxStackSize(it.item) - it.item.count
+                    } else {
+                        count += materialCount - it.item.count
+                        foundAnyUpgradeable = true
+                        break
+                    }
+                }
+                if (!foundAnyUpgradeable) count += materialCount
+                count
+            }
 
             if (missingBrews) {
                 val slotToClick = selfItems.find { it.item.getInternalNameOrNull() == lastBrewingStandData.inputBottle }!!.index
                 InventoryUtils.clickSlot(slotToClick, clickType = GuiContainerEvent.ClickType.SHIFT)
-            } else if (missingMaterial) {
-                if (hasMaterial) {
-                    val slotToClick = selfItems.first { it.item.getInternalNameOrNull() == lastBrewingStandData.material }.index
-                    InventoryUtils.clickSlot(slotToClick, clickType = GuiContainerEvent.ClickType.SHIFT)
+            } else if (brewingMaterial != null) {
+                if (wrongMaterial) {
+                    InventoryUtils.clickSlot(BREWING_STAND_MATERIAL_SLOT_INDEX, clickType = GuiContainerEvent.ClickType.SHIFT)
+                } else if (gfsDiff != 0 && missingMaterial) {
+                    GetFromSackApi.getFromSack(brewingMaterial, gfsDiff)
                 } else {
-                    val hasFreeSpace = selfItems.any { it.item.isEmpty }
-                    if (!hasFreeSpace) {
-                        ChatUtils.chat("§cNo free space in inventory to get brewing material from sacks!")
-                        return
+                    val slotToClick =
+                        selfItems.firstOrNull {
+                            it.item.getInternalNameOrNull() == brewingMaterial && it.item.count ==
+                                materialCount
+                        }?.index
+                    slotToClick?.let {
+                        InventoryUtils.clickSlot(it, clickType = GuiContainerEvent.ClickType.SHIFT)
                     }
-                    GetFromSackApi.getFromSack(lastBrewingStandData.material, config.gfsMaterialCount)
                 }
             }
         }
