@@ -312,6 +312,7 @@ object ServerConnection : Listener(), Runnable {
     }
 
     fun connect() {
+        return //BB is currently disabled since its not working and not planned to be fixed by me.
         val runningThread = workerThread
         if (runningThread != null && runningThread.isAlive) return
 

@@ -50,30 +50,30 @@ object BingoBrewersClient {
 
     @HandleEvent
     fun commandRegistration(event: CommandRegistrationEvent) {
-        event.registerBrigadier(
-            "bnbingobrewers",
-            {
-                category = CommandCategory.BINGO_NET
-                description = "Reload the Bingo Brewers Client"
-                literalCallback("reconnect"){
-                    stop()
-                    ServerConnection.connect()
-                }
-                callback {
-                    ChatUtils.chat("§cMissing Argument!")
-                }
-                literalCallback("stop"){
-                    stop()
-                }
-                literalCallback("state"){
-                    if (BSCClient.client?.isConnected == true){
-                        ChatUtils.chat("§aConnected to BB Server")
-                    } else {
-                        ChatUtils.chat("§cNot connected to BB Server")
-                    }
-                }
-            },
-        )
+//         event.registerBrigadier(
+//             "bnbingobrewers",
+//             {
+//                 category = CommandCategory.BINGO_NET
+//                 description = "Reload the Bingo Brewers Client"
+//                 literalCallback("reconnect"){
+//                     stop()
+//                     ServerConnection.connect()
+//                 }
+//                 callback {
+//                     ChatUtils.chat("§cMissing Argument!")
+//                 }
+//                 literalCallback("stop"){
+//                     stop()
+//                 }
+//                 literalCallback("state"){
+//                     if (BSCClient.client?.isConnected == true){
+//                         ChatUtils.chat("§aConnected to BB Server")
+//                     } else {
+//                         ChatUtils.chat("§cNot connected to BB Server")
+//                     }
+//                 }
+//             },
+//         )
     }
 
 

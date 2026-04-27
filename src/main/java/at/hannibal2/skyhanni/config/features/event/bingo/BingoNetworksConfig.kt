@@ -22,24 +22,26 @@ class BingoNetworksConfig {
     @Accordion
     val bingoNet: BingoNetConfig = BingoNetConfig()
 
+    @ConfigEditorInfoText
+    val info = "Both Bingo Brewers and BSC have changed their protocol significantly when they published their modern mod versions. I do not intend to update the code currently."
     @Expose
-    @ConfigOption(
-        name = "Use Bingo Brewers",
-        desc = "Connects SkyHanni to the Bingo Brewers Network.",
-    )
-    @ConfigEditorBoolean
-    @FeatureToggle
-    @ThirdPartyDependency(ThirdParty.BINGO_BREWERS)
+//     @ConfigOption(
+//         name = "Use Bingo Brewers",
+//         desc = "Connects SkyHanni to the Bingo Brewers Network.",
+//     )
+//     @ConfigEditorBoolean
+//     @FeatureToggle
+//     @ThirdPartyDependency(ThirdParty.BINGO_BREWERS)
     var useBB: Boolean = false
 
     @Expose
-    @ConfigOption(
-        name = "Use Bingo Splash Community",
-        desc = "Connects SkyHanni to the Bingo Splash Community Splash announcement server",
-    )
-    @ConfigEditorBoolean
-    @FeatureToggle
-    @ThirdPartyDependency(ThirdParty.BINGO_SPLASH_COMMUNITY)
+//     @ConfigOption(
+//         name = "Use Bingo Splash Community",
+//         desc = "Connects SkyHanni to the Bingo Splash Community Splash announcement server",
+//     )
+//     @ConfigEditorBoolean
+//     @FeatureToggle
+//     @ThirdPartyDependency(ThirdParty.BINGO_SPLASH_COMMUNITY)
     var useBSC : Boolean = false
 
 
@@ -50,16 +52,16 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
-    @FeatureDependencyRequirement("#useBSC")
+//     @FeatureDependencyRequirement("#useBB")
+//     @FeatureDependencyRequirement("#useBSC")
     var showSplashes: Boolean = true
 
     @Expose
     @ConfigOption(name = "Highlight Splash Hub", desc = "Highlight the Splash Hubs in the Hub Selector.")
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
-    @FeatureDependencyRequirement("#useBSC")
+//     @FeatureDependencyRequirement("#useBB")
+//     @FeatureDependencyRequirement("#useBSC")
     @FeatureToggle
     var highlightSplashHub: Boolean = true
 
@@ -67,7 +69,7 @@ class BingoNetworksConfig {
     @ConfigOption(name = "Show ChChests", desc = "Subscribe to ChChests.")
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
+//     @FeatureDependencyRequirement("#useBB")
     @FeatureToggle
     var chestWaypoints: Boolean = true
 
@@ -110,7 +112,7 @@ class BingoNetworksConfig {
     @ConfigOption(name = "Show Packet Traffic (Debug)", desc = "Show incoming and outgoing Packets in the Chat.")
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
+//     @FeatureDependencyRequirement("#useBB")
     var showPacketTraffic = false
 
 
@@ -164,7 +166,7 @@ class BingoNetworksConfig {
     @ConfigOption(name = "Ch Chest Items Config", desc = "Configure the Chat Prompt Key and which items your are interested in.")
     @Accordion
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
+//     @FeatureDependencyRequirement("#useBB")
     val chChestConfig: ChChestConfig = ChChestConfig()
 
     @Expose
@@ -172,7 +174,7 @@ class BingoNetworksConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     @FeatureDependencyRequirement("BingoNetConfig#useBN")
-    @FeatureDependencyRequirement("#useBB")
+//     @FeatureDependencyRequirement("#useBB")
     var chChestOverlay: Boolean = true
 
     @Expose

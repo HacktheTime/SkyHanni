@@ -56,6 +56,7 @@ object BSCClient {
     }
 
     fun asyncConnect() {
+        return //Disabled since not planned to be fixed by me.
         if (client?.isConnected == true) return
         val existing = connectJob
         if (existing != null && existing.isActive) return
@@ -68,6 +69,7 @@ object BSCClient {
 
     @Throws(IOException::class)
     private fun connect() {
+        return //Disabled since not planned to be fixed by me.
         stopInternal()
         if (!enabled) {
             ChatUtils.chatAndOpenConfig(
@@ -152,24 +154,24 @@ object BSCClient {
 
     @HandleEvent
     fun onCommandRegistration(event: CommandRegistrationEvent) {
-        event.registerBrigadier("bsc") {
-            description = "Copies information about the item in hand to the clipboard"
-            category = CommandCategory.USERS_ACTIVE
-            literalCallback("reconnect") {
-                ChatUtils.chat("§eReconnecting to BSC Server...")
-                asyncConnect()
-            }
-            literalCallback("stop") {
-                stop()
-            }
-            literalCallback("state") {
-                if (client?.isConnected == true) {
-                    ChatUtils.chat("§aConnected to BSC Server")
-                } else {
-                    ChatUtils.chat("§cNot connected to BSC Server")
-                }
-            }
-        }
+//         event.registerBrigadier("bsc") {
+//             description = "Copies information about the item in hand to the clipboard"
+//             category = CommandCategory.USERS_ACTIVE
+//             literalCallback("reconnect") {
+//                 ChatUtils.chat("§eReconnecting to BSC Server...")
+//                 asyncConnect()
+//             }
+//             literalCallback("stop") {
+//                 stop()
+//             }
+//             literalCallback("state") {
+//                 if (client?.isConnected == true) {
+//                     ChatUtils.chat("§aConnected to BSC Server")
+//                 } else {
+//                     ChatUtils.chat("§cNot connected to BSC Server")
+//                 }
+//             }
+//         }
     }
 
     private fun stopInternal() {

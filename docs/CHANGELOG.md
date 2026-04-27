@@ -5,7 +5,6 @@ The following List may not include Bug Fixes. If empty may be only Bug Fixes.
 ## Bingo Net Changes:
 
 - Bug Fixes
-- BB mod integration still broken due to unknown reason.
 
 ## Static Info for modrinth:
 
@@ -17,7 +16,5 @@ To enable do:
 `/sh` → Events → Bingo → Third Party Networks →
 
 1) Bingo Net → Use Bingo Net = Off → ON
-2) Use Bingo Brewers = OFF → ON
-3) Use Bingo Splash Community = OFF → ON
 
 It is recommended to also enable the widen config option for most users in the /sh start screen.
