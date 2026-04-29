@@ -13,6 +13,8 @@ repositories {
 
 dependencies {
     implementation(libs.ksp.api)
+    implementation(libs.kotlinpoet)
+    implementation(libs.gson)
 }
 
 tasks.withType<JavaCompile> {

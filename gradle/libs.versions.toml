@@ -29,6 +29,7 @@ keval = "1.1.1"
 httpclient = "4.5.14"
 detektrules-neu = "1.0.0"
 kotest = "5.9.1"
+kotlinpoet = "2.2.0"
 
 [libraries]
 libautoupdate = { module = "moe.nea:libautoupdate", version.ref = "libautoupdate" }
@@ -61,6 +62,7 @@ detektrules-neu = { module = "org.notenoughupdates:detektrules", version.ref = "
 detektrules-authors = { module = "io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors", version.ref = "detekt" }
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
