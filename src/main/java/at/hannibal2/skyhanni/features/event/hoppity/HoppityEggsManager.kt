@@ -15,6 +15,7 @@ import at.hannibal2.skyhanni.features.event.hoppity.HoppityEggType.Companion.res
 import at.hannibal2.skyhanni.features.event.hoppity.summary.HoppityEventSummary
 import at.hannibal2.skyhanni.features.fame.ReminderUtils
 import at.hannibal2.skyhanni.features.inventory.chocolatefactory.CFApi
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
@@ -290,7 +291,7 @@ object HoppityEggsManager {
     private val warpClickAction: Pair<() -> Unit, String>
         get() =
             if (SkyBlockUtils.inSkyBlock) {
-                { HypixelCommands.warp(unclaimedEggsConfig.warpClickDestination) } to
+                { WarpAPI.warp(unclaimedEggsConfig.warpClickDestination) } to
                     "warp to ${unclaimedEggsConfig.warpClickDestination}".trim()
             } else {
                 { HypixelCommands.skyblock() } to "join /skyblock!"

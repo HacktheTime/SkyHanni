@@ -19,6 +19,7 @@ import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.events.minecraft.ToolTipTextEvent
 import at.hannibal2.skyhanni.events.minecraft.add
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ColorUtils.getFirstColorCode
@@ -504,7 +505,7 @@ object TunnelsMaps {
         if (event.keyCode != config.campfireKey) return
         if (lastBaseCampWarp.passedSince() < 2.seconds) return
         lastBaseCampWarp = SimpleTimeMark.now()
-        if (config.travelScroll) HypixelCommands.warp("basecamp") else campfireOverride()
+        if (config.travelScroll) WarpAPI.warp("basecamp") else campfireOverride()
     }
 
     @HandleEvent

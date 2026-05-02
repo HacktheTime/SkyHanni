@@ -28,7 +28,7 @@ class InventoryDetector(
     ) : this(
         onOpenInventory,
         onCloseInventory,
-        checkInventoryName = { name -> pattern.matches(name) }
+        checkInventoryName = { name -> pattern.matches(name) },
     )
 
     init {

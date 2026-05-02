@@ -14,7 +14,6 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.monster.Monster
 import net.minecraft.world.entity.player.Player
-import java.util.function.IntConsumer
 
 /**
  * This feature fixes ghost entities sent by hypixel that are not properly deleted in the correct order.
@@ -54,27 +53,36 @@ object FixGhostEntities {
                 recentlySpawnedEntities.addLast(packet.id)
             }
 
-            is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach(
-                IntConsumer { entityID ->
+            is ClientboundRemoveEntitiesPacket -> {
+                for (entityID in packet.entityIds) {
+                    // ignore entities that got properly spawned and then removed
                     if (entityID !in recentlySpawnedEntities) {
                         recentlyRemovedEntities.addLast(entityID)
-                        if (recentlyRemovedEntities.size == 10) recentlyRemovedEntities.removeFirst()
+                        if (recentlyRemovedEntities.size == 10) {
+                            recentlyRemovedEntities.removeFirst()
+                        }
                     }
                     hiddenEntityIds.remove(entityID)
                 }
-            )
+            }
         }
     }
 
     @HandleEvent(onlyOnSkyblock = true)
     fun onCheckRender(event: CheckRenderEntityEvent<*>) {
-        if (config.hideTemporaryArmorStands) {
-            (event.entity as? ArmorStand)?.let { stand ->
-                if (stand.tickCount < 10 && stand.isDefaultValue() && stand.getAllEquipment().all { it == null }) event.cancel()
+        if (config.hideTemporaryArmorStands && event.entity is ArmorStand) {
+            with(event.entity) {
+                if (tickCount < 10 && isDefaultValue() && getAllEquipment().all { it == null }) {
+                    event.cancel()
+                }
             }
         }
         if (config.fixGhostEntities && (event.entity is Monster || event.entity is Player)) {
-            if (event.entity.id in hiddenEntityIds) event.cancel()
+            with(event.entity) {
+                if (hiddenEntityIds.contains(id)) {
+                    event.cancel()
+                }
+            }
         }
     }
 

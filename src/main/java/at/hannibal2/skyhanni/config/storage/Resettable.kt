@@ -100,6 +100,9 @@ interface Resettable {
 
         current is Property<*> -> {
             val propRef = this as KProperty1<Resettable, Property<Any?>>
+            val defaultProp = propRef.get(defaults)
+
+            @Suppress("UNCHECKED_CAST")
             val propCurrent = current as Property<Any?>
             propCurrent.set(propRef.get(defaults).get())
         }

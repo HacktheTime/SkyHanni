@@ -67,6 +67,10 @@ object EntityUtils {
         return list
     }
 
+    fun getPlayerList(): Set<String> {
+        return getPlayerEntities().map { it.name.string }.toHashSet()
+    }
+
     @Deprecated("Use Mob Detection Instead")
     fun LivingEntity.getAllNameTagsInRadiusWith(
         contains: String,
@@ -236,4 +240,12 @@ object EntityUtils {
 
     inline val Entity.spawnTime: ServerTimeMark get() = ServerTimeMark.now() - tickCount.ticks
 
+
+    fun Player.isOnBingo(): Boolean {
+        return this.displayName?.string?.endsWith("Ⓑ§r") == true
+    }
+
+    fun Player.isOnIronman(): Boolean {
+        return this.displayName?.string?.endsWith("♲§r") == true
+    }
 }

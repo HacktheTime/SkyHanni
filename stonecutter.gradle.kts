@@ -1,3 +1,5 @@
+import skyhannibuildsystem.PublishToModrinth
+
 plugins {
     alias(libs.plugins.loom) apply false
     alias(libs.plugins.kotlin.jvm) apply false
@@ -140,4 +142,18 @@ stonecutter parameters {
     }
 
     filters.include("**/*.fsh", "**/*.vsh")
+}
+
+// Root-level Modrinth publish task (scans root build/libs for all built jars)
+// Run with: ./gradlew publishToModrinth -PmodVersion=1.2.3 -PmodrinthToken=XXXX
+// Optional: -PgithubToken=XXXX -Pgithub.repo=owner/repo
+// Provides same name users previously attempted but missing.
+if (project == rootProject) {
+    tasks.register("publishToModrinth", PublishToModrinth::class) {
+        group = "publishing"
+        description = "Publish all SkyHanni jars (all MC versions) to Modrinth and optionally create/update GitHub release."
+        // Ensure all remapJar and remapSourcesJar tasks ran so artifacts exist in root build/libs
+        dependsOn(subprojects.mapNotNull { it.tasks.findByName("remapJar") })
+        dependsOn(subprojects.mapNotNull { it.tasks.findByName("remapSourcesJar") })
+    }
 }

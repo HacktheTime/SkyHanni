@@ -122,7 +122,8 @@ object CommandUtils {
                 namePattern,
                 start,
                 lowercaseStart,
-            ) { NeuItems.findItemNameStartingWithWithoutNPCs(it, validItems) }
+                { NeuItems.findItemNameWithoutNPCs(it, validItems) },
+            )
 
             null -> {
                 val lastSpaceIndex = start.indexOfLast { it == ' ' } + 1
@@ -131,7 +132,7 @@ object CommandUtils {
                 // 200 is here to limit the max amount of results since more than that can introduce performance issues for the client
                 if (size < 200) {
                     addAll(
-                        NeuItems.findItemNameStartingWithWithoutNPCs(lowercaseStart, validItems).map { result ->
+                        NeuItems.findItemNameWithoutNPCs(lowercaseStart, validItems).map { result ->
                             result.substring(lastSpaceIndex).replace(" ", "_")
                         },
                     )

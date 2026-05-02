@@ -10,15 +10,30 @@ import at.hannibal2.skyhanni.utils.ConfigUtils.jumpToEditor
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
+import org.lwjgl.glfw.GLFW
 
 class BingoConfig {
     @Expose
     @ConfigOption(name = "Bingo Card", desc = "")
     @Accordion
     val bingoCard: BingoCardConfig = BingoCardConfig()
+
+    @Expose
+    @ConfigOption(name = "Disable Custom Wardrobe on Bingo", desc =  "Disable the Custom Wardrobe GUI on Bingo profiles.")
+    @ConfigEditorBoolean
+    var disableCustomWardrobeOnBingo: Boolean = true
+
+    @Expose
+    @ConfigOption(
+        name = "Third Party Bingo Networks",
+        desc = "§cThe Bingo Networks are Third Party Services that are based on closed Source Servers above which Skyhanni has no control.",
+    )
+    @Accordion
+    val bingoNetworks: BingoNetworksConfig = BingoNetworksConfig()
 
     @Expose
     @ConfigOption(name = "Compact Chat Messages", desc = "")
@@ -29,7 +44,7 @@ class BingoConfig {
     @Expose
     @ConfigOption(
         name = "Minion Craft Helper",
-        desc = "Show how many more items you need to upgrade the minion in your inventory. Especially useful for Bingo."
+        desc = "Show how many more items you need to upgrade the minion in your inventory. Especially useful for Bingo.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -38,7 +53,7 @@ class BingoConfig {
     @Expose
     @ConfigOption(
         name = "Show Progress to T1",
-        desc = "Show tier 1 Minion Crafts in the Helper display even if needed items are not fully collected."
+        desc = "Show tier 1 Minion Crafts in the Helper display even if needed items are not fully collected.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -48,15 +63,32 @@ class BingoConfig {
     @ConfigLink(owner = BingoConfig::class, field = "minionCraftHelperEnabled")
     val minionCraftHelperPos: Position = Position(10, 10)
 
-    @ConfigOption(name = "Bingo Boop Party", desc = "Bingo Boop Party has been moved to Misc. Click here to jump straight to it.")
-    @ConfigEditorButton(buttonText = "Go")
-    val boopPartyJumpButton = Runnable { SkyHanniMod.feature.misc.boopParty::boopPartyBingo.jumpToEditor() }
+    @Expose
+    @ConfigOption(
+        name = "Party Broadcast Cata Level UP",
+        desc = "Send a Short Cata Level UP message with the new level into the Party so the Carrier knows whether they can go next Floor.",
+    )
+    @ConfigEditorBoolean
+    @FeatureToggle
+    var sendCataLevelUP: Boolean = false
 
-    @SkyHanniModule
-    companion object {
-        @HandleEvent
-        fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
-            event.move(130, "event.bingo.boopParty", "misc.boopParty.boopPartyBingo")
-        }
-    }
+    @Expose
+    @ConfigOption(
+        name = "Party Broadcast Important Cata Milestones",
+        desc = "Send a Short Cata Milestone message into the Party when you reach Cata Milestone 2 and 3.",
+    )
+    @ConfigEditorBoolean
+    @FeatureToggle
+    var sendImportantCataMilestones: Boolean = false
+
+
+    @Expose
+    @ConfigOption(
+        name = "Pet XP Carrot Candy Helper",
+        desc = "Key has 2 functions when Set: \n" +
+            "1) Press while having carrots in your inventory to open simple carrot candy recipe\n" +
+            "2) Press while having simple carrot candy in your hand to open the pets menu"
+    )
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    var petXpComGoalKeybind: Int = GLFW.GLFW_KEY_UNKNOWN
 }

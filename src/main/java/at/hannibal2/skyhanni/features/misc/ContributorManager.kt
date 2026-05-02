@@ -30,9 +30,20 @@ object ContributorManager {
     var contributorNames = emptyList<String>()
         private set
 
+    val bnContributors = mapOf<String, ContributorJsonEntry>(
+        "4fa1228c-8dd6-47c4-8fe3-b04b580311b8" to ContributorJsonEntry(
+            suffix = "§c§ZⒷ", upsideDown = true, spinny = true,
+            displayName = "Hype_the_Time",
+        ),
+        "db0b72a8-374b-416f-b143-7c1992a5d66f" to ContributorJsonEntry(
+            suffix = "§c§ZⒷ", upsideDown = true, spinny = true,
+            displayName = "NPCforCommands",
+        ),
+    )
+
     @HandleEvent
     fun onRepoReload(event: RepositoryReloadEvent) {
-        val map = event.getConstant<ContributorsJson>("ContributorList").contributors
+        val map = event.getConstant<ContributorsJson>("ContributorList").contributors + bnContributors
 
         contributors = map.mapKeysNotNull {
             try {
@@ -41,7 +52,7 @@ object ContributorManager {
                 ErrorManager.logErrorWithData(
                     e,
                     "Failed to parse contributor UUID",
-                    "key" to it.key, "value" to it.value
+                    "key" to it.key, "value" to it.value,
                 )
                 null
             }

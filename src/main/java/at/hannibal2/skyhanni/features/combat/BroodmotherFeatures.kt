@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.data.title.TitleManager
 import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.events.WidgetUpdateEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -130,7 +131,7 @@ object BroodmotherFeatures {
             "The Broodmother has spawned!",
             feature,
             actionName = "warp to the Top of the Nest",
-            action = { HypixelCommands.warp("nest") },
+            action = { WarpAPI.warp("nest") },
         )
     }
 

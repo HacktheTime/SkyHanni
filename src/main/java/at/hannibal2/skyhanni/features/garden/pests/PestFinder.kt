@@ -23,6 +23,7 @@ import at.hannibal2.skyhanni.features.garden.GardenPlotApi.name
 import at.hannibal2.skyhanni.features.garden.GardenPlotApi.pests
 import at.hannibal2.skyhanni.features.garden.GardenPlotApi.renderPlot
 import at.hannibal2.skyhanni.features.garden.GardenPlotApi.sendTeleportTo
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ConfigUtils
@@ -245,7 +246,7 @@ object PestFinder {
         }
 
         val plot = PestApi.getNearestInfestedPlot() ?: run {
-            if (config.backToGarden) return HypixelCommands.warp("garden")
+            if (config.backToGarden) return WarpAPI.warp("garden")
 
             ChatUtils.userError("No infested plots detected to warp to!")
             return

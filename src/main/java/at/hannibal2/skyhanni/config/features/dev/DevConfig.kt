@@ -2,6 +2,8 @@ package at.hannibal2.skyhanni.config.features.dev
 
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.NoConfigLink
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.dev.minecraftconsole.MinecraftConsoleConfig
 import com.google.gson.annotations.Expose
@@ -149,4 +151,16 @@ class DevConfig {
     @Expose
     @Category(name = "Debug Mob", desc = "Every Debug related to the Mob System")
     val mobDebug: DebugMobConfig = DebugMobConfig()
+
+    @Expose
+    @ConfigOption(name = "Ignore Term Signal", desc = "Ignores received term signals. This allows to survive IntelliJ closing.")
+    @ConfigEditorBoolean
+    @FeatureToggle
+    var ignoreTermSignal: Boolean = false
+
+    @Expose
+    @ConfigOption(name = "Auto Error Report", desc = "Automatically send all Errors over the Bingo Net Connection to the Bingo Net Server. This allows better handling of Issues and triage by the Bingo Net Team.")
+    @ConfigEditorBoolean
+    @ThirdPartyDependency(ThirdParty.BINGO_NET)
+    var autoThirdPartyErrorReporting: Boolean = true
 }

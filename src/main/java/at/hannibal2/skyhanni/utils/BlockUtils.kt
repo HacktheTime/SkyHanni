@@ -6,11 +6,13 @@ import net.minecraft.client.Minecraft
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.SkullBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
+import kotlin.collections.mapNotNull
 
 object BlockUtils {
 
@@ -19,6 +21,8 @@ object BlockUtils {
     fun LorenzVec.getBlockAt(): Block = getBlockStateAt().block
 
     fun LorenzVec.getBlockStateAt(): BlockState = world.getBlockState(toBlockPos())
+
+    fun LorenzVec.getBlockEntity(): BlockEntity? = world.getBlockEntity(toBlockPos())
 
     fun LorenzVec.isInLoadedChunk(): Boolean =
         world.chunkSource.hasChunk(x.toInt() shr 4, z.toInt() shr 4)

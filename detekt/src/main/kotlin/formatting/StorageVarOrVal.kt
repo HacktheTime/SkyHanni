@@ -1,42 +1,33 @@
-package formatting
+package at.hannibal2.skyhanni.detektrules.formatting
 
-import utils.DetektUtils.doWeNeedToCheckConfigProp
-import SkyHanniRule
-import potentialbugs.StorageNeedsExpose.Companion.CONFIG_PACKAGE
-import dev.detekt.api.Config
-import dev.detekt.api.RequiresAnalysisApi
-import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.symbols.KaClassKind
-import org.jetbrains.kotlin.analysis.api.types.KaClassType
-import org.jetbrains.kotlin.name.ClassId
+import at.hannibal2.skyhanni.detektrules.SkyHanniRule
+import at.hannibal2.skyhanni.detektrules.potentialbugs.StorageNeedsExpose.Companion.CONFIG_PACKAGE
+import at.hannibal2.skyhanni.detektrules.utils.DetektUtils.doWeNeedToCheckConfigProp
+import io.gitlab.arturbosch.detekt.api.Config
+import io.gitlab.arturbosch.detekt.api.Debt
+import io.gitlab.arturbosch.detekt.api.Issue
+import io.gitlab.arturbosch.detekt.api.Severity
+import io.gitlab.arturbosch.detekt.api.internal.RequiresTypeResolution
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.typeUtil.isEnum
 
-class StorageVarOrVal(config: Config) : RequiresAnalysisApi, SkyHanniRule(
-    config,
-    "Storage and config variables should be declared as `var` for primitives and `val` for objects.",
-) {
+@RequiresTypeResolution
+class StorageVarOrVal(config: Config) : SkyHanniRule(config) {
+    override val issue = Issue(
+        "StorageVarOrVal",
+        Severity.CodeSmell,
+        "Storage and config variables should be declared as `var` for primitives and `val` for objects.",
+        Debt.TEN_MINS,
+    )
+
     private enum class StorageType { VAR, VAL }
-
-    companion object {
-        private val CHROMA_COLOUR_CLASS_ID = ClassId(
-            FqName("io.github.notenoughupdates.moulconfig"),
-            FqName("ChromaColour"),
-            false,
-        )
-        private val PRIMITIVE_CLASS_IDS = setOf(
-            StandardClassIds.Boolean,
-            StandardClassIds.Byte,
-            StandardClassIds.Char,
-            StandardClassIds.Double,
-            StandardClassIds.Float,
-            StandardClassIds.Int,
-            StandardClassIds.Long,
-            StandardClassIds.Short,
-        )
-    }
 
     override fun visitKtFile(file: KtFile) {
         val packageName = file.packageDirective?.fqName?.asString() ?: ""
@@ -47,22 +38,31 @@ class StorageVarOrVal(config: Config) : RequiresAnalysisApi, SkyHanniRule(
     override fun visitProperty(property: KtProperty) {
         if (!property.doWeNeedToCheckConfigProp()) return
 
-        val shouldBeVar = analyze(property) {
-            val type = property.returnType
-            val classId = (type as? KaClassType)?.classId
-            classId in PRIMITIVE_CLASS_IDS ||
-                classId == StandardClassIds.String ||
-                type.expandedSymbol?.classKind == KaClassKind.ENUM_CLASS ||
-                classId == CHROMA_COLOUR_CLASS_ID
-        }
+        val typeRef = property.typeReference ?: return
+        val ktType = bindingContext[BindingContext.TYPE, typeRef] ?: return
+
+        val shouldBeVar =  KotlinBuiltIns.isPrimitiveType(ktType) ||
+            ktType.isStringType() ||
+            ktType.isEnum() ||
+            isChromaColour(ktType)
 
         val expected = if (shouldBeVar) StorageType.VAR else StorageType.VAL
         val actual = if (property.isVar) StorageType.VAR else StorageType.VAL
 
         if (actual != expected) return property.reportIssue(
-            "${property.typeReference?.text} `${property.name}` should be a ${expected.name.lowercase()}",
+            "${typeRef.text} `${property.name}` should be a ${expected.name.lowercase()}",
         )
 
         super.visitProperty(property)
+    }
+
+    private fun KotlinType.isStringType(): Boolean {
+        val desc = (constructor.declarationDescriptor as? ClassDescriptor) ?: return false
+        return desc.fqNameSafe.asString() == "kotlin.String"
+    }
+
+    private fun isChromaColour(type: KotlinType): Boolean {
+        val desc = (type.constructor.declarationDescriptor as? ClassDescriptor) ?: return false
+        return desc.fqNameSafe == FqName("io.github.notenoughupdates.moulconfig.ChromaColour")
     }
 }

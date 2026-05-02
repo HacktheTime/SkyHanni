@@ -1,18 +1,24 @@
-package potentialbugs
+package at.hannibal2.skyhanni.detektrules.potentialbugs
 
-import SkyHanniRule
-import potentialbugs.StorageNeedsExpose.Companion.CONFIG_PACKAGE
-import potentialbugs.StorageNeedsExpose.Companion.STORAGE_PACKAGE
-import dev.detekt.api.Config
-import utils.DetektUtils.hasAnnotation
+import at.hannibal2.skyhanni.detektrules.SkyHanniRule
+import at.hannibal2.skyhanni.detektrules.potentialbugs.StorageNeedsExpose.Companion.CONFIG_PACKAGE
+import at.hannibal2.skyhanni.detektrules.potentialbugs.StorageNeedsExpose.Companion.STORAGE_PACKAGE
+import io.gitlab.arturbosch.detekt.api.Config
+import io.gitlab.arturbosch.detekt.api.Debt
+import io.gitlab.arturbosch.detekt.api.Issue
+import io.gitlab.arturbosch.detekt.api.Severity
+import io.gitlab.arturbosch.detekt.rules.hasAnnotation
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.psiUtil.isPrivate
 
-class NonStorageDoesntNeedExpose(config: Config) : SkyHanniRule(
-    config,
-    "Config/storage properties that are not intended to store data should not be annotated with @Expose.",
-) {
+class NonStorageDoesntNeedExpose(config: Config): SkyHanniRule(config) {
+    override val issue = Issue(
+        "NonStorageDoesntNeedExpose",
+        Severity.Defect,
+        "Config/storage properties that are not intended to store data should not be annotated with @Expose.",
+        Debt.TEN_MINS,
+    )
 
     override fun visitKtFile(file: KtFile) {
         val packageName = file.packageDirective?.fqName?.asString() ?: ""

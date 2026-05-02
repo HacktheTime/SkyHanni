@@ -32,7 +32,9 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import java.util.Locale
 import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
+
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions")
@@ -43,6 +45,7 @@ object SkyBlockItemModifierUtils {
     private val drillPartTypes = listOf("drill_part_upgrade_module", "drill_part_engine", "drill_part_fuel_tank")
 
     fun ItemStack.getHotPotatoCount() = getAttributeInt("hot_potato_count")
+    fun ItemStack.getDungeonQuality() = getExtraAttributes()?.getInt("baseStatBoostPercentage")?.getOrNull()
 
     fun ItemStack.getWetBookCount() = getAttributeInt("wet_book_count")
 

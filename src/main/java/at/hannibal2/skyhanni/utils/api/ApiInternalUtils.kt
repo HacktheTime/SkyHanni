@@ -38,7 +38,7 @@ object ApiInternalUtils {
         val ks = KeyStore.getInstance("JKS")
         ks.load(
             ApiUtils.javaClass.getResourceAsStream("/skyhanni-keystore.jks"),
-            "changeit".toCharArray()
+            "changeit".toCharArray(),
         )
         val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
         kmf.init(ks, null)
@@ -156,7 +156,7 @@ object ApiInternalUtils {
                         "response headers" to apiIntention.response?.allHeaders?.joinToString { header ->
                             "${header.name}: ${header.value}"
                         },
-                    ).toTypedArray()
+                    ).toTypedArray(),
                 )
                 dataConsumer(false, message, null)
             }
@@ -192,7 +192,7 @@ object ApiInternalUtils {
         crossinline entityHandler: (HttpEntity?) -> Long? = { it.readEntityToFile(file) },
         crossinline requestFactory: ApiStaticPath.() -> Req = {
             buildRequest { addHeader("Accept-Encoding", "gzip") }
-        }
+        },
     ): ZipApiResponse = withHttpClient(requestFactory, entityHandler, ::ZipApiResponse)
 
     /**

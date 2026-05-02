@@ -27,6 +27,7 @@ import at.hannibal2.skyhanni.utils.system.PlatformUtils
 import com.google.gson.Gson
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
+import io.github.notenoughupdates.moulconfig.common.RenderContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.editors.GuiOptionEditorKeybind
 import io.github.notenoughupdates.moulconfig.processor.BuiltinMoulConfigGuis
@@ -40,7 +41,9 @@ import java.lang.reflect.Field
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.concurrent.fixedRateTimer
+import kotlin.jvm.java
 import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.jvm.javaField
 import kotlin.time.Duration.Companion.days
 
 class ConfigManager {
@@ -165,7 +168,7 @@ class ConfigManager {
                             run()
                         } catch (e: Throwable) {
                             logger.log(e.stackTraceToString())
-                            PlatformUtils.shutdownMinecraft("Config is corrupt inside development environment.")
+                            PlatformUtils.shutdownMinecraft("Config is corrupt inside development environment. Maybe you forgot to implement a config migration, or the migration failed.")
                         }
                     } else {
                         run()
@@ -278,13 +281,19 @@ enum class ConfigFileType(val fileName: String, val clazz: Class<*>, val propert
     val backupFile get() = getBackupFile(file)
 }
 
-class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(SkyHanniMod.feature) {
+open class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(SkyHanniMod.feature) {
+    @Suppress("ReturnCount")
     override fun createOptionGui(
         processedOption: ProcessedOption,
         field: Field,
         option: ConfigOption,
     ): GuiOptionEditor? {
-        val default = super.createOptionGui(processedOption, field, option) ?: return null
+        val default: GuiOptionEditor
+        try {
+            default = super.createOptionGui(processedOption, field, option) ?: return null
+        } catch (e: Exception) {
+            throw Exception("field: ${field.name} appearing class: ${field.declaringClass.simpleName}", e)
+        }
         if (processedOption !is ProcessedOptionImpl) return default
         var extraPath = ""
         val categoryParent = processedOption.category.parentCategoryId
@@ -300,6 +309,162 @@ class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(SkyHanni
             return GuiOptionEditorBlocked(default, extraMessage)
         }
 
-        return default
+        // Defer heavy dependency/third-party resolution so UI renders immediately.
+        return DeferredDependencyEditor(default, field)
+    }
+
+    private inner class DeferredDependencyEditor(
+        private val base: GuiOptionEditor,
+        private val field: Field,
+    ) : GuiOptionEditor(base.getOption()) {
+        @Volatile
+        private var resolved: GuiOptionEditor? = null
+        @Volatile
+        private var started = false
+
+        private fun ensureStarted() {
+            if (started) return
+            synchronized(this) {
+                if (started) return
+                started = true
+                Thread({
+                    resolved = runCatching { buildDependencyAwareEditor() }.getOrElse { base }
+                }, "skyhanni-config-dep-resolver").apply { isDaemon = true }.start()
+            }
+        }
+
+        private fun buildDependencyAwareEditor(): GuiOptionEditor {
+            val thirdPartyDep = resolveThirdPartyDependency(field)
+            val dependencyRequirements = FeatureDependencyResolver.resolve(field)
+
+            if (thirdPartyDep == null && dependencyRequirements.isEmpty) return base
+
+            thirdPartyDep?.let { dep ->
+                if (isMainToggleField(dep, field)) {
+                    return GuiOptionEditorThirdPartyMainToggle(base, dep.thirdParty, dep.message)
+                }
+            }
+
+            if (!dependencyRequirements.isEmpty) {
+                return GuiOptionEditorDependencies(base, dependencyRequirements, field)
+            }
+
+            thirdPartyDep?.let { dep ->
+                return GuiOptionEditorThirdParty(
+                    base,
+                    dep.thirdParty,
+                    dep.usesMainToggle,
+                    dep.requiresMainToggle,
+                    dep.message,
+                )
+            }
+
+            return base
+        }
+
+        override fun render(context: RenderContext, x: Int, y: Int, width: Int) {
+            ensureStarted()
+            (resolved ?: base).render(context, x, y, width)
+        }
+
+        override fun renderOverlay(context: RenderContext, x: Int, y: Int, width: Int) {
+            (resolved ?: base).renderOverlay(context, x, y, width)
+        }
+
+        override fun mouseInput(
+            x: Int,
+            y: Int,
+            width: Int,
+            mouseX: Int,
+            mouseY: Int,
+            mouseEvent: io.github.notenoughupdates.moulconfig.gui.MouseEvent?,
+        ): Boolean {
+            ensureStarted()
+            return (resolved ?: base).mouseInput(x, y, width, mouseX, mouseY, mouseEvent)
+        }
+
+        override fun mouseInputOverlay(
+            x: Int,
+            y: Int,
+            width: Int,
+            mouseX: Int,
+            mouseY: Int,
+            mouseEvent: io.github.notenoughupdates.moulconfig.gui.MouseEvent?,
+        ): Boolean {
+            return (resolved ?: base).mouseInputOverlay(x, y, width, mouseX, mouseY, mouseEvent)
+        }
+
+        override fun keyboardInput(event: io.github.notenoughupdates.moulconfig.gui.KeyboardEvent?): Boolean {
+            return (resolved ?: base).keyboardInput(event)
+        }
+
+        override fun getHeight(): Int {
+            return (resolved ?: base).height
+        }
+    }
+
+    private data class ResolvedThirdParty(
+        val thirdParty: ThirdParty,
+        val usesMainToggle: Boolean,
+        val requiresMainToggle: Boolean,
+        val message: String,
+        val overrideOwner: Class<*>?,
+        val overrideFieldName: String?,
+    )
+
+    private fun resolveThirdPartyDependency(field: Field): ResolvedThirdParty? {
+        var fieldAnno: ThirdPartyDependency? = field.getAnnotation(ThirdPartyDependency::class.java)
+
+        var clazz: Class<*>? = field.declaringClass
+        var classAnno: ThirdPartyDependency? = null
+        while (clazz != null && classAnno == null) {
+            classAnno = clazz.getAnnotation(ThirdPartyDependency::class.java)
+            clazz = clazz.enclosingClass
+        }
+
+        val source = fieldAnno ?: classAnno ?: return null
+        val tp = source.value
+
+        val ownerKClass = when {
+            fieldAnno != null && fieldAnno.mainToggleName.isNotBlank() -> fieldAnno.mainToggleOwner
+            classAnno != null && classAnno.mainToggleName.isNotBlank() -> classAnno.mainToggleOwner
+            else -> null
+        }
+        val overrideOwner = ownerKClass?.java
+        val overrideFieldName = when {
+            fieldAnno != null && fieldAnno.mainToggleName.isNotBlank() -> fieldAnno.mainToggleName
+            classAnno != null && classAnno.mainToggleName.isNotBlank() -> classAnno.mainToggleName
+            else -> null
+        }
+
+        val usesMainToggle = overrideFieldName != null || tp.mainToggleField != null
+
+        val requires = when (fieldAnno?.requiresMainToggle ?: classAnno?.requiresMainToggle ?: TriState.AUTO) {
+            TriState.YES -> true
+            TriState.NO -> false
+            TriState.AUTO -> usesMainToggle
+        }
+
+        val message = when {
+            fieldAnno != null && fieldAnno.message.isNotBlank() -> fieldAnno.message
+            classAnno != null && classAnno.message.isNotBlank() -> classAnno.message
+            else -> ""
+        }
+
+        return ResolvedThirdParty(tp, usesMainToggle, requires, message, overrideOwner, overrideFieldName)
+    }
+
+    private fun isMainToggleField(dep: ResolvedThirdParty, field: Field): Boolean {
+        if (dep.overrideOwner != null && dep.overrideFieldName != null) {
+            val isOwnerMatch = field.declaringClass == dep.overrideOwner ||
+                field.declaringClass.name == dep.overrideOwner.name ||
+                field.declaringClass.simpleName == dep.overrideOwner.simpleName
+            if (isOwnerMatch && field.name == dep.overrideFieldName) return true
+        }
+        val enumField = dep.thirdParty.mainToggleField ?: return false
+        enumField.javaField?.let { javaField ->
+            if (javaField.declaringClass == field.declaringClass && javaField.name == field.name) return true
+        }
+        return enumField.name == field.name && enumField.parameters.firstOrNull()?.type?.classifier == field.declaringClass.kotlin
     }
 }

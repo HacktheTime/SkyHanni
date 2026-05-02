@@ -40,7 +40,7 @@ class DiscordRPCConfig {
     @ConfigOption(
         name = "Dynamic Priority",
         desc = "Disable certain dynamic statuses, or change the priority in case " +
-            "two are triggered at the same time (higher up means higher priority)."
+            "two are triggered at the same time (higher up means higher priority).",
     )
     @ConfigEditorDraggableList
     val autoPriority: MutableList<PriorityEntry> = mutableListOf(
@@ -79,6 +79,11 @@ class DiscordRPCConfig {
     @ConfigOption(name = "Show Button for EliteSkyBlock", desc = "Add a button to the RPC that opens your EliteSkyBlock profile.")
     @ConfigEditorBoolean
     val showEliteSkyBlockButton: Property<Boolean> = Property.of(true)
+
+    @Expose
+    @ConfigOption(name = "Show Button for Bingo Net", desc = "Add a button to the RPC that opens your Bingo Statistics.")
+    @ConfigEditorBoolean
+    val showBingoNetButton: Property<Boolean> = Property.of(true)
 
     enum class LineEntry(private val displayName: String) {
         NOTHING("Nothing"),

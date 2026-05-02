@@ -12,7 +12,7 @@ class FarmingFortuneConfig {
     @Expose
     @ConfigOption(
         name = "FF Display",
-        desc = "Display the true Farming Fortune for the current crop, including all crop-specific and hidden bonuses."
+        desc = "Display the true Farming Fortune for the current crop, including all crop-specific and hidden bonuses.",
     )
     @ConfigEditorBoolean
     @FeatureToggle

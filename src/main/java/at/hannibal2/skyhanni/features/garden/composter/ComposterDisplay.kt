@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.WidgetUpdateEvent
 import at.hannibal2.skyhanni.features.fame.ReminderUtils
 import at.hannibal2.skyhanni.features.garden.GardenApi
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.AutoUpdatingItemStack
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -197,7 +198,7 @@ object ComposterDisplay {
                 warningMessage,
                 config::warnAlmostEmpty,
                 actionName = "warp to the Garden",
-                action = { HypixelCommands.warp("garden") },
+                action = { WarpAPI.warp("garden") },
             )
         }
         TitleManager.sendTitle("§eComposter Warning!")

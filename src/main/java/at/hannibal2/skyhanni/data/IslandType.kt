@@ -9,6 +9,7 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.LocationUtils.isInside
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
+import de.hype.bingonet.shared.constants.Islands
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import net.minecraft.world.phys.AABB
 
@@ -90,7 +91,7 @@ enum class IslandType(private val nameFallback: String) : SkyHanniIslandType {
         /**
          * The maximum amount of players that can be on a mega hub.
          */
-        var maxPlayersMega = 80
+        var maxPlayersMega = 60
             private set
 
         fun getByName(name: String): IslandType = getByNameOrNull(name) ?: error("IslandType not found: '$name'")
@@ -130,3 +131,34 @@ data class IslandData(
     val maxPlayers: Int,
     val boundingBox: AABB?,
 )
+@Suppress("CyclomaticComplexMethod")
+fun IslandType.toBNIsland(): Islands? {
+    return when (this) {
+        IslandType.PRIVATE_ISLAND -> Islands.PRIVATE_ISLAND
+        IslandType.PRIVATE_ISLAND_GUEST -> Islands.PRIVATE_ISLAND
+        IslandType.THE_END -> Islands.THE_END
+        IslandType.KUUDRA_ARENA -> Islands.KUUDRA
+        IslandType.CRIMSON_ISLE -> Islands.CRIMSON_ISLE
+        IslandType.DWARVEN_MINES -> Islands.DWARVEN_MINES
+        IslandType.DUNGEON_HUB -> Islands.DUNGEON_HUB
+        IslandType.CATACOMBS -> Islands.DUNGEON
+        IslandType.HUB -> Islands.HUB
+        IslandType.DARK_AUCTION -> Islands.DARK_AUCTION
+        IslandType.THE_FARMING_ISLANDS -> Islands.THE_FARMING_ISLANDS
+        IslandType.CRYSTAL_HOLLOWS -> Islands.CRYSTAL_HOLLOWS
+        IslandType.THE_PARK -> Islands.THE_PARK
+        IslandType.DEEP_CAVERNS -> Islands.DEEP_CAVERNS
+        IslandType.GOLD_MINES -> Islands.GOLD_MINE
+        IslandType.GARDEN -> Islands.GARDEN
+        IslandType.GARDEN_GUEST -> Islands.GARDEN
+        IslandType.SPIDER_DEN -> Islands.SPIDERS_DEN
+        IslandType.WINTER -> Islands.JERRYS_WORKSHOP
+        IslandType.THE_RIFT -> Islands.THE_RIFT
+        IslandType.MINESHAFT -> Islands.GLACITE_TUNNEL
+        IslandType.BACKWATER_BAYOU -> Islands.BAYOU
+        IslandType.GALATEA -> Islands.GALATEA
+        IslandType.NONE -> null
+        IslandType.ANY -> null
+        IslandType.UNKNOWN -> null
+    }
+}

@@ -82,6 +82,11 @@ object InventoryUtils {
             .filter { it.container is Inventory && it.item.isNotEmpty() }
     }
 
+    fun getSlotsInOwnInventoryWithNull(): List<Slot> {
+        val guiInventory = Minecraft.getInstance().screen as? SkyHanniGuiContainer ?: return emptyList()
+        return guiInventory.slots().filter { it.container is Inventory }
+    }
+
     fun openInventoryName(): String = OtherInventoryData.currentInventoryName
 
     fun inInventory() = Minecraft.getInstance().screen is ContainerScreen
@@ -204,6 +209,10 @@ object InventoryUtils {
         mode: ClickType = ClickType.NORMAL,
     ) {
         InventoryCompat.mouseClickInventorySlot(slotId, mouseButton, mode.id)
+    }
+
+    fun clickSlot(slotNumber: Int, windowId: Int = InventoryCompat.getWindowId(), clickType: ClickType, mouseButton: Int = 0) {
+        InventoryCompat.clickInventorySlot(windowId, mouseButton = mouseButton, mode = clickType.id, slotId = slotNumber)
     }
 
     fun SkyHanniGuiContainer.slots(): List<Slot> {

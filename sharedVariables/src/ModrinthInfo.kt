@@ -11,7 +11,8 @@ enum class ModrinthInfo(
         dependencies = mapOf(
             ModrinthDependency.FABRIC_API to DependencyType.REQUIRED,
             ModrinthDependency.FABRIC_LANGUAGE_KOTLIN to DependencyType.REQUIRED,
-        ),
+            ModrinthDependency.SKYHANNI to DependencyType.INCOMPATIBLE,
+            ),
     ),
     FABRIC_1_21_11(
         minecraftVersions = listOf("1.21.11"),
@@ -19,13 +20,15 @@ enum class ModrinthInfo(
         dependencies = mapOf(
             ModrinthDependency.FABRIC_API to DependencyType.REQUIRED,
             ModrinthDependency.FABRIC_LANGUAGE_KOTLIN to DependencyType.REQUIRED,
-        ),
+            ModrinthDependency.SKYHANNI to DependencyType.INCOMPATIBLE,
+            ),
     ),
 }
 
 enum class ModrinthDependency(
     val projectId: String,
 ) {
+    BINGO_NET("Cp13oI7e"),
     SKYHANNI("byNkmv5G"),
     FABRIC_API("P7dR8mSH"),
     FABRIC_LANGUAGE_KOTLIN("Ha28R6CL"),

@@ -5,8 +5,10 @@ import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
+import org.lwjgl.glfw.GLFW
 
 class MinionsConfig {
     @Expose
@@ -69,6 +71,16 @@ class MinionsConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     var infernoFuelBlocker: Boolean = false
+
+    @Expose
+    @ConfigOption(
+        name = "Open Minion Recipe Hotkey",
+        desc = "If you are holding a resource that can be used to craft a minion," +
+            " It will open the recipe for you. It is planned for it to work on hover but as of now it is only" +
+            " working for the currently held item (selected hotbar slot)",
+    )
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_R)
+    var openMinionRecipeForHeldResource: Int = GLFW.GLFW_KEY_R
 
     @Expose
     @ConfigOption(name = "Inferno Minion Profit Tracker", desc = "")

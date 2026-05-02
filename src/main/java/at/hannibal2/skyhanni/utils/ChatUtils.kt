@@ -2,6 +2,8 @@ package at.hannibal2.skyhanni.utils
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.core.config.KeyBind
+import at.hannibal2.skyhanni.config.features.chat.ChatPromptUtils
 import at.hannibal2.skyhanni.data.ChatManager.deleteChatLine
 import at.hannibal2.skyhanni.data.ChatManager.editChatLine
 import at.hannibal2.skyhanni.events.MessageSendToServerEvent
@@ -217,6 +219,57 @@ object ChatUtils {
         }
     }
 
+    fun chatConsumerPrompt(
+        message: String,
+        keyBind: KeyBind,
+        consumer: () -> Unit,
+    ) {
+        complexChatConsumerPrompt(
+            message, keyBind,
+            consumer = {
+                consumer.invoke()
+                return@complexChatConsumerPrompt true
+            },
+        )
+    }
+
+    /**
+     * Sends a message to the user that they can click the message or use the given [keyBind] to run the [code] block.
+     *
+     * [message] supports the %KEY% placeholder which will be replaced with the effective key string of the [keyBind].
+     */
+    fun complexChatConsumerPrompt(
+        message: String,
+        keyBind: KeyBind,
+        consumer: () -> Boolean,
+        hover: String = "§eThis Message is a Chat Prompt and can be clicked!",
+    ) {
+        // TODO isnt the permanent click action essentially a small memory leak that bunches up over time?
+        val rawText = message.replace("%KEY%", keyBind.getEffectiveKeyString())
+        val text = TextHelper.text(rawText) {
+            this.onClick(SimpleTimeMark.now().plus(keyBind.getEffectiveExpirationDuration()), true, consumer)
+            this.hover = hover.asComponent()
+        }
+        ChatPromptUtils.setActivePrompt(keyBind, consumer)
+        chat(text)
+    }
+
+    fun chatPrompt(
+        message: String,
+        keyBind: KeyBind,
+        code: () -> Unit,
+        hover: String = "§eThis Message is a Chat Prompt and can be clicked!",
+    ) {
+        complexChatConsumerPrompt(
+            message, keyBind,
+            consumer = {
+                code.invoke()
+                true
+            },
+            hover,
+        )
+    }
+
     /**
      * Sends the message in chat.
      * Show the lines when on hover.
@@ -330,6 +383,16 @@ object ChatUtils {
     }
 
     private val chatGui get() = Minecraft.getInstance().gui.chat
+
+    /**
+     * This does the same as if you entered the given string in the chat gui and pressed enter with the only differnce of no history.
+     */
+    fun executeAsChatInput(message: String) {
+        if (message.startsWith("/")) {
+            Minecraft.getInstance().connection?.sendCommand(message.removePrefix("/"))
+        } else
+            Minecraft.getInstance().connection?.sendChat(message)
+    }
 
     var chatLines: MutableList<GuiMessage>
         get() = chatGui.allMessages
@@ -470,6 +533,30 @@ object ChatUtils {
         )
     }
 
+    fun clickToActionOrEnableAuto(
+        message: String,
+        option: KProperty0<*>,
+        actionName: String,
+        action: () -> Unit,
+        oneTimeClick: Boolean = false,
+    ) {
+        val hint = if (SkyHanniMod.feature.chat.hideClickableHint) "" else
+            "\n§e[CLICK to $actionName one Time or Enable automatic]"
+        clickableChat(
+            "$message$hint",
+            onClick = {
+                if (KeyboardManager.isShiftKeyDown() || KeyboardManager.isModifierKeyDown()) {
+                    option.jumpToEditor()
+                } else {
+                    action()
+                }
+            },
+            hover = "§eClick to $actionName!\n§eShift-Click or Control-Click to do it automatically in the Future!",
+            oneTimeClick = oneTimeClick,
+            replaceSameMessage = true,
+        )
+    }
+
     /**
      * Almost identical to chatAndOpenConfig and clickToActionOrDisable.
      * Diff to chatAndOpenConfig: uses the wording "disable" as alternative, not "open config".
@@ -513,6 +600,12 @@ object ChatUtils {
 
     fun consoleLog(text: String) {
         SkyHanniMod.consoleLog(text)
+    }
+
+    @Suppress("UnusedParameter")
+    fun suggestInChat(message: String) {
+        // TODO
+        chat("Chat Suggestion is not implemented yet!")
     }
 
     private fun getFormattedChatPrefix(prefixColor: Int?): Component {

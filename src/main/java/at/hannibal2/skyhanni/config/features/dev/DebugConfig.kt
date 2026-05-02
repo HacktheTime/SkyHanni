@@ -115,6 +115,11 @@ class DebugConfig {
     var copyItemData: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
+    @ConfigOption(name = "Copy Position", desc = "Copies your Position on key press outside of a GUI to clipboard in format 'x, y, z'.")
+    @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    var copyLocation: Int = GLFW.GLFW_KEY_UNKNOWN
+
+    @Expose
     @ConfigOption(name = "Copy Compressed Item Data", desc = "Copies compressed item NBT data on key press in a GUI to clipboard.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
     var copyItemDataCompressed: Int = GLFW.GLFW_KEY_UNKNOWN

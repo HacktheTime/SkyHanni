@@ -1,20 +1,19 @@
-package compat
+package at.hannibal2.skyhanni.detektrules.compat
 
 import com.google.auto.service.AutoService
-import dev.detekt.api.RuleName
-import dev.detekt.api.RuleSet
-import dev.detekt.api.RuleSetId
-import dev.detekt.api.RuleSetProvider
+import io.gitlab.arturbosch.detekt.api.Config
+import io.gitlab.arturbosch.detekt.api.RuleSet
+import io.gitlab.arturbosch.detekt.api.RuleSetProvider
 
 @AutoService(RuleSetProvider::class)
 class CompatRuleSetProvider : RuleSetProvider {
-    override val ruleSetId: RuleSetId = RuleSetId("CompatRules")
+    override val ruleSetId: String = "CompatRules"
 
-    override fun instance(): RuleSet {
+    override fun instance(config: Config): RuleSet {
         return RuleSet(
             ruleSetId,
-            mapOf(
-                RuleName("MinecraftCompat") to ::MinecraftCompat,
+            listOf(
+                MinecraftCompat(config),
             ),
         )
     }

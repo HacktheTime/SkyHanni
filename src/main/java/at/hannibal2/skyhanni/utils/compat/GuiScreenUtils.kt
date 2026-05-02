@@ -13,6 +13,8 @@ object GuiScreenUtils {
         val scaleFactor: Int,
     )
 
+    val isAnyScreenOpen get() = mc.screen != null
+
     val scaledWindowHeight: Int
         get() = screenMetricsOverride?.scaledWindowHeight ?: mc.window.guiScaledHeight
 
@@ -34,7 +36,9 @@ object GuiScreenUtils {
     val mouseX: Int
         get() {
             var x = globalMouseX * scaledWindowWidth / displayWidth
-            if (mc.window.width > mc.window.screenWidth) x *= 2
+
+             if (mc.window.width > mc.window.screenWidth) x *= 2
+
             return x
         }
 

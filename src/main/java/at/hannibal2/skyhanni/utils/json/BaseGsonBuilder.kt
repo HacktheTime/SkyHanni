@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.utils.json
 import at.hannibal2.skyhanni.utils.KotlinTypeAdapterFactory
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
 import com.google.gson.GsonBuilder
+import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.LegacyStringChromaColourTypeAdapter
 import io.github.notenoughupdates.moulconfig.observer.PropertyTypeAdapterFactory

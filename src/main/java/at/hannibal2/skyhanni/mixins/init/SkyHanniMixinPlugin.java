@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.injection.InjectionPoint;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -44,17 +43,16 @@ public class SkyHanniMixinPlugin implements IMixinConfigPlugin {
         String string = classUrl.toString();
         if (classUrl.getProtocol().equals("jar")) {
             try {
-                return new URI(string.substring(4, string.lastIndexOf('!'))).toURL();
-            } catch (URISyntaxException | MalformedURLException e) {
+                return new URL(string.substring(4, string.lastIndexOf('!')));
+            } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         }
         if (string.endsWith(".class")) {
             try {
-                return new URI(string.replace("\\", "/")
-                    .replace(getClass().getCanonicalName().replace(".", "/") + ".class", ""))
-                    .toURL();
-            } catch (URISyntaxException | MalformedURLException e) {
+                return new URL(string.replace("\\", "/")
+                    .replace(getClass().getCanonicalName().replace(".", "/") + ".class", ""));
+            } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         }

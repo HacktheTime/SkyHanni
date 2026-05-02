@@ -20,7 +20,7 @@ class GraphConfig {
     @ConfigOption(
         name = "Place Key",
         desc = "Place a new node at the current position. If a node is active automatically connects." +
-            "Deletes a node if you are only 3 blocks away instead of placing a new one."
+            "Deletes a node if you are only 3 blocks away instead of placing a new one.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_F)
     var placeKey: Int = GLFW.GLFW_KEY_F
@@ -38,7 +38,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Connect Key",
-        desc = "Connect the nearest node with the active node. If the nodes are already connected removes the connection."
+        desc = "Connect the nearest node with the active node. If the nodes are already connected removes the connection.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_C)
     var connectKey: Int = GLFW.GLFW_KEY_C
@@ -51,7 +51,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Edit Key",
-        desc = "While holding the Key, edit the position of the active node or the selection block with the minecraft movement controls."
+        desc = "While holding the Key, edit the position of the active node or the selection block with the minecraft movement controls.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_TAB)
     var editKey: Int = GLFW.GLFW_KEY_TAB
@@ -64,7 +64,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Test Dijkstra",
-        desc = "On key press, show the shortest path between the nearest node and the active node."
+        desc = "On key press, show the shortest path between the nearest node and the active node.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_G)
     var dijkstraKey: Int = GLFW.GLFW_KEY_G
@@ -82,7 +82,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Clear Key",
-        desc = "Clear the graph. Also saves the graph to the clipboard, in case of a misclick."
+        desc = "Clear the graph. Also saves the graph to the clipboard, in case of a misclick.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_P)
     var clearKey: Int = GLFW.GLFW_KEY_P
@@ -95,7 +95,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Tutorial Key",
-        desc = "Toggle the tutorial mode. In this mode, you will get feedback for everything you do."
+        desc = "Toggle the tutorial mode. In this mode, you will get feedback for everything you do.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_K)
     var tutorialKey: Int = GLFW.GLFW_KEY_K
@@ -103,7 +103,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Split Key",
-        desc = "Key for splitting an edge that is between the active and the closed node."
+        desc = "Key for splitting an edge that is between the active and the closed node.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
     var splitKey: Int = GLFW.GLFW_KEY_UNKNOWN
@@ -116,7 +116,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Edge Cycle",
-        desc = "Cycles the direction of the edge that is between the active and the closed node. (Used to make one-directional ways)"
+        desc = "Cycles the direction of the edge that is between the active and the closed node. (Used to make one-directional ways)",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_H)
     var edgeCycle: Int = GLFW.GLFW_KEY_H
@@ -142,7 +142,7 @@ class GraphConfig {
     @Expose
     @ConfigOption(
         name = "Use as Island Area",
-        desc = "When saving, use the current edited graph as temporary island area for the current island."
+        desc = "When saving, use the current edited graph as temporary island area for the current island.",
     )
     @ConfigEditorBoolean
     var useAsIslandArea: Boolean = false

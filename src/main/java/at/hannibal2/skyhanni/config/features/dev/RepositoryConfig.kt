@@ -49,9 +49,14 @@ class RepositoryConfig : AbstractRepoConfig {
         @ConfigEditorText
         override var branch: String = "main"
 
-        @Transient override val defaultUser = "hannibal002"
-        @Transient override val defaultRepoName = "SkyHanni-REPO"
-        @Transient override val defaultBranch = "main"
+        @Transient
+        override val defaultUser = "hannibal002"
+
+        @Transient
+        override val defaultRepoName = "SkyHanni-REPO"
+
+        @Transient
+        override val defaultBranch = "main"
     }
 
     @Expose

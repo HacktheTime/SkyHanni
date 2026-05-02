@@ -1,22 +1,22 @@
-package potentialbugs
+package at.hannibal2.skyhanni.detektrules.potentialbugs
 
 import com.google.auto.service.AutoService
-import dev.detekt.api.RuleName
-import dev.detekt.api.RuleSet
-import dev.detekt.api.RuleSetId
-import dev.detekt.api.RuleSetProvider
+import io.gitlab.arturbosch.detekt.api.Config
+import io.gitlab.arturbosch.detekt.api.RuleSet
+import io.gitlab.arturbosch.detekt.api.RuleSetProvider
 
 @AutoService(RuleSetProvider::class)
 class PotentialBugsProvider : RuleSetProvider {
-    override val ruleSetId: RuleSetId = RuleSetId("potential-bugs")
+    override val ruleSetId: String
+        get() = "potential-bugs"
 
-    override fun instance(): RuleSet {
+    override fun instance(config: Config): RuleSet {
         return RuleSet(
             ruleSetId,
-            mapOf(
-                RuleName("ImmutableTypesWithExpectedInteriorMutabilityInConfig") to ::ImmutableTypesWithExpectedInteriorMutabilityInConfig,
-                RuleName("StorageNeedsExpose") to ::StorageNeedsExpose,
-                RuleName("NonStorageDoesntNeedExpose") to ::NonStorageDoesntNeedExpose,
+            listOf(
+                ImmutableTypesWithExpectedInteriorMutabilityInConfig(config),
+                StorageNeedsExpose(config),
+                NonStorageDoesntNeedExpose(config),
             ),
         )
     }

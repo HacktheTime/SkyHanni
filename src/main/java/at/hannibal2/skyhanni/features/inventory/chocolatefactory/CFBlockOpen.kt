@@ -16,6 +16,7 @@ import at.hannibal2.skyhanni.events.effects.EffectDurationChangeEvent
 import at.hannibal2.skyhanni.events.effects.EffectDurationChangeType
 import at.hannibal2.skyhanni.features.event.hoppity.MythicRabbitPetWarning
 import at.hannibal2.skyhanni.features.misc.EnchantedClockHelper
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -119,7 +120,7 @@ object CFBlockOpen {
                     config::boosterCookieRequirement,
                     actionName = "warp to hub",
                     action = {
-                        HypixelCommands.warp("hub")
+                        WarpAPI.warp("hub")
                         EntityMovementData.onNextTeleport(IslandType.HUB) {
                             IslandGraphs.node("Bazaar", GraphNodeTag.NPC).pathFind("§aBazaar", condition = { true })
                         }

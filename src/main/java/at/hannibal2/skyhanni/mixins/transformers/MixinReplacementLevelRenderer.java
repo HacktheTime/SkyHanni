@@ -79,7 +79,7 @@ public class MixinReplacementLevelRenderer {
     }
 
     @ModifyExpressionValue(method = "method_62214", at = @At(value = "NEW", target = "()Lcom/mojang/blaze3d/vertex/PoseStack;"))
-        private PoseStack onCreateMatrixStack(PoseStack matrixStack) {
+    private PoseStack onCreateMatrixStack(PoseStack matrixStack) {
         contextMatrixStack = matrixStack;
         return matrixStack;
     }

@@ -39,6 +39,7 @@ import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import com.mojang.serialization.JsonOps
+import de.hype.bingonet.sharedcompilation.sbenums.BNNEUItem
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentSerialization
 import net.minecraft.world.item.ItemStack
@@ -142,6 +143,10 @@ enum class SkyHanniTypeAdapters(
                 return reader.nextString().toInternalName()
             }
         },
+    ),
+    BNEU_ITEM(
+        BNNEUItem::class.java,
+        INTERNAL_NAME.adapter,
     ),
     RARITY(
         LorenzRarity::class.java,

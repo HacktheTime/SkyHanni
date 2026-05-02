@@ -11,6 +11,7 @@ enum class EffectsCompat(
 ) {
     INVISIBILITY(MobEffects.INVISIBILITY),
     BLINDNESS(MobEffects.BLINDNESS),
+    STRENGTH(MobEffects.STRENGTH),
     ;
 
     companion object {
@@ -20,6 +21,10 @@ enum class EffectsCompat(
 
         fun LivingEntity.activePotionEffect(effect: EffectsCompat): MobEffectInstance? {
             return this.getEffect(effect.potion)
+        }
+
+        fun getPlayerEffect(effect: EffectsCompat): MobEffectInstance? {
+            return MinecraftCompat.localPlayer.activePotionEffect(effect)
         }
     }
 }

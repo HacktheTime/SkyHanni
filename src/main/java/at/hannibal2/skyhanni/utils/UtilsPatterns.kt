@@ -142,6 +142,7 @@ object UtilsPatterns {
         "item.rift.transferable",
         "§5§kX§5 Rift-Transferable §kX",
     )
+
     /**
      * REGEX-TEST: §5§kX§5 Rift-Exportable §kX
      * REGEX-TEST: §5§kX§5 Rift-Exported §kX
@@ -199,6 +200,6 @@ object UtilsPatterns {
      */
     val attributeSourcePattern by patternGroup.pattern(
         "attribute.shard.source",
-        "§7Source: §.(?<source>.+) Shard §8\\(\\w\\d+\\)"
+        "§7Source: §.(?<source>.+) Shard §8\\(\\w\\d+\\)",
     )
 }

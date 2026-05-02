@@ -15,8 +15,8 @@ import at.hannibal2.skyhanni.config.features.gui.GuiConfig
 import at.hannibal2.skyhanni.config.features.hunting.HuntingConfig
 import at.hannibal2.skyhanni.config.features.inventory.InventoryConfig
 import at.hannibal2.skyhanni.config.features.mining.MiningConfig
-import at.hannibal2.skyhanni.config.features.misc.MiscConfig
 import at.hannibal2.skyhanni.config.features.rift.RiftConfig
+import at.hannibal2.skyhanni.config.features.consent.ThirdPartyConsentConfig
 import at.hannibal2.skyhanni.config.features.skillprogress.SkillProgressConfig
 import at.hannibal2.skyhanni.config.features.slayer.SlayerConfig
 import at.hannibal2.skyhanni.config.storage.Storage
@@ -30,15 +30,19 @@ import io.github.notenoughupdates.moulconfig.common.MyResourceLocation
 import io.github.notenoughupdates.moulconfig.common.text.StructuredText
 import io.github.notenoughupdates.moulconfig.gui.HorizontalAlign
 import io.github.notenoughupdates.moulconfig.processor.ProcessedCategory
+import at.hannibal2.skyhanni.config.features.misc.NumpadConfig
+import at.hannibal2.skyhanni.config.features.misc.MiscConfig
 
 class SkyHanniConfig : Config() {
     private val discord = MyResourceLocation("skyhanni", "social/discord.png")
     private val github = MyResourceLocation("skyhanni", "social/github.png")
     private val patreon = MyResourceLocation("skyhanni", "social/patreon.png")
     private val shSocials = listOf(
-        Social.forLink("Discord".asStructuredText(), discord, "https://discord.com/invite/skyhanni-997079228510117908"),
-        Social.forLink("GitHub".asStructuredText(), github, "https://github.com/hannibal002/SkyHanni"),
-        Social.forLink("Patreon".asStructuredText(), patreon, "https://www.patreon.com/hannibal2"),
+        Social.forLink("SkyHanni Patreon".asStructuredText(), patreon, "https://www.patreon.com/hannibal2"),
+        Social.forLink("SkyHanni GitHub".asStructuredText(), github, "https://github.com/hannibal002/SkyHanni"),
+        Social.forLink("SkyHanni Discord".asStructuredText(), discord, "https://discord.com/invite/skyhanni-997079228510117908"),
+        Social.forLink("Bingo Net GitHub".asStructuredText(), github, "https://github.com/HacktheTime/SkyHanni"),
+        Social.forLink("Bingo Net Discord".asStructuredText(), discord, "https://hackthetime.de/discord"),
     )
 
     // in moulconfig, this value is currently bugged (version 3.5.0)
@@ -137,6 +141,14 @@ class SkyHanniConfig : Config() {
     @Expose
     @Category(name = "Misc", desc = "Settings without a category.")
     val misc: MiscConfig = MiscConfig()
+
+    @Expose
+    @Category(name = "Numpad Codes", desc = "Configure the numpad codes system (/sh numpad).")
+    var numpad: NumpadConfig = NumpadConfig()
+
+    @Expose
+    @Category(name = "Third-Party Consent", desc = "Control which third-party networks and services are allowed.")
+    var thirdPartyConsent: ThirdPartyConsentConfig = ThirdPartyConsentConfig()
 
     // Bottom
     @Expose

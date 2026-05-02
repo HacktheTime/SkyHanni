@@ -2,6 +2,8 @@ package at.hannibal2.skyhanni.api.enoughupdates
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigManager
+import at.hannibal2.skyhanni.data.jsonobjects.other.NeuNbtInfoJson
+import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuMinionTypeData
 import at.hannibal2.skyhanni.data.PetData
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NEURaritySpecificPetNums
 import at.hannibal2.skyhanni.data.jsonobjects.repo.neu.NeuItemJson
@@ -35,6 +37,8 @@ import at.hannibal2.skyhanni.utils.json.fromJsonOrNull
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionData
+import de.hype.bingonet.sharedcompilation.sbenums.minions.MinionType
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -63,6 +67,7 @@ object EnoughUpdatesManager {
 
     private var neuPetsJson: NeuPetsJson? = null
     private var neuPetNums: NeuPetNumsJson? = null
+    private var neuMinionTypes: Map<String, NeuMinionTypeData>? = null
 
     val titleWordMap = TreeMap<String, MutableMap<String, MutableList<Int>>>()
 
@@ -165,6 +170,7 @@ object EnoughUpdatesManager {
         val lore = stack.getLore()
 
         val json = JsonObject()
+        json.addProperty("count", stack.count)
         json.addProperty("itemid", stack.item.getIdentifierString())
         json.addProperty("displayname", stack.hoverName.formattedTextCompatLeadingWhiteLessResets())
         json.add("nbttag", ComponentUtils.convertToNeuNbtInfoJson(stack))
@@ -309,7 +315,7 @@ object EnoughUpdatesManager {
 
     fun getDisplayName(internalName: NeuInternalName): String = displayNameCache.getOrPut(internalName) {
         // Intentionally toString() instead of asString() to indicate failure
-        val itemInfo = getItemById(internalName) ?: return@getOrPut internalName.toString()
+        val itemInfo = getItemById(internalName) ?: return@getOrPut internalName.asString()
         itemInfo.displayName ?: run {
             ErrorManager.skyHanniError("No display name for $internalName")
         }
@@ -319,6 +325,8 @@ object EnoughUpdatesManager {
     fun onNeuRepoReload(event: NeuRepositoryReloadEvent) {
         neuPetsJson = event.getConstant<NeuPetsJson>("pets")
         neuPetNums = event.getConstant<NeuPetNumsJson>("petnums")
+        neuMinionTypes = event.getConstant<List<NeuMinionTypeData>>("minions")
+            .associateBy { it.typeId }
         if (itemMap.isNotEmpty()) {
             ChatUtils.chat("Reloaded ${itemMap.size.addSeparators()} items in the NEU repo")
         }
@@ -336,6 +344,21 @@ object EnoughUpdatesManager {
             else -> "§aLoaded all $loadedItems items!"
         }
         ChatUtils.chat("  §aNEU Repo Item Status:\n  $status", prefix = false)
+    }
+
+    fun getMinionType(minionId: String): MinionType? {
+        val minionId = minionId.replace("_\\d+".toRegex(), "")
+        return neuMinionTypes?.get(minionId)
+    }
+
+    @Suppress("UnusedParameter")
+    fun getTypeMinions(type: MinionType): List<MinionData> {
+        TODO("Not yet implemented")
+        // Scan all items in neu repo including lore to parse the minion data such as base storage and speed for all tiers.
+    }
+
+    val allSkyblockItemIds: Set<String> by lazy {
+        itemMap.keys.map { it.internalName.replace("-", ":") }.toHashSet()
     }
 
     fun reportRecipeStatus() {

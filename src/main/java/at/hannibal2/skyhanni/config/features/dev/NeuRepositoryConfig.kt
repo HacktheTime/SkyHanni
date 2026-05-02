@@ -38,7 +38,7 @@ class NeuRepositoryConfig : AbstractRepoConfig {
         @Expose
         @ConfigOption(name = "Repository User", desc = "The Repository Branch, default: NotEnoughUpdates")
         @ConfigEditorText
-        override var user: String = "NotEnoughUpdates"
+        override var user: String = "HacktheTime"
 
         @Expose
         @ConfigOption(name = "Repository Name", desc = "The Repository Name, default: NotEnoughUpdates-REPO")
@@ -50,9 +50,14 @@ class NeuRepositoryConfig : AbstractRepoConfig {
         @ConfigEditorText
         override var branch: String = "master"
 
-        @Transient override val defaultUser = "NotEnoughUpdates"
-        @Transient override val defaultRepoName = "NotEnoughUpdates-REPO"
-        @Transient override val defaultBranch = "master"
+        @Transient
+        override val defaultUser = "NotEnoughUpdates"
+
+        @Transient
+        override val defaultRepoName = "NotEnoughUpdates-REPO"
+
+        @Transient
+        override val defaultBranch = "master"
     }
 
     @Expose

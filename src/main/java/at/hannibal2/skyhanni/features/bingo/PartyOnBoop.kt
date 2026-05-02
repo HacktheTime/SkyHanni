@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.bingo
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.hypixel.chat.event.Direction
 import at.hannibal2.skyhanni.data.hypixel.chat.event.PrivateMessageChatEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -41,7 +42,7 @@ object PartyOnBoop {
         ChatUtils.clickableChat(
             "Click to invite $username §eto the party!",
             onClick = {
-                HypixelCommands.partyInvite(username)
+                PartyApi.invite(listOf(username))
             },
         )
     }

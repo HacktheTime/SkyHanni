@@ -233,7 +233,7 @@ object AttributeShardOverlay {
             onLeftClick = {
                 AttributeShardsData.resetHuntingBoxShards()
                 reconstructDisplay()
-            }
+            },
         )
         add(clickable)
     }

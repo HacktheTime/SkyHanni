@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.commands.brigadier
 
+import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.commands.brigadier.arguments.InternalNameArgumentType
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuItems
@@ -28,12 +29,22 @@ object BrigadierUtils {
         }
     }
 
+    val useContainSuggestion get() = SkyHanniMod.feature.chat.tabCompletionUseContainsSuggestion
+    val ignoreCaseSuggestion get() = SkyHanniMod.feature.chat.tabIgnoreCaseSuggestion
+
     /**
      * Convert a static collection to be suggestions for an argument
      */
     fun Collection<String>.toSuggestionProvider() = SuggestionProvider<FabricClientCommandSource> { _, builder ->
+        val useContain = useContainSuggestion
+        val ignoreCase = ignoreCaseSuggestion
         for (s in this) {
-            if (s.startsWith(builder.remainingLowerCase)) {
+            val pass = if (useContain) {
+                s.contains(builder.remainingLowerCase, ignoreCase)
+            } else {
+                s.startsWith(builder.remainingLowerCase, ignoreCase)
+            }
+            if (pass) {
                 builder.suggest(s)
             }
         }
@@ -46,8 +57,15 @@ object BrigadierUtils {
     fun dynamicSuggestionProvider(supplier: () -> Collection<String>) =
         SuggestionProvider<FabricClientCommandSource> { _, builder ->
             val remaining = builder.remainingLowerCase
+            val useContain = useContainSuggestion
+            val ignoreCase = ignoreCaseSuggestion
             for (option in supplier()) {
-                if (option.lowercase().startsWith(remaining)) {
+                val pass = if (useContain) {
+                    option.contains(remaining, ignoreCase)
+                } else {
+                    option.startsWith(remaining, ignoreCase)
+                }
+                if (pass) {
                     builder.suggest(option)
                 }
             }
@@ -159,7 +177,7 @@ object BrigadierUtils {
         if (unEscaped.isBlank() && !showWhenEmpty) return builder.buildFuture()
 
         val lowercaseStart = unEscaped.replace("_", " ")
-        val items = NeuItems.findItemNameStartingWithWithoutNPCs(lowercaseStart, isValidItem).take(limit)
+        val items = NeuItems.findItemNameWithoutNPCs(lowercaseStart, isValidItem).take(limit)
 
         if (isGreedy) builder.addUnescaped(items) else builder.addOptionalEscaped(items)
         return builder.buildFuture()

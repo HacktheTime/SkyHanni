@@ -23,6 +23,11 @@ class About {
     @Transient
     var currentVersion: Unit? = null
 
+    @ConfigOption(name = "Skyhanni Default Options Screen", desc = "Select which type of options screen you want to see for new features.")
+    @ConfigEditorDropdown
+    @Transient
+    var shDefaultOptionsScreen : ShDefaultOptionsScreen = ShDefaultOptionsScreen.UNSET
+
     @ConfigOption(name = "Update Stream", desc = "How frequently you want updates for SkyHanni")
     @Expose
     @ConfigEditorDropdown
@@ -60,5 +65,11 @@ class About {
         @ConfigOption(name = "Mixin", desc = "Mixin is available under the MIT License")
         @ConfigEditorButton(buttonText = "Source")
         val mixin: Runnable = Runnable { openBrowser("https://github.com/SpongePowered/Mixin/") }
+    }
+
+    enum class ShDefaultOptionsScreen{
+        GROUPING,
+        ONLY_NEW_MOUL_CONFIG,
+        UNSET
     }
 }

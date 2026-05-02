@@ -5,19 +5,28 @@ import at.hannibal2.skyhanni.config.commands.brigadier.BaseBrigadierBuilder
 import at.hannibal2.skyhanni.config.commands.brigadier.CommandData
 import at.hannibal2.skyhanni.events.utils.PreInitFinishedEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.test.command.requireDevEnv
+import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.addOrInsert
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
+import net.minecraft.client.Minecraft
 
 @SkyHanniModule
 object CommandsRegistry {
+    private var brigadierDispatcher: CommandDispatcher<Any?>? = null
+    fun getDispatcher(): CommandDispatcher<Any?> = brigadierDispatcher ?: error("Brigadier dispatcher is not registered yet")
+
+    fun getDispatcherNullable(): CommandDispatcher<Any?>? = brigadierDispatcher
 
     @HandleEvent(PreInitFinishedEvent::class)
     fun onPreInitFinished() {
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
+            this.brigadierDispatcher = dispatcher as CommandDispatcher<Any?>
             CommandRegistrationEvent(dispatcher).post()
         }
     }
@@ -68,5 +77,29 @@ object CommandsRegistry {
             }
         }
         builders.add(this)
+    }
+
+    fun mcServerDispatcher(): CommandDispatcher<Any>? {
+        return Minecraft.getInstance().connection?.commands as CommandDispatcher<Any>?
+    }
+
+    /**
+     * Supports executing both server AND client commands based on string command input
+     */
+    fun execAutomaticCommand(raw: String) {
+        val raw = if (raw.startsWith("/")) raw.removePrefix("/") else raw
+        val baseDispatcher = getDispatcherNullable()
+        val baseParse = baseDispatcher?.parse(raw, MinecraftCompat.localPlayer)
+        if (baseParse!=null && !baseParse.reader.canRead()) {
+            baseDispatcher.execute(baseParse)
+        } else {
+            val serverDispatcher = mcServerDispatcher()
+            val serverParse = serverDispatcher?.parse(raw, MinecraftCompat.localPlayer)
+            if (serverParse != null && !serverParse.reader.canRead()) {
+                ChatUtils.sendMessageToServer("/$raw")
+            } else {
+                ErrorManager.skyHanniError("Could not execute command: '$raw' (not found)")
+            }
+        }
     }
 }

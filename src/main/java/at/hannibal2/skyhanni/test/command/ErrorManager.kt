@@ -21,6 +21,9 @@ import at.hannibal2.skyhanni.utils.collection.TimeLimitedSet
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
+import de.hype.bingonet.BNConnection
+import de.hype.bingonet.shared.packets.network.ErrorReportPacket
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.CrashReport
 import net.minecraft.client.Minecraft
 import kotlin.time.Duration.Companion.minutes
@@ -55,6 +58,7 @@ object ErrorManager {
     )
     private var replacements: Map<String, String> = mapOf(
         "at.hannibal2.skyhanni." to "SH.",
+        "de.hype.bingonet" to "BN",
         "io.moulberry.notenoughupdates." to "NEU.",
         "net.minecraft." to "MC.",
         "net.minecraftforge.fml." to "FML.",
@@ -238,8 +242,8 @@ object ErrorManager {
         val rawMessage = message.removeColor()
         val label = getLabel()
         errorMessages[randomId] = "```\n$label: $rawMessage\n \n$stackTrace\n$extraDataString```"
-        fullErrorMessages[randomId] =
-            "```\n$label: $rawMessage\n(full stack trace)\n \n$fullStackTrace\n$extraDataString```"
+        val full = "```\n$label: $rawMessage\n(full stack trace)\n \n$fullStackTrace\n$extraDataString```"
+        fullErrorMessages[randomId] = full
 
         val isConnected = MinecraftCompat.localPlayerOrNull != null
 
@@ -254,13 +258,27 @@ object ErrorManager {
             "§eClick to copy!",
             prefix = false,
         )
+        if (SkyHanniMod.feature.event.bingo.bingoNetworks.bingoNet.useBN) {
+            if (SkyHanniMod.feature.dev.autoThirdPartyErrorReporting) {
+                reportErrorToBingoNet(originalThrowable, full)
+            } else {
+                ChatUtils.clickToActionOrEnableAuto(
+                    "Do you want to send this Error to Bingo Net?",
+                    option = SkyHanniMod.feature.dev::autoThirdPartyErrorReporting,
+                    action = {
+                        reportErrorToBingoNet(originalThrowable, full)
+                    },
+                    actionName = "Auto BingoNet Report",
+                )
+            }
+        }
         return ErrorState.LOGGED
     }
 
     private fun getLabel(): String {
         val shVersion = SkyHanniMod.VERSION
         val mcVersion = PlatformUtils.MC_VERSION
-        return "SkyHanni $shVersion $mcVersion"
+        return "SkyHanni (Bingo Net) $shVersion $mcVersion"
     }
 
     // random id -> final message
@@ -269,8 +287,7 @@ object ErrorManager {
     private fun ErrorState.crashIfNotYetOnAServer(): Boolean {
         if (this == ErrorState.BLOCKED_NOT_NEEDED) return false
 
-        // TODO find way to properly do this before the config loads
-        val devCrash = false
+        val devCrash = PlatformUtils.isDevEnvironment
         if (devCrash) {
             if (!MinecraftData.hasLeftMainScreen) {
                 fullErrorMessages.entries.firstOrNull()?.value?.let {
@@ -300,6 +317,22 @@ object ErrorManager {
             )
         }
         errorsToShowOnJoin.clear()
+    }
+
+    fun reportErrorToBingoNet(original: Throwable, fullErrorData: String, vararg extraData: Pair<String, Any?> = emptyArray()) {
+        val mcVersion = PlatformUtils.MC_VERSION
+        val shVersion = SkyHanniMod.VERSION
+        val extraData: List<Pair<String, String?>> = extraData.map { it.first to it.second?.toString() }
+
+        BNConnection.sendPacket(
+            ErrorReportPacket(
+                original,
+                fullErrorData,
+                mcVersion,
+                shVersion,
+                extraData,
+            ),
+        )
     }
 
     private fun getExtraDataOrCached(extraData: Array<out Pair<String, Any?>>): String {

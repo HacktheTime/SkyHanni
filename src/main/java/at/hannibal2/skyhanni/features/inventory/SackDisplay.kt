@@ -141,6 +141,12 @@ object SackDisplay {
                             addString("§7/")
                             addAlignedNumber("§b${total.addSeparators()}")
                         }
+
+                        else -> {
+                            addAlignedNumber("$colorCode${stored.addSeparators()}")
+                            addString("§7/")
+                            addAlignedNumber("§b${total.addSeparators()}")
+                        }
                     }
 
                     // TODO change color of amount if full
@@ -182,6 +188,7 @@ object SackDisplay {
             SortingTypeEntry.ASC_STORED -> sackItems.sortedBy { it.second.stored }
             SortingTypeEntry.DESC_PRICE -> sackItems.sortedByDescending { it.second.price }
             SortingTypeEntry.ASC_PRICE -> sackItems.sortedBy { it.second.price }
+            else -> sackItems.sortedByDescending { it.second.stored }
         }.toMap().toMutableMap()
 
         for ((k, v) in sortedPairs.toList()) {

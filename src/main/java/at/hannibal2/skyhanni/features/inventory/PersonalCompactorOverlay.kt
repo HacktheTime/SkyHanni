@@ -126,6 +126,7 @@ object PersonalCompactorOverlay {
         PersonalCompactorConfig.VisibilityMode.ALWAYS -> true
         PersonalCompactorConfig.VisibilityMode.KEYBIND -> config.keybind.isKeyHeld()
         PersonalCompactorConfig.VisibilityMode.EXCEPT_KEYBIND -> !config.keybind.isKeyHeld()
+        else -> false
     }
 
     private fun getPersonalCompactorEnabled(itemStack: ItemStack): Boolean? {

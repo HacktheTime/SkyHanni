@@ -8,31 +8,22 @@ import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 class GuiOptionEditorBlocked(private val base: GuiOptionEditor, private val extraMessage: String) : GuiOptionEditor(base.getOption()) {
 
     override fun render(context: RenderContext, x: Int, y: Int, width: Int) {
-        // No super. We delegate and overlay ourselves instead.
+        // Render base then overlay a reddish block with legible text (no overlap)
         base.render(context, x, y, width)
 
-        // Depress original option
-        context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat(), -0x80000000)
+        val font = context.minecraft.defaultFontRenderer
+        val pad = (height * 0.08f).toInt().coerceAtLeast(2)
 
-        val iconWidth: Float = height * 96f / 64
-        context.drawTexturedRect(blockedTexture, x.toFloat(), y.toFloat(), iconWidth, height.toFloat())
+        // Reddish background
+        context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat(), 0x66AA0000.toInt())
 
-        val fontRenderer = context.minecraft.defaultFontRenderer
+        val title = ("\u26A0 This option is currently not available.").asStructuredText()
+        val body = extraMessage.asStructuredText()
 
-        val oneThird: Float = height / 3f
-
-        context.drawStringScaledMaxWidth(
-            "This option is currently not available.".asStructuredText(),
-            fontRenderer,
-            (x + iconWidth).toInt(), (y + oneThird - fontRenderer.height / 2f).toInt(),
-            true, (width - iconWidth).toInt(), -0xbbbc,
-        )
-        context.drawStringScaledMaxWidth(
-            extraMessage.asStructuredText(),
-            fontRenderer,
-            (x + iconWidth).toInt(), (y + (oneThird * 2) - fontRenderer.height / 2f).toInt(),
-            true, (width - iconWidth).toInt(), -0xbbbc,
-        )
+        var ty = y + pad
+        context.drawStringScaledMaxWidth(title, font, x + pad, ty, true, width - pad * 2, -0x1)
+        ty += font.height + pad
+        context.drawStringScaledMaxWidth(body, font, x + pad, ty, true, width - pad * 2, -0x1)
     }
 
     override fun mouseInput(x: Int, y: Int, width: Int, mouseX: Int, mouseY: Int): Boolean {

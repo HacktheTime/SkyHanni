@@ -1,6 +1,10 @@
 package at.hannibal2.skyhanni.features.misc.massconfiguration
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
+import at.hannibal2.skyhanni.config.TriState
+import at.hannibal2.skyhanni.config.FeatureDependencyResolver
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
@@ -10,6 +14,9 @@ import java.lang.reflect.ParameterizedType
 import java.util.Stack
 
 class FeatureToggleProcessor : ConfigStructureReader {
+    companion object {
+        val thirdPartyRegistry = mutableMapOf<ThirdParty, MutableList<FeatureToggleableOption>>()
+    }
 
     private var latestCategory: Category? = null
     private val pathStack = Stack<String>()
@@ -72,16 +79,72 @@ class FeatureToggleProcessor : ConfigStructureReader {
             name = accordionStack.peek()
         }
 
-        allOptions.add(
-            FeatureToggleableOption(
-                name,
-                option.desc,
-                value,
-                featureToggle.trueIsEnabled,
-                latestCategory!!,
-                setter,
-                pathStack.joinToString(".") + "." + field.name,
-            ),
+        // Resolve third-party dependency via annotation on field or owning classes
+        val tpResolved = resolveThirdParty(field)
+
+        // If no explicit annotation, detect third-party dependencies referenced via FeatureDependencyResolver
+        val autoTpResolved = if (tpResolved == null) {
+            try {
+                val reqs = FeatureDependencyResolver.resolve(field)
+                if (!reqs.isEmpty) {
+                    // collect all third-party dependencies referenced
+                    val deps = reqs.groups.flatMap { it.dependencies }
+                    val tps = deps.mapNotNull { dep ->
+                        when (val s = dep.source) {
+                            is FeatureDependencyResolver.DependencySource.ThirdParty -> s.value
+                            else -> null
+                        }
+                    }.distinct()
+                    // Only mark as third-party when ALL dependencies are third-party (conservative)
+                    val allAreThird = deps.isNotEmpty() && deps.all { it.source is FeatureDependencyResolver.DependencySource.ThirdParty }
+                    if (tps.isNotEmpty() && allAreThird) {
+                        // requiresMainToggle true if any referenced third-party actually has a mainToggleField
+                        val requiresMain = tps.any { it.mainToggleField != null }
+                        tps.first() to requiresMain
+                    } else null
+                } else null
+            } catch (_: Throwable) {
+                null
+            }
+        } else null
+
+        val finalTp = tpResolved ?: autoTpResolved
+
+        // Build consistent option path without leading dots when the path stack is empty
+        val optionPath = listOfNotNull(pathStack.joinToString(".").takeIf { it.isNotEmpty() }, field.name).joinToString(".")
+
+        val optionEntry = FeatureToggleableOption(
+            name,
+            option.desc,
+            value,
+            featureToggle.trueIsEnabled,
+            latestCategory!!,
+            setter,
+            optionPath,
+            finalTp?.first,
+            finalTp?.second ?: true,
         )
+        allOptions.add(optionEntry)
+        finalTp?.first?.let { tp ->
+            thirdPartyRegistry.getOrPut(tp) { mutableListOf() }.add(optionEntry)
+        }
+    }
+
+    private fun resolveThirdParty(field: Field): Pair<ThirdParty, Boolean>? {
+        var anno: ThirdPartyDependency? = field.getAnnotation(ThirdPartyDependency::class.java)
+        var clazz: Class<*>? = field.declaringClass
+        var classAnno: ThirdPartyDependency? = null
+        while (clazz != null && classAnno == null) {
+            classAnno = clazz.getAnnotation(ThirdPartyDependency::class.java)
+            clazz = clazz.enclosingClass
+        }
+        val source = anno ?: classAnno ?: return null
+        val tp = source.value
+        val requires = when (anno?.requiresMainToggle ?: classAnno?.requiresMainToggle ?: TriState.AUTO) {
+            TriState.YES -> true
+            TriState.NO -> false
+            TriState.AUTO -> true
+        }
+        return tp to requires
     }
 }

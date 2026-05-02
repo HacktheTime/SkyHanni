@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.NoConfigLink
+import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.inventory.chocolatefactory.CFConfig
 import at.hannibal2.skyhanni.config.features.inventory.customwardrobe.CustomWardrobeConfig
 import at.hannibal2.skyhanni.config.features.inventory.experimentationtable.ExperimentationTableConfig
@@ -9,10 +11,13 @@ import at.hannibal2.skyhanni.config.features.inventory.sacks.OutsideSackValueCon
 import at.hannibal2.skyhanni.config.features.itemability.ItemAbilityConfig
 import at.hannibal2.skyhanni.config.features.misc.EstimatedItemValueConfig
 import at.hannibal2.skyhanni.config.features.misc.PocketSackInASackConfig
+import at.hannibal2.skyhanni.features.inventory.searchablestorage.SearchableStorage
+import at.hannibal2.skyhanni.utils.NeuInternalName
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.Category
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.annotations.SearchTag
@@ -56,6 +61,13 @@ class InventoryConfig {
     @Expose
     @Category(name = "Chocolate Factory", desc = "Features to help you master the Chocolate Factory idle game.")
     val chocolateFactory: CFConfig = CFConfig()
+
+    @ConfigOption(
+        name = "Searchable Storage Gui",
+        desc = "Open a gui where you can search your storages by name and or lore. \n§eCommand: /shsearchstorage (search)",
+    )
+    @ConfigEditorButton(buttonText = "Open")
+    val open: Runnable = Runnable(SearchableStorage::onCommand)
 
     @Expose
     @ConfigOption(name = "Improved SB Menus", desc = "")
@@ -377,6 +389,21 @@ class InventoryConfig {
     @FeatureToggle
     @SearchTag("pick block")
     var middleClickFix: Boolean = true
+
+    @Expose
+    val sackTrackingOverlayToTrack: MutableMap<NeuInternalName, UInt?> = mutableMapOf()
+
+    @Expose
+    @NoConfigLink
+    var sackTrackingOverlayPosition: Position = Position(0, 0)
+
+    @Expose
+    @ConfigOption(
+        name = "Searchable Storage Reminder",
+        desc = "Reminder that tells you to enable saving private island chests when opening the searchable storage gui.",
+    )
+    @ConfigEditorBoolean
+    var searchableStorageReminder: Boolean = true
 
     @Expose
     @ConfigOption(

@@ -13,6 +13,7 @@ import at.hannibal2.skyhanni.events.InventoryUpdatedEvent
 import at.hannibal2.skyhanni.events.SecondPassedEvent
 import at.hannibal2.skyhanni.features.fame.ReminderUtils
 import at.hannibal2.skyhanni.features.inventory.chocolatefactory.CFApi
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
@@ -65,7 +66,7 @@ object HoppityNpc {
             config::hoppityShopReminder,
             actionName = "warp to hub",
             action = {
-                HypixelCommands.warp("hub")
+                WarpAPI.warp("hub")
                 EntityMovementData.onNextTeleport(IslandType.HUB) {
                     IslandGraphs.node("Hoppity", GraphNodeTag.NPC).pathFind(
                         label = "§aHoppity's Shop",

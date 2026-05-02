@@ -45,8 +45,8 @@ class PowderTrackerConfig {
             PowderDisplayEntry.TOPAZ,
             PowderDisplayEntry.FTX,
             PowderDisplayEntry.ELECTRON,
-            PowderDisplayEntry.ROBOTRON
-        )
+            PowderDisplayEntry.ROBOTRON,
+        ),
     )
 
     enum class PowderDisplayEntry(private val displayName: String) {

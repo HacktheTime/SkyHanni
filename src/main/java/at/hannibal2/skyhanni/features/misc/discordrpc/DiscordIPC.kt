@@ -2,11 +2,17 @@ package at.hannibal2.skyhanni.features.misc.discordrpc
 
 import at.hannibal2.skyhanni.utils.ChatUtils
 import com.google.gson.JsonObject
+import com.google.gson.annotations.SerializedName
 import java.io.Closeable
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.nio.channels.AsynchronousCloseException
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 /**
  * A lightweight Discord IPC client implementing the Rich Presence protocol.
@@ -22,6 +28,8 @@ class DiscordIPC(
     private val onDebugInfo: (Map<String, String>) -> Unit = {},
 ) : Closeable {
 
+    lateinit var lastDiscordResponse: String
+
     @Volatile
     private var _connected = false
     private var pipe: DiscordIPCPipe? = null
@@ -32,6 +40,7 @@ class DiscordIPC(
     // We need to use our own GSON here, rather than the ConfigManager one,
     // as we need NON-null serialization, as discord does not play nice with nulls.
     private val gson = com.google.gson.GsonBuilder().create()
+    private val pendingFrameRequests = ConcurrentHashMap<String, CompletableFuture<String>>()
 
     /** Whether this client is currently connected and ready for Discord IPC. */
     val isConnected: Boolean get() = _connected
@@ -43,7 +52,7 @@ class DiscordIPC(
      * @throws DiscordIPCException If no Discord client is running, the pipe cannot be opened,
      *   or the handshake does not complete successfully.
      */
-    fun connect() {
+    fun connect(): DiscordUserIdentity? {
         pipe = DiscordIPCPipeManager.open(onDebugInfo)
         ChatUtils.debug("Discord RPC: pipe opened, sending handshake")
         sendFrame(Opcode.HANDSHAKE, clientPayload)
@@ -53,6 +62,23 @@ class DiscordIPC(
         validateReadyBody(body)
         _connected = true
         shutdownHook = Thread(::close, "discord-rpc-shutdown").also(Runtime.getRuntime()::addShutdownHook)
+        return parseReadyUser(body)
+    }
+
+    fun requestCurrentUserIdentity(timeoutMillis: Long = 3_000): DiscordUserIdentity? {
+        if (!_connected) throw DiscordIPCException("requestCurrentUserIdentity called while not connected")
+
+        val commands = listOf(
+            CommandPayload(cmd = "GET_CURRENT_USER", nonce = UUID.randomUUID().toString()),
+            CommandPayload(cmd = "GET_USER", nonce = UUID.randomUUID().toString(), args = mapOf("id" to "@me")),
+            CommandPayload(cmd = "GET_USER", nonce = UUID.randomUUID().toString(), args = mapOf("id" to "me")),
+            CommandPayload(cmd = "GET_USER", nonce = UUID.randomUUID().toString()),
+        )
+
+        for (command in commands) {
+            requestFrameAndAwait(command, timeoutMillis)?.let { parseUserFromCommandResponse(it) }?.let { return it }
+        }
+        return null
     }
 
     /**
@@ -79,9 +105,6 @@ class DiscordIPC(
     }
 
     var lastActivityJson: String? = null
-        private set
-
-    var lastDiscordResponse: String? = null
         private set
 
     /**
@@ -111,7 +134,7 @@ class DiscordIPC(
      * PING frames are answered with PONG inline. A CLOSE frame sets [isConnected] to false.
      * Any other frame (e.g. the SET_ACTIVITY response) is stored in [lastDiscordResponse].
      */
-    private fun readUntilFrame() {
+    fun readUntilFrame() {
         while (_connected) {
             val (opcode, body) = readFrame()
             when (opcode) {
@@ -146,7 +169,8 @@ class DiscordIPC(
         ChatUtils.debug("Discord RPC: close() called, was connected=$_connected")
         shutdownHook?.let { runCatching { Runtime.getRuntime().removeShutdownHook(it) } }
         shutdownHook = null
-        _connected = false
+        if (_connected) runCatching { sendFrame(Opcode.CLOSE, clientPayload) }
+        clearSessionState()
         val oldPipe = pipe
         pipe = null
         runCatching { oldPipe?.close() }
@@ -185,7 +209,7 @@ class DiscordIPC(
             out.write(frame.array())
             out.flush()
         } catch (e: IOException) {
-            _connected = false
+            clearSessionState()
             throw DiscordIPCException("IPC write failed: ${e.message}", e)
         }
     }
@@ -201,21 +225,16 @@ class DiscordIPC(
     @Suppress("ThrowsCount")
     private fun readFrame(): Pair<Opcode, String> {
         val inp = pipe?.input ?: throw DiscordIPCException("readFrame called with no active connection")
-        try {
-            val header = inp.readNBytes(8)
-            if (header.size < 8) {
-                _connected = false
-                throw DiscordIPCException("Discord closed the IPC pipe unexpectedly (EOF in frame header)")
-            }
-            val buffer = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN)
-            val opcodeId = buffer.int
-            val opcode = Opcode.fromId(opcodeId) ?: throw DiscordIPCException("Received unknown opcode: $opcodeId")
-            val length = buffer.int
-            return opcode to String(inp.readNBytes(length), Charsets.UTF_8)
-        } catch (e: IOException) {
-            _connected = false
-            throw DiscordIPCException("IPC read failed: ${e.message}", e)
+        val header = inp.readNBytes(8)
+        if (header.size < 8) {
+            clearSessionState()
+            throw DiscordIPCException("Discord closed the IPC pipe unexpectedly (EOF in frame header)")
         }
+        val buffer = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN)
+        val opcodeId = buffer.int
+        val opcode = Opcode.fromId(opcodeId) ?: throw DiscordIPCException("Received unknown opcode: $opcodeId")
+        val length = buffer.int
+        return opcode to String(inp.readNBytes(length), Charsets.UTF_8)
     }
 
     /**
@@ -227,5 +246,93 @@ class DiscordIPC(
         presence,
         ProcessHandle.current().pid().toInt(),
         UUID.randomUUID().toString(),
+    )
+
+    private fun clearSessionState() {
+        _connected = false
+        val ex = DiscordIPCException("Discord IPC session closed")
+        pendingFrameRequests.values.forEach { it.completeExceptionally(ex) }
+        pendingFrameRequests.clear()
+    }
+
+    private fun requestFrameAndAwait(command: CommandPayload, timeoutMillis: Long): String? {
+        val responseFuture = CompletableFuture<String>()
+        pendingFrameRequests[command.nonce] = responseFuture
+        try {
+            sendFrame(Opcode.FRAME, gson.toJson(command))
+            return responseFuture.get(timeoutMillis, TimeUnit.MILLISECONDS)
+        } catch (_: TimeoutException) {
+            return null
+        } finally {
+            pendingFrameRequests.remove(command.nonce)
+        }
+    }
+
+    private fun tryCompletePendingRequest(body: String) {
+        val frame = runCatching { gson.fromJson(body, DispatchFrame::class.java) }.getOrNull() ?: return
+        val nonce = frame.nonce ?: return
+        pendingFrameRequests[nonce]?.complete(body)
+    }
+
+    private fun parseReadyUser(body: String): DiscordUserIdentity? {
+        val frame = runCatching { gson.fromJson(body, DispatchFrame::class.java) }.getOrNull() ?: return null
+        if (frame.cmd != "DISPATCH" || frame.evt != "READY") return null
+        val user = frame.data?.user ?: return null
+        val userId = user.id ?: return null
+        val username = user.username ?: user.globalName ?: return null
+        return DiscordUserIdentity(userId = userId, username = username)
+    }
+
+    private fun parseUserFromCommandResponse(body: String): DiscordUserIdentity? {
+        val json = runCatching { gson.fromJson(body, JsonObject::class.java) }.getOrNull() ?: return null
+        val cmd = json.getStringOrNull("cmd")
+        if (cmd == "ERROR") return null
+
+        val data = json.getObjectOrNull("data") ?: return null
+        val directUserId = data.getStringOrNull("id")
+        val directUsername = data.getStringOrNull("username") ?: data.getStringOrNull("global_name")
+        if (directUserId != null && directUsername != null) {
+            return DiscordUserIdentity(userId = directUserId, username = directUsername)
+        }
+
+        val nestedUser = data.getObjectOrNull("user") ?: return null
+        val nestedUserId = nestedUser.getStringOrNull("id") ?: return null
+        val nestedUsername = nestedUser.getStringOrNull("username") ?: nestedUser.getStringOrNull("global_name") ?: return null
+        return DiscordUserIdentity(userId = nestedUserId, username = nestedUsername)
+    }
+
+    private fun JsonObject.getObjectOrNull(key: String): JsonObject? {
+        val element = get(key) ?: return null
+        if (element.isJsonNull || !element.isJsonObject) return null
+        return element.asJsonObject
+    }
+
+    private fun JsonObject.getStringOrNull(key: String): String? {
+        val element = get(key) ?: return null
+        if (element.isJsonNull) return null
+        return runCatching { element.asString }.getOrNull()
+    }
+
+    private data class CommandPayload(
+        val cmd: String,
+        val nonce: String,
+        val args: Map<String, String>? = null,
+    )
+
+    private data class DispatchFrame(
+        val cmd: String? = null,
+        val evt: String? = null,
+        val nonce: String? = null,
+        val data: DispatchData? = null,
+    )
+
+    private data class DispatchData(
+        val user: DispatchUser? = null,
+    )
+
+    private data class DispatchUser(
+        val id: String? = null,
+        val username: String? = null,
+        @SerializedName("global_name") val globalName: String? = null,
     )
 }

@@ -1,13 +1,22 @@
-package imports
+package at.hannibal2.skyhanni.detektrules.imports
 
-import PreprocessingPattern.Companion.containsPreprocessingPattern
-import SkyHanniRule
-import com.intellij.psi.PsiComment
-import com.intellij.psi.PsiWhiteSpace
-import dev.detekt.api.Config
+import at.hannibal2.skyhanni.detektrules.PreprocessingPattern.Companion.containsPreprocessingPattern
+import at.hannibal2.skyhanni.detektrules.SkyHanniRule
+import io.gitlab.arturbosch.detekt.api.Config
+import io.gitlab.arturbosch.detekt.api.Debt
+import io.gitlab.arturbosch.detekt.api.Issue
+import io.gitlab.arturbosch.detekt.api.Severity
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.psi.KtImportList
 
-class PreprocessingImportOrdering(config: Config) : SkyHanniRule(config, "Enforces that pre-processing comments do not accidentally get messed up.") {
+class PreprocessingImportOrdering(config: Config) : SkyHanniRule(config) {
+    override val issue = Issue(
+        "PreprocessingImportOrdering",
+        Severity.Style,
+        "Enforces that pre-processing comments do not accidentally get messed up.",
+        Debt.FIVE_MINS,
+    )
 
     override fun visitImportList(importList: KtImportList) {
         val parent = importList.parent

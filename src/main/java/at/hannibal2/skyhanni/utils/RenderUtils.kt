@@ -19,6 +19,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.world.inventory.Slot
 import java.awt.Color
 import java.util.concurrent.CompletableFuture
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 @Suppress("LargeClass", "TooManyFunctions")
 object RenderUtils {
@@ -116,8 +118,10 @@ object RenderUtils {
         highlight(color, x, y)
     }
 
-    private fun highlight(color: Color, x: Int, y: Int) = DrawContextUtils.pushPop {
+    private fun highlight(color: Color, x: Int, y: Int) {
+        DrawContextUtils.pushMatrix()
         GuiRenderUtils.drawRect(x, y, x + 16, y + 16, color.rgb)
+        DrawContextUtils.popMatrix()
     }
 
     fun Slot.drawBorder(color: LorenzColor) {
@@ -136,11 +140,13 @@ object RenderUtils {
         drawBorder(color, x, y)
     }
 
-    fun drawBorder(color: Color, x: Int, y: Int) = DrawContextUtils.pushPop {
+    fun drawBorder(color: Color, x: Int, y: Int) {
+        DrawContextUtils.pushMatrix()
         GuiRenderUtils.drawRect(x, y, x + 1, y + 16, color.rgb)
         GuiRenderUtils.drawRect(x, y, x + 16, y + 1, color.rgb)
         GuiRenderUtils.drawRect(x, y + 15, x + 16, y + 16, color.rgb)
         GuiRenderUtils.drawRect(x + 15, y, x + 16, y + 16, color.rgb)
+        DrawContextUtils.popMatrix()
     }
 
     fun interpolate(currentValue: Double, lastValue: Double, multiplier: Double): Double {
@@ -156,21 +162,26 @@ object RenderUtils {
     }
 
     @Deprecated("Use renderRenderable instead", ReplaceWith("renderRenderable(renderable, posLabel)"))
-    private fun Position.renderString0(string: String, offsetX: Int = 0, offsetY: Int = 0, centered: Boolean): Int =
-        DrawContextUtils.pushPopResult {
-            val display = "§f$string"
-            transform()
-            val fr = Minecraft.getInstance().font
+    private fun Position.renderString0(string: String, offsetX: Int = 0, offsetY: Int = 0, centered: Boolean): Int {
+        val display = "§f$string"
+        DrawContextUtils.pushMatrix()
+        transform()
+        val fr = Minecraft.getInstance().font
 
-            DrawContextUtils.translate(offsetX + 1.0, offsetY + 1.0)
+        DrawContextUtils.translate(offsetX + 1.0, offsetY + 1.0)
 
-            val finalX = if (centered) {
-                offsetX - (fr.width(string) / 2f)
-            } else 0f
-            GuiRenderUtils.drawString(display, finalX, 0f, -1)
-
-            return fr.width(display)
+        if (centered) {
+            val strLen: Int = fr.width(string)
+            val x2 = offsetX - strLen / 2f
+            GuiRenderUtils.drawString(display, x2, 0f, -1)
+        } else {
+            GuiRenderUtils.drawString(display, 0f, 0f, -1)
         }
+
+        DrawContextUtils.popMatrix()
+
+        return fr.width(display)
+    }
 
     @Deprecated("Use renderRenderables instead", ReplaceWith("renderRenderables(renderables)"))
     fun Position.renderStrings(list: List<String>, extraSpace: Int = 0, posLabel: String) {
@@ -197,16 +208,17 @@ object RenderUtils {
         if (renderables.isEmpty()) return
         var longestY = 0
         val longestX = renderables.maxOf { it.width }
-        renderables.forEach { line ->
-            DrawContextUtils.pushPop {
-                val (x, y) = transform()
-                DrawContextUtils.translate(0f, longestY.toFloat())
-                Renderable.withMousePosition(x, y) {
-                    line.renderXAligned(0, longestY, longestX)
-                }
-
-                longestY += line.height + extraSpace + 2
+        for (line in renderables) {
+            DrawContextUtils.pushMatrix()
+            val (x, y) = transform()
+            DrawContextUtils.translate(0f, longestY.toFloat())
+            Renderable.withMousePosition(x, y) {
+                line.renderXAligned(0, longestY, longestX)
             }
+
+            longestY += line.height + extraSpace + 2
+
+            DrawContextUtils.popMatrix()
         }
         if (addToGuiManager) GuiEditManager.add(this, posLabel, longestX, longestY)
     }
@@ -220,13 +232,30 @@ object RenderUtils {
     ) {
         // cause crashes and errors on purpose
         DrawContextUtils.drawContext
-        DrawContextUtils.pushPop {
-            val (x, y) = transform()
-            Renderable.withMousePosition(x, y) {
-                renderable.render(0, 0)
-            }
+        DrawContextUtils.pushMatrix()
+        val (x, y) = transform()
+        Renderable.withMousePosition(x, y) {
+            renderable.render(0, 0)
         }
+        DrawContextUtils.popMatrix()
         if (addToGuiManager) GuiEditManager.add(this, posLabel, renderable.width, renderable.height)
+    }
+
+    @Deprecated("Use ChromaColor instead")
+    fun chromaColor(
+        timeTillRepeat: Duration,
+        offset: Float = 0f,
+        saturation: Float = 1F,
+        brightness: Float = 0.8F,
+        timeOverride: Long = System.currentTimeMillis(),
+    ): Color {
+        return Color(
+            Color.HSBtoRGB(
+                ((offset + timeOverride / timeTillRepeat.toDouble(DurationUnit.MILLISECONDS)) % 1).toFloat(),
+                saturation,
+                brightness,
+            ),
+        )
     }
 
     // todo move to GuiRenderUtils?

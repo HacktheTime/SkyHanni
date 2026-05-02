@@ -41,7 +41,7 @@ class CustomWardrobeConfig {
     @Expose
     @ConfigOption(
         name = "Loading text",
-        desc = "Show a \"§cLoading...§7\" text when the wardrobe page hasn't fully loaded in yet."
+        desc = "Show a \"§cLoading...§7\" text when the wardrobe page hasn't fully loaded in yet.",
     )
     @ConfigEditorBoolean
     var loadingText: Boolean = true
@@ -49,7 +49,7 @@ class CustomWardrobeConfig {
     @Expose
     @ConfigOption(
         name = "Armor Tooltip Keybind",
-        desc = "Only show the lore of the item hovered when holding a keybind."
+        desc = "Only show the lore of the item hovered when holding a keybind.",
     )
     @ConfigEditorBoolean
     var showTooltipOnlyKeybind: Boolean = false

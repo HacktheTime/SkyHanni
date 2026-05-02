@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.data.HighlightOnHoverSlot
 import at.hannibal2.skyhanni.data.RenderData
 import at.hannibal2.skyhanni.data.ToolTipData
 import at.hannibal2.skyhanni.data.model.TextInput
+import at.hannibal2.skyhanni.mixins.hooks.RenderLivingEntityHelper
 import at.hannibal2.skyhanni.utils.ColorUtils
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
 import at.hannibal2.skyhanni.utils.ColorUtils.darker
@@ -15,6 +16,7 @@ import at.hannibal2.skyhanni.utils.ColorUtils.toColor
 import at.hannibal2.skyhanni.utils.ColorUtils.toInt
 import at.hannibal2.skyhanni.utils.ConfigUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
+import at.hannibal2.skyhanni.utils.KeyboardManager
 import at.hannibal2.skyhanni.utils.KeyboardManager.LEFT_MOUSE
 import at.hannibal2.skyhanni.utils.KeyboardManager.RIGHT_MOUSE
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyClicked
@@ -36,6 +38,7 @@ import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.renderYAligned
 import at.hannibal2.skyhanni.utils.renderables.container.HorizontalContainerRenderable.Companion.horizontal
 import at.hannibal2.skyhanni.utils.renderables.container.table.SearchableScrollTable.Companion.searchableScrollTable
 import at.hannibal2.skyhanni.utils.renderables.primitives.ItemStackRenderable.Companion.item
+import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 import at.hannibal2.skyhanni.utils.renderables.primitives.placeholder
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -160,7 +163,7 @@ interface Renderable {
             /**
              * This should be a direct map of key code int, to the unit that should be invoked.
              * For mouse buttons, use [LEFT_MOUSE] and [RIGHT_MOUSE] from [at.hannibal2.skyhanni.utils.KeyboardManager].
-             * For keyboard codes, use the [org.lwjgl.glfw.GLFW] enums.
+             * For keyboard codes, use the [org.lwjgl.input.Keyboard] enums.
              */
             onAnyClick: Map<Int, () -> Unit>,
             bypassChecks: Boolean = false,
@@ -174,7 +177,7 @@ interface Renderable {
             /**
              * This should be a direct map of key code int, to the unit that should be invoked.
              * For mouse buttons, use [LEFT_MOUSE] and [RIGHT_MOUSE] from [at.hannibal2.skyhanni.utils.KeyboardManager].
-             * For keyboard codes, use the [org.lwjgl.glfw.GLFW] enums.
+             * For keyboard codes, use the [org.lwjgl.input.Keyboard] enums.
              */
             onAnyClick: Map<Int, () -> Unit>,
             bypassChecks: Boolean = false,
@@ -284,15 +287,16 @@ interface Renderable {
                         if (condition() && shouldAllowLink(true, bypassChecks)) {
                             onHover.invoke()
                             HighlightOnHoverSlot.currentSlots[pair] = highlightsOnHoverSlots
-                            DrawContextUtils.pushPop {
-                                RenderableTooltips.setTooltipForRender(
-                                    tips = tipsRender,
-                                    stack = stack,
-                                    borderColor = color,
-                                    snapsToTopIfToLong = snapsToTopIfToLong,
-                                    spacedTitle = spacedTitle,
-                                )
-                            }
+                            DrawContextUtils.pushMatrix()
+
+                            RenderableTooltips.setTooltipForRender(
+                                tips = tipsRender,
+                                stack = stack,
+                                borderColor = color,
+                                snapsToTopIfToLong = snapsToTopIfToLong,
+                                spacedTitle = spacedTitle,
+                            )
+                            DrawContextUtils.popMatrix()
                         }
                     } else {
                         HighlightOnHoverSlot.currentSlots.remove(pair)
@@ -587,6 +591,11 @@ interface Renderable {
                         GuiRenderUtils.drawRect(1, 1, progress, height - 1, color.rgb)
                     }
                 } else {
+                    val scale = 0.00390625f
+
+                    val (_, _) = if (texture == SkillProgressBarConfig.TexturedBar.UsedTexture.MATCH_PACK)
+                        Pair(0f, 64f * scale) else Pair(0f, 0f)
+
                     if (texture == SkillProgressBarConfig.TexturedBar.UsedTexture.MATCH_PACK) {
                         DrawContextUtils.drawContext.blitSprite(
                             RenderCompat.getMinecraftGuiTextured(), createResourceLocation("hud/experience_bar_background"),
@@ -1256,6 +1265,69 @@ interface Renderable {
                 DrawContextUtils.translate(padding.toFloat(), padding.toFloat())
                 input.render(mouseOffsetX + padding, mouseOffsetY + padding)
                 DrawContextUtils.translate(-padding.toFloat(), -padding.toFloat())
+            }
+        }
+
+        fun textBox(
+            prefix: String,
+            input: TextInput,
+            /**
+             * Does not limit the input, just where it visuals breaks
+             */
+            maxWidth: Int,
+            scale: Double = 1.0,
+            color: Color = Color.WHITE,
+            bypassChecks: Boolean = false,
+            condition: () -> Boolean = { true },
+            horizontalAlign: HorizontalAlignment = HorizontalAlignment.LEFT,
+            verticalAlign: VerticalAlignment = VerticalAlignment.TOP,
+        ) = object : StringRenderable(prefix, scale, color, horizontalAlign, verticalAlign) {
+            override val text get() = prefix + input.editText()
+
+            override val width = maxWidth
+            override val height = (9 * scale).toInt() + 6 // Add padding for the box
+
+            override fun render(mouseOffsetX: Int, mouseOffsetY: Int) {
+                // Draw dark background box
+                val hovered = isHovered(mouseOffsetX, mouseOffsetY)
+                val boxColor = if (hovered) {
+                    0xFF404040.toInt() // Lighter when hovered
+                } else {
+                    0xFF202020.toInt() // Dark background
+                }
+                GuiRenderUtils.drawRect(0, 0, width, height, boxColor)
+
+                // Draw border
+                val borderColor = if (input.isActive) {
+                    0xFF00AAFF.toInt() // Blue when active
+                } else if (hovered) {
+                    0xFF888888.toInt() // Light gray when hovered
+                } else {
+                    0xFF555555.toInt() // Dark gray normally
+                }
+                GuiRenderUtils.drawRect(0, 0, width, 1, borderColor) // Top
+                GuiRenderUtils.drawRect(0, height - 1, width, height, borderColor) // Bottom
+                GuiRenderUtils.drawRect(0, 0, 1, height, borderColor) // Left
+                GuiRenderUtils.drawRect(width - 1, 0, width, height, borderColor) // Right
+
+                // Activation: previously this activated & handled only while hovered, disabling otherwise.
+                // That prevented deletions when mouse left the box. Now we only activate on hover+condition
+                // but keep it active until ESC (or other logic) disables it.
+                if (hovered && condition() && shouldAllowLink(true, bypassChecks)) {
+                    input.makeActive()
+                    if (RIGHT_MOUSE.isKeyClicked()) {
+                        input.clear()
+                    }
+                }
+                // Always handle keyboard input while active so user can continue editing even when not hovered.
+                if (input.isActive) {
+                    input.handle()
+                }
+
+                // Render text with some padding
+                DrawContextUtils.translate(3f, 3f)
+                super.render(mouseOffsetX - 3, mouseOffsetY - 3)
+                DrawContextUtils.translate(-3f, -3f)
             }
         }
     }

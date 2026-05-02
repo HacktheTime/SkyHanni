@@ -15,7 +15,7 @@ class FrozenTreasureConfig {
     @ConfigOption(
         name = "Enabled",
         desc = "Track all of your drops from Frozen Treasure in the Glacial Caves.\n" +
-            "§eIce calculations are an estimate but are relatively accurate."
+            "§eIce calculations are an estimate but are relatively accurate.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
@@ -37,7 +37,7 @@ class FrozenTreasureConfig {
         FrozenTreasureDisplayEntry.ENCHANTED_ICE,
         FrozenTreasureDisplayEntry.ENCHANTED_PACKED_ICE,
         FrozenTreasureDisplayEntry.GLACIAL_FRAGMENT,
-        FrozenTreasureDisplayEntry.GLACIAL_TALISMAN
+        FrozenTreasureDisplayEntry.GLACIAL_TALISMAN,
     )
 
     enum class FrozenTreasureDisplayEntry(private val displayName: String) {
@@ -74,7 +74,7 @@ class FrozenTreasureConfig {
     @ConfigOption(
         name = "Show as Drops",
         desc = "Multiply the numbers on the display by the base drop.\n" +
-            "E.g. 3 Ice Bait -> 48 Ice Bait"
+            "E.g. 3 Ice Bait -> 48 Ice Bait",
     )
     @ConfigEditorBoolean
     var showAsDrops: Boolean = false

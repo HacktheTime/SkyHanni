@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.utils.renderables.primitives.ItemStackRenderable.Co
 import at.hannibal2.skyhanni.utils.renderables.primitives.empty
 import at.hannibal2.skyhanni.utils.renderables.primitives.placeholder
 import net.minecraft.world.item.ItemStack
+import java.awt.Color
 import kotlin.math.ceil
 
 object RenderableInventory {
@@ -84,6 +85,7 @@ object RenderableInventory {
         items: List<ItemStack?>,
         maxRowSize: Int,
         scale: Double,
+        highlightSlots: List<Int> = emptyList(),
         horizontalAlign: HorizontalAlignment = HorizontalAlignment.LEFT,
         verticalAlign: VerticalAlignment = VerticalAlignment.TOP,
     ): Renderable = with(Renderable) {
@@ -96,16 +98,23 @@ object RenderableInventory {
         val finalList = uvList.map { uvRow ->
             uvRow.map { uv ->
                 val uvArray = uv.getUvCoords()
+                if (index in highlightSlots) println(index)
                 drawInsideFixedSizedImage(
                     if (uv == SlotsUv.CENTER)
                         items[index++]?.let {
-                            item(it) {
+                            val itemRenderable = item(it) {
                                 this.scale = scale
                                 xSpacing = 0
                                 ySpacing = 0
                                 rescaleSkulls = false
                             }
-                        } ?: emptySlot
+                            if (highlightSlots.contains(index)) drawInsideRoundedRect(
+                                itemRenderable,
+                                color = Color.GREEN,
+                                padding = 0,
+                                radius = 16 * (scale / 2).toInt(),
+                            ) else itemRenderable
+                        }.also { index++ } ?: emptySlot
                     else Renderable.empty(),
                     inventoryTextures,
                     (uv.width() * scale).toInt(),

@@ -73,7 +73,7 @@ object MinisterInCalendar {
         ministerColor: String,
         minister: ElectionCandidate,
         item: ItemStack,
-    ): ItemStack? {
+    ): ItemStack {
         val ministerDisplayName = "${ministerColor}Minister ${minister.mayorName}"
         val ministerLore = buildList {
             addAll(prefix)

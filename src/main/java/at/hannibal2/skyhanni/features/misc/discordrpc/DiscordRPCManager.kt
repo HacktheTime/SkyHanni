@@ -30,6 +30,7 @@ import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.INFINITE
 import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
@@ -49,16 +50,19 @@ object DiscordRPCManager {
 
     private var debugError = false
     private var debugStatusMessage = "nothing"
+    private val clientLifecycleLock = Any()
+    private val userProbeLock = Any()
+    private var startInProgress = false
 
     private val progressCategory = ChatProgressUpdates.category("Discord RPC")
     private val retryHelper = ConnectionRetryHelper(listOf(10.seconds, 20.seconds, 30.seconds))
     private var retryJob: Job? = null
     private var lastDebugInfo: Map<String, String> = emptyMap()
 
-    private val startCoroutine = CoroutineSettings("discord RPC start", timeout = Duration.INFINITE).withIOContext()
-    private val presenceCoroutine = CoroutineSettings("discord RPC updatePresence", timeout = Duration.INFINITE).withIOContext()
-    private val stopCoroutine = CoroutineSettings("discord RPC stop", timeout = Duration.INFINITE).withIOContext()
-    private val manualStartCoroutine = CoroutineSettings("discord RPC manual start", timeout = Duration.INFINITE).withIOContext()
+    private val startCoroutine = CoroutineSettings("discord RPC start", timeout = INFINITE).withIOContext()
+    private val presenceCoroutine = CoroutineSettings("discord RPC updatePresence", timeout = INFINITE).withIOContext()
+    private val stopCoroutine = CoroutineSettings("discord RPC stop", timeout = INFINITE).withIOContext()
+    private val manualStartCoroutine = CoroutineSettings("discord RPC manual start", timeout = INFINITE).withIOContext()
 
     private fun isConnected() = client?.isConnected == true
     private fun isEnabled() = config.enabled.get()
@@ -174,37 +178,49 @@ object DiscordRPCManager {
         started = false
     }
 
-    private fun start(progress: ChatProgressUpdates, fromCommand: Boolean = false) {
+    fun start(progress: ChatProgressUpdates, fromCommand: Boolean = false) {
         progress.update("call start")
-        if (isConnected()) {
-            progress.end("alr connected")
-            return
-        }
-        updateDebugStatus("Starting...")
-        startTimestamp = SimpleTimeMark.now()
-        try {
-            DiscordIPC(APPLICATION_ID, onDebugInfo = { lastDebugInfo = it }).also {
-                it.connect()
-                client = it
+        synchronized(clientLifecycleLock) {
+            if (client?.isConnected == true) {
+                progress.end("alr connected")
+                return
             }
-            setupPresenceJob(progress)
-            retryJob?.cancel()
-            retryHelper.reset()
-            progress.end("Successfully started")
-            updateDebugStatus("Successfully started")
-            if (fromCommand) ChatUtils.chat("Successfully started Rich Presence!", prefixColor = "§a")
-        } catch (e: DiscordIPCException) {
-            progress.end("discord not detected: ${e.message}")
-            if (e.isSandboxIssue) {
-                updateDebugStatus(e.message ?: "sandbox issue", error = true)
-                ChatUtils.userError(e.message ?: "Discord RPC is blocked by a sandbox restriction")
-            } else {
-                scheduleRetry(e.message)
+            if (startInProgress) {
+                progress.end("start already in progress")
+                return
             }
-        } catch (e: Throwable) {
-            progress.end("error: ${e.message}")
-            updateDebugStatus("Unexpected error: ${e.message}", error = true)
-            ErrorManager.logErrorWithData(e, "Discord RPC has thrown an unexpected error while trying to start")
+            startInProgress = true
+
+            updateDebugStatus("Starting...")
+            startTimestamp = SimpleTimeMark.now()
+            try {
+                client?.close()
+                client = null
+                DiscordIPC(APPLICATION_ID, onDebugInfo = { lastDebugInfo = it }).also {
+                    it.connect()
+                    client = it
+                }
+                setupPresenceJob(progress)
+                retryJob?.cancel()
+                retryHelper.reset()
+                progress.end("Successfully started")
+                updateDebugStatus("Successfully started")
+                if (fromCommand) ChatUtils.chat("Successfully started Rich Presence!", prefixColor = "§a")
+            } catch (e: DiscordIPCException) {
+                progress.end("discord not detected: ${e.message}")
+                if (e.isSandboxIssue) {
+                    updateDebugStatus(e.message ?: "sandbox issue", error = true)
+                    ChatUtils.userError(e.message ?: "Discord RPC is blocked by a sandbox restriction")
+                } else {
+                    scheduleRetry(e.message)
+                }
+            } catch (e: Throwable) {
+                progress.end("error: ${e.message}")
+                updateDebugStatus("Unexpected error: ${e.message}", error = true)
+                ErrorManager.logErrorWithData(e, "Discord RPC has thrown an unexpected error while trying to start")
+            } finally {
+                startInProgress = false
+            }
         }
     }
 
@@ -214,7 +230,7 @@ object DiscordRPCManager {
             updateDebugStatus("Retry ${retryHelper.retriesLabel} in ${retryDelay.inWholeSeconds}s: ${reason ?: "unknown"}")
             val retryCount = retryHelper.currentRetry
             retryJob = with(SkyHanniMod) {
-                CoroutineSettings("discord RPC auto-retry $retryCount", timeout = Duration.INFINITE).withIOContext()
+                CoroutineSettings("discord RPC auto-retry $retryCount", timeout = INFINITE).withIOContext()
                     .launchUnScopedCoroutine {
                         delay(retryDelay)
                         start(progressCategory.start("discord RPC auto-retry $retryCount"))
@@ -247,6 +263,14 @@ object DiscordRPCManager {
         }
     }
 
+    private fun getSkyCryptUrl() =
+        "https://sky.shiiyu.moe/stats/${PlayerUtils.getName()}/${HypixelData.profileName.firstLetterUppercase()}".addSkyHanniUtm()
+
+    private fun getBingoNetUrl() =
+        "https://hackthetime.de/lookup-uuid/${PlayerUtils.getUuid()}".addSkyHanniUtm()
+    private fun getEliteSbUrl() =
+        "${EliteDevApi.ELITE_URL}/@${PlayerUtils.getName()}/${HypixelData.profileName}".addSkyHanniUtm()
+
     private fun updatePresence(progress: ChatProgressUpdates?) {
         progress?.update("start in updatePresence")
         val location = DiscordStatus.LOCATION.getDisplayString()
@@ -270,6 +294,10 @@ object DiscordRPCManager {
                 if (config.showSkyCryptButton.get()) DiscordRichPresence.Button(
                     label = "Open SkyCrypt",
                     url = getSkyCryptUrl(),
+                ).let { add(it) }
+                if (config.showBingoNetButton.get()) DiscordRichPresence.Button(
+                    label = "Open BingoNet",
+                    url = getBingoNetUrl(),
                 ).let { add(it) }
             },
         )
@@ -320,12 +348,6 @@ object DiscordRPCManager {
         }
     }
 
-    private fun getSkyCryptUrl() =
-        "https://sky.shiiyu.moe/stats/${PlayerUtils.getName()}/${HypixelData.profileName.firstLetterUppercase()}".addSkyHanniUtm()
-
-    private fun getEliteSbUrl() =
-        "${EliteDevApi.ELITE_URL}/@${PlayerUtils.getName()}/${HypixelData.profileName}".addSkyHanniUtm()
-
     private fun getStatusByConfigId(entry: LineEntry) =
         DiscordStatus.entries.getOrElse(entry.ordinal) { DiscordStatus.NONE }
 
@@ -333,6 +355,54 @@ object DiscordRPCManager {
         debugStatusMessage = message
         debugError = error
     }
-
     private fun PriorityEntry.isSelected() = config.autoPriority.contains(this)
+
+
+    private fun requestLiveUserFromConnectedClient(activeClient: DiscordIPC?): DiscordUserIdentity? {
+        val liveClient = activeClient?.takeIf { it.isConnected } ?: return null
+        return runCatching { liveClient.requestCurrentUserIdentity() }.getOrNull()
+    }
+
+    private fun requestLiveUserWithTemporaryConnection(): DiscordUserIdentity? {
+        val probeClient = runCatching {
+            DiscordIPC(APPLICATION_ID, onDebugInfo = { lastDebugInfo = it })
+        }.getOrNull() ?: return null
+
+        return try {
+            probeClient.connect()?.let { return it }
+            Thread({ while (isConnected()) probeClient.readUntilFrame() }, "discord-rpc-user-probe-reader").apply {
+                isDaemon = true
+                start()
+            }
+            probeClient.requestCurrentUserIdentity()
+        } catch (_: Throwable) {
+            null
+        } finally {
+            probeClient.close()
+        }
+    }
+
+    // Always requests live identity from Discord via IPC command packets (no username/userId caching).
+    fun getDiscordUser(): DiscordUserIdentity? {
+        val (activeClient, activeStartInProgress) = synchronized(clientLifecycleLock) {
+            client to startInProgress
+        }
+        requestLiveUserFromConnectedClient(activeClient)?.let { return it }
+
+        // Avoid opening a temporary probe while RPC startup is currently establishing a connection.
+        if (activeStartInProgress) {
+            return null
+        }
+
+        return synchronized(userProbeLock) {
+            // Re-check after entering lock to avoid opening a second client while RPC startup is in flight.
+            val (recheckedClient, recheckedStartInProgress) = synchronized(clientLifecycleLock) {
+                val liveClient = client
+                if (liveClient != null && !liveClient.isConnected) client = null
+                client to startInProgress
+            }
+            requestLiveUserFromConnectedClient(recheckedClient)
+                ?: if (recheckedStartInProgress) null else requestLiveUserWithTemporaryConnection()
+        }
+    }
 }

@@ -27,6 +27,7 @@ import java.util.Base64
 import java.util.Locale
 import java.util.NavigableMap
 import java.util.NavigableSet
+import java.util.TreeMap
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -583,12 +584,66 @@ object StringUtils {
         return formatChar in 'k'..'o' || formatChar in 'K'..'O' || formatChar in "rR"
     }
 
+    fun subMapOfStringsContains(
+        string: String,
+        map: NavigableMap<String, NeuInternalName>,
+    ): NavigableMap<String, NeuInternalName> {
+        if ("" == string) return map
+        val ignoreCase = SkyHanniMod.feature.chat.tabIgnoreCaseSuggestion
+        return TreeMap(map.filterKeys { it.contains(string, ignoreCase) }.toMap())
+    }
+
     fun String.removePrefix(prefixPattern: Pattern): String {
         val matcher = prefixPattern.matcher(this)
         // Only remove the prefix if it matches at the start of the string
         return if (matcher.find() && matcher.start() == 0) {
             substring(matcher.end())
         } else this
+    }
+
+    /**
+     * Returns a List of strings where the list of objects is converted to strings using the converter,
+     * and then chunked into strings of maximum length maxLength, separated by seperator,
+     * and with optional prefix and suffix added to each chunk.
+     */
+    fun <Type> List<Type>.chunkMaxStringLength(
+        maxLength: Int,
+        seperator: String,
+        prefix: String = "",
+        suffix: String = "",
+        converter: (Type) -> String,
+    ): List<String> {
+        return this.map { converter(it) }.chunkMaxStringLength(maxLength, seperator, prefix, suffix)
+    }
+
+    /**
+     * see .chunkMaxStringLength with converter
+     */
+    fun List<String>.chunkMaxStringLength(maxLength: Int, seperator: String, prefix: String = "", suffix: String = ""): List<String> {
+        val result = mutableListOf<String>()
+        var currentChunk = StringBuilder(prefix)
+        for (item in this) {
+            val itemWithSuffix = if (currentChunk.length + item.length + suffix.length <= maxLength) {
+                if (currentChunk.length > prefix.length) {
+                    "$seperator$item"
+                } else {
+                    item
+                }
+            } else {
+                // Finish the current chunk and start a new one
+                currentChunk.append(suffix)
+                result.add(currentChunk.toString())
+                currentChunk = StringBuilder(prefix + item)
+                continue
+            }
+            currentChunk.append(itemWithSuffix)
+        }
+        // Add the last chunk if it has content
+        if (currentChunk.length > prefix.length) {
+            currentChunk.append(suffix)
+            result.add(currentChunk.toString())
+        }
+        return result
     }
 
     fun String.addSkyHanniUtm(): String = "$this?utm_source=SkyHanni"

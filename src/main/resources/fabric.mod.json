@@ -1,21 +1,23 @@
 {
     "custom": {
         "modmenu": {
-            "update_checker": true,
+            "update_checker": false,
             "links": {
-                "Discord Link": "https://discord.gg/skyhanni-997079228510117908",
-                "Modrinth Page": "https://modrinth.com/mod/skyhanni",
-                "List of all Features": "https://github.com/hannibal002/SkyHanni/blob/beta/docs/FEATURES.md",
-                "Source Code on Github": "https://github.com/hannibal002/SkyHanni",
-                "Contributing Guide Docs": "https://github.com/hannibal002/SkyHanni/blob/beta/CONTRIBUTING.md"
+                "Discord Link": "https://hackthetime.de/discord",
+                "SkyHanni Discord Link": "https://discord.gg/skyhanni-997079228510117908",
+                "Modrinth Page": "https://modrinth.com/mod/bingonet",
+                "List of all SkyHanni Features": "https://github.com/hannibal002/SkyHanni/blob/beta/docs/FEATURES.md",
+                "List of all Additional Bingo Net Features": "https://github.com/HacktheTime/SkyHanni/blob/beta/docs/FEATURES.md",
+                "Source Code on Github": "https://github.com/HacktheTime/SkyHanni",
+                "Contributing Guide Docs": "https://github.com/HacktheTime/SkyHanni/blob/beta/CONTRIBUTING.md"
             }
         }
     },
     "schemaVersion": 1,
     "version": "${version}",
     "id": "skyhanni",
-    "name": "SkyHanni",
-    "description": "SkyHanni is a Mod for Hypixel SkyBlock.",
+    "name": "SkyHanni + Bingo Net",
+    "description": "Bingo Net SkyHanni Fork. \nSkyHanni is a Mod for Hypixel SkyBlock.\nBingo Net is for the Bingo Profile Type.",
     "icon": "assets/skyhanni/logo.png",
     "authors": [],
     "environment": "client",
@@ -57,7 +59,7 @@
         "exordium": "*"
     },
     "contact": {
-        "homepage": "https://modrinth.com/mod/skyhanni",
-        "issues": "https://discord.gg/skyhanni-997079228510117908"
+        "homepage": "https://modrinth.com/mod/bingonet",
+        "issues": "https://hackthetime.de/discord"
     }
 }

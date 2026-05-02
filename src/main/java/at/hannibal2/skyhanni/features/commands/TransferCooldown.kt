@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.features.commands
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.MessageSendToServerEvent
+import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
@@ -42,18 +43,18 @@ object TransferCooldown {
             "/warp" -> {
                 event.cancel()
                 action = {
-                    HypixelCommands.warp(event.splitMessage.subList(1, event.splitMessage.size).joinToString(" "))
+                    WarpAPI.warp(event.splitMessage.subList(1, event.splitMessage.size).joinToString(" "))
                 }
             }
 
             "/warpforge" -> {
                 event.cancel()
-                action = { HypixelCommands.warp("forge") }
+                action = { WarpAPI.warp("forge") }
             }
 
             "/hub" -> {
                 event.cancel()
-                action = { HypixelCommands.warp("hub") }
+                action = { WarpAPI.warp("hub") }
             }
         }
     }

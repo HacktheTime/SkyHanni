@@ -1,15 +1,16 @@
 import at.skyhanni.sharedvariables.MultiVersionStage
 import at.skyhanni.sharedvariables.ProjectTarget
 import at.skyhanni.sharedvariables.SHVersionInfo
-import dev.detekt.gradle.Detekt
-import dev.detekt.gradle.DetektCreateBaselineTask
 import dev.kikugie.stonecutter.StonecutterExperimentalAPI
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
 import net.fabricmc.loom.task.ValidateAccessWidenerTask
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import skyhannibuildsystem.ChangelogVerification
+import skyhannibuildsystem.CleanupMappingFiles
 import skyhannibuildsystem.DownloadBackupRepo
 import skyhannibuildsystem.PublishToModrinth
 
@@ -22,7 +23,7 @@ plugins {
     id("com.google.devtools.ksp")
     kotlin("plugin.power-assert")
     `maven-publish`
-    id("dev.detekt")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 val target = ProjectTarget.entries.find { it.projectPath == project.path }!!
@@ -35,6 +36,7 @@ java {
     // causing crashes during tests. You can still manually select DCEVM in the Minecraft Client
     // IntelliJ run configuration.
     toolchain.vendor.set(JvmVendorSpec.ADOPTIUM)
+    withSourcesJar()
 }
 val runDirectory = rootProject.file("run")
 runDirectory.mkdirs()
@@ -88,17 +90,45 @@ val includeBackupRepo by tasks.registering(DownloadBackupRepo::class) {
 }
 
 val includeBackupNeuRepo by tasks.registering(DownloadBackupRepo::class) {
-    this.user = "NotEnoughUpdates"
+    this.user = "HacktheTime"
     this.repo = "NotEnoughUpdates-Repo"
     this.branch = "master"
     this.resourcePath = "assets/skyhanni/neu-repo.zip"
     this.outputDirectory.set(layout.buildDirectory.dir("downloadedNeuRepo"))
 }
 
-val publishToModrinth by tasks.registering(PublishToModrinth::class)
+val cleanupMappingFiles by tasks.registering(CleanupMappingFiles::class) {
+    this.mappingsDirectory.set(layout.projectDirectory.asFile.parentFile)
+}
+
+// Ensure build/libs is clean before compiling to avoid leftover jars
+val cleanLibs by tasks.registering(Delete::class) {
+    delete(layout.buildDirectory.dir("libs"))
+    delete(rootProject.layout.buildDirectory.dir("libs"))
+}
+// Run cleanLibs before classes (compilation) to guarantee a fresh libs directory
+tasks.named("classes") {
+    dependsOn(cleanLibs)
+}
+
+// Register root-only publishToModrinth that depends on all remap tasks
+if (project == rootProject) {
+    tasks.register("publishToModrinth", PublishToModrinth::class) {
+        group = "publishing"
+        description = "Publish all built jars to Modrinth (root-only) and update GitHub release."
+        // Ensure this project builds
+        dependsOn(tasks.named("build"))
+        // Ensure sources for this project
+        dependsOn(sourcesJar)
+    }
+}
 
 tasks.runClient {
-    this.javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+    this.javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(target.minecraftVersion.javaLanguageVersion)
+        },
+    )
 }
 
 tasks.register("checkPrDescription", ChangelogVerification::class) {
@@ -121,6 +151,8 @@ dependencies {
     } else {
         mappings(target.mappingDependency)
     }
+    //Bingo Net / Bingo Brewers
+    shadowImpl("com.esotericsoftware:kryonet:2.22.0-RC1")
 
     compileOnly(libs.jbAnnotations)
     ksp(project(":annotation-processors"))?.let { compileOnly(it) }
@@ -169,7 +201,7 @@ dependencies {
 
     detektPlugins(libs.detektrules.neu)
     detektPlugins(project(":detekt"))
-    detektPlugins(libs.detektrules.ktlint)
+    detektPlugins(libs.detekt.formatting)
 
     if (target != ProjectTarget.MODERN_12110) shadowImpl(libs.httpclient)
 }
@@ -327,7 +359,7 @@ if (!MultiVersionStage.activeState.shouldCompile(target)) {
     }
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
+val sourcesJar by tasks.named<Jar>("sourcesJar") {
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
     archiveClassifier.set("src")
     from(sourceSets.main.get().allSource)
@@ -338,7 +370,7 @@ publishing.publications {
         artifact(tasks.remapJar)
         artifact(sourcesJar) { classifier = "sources" }
         pom {
-            name.set("SkyHanni")
+            name.set("SkyHanni-Bingo Net")
             licenses {
                 license {
                     name.set("GNU Lesser General Public License")
@@ -346,8 +378,9 @@ publishing.publications {
                 }
             }
             developers {
-                developer { name.set("hannibal002") }
+                developer { name.set("hannibal002 (Original SkyHanni Author)") }
                 developer { name.set("The SkyHanni contributors") }
+                developer { name.set("HacktheTime / other contributors (Bingo Net Modifications)") }
             }
         }
     }
@@ -371,7 +404,6 @@ afterEvaluate {
     )
 }
 
-
 tasks.withType<Detekt>().configureEach {
     val isTargetVersion = target == ProjectTarget.MODERN_12110
     val skipDetekt = project.findProperty("skipDetekt") == "true"
@@ -383,8 +415,14 @@ tasks.withType<Detekt>().configureEach {
     reports {
         html.required.set(true)
         html.outputLocation.set(file("$detektDir/$outputFileName.html"))
+        xml.required.set(true)
+        xml.outputLocation.set(file("$detektDir/$outputFileName.xml"))
         sarif.required.set(true)
         sarif.outputLocation.set(file("$detektDir/$outputFileName.sarif"))
+        md.required.set(true)
+        md.outputLocation.set(file("$detektDir/$outputFileName.md"))
+        txt.required.set(true)
+        txt.outputLocation.set(file("$detektDir/$outputFileName.txt"))
     }
 }
 

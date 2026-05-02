@@ -57,7 +57,7 @@ class ParticleHiderConfig {
     @Expose
     @ConfigOption(
         name = "Close Redstone Particles",
-        desc = "Hide Redstone particles around the player (appear for some potion effects)."
+        desc = "Hide Redstone particles around the player (appear for some potion effects).",
     )
     @ConfigEditorBoolean
     @FeatureToggle

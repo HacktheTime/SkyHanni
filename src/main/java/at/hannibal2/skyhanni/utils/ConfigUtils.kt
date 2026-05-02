@@ -14,7 +14,10 @@ import io.github.notenoughupdates.moulconfig.processor.ProcessedOption
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import kotlin.jvm.internal.CallableReference
+import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
+import kotlin.reflect.jvm.javaField
 
 object ConfigUtils {
 
@@ -67,6 +70,34 @@ object ConfigUtils {
 
     fun openEditor(editor: MoulConfigEditor<*>) {
         SkyHanniMod.screenToOpen = MoulConfigScreenComponent(Component.empty(), GuiContext(GuiElementComponent(editor)), null)
+    }
+
+    /**
+     * Open the config editor and navigate to the given java field declared on [owner].
+     * This is useful when a KMutableProperty1 belongs to a non-singleton class and we can't safely
+     * set the value by creating a new instance.
+     */
+    fun openEditorForField(owner: Class<*>, fieldName: String) {
+        val editor = ConfigGuiManager.getEditorInstance()
+        val field = runCatching { owner.getDeclaredField(fieldName) }.getOrNull() ?: return
+        field.isAccessible = true
+        val option = editor.getOptionFromField(field) ?: return
+        editor.search("")
+        if (!editor.goToOption(option)) return
+        openEditor(editor)
+    }
+
+    /**
+     * Bind a mutable Kotlin property to a receiver instance and open its editor option if available.
+     * Useful for object singletons where we can obtain a bound property reference.
+     */
+    fun <T> KMutableProperty1<T, *>.jumpToEditor(receiver: T) {
+        val editor = ConfigGuiManager.getEditorInstance()
+        val field = this.javaField ?: return
+        val option = editor.getOptionFromField(field) ?: return
+        editor.search("")
+        if (!editor.goToOption(option)) return
+        openEditor(editor)
     }
 
     val configScreenCurrentlyOpen: Boolean
