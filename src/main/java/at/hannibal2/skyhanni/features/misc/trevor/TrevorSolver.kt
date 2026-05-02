@@ -9,14 +9,14 @@ import at.hannibal2.skyhanni.utils.AllEntitiesGetter
 import at.hannibal2.skyhanni.utils.BlockUtils.getBlockAt
 import at.hannibal2.skyhanni.utils.BlockUtils.isInLoadedChunk
 import at.hannibal2.skyhanni.utils.ColorUtils.addAlpha
-import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
-import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.EntityUtils.baseMaxHealth
 import at.hannibal2.skyhanni.utils.EntityUtils.canBeSeen
 import at.hannibal2.skyhanni.utils.LocationUtils
+import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.LorenzVec
+import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.compat.EffectsCompat
 import at.hannibal2.skyhanni.utils.compat.EffectsCompat.Companion.hasPotionEffect
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
@@ -48,7 +48,25 @@ object TrevorSolver {
     private val activeTheodoliteTips = mutableListOf<TheodoliteTip>()
     private val triangleOnlyTheodoliteTips = mutableListOf<TheodoliteTip>()
     private var questStartTime: SimpleTimeMark = SimpleTimeMark.farPast()
+    fun findMobHeight(height: Int, above: Boolean) {
+        val playerPosition = LocationUtils.playerLocation().roundTo(2)
+        val mobHeight = if (above) playerPosition.y + height else playerPosition.y - height
+        if (maxHeight == 0.0) {
 
+            maxHeight = mobHeight + 2.5
+            minHeight = mobHeight - 2.5
+        } else {
+            if (mobHeight + 2.5 in minHeight..maxHeight) {
+                maxHeight = mobHeight + 2.5
+            } else if (mobHeight - 2.5 in minHeight..maxHeight) {
+                minHeight = mobHeight - 2.5
+            } else {
+                maxHeight = mobHeight + 2.5
+                minHeight = mobHeight - 2.5
+            }
+        }
+        averageHeight = (minHeight + maxHeight) / 2
+    }
     // TODO: use entity events
     @OptIn(AllEntitiesGetter::class)
     fun findMob() {
