@@ -153,7 +153,7 @@ object TrevorFeatures {
         }
 
         trapperPattern.matchMatcher(formattedMessage) {
-            timeUntilNextReady = if (Perk.PELT_POCALYPSE.isActive) 16 else 21
+            timeUntilNextReady = 16
             currentStatus = TrapperStatus.ACTIVE
             currentLabel = "§cActive Quest"
             trapperReady = false
