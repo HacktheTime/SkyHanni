@@ -28,5 +28,11 @@ class SplashLocation {
         get() {
             return "$name (${coords.x} ${coords.y} ${coords.z})"
         }
+
+    fun getCommandArgNames(): String {
+        val name = getName()
+        if (name.contains(" ")) return "\"$name\""
+        return name
+    }
 }
 

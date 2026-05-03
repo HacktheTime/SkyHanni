@@ -34,8 +34,8 @@ import kotlin.time.Duration.Companion.seconds
 @SkyHanniModule
 @Suppress("LongMethod", "NoUnusedImports")
 object BNCommands {
-    val config = SkyHanniMod.feature.event.bingo.bingoNetworks
-    val bnConfig = SkyHanniMod.feature.event.bingo.bingoNetworks.bingoNet
+    val config get() =  SkyHanniMod.feature.event.bingo.bingoNetworks
+    val bnConfig get() =  SkyHanniMod.feature.event.bingo.bingoNetworks.bingoNet
 
     @HandleEvent
     fun registerCommands(event: CommandRegistrationEvent) {
@@ -79,7 +79,7 @@ object BNCommands {
             event.registerBrigadier("bnsplash") {
                 description = "Announce a Splash (Announces a Splash for the Lobby your currently in)."
                 category = CommandCategory.BINGO_NET
-                arg("location", BrigadierArguments.string(), SplashLocations.values().map { it.getName() }) { loc ->
+                arg("location", BrigadierArguments.string(), SplashLocations.values().map { it.getCommandArgNames() }) { loc ->
                     arg("extraMessage", BrigadierArguments.greedyString()) { extra ->
                         callback {
                             val location = SplashLocations.values().find { it.getName() == getArg(loc) }
