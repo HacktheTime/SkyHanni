@@ -7,6 +7,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+// This config is unused.
 class CenturyConfig {
     @ConfigOption(
         name = "Enable Active Player Timer",
