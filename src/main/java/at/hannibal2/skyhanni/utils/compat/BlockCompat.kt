@@ -7,6 +7,10 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.ChestBlockEntity
 
+/**
+ * This is a compatibility layer that helps with multiple minecraft versions and mixins.
+ * This class should be used in utils/data/api classes and not in feature classes.
+ */
 object BlockCompat {
     fun LorenzVec.isChestOpened(): Boolean {
         val test = getBlockEntity() as ChestBlockEntity
