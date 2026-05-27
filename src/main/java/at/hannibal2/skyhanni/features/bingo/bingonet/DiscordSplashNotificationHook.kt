@@ -133,8 +133,19 @@ object DiscordSplashNotificationHook {
 
             val block = currentBlock ?: continue
             block.add(line)
+            if (consumeLinuxNotifyBlockIfReady(block)) {
+                currentBlock = null
+            }
         }
         currentBlock?.let { consumeLinuxNotifyBlockSafely(it) }
+    }
+
+    private fun consumeLinuxNotifyBlockIfReady(lines: List<String>): Boolean {
+        val strings = extractDbusStrings(lines)
+        if (strings.size < 4) return false
+
+        consumeLinuxNotifyBlockSafely(lines)
+        return true
     }
 
     private fun consumeLinuxNotifyBlockSafely(lines: List<String>) {
