@@ -4,11 +4,7 @@ The following List may not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Disabled BSC and BB Support for an unknown time (infinite?).
-    - This is due to them completely rewriting their internal protocol and having updated to modern. also me no longer depending on them for
-      sploosh. If someone wants to fix it and PR it fine by me.
-- Changed it so BN Prompts you on first startup whether you want to enable the Bingo Net Server.
-- Added a ton of different Splash Brewing Utils.
+- None - Sh only.
 
 ## Static Info for modrinth:
 
