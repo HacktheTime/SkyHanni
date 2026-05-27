@@ -41,7 +41,8 @@ enum class Islands(val internalName: String, private val displayName: String) {
     THE_PARK("foraging_1", "The Park", "park"),
     DARK_AUCTION("dark_auction", "Dark Auction"),
     BAYOU("fishing_1", "Backwater Bayou", "bayou"),
-    GALATEA("foraging_2", "Galatea", "galatea")
+    GALATEA("foraging_2", "Galatea", "galatea"),
+    LOTUS_ATOLL("fishing_2", "Lotus Atoll", "lotus")
     ;
 
     constructor(internalName: String, displayName: String, warpArgument: String?) : this(internalName, displayName) {

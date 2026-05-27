@@ -158,6 +158,7 @@ fun IslandType.toBNIsland(): Islands? {
         IslandType.MINESHAFT -> Islands.GLACITE_TUNNEL
         IslandType.BACKWATER_BAYOU -> Islands.BAYOU
         IslandType.GALATEA -> Islands.GALATEA
+        IslandType.LOTUS_ATOLL -> Islands.LOTUS_ATOLL
         IslandType.NONE -> null
         IslandType.ANY -> null
         IslandType.UNKNOWN -> null
