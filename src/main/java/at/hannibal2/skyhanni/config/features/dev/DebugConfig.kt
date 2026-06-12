@@ -138,6 +138,11 @@ class DebugConfig {
     var copyBestiaryData: Boolean = false
 
     @Expose
+    @ConfigOption(name = "Inline Replace Bestiary Data", desc = "Overrides bestiary data in the neu-repo files.")
+    @ConfigEditorBoolean
+    var inlineReplaceBestiaryData: Boolean = false
+
+    @Expose
     @ConfigOption(
         name = "Highlight Missing Repo Items",
         desc = "Highlights each item in the current inventory that is not in your current NEU repo.",

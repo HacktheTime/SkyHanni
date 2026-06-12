@@ -55,7 +55,7 @@ import kotlin.math.floor
 object EnoughUpdatesManager {
 
     val configDirectory = File("config/notenoughupdates")
-    private val repoDirectory = File(configDirectory, "repo")
+    val repoDirectory = File(configDirectory, "repo")
     private val itemsFolder = File(repoDirectory, "items")
 
     private val loadingMutex = Mutex()
