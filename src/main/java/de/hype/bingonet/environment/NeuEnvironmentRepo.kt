@@ -26,6 +26,7 @@ object NeuEnvironmentRepo {
 }
 
 fun BNNEUItem.toInternalName(): NeuInternalName {
+    if (this is NeuInternalName) return this
     return NeuItems.allInternalNames.get(this.internalName) ?: error("Neu Repo Outdated?")
 }
 
