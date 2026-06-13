@@ -20,3 +20,7 @@ gradle.properties
 .devauth/*
 !.devauth/config.toml
 .kotlin
+
+
+/versions/1.21.11/run/config/notenoughupdates/repo/logs/*
+/versions/1.21.11/run/config/skyhanni/repo/logs/*
