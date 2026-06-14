@@ -323,7 +323,6 @@ object ErrorManager {
         val mcVersion = PlatformUtils.MC_VERSION
         val shVersion = SkyHanniMod.VERSION
         val extraData: List<Pair<String, String?>> = extraData.map { it.first to it.second?.toString() }
-
         BNConnection.sendPacket(
             ErrorReportPacket(
                 original,
@@ -331,8 +330,9 @@ object ErrorManager {
                 mcVersion,
                 shVersion,
                 extraData,
-            ),
+            ),true //Block Log since this fills the entire chat at once otherwise.
         )
+        ChatUtils.chat("Sent Error Report to Bingo Net Server")//replacement for blocking.
     }
 
     private fun getExtraDataOrCached(extraData: Array<out Pair<String, Any?>>): String {
