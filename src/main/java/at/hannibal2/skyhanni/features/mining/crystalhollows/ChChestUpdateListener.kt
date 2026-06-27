@@ -2,8 +2,8 @@ package at.hannibal2.skyhanni.features.mining.crystalhollows
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import at.hannibal2.skyhanni.data.ClickType
 import at.hannibal2.skyhanni.data.HypixelData
+import at.hannibal2.skyhanni.data.InteractClickType
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.events.BlockClickEvent
@@ -33,6 +33,7 @@ import de.hype.bingonet.shared.packets.function.RequestServerWarpPacket
 import de.hype.bingonet.shared.packets.mining.ChChestPacket
 import de.hype.bingonet.shared.packets.mining.SubscribeToChServer
 import de.hype.bingonet.shared.packets.mining.UnSubscribeToChServer
+import io.github.notenoughupdates.moulconfig.common.ClickType
 import net.minecraft.world.level.block.Blocks
 import java.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
@@ -245,7 +246,7 @@ object ChChestUpdateListener {
 
     @HandleEvent(onlyOnIsland = IslandType.CRYSTAL_HOLLOWS)
     fun onBlockClick(event: BlockClickEvent) {
-        if (event.clickType != ClickType.RIGHT_CLICK) return
+        if (event.clickType != InteractClickType.RIGHT_CLICK) return
         if (event.getChestOpenState() != false) return
         DelayedRun.runDelayed(500.milliseconds) {
             if (event.getChestOpenState() != true) return@runDelayed

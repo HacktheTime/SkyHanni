@@ -3,7 +3,7 @@ package at.hannibal2.skyhanni.api.storage
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigFileType
-import at.hannibal2.skyhanni.data.ClickType
+import at.hannibal2.skyhanni.data.InteractClickType
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.data.model.SkyHanniInventoryContainer
@@ -26,12 +26,13 @@ import at.hannibal2.skyhanni.utils.RegexUtils.groupOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.StringUtils
+import at.hannibal2.skyhanni.utils.SafeItemStack
+import at.hannibal2.skyhanni.utils.StringUtils.subMapOfStringsStartingWith
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIf
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.ChestBlock
 import java.util.NavigableMap
 import java.util.TreeMap
@@ -80,22 +81,22 @@ object StorageApi {
 
     val accessStorage: Map<String, SkyHanniInventoryContainer> get() = storage
     val enderChest: Map<String, SkyHanniInventoryContainer>
-        get() = StringUtils.subMapOfStringsStartingWith(
+        get() = subMapOfStringsStartingWith(
             "Ender Chest",
             storage,
         )
     val backpack: Map<String, SkyHanniInventoryContainer>
-        get() = StringUtils.subMapOfStringsStartingWith(
+        get() = subMapOfStringsStartingWith(
             "Backpack",
             storage,
         )
     val riftStorage: Map<String, SkyHanniInventoryContainer>
-        get() = StringUtils.subMapOfStringsStartingWith(
+        get() = subMapOfStringsStartingWith(
             "Rift Storage",
             storage,
         )
     private val mutableIslandChest: MutableMap<String, SkyHanniInventoryContainer>
-        get() = StringUtils.subMapOfStringsStartingWith(
+        get() = subMapOfStringsStartingWith(
             "Private Island Chest",
             storage,
         )
@@ -182,7 +183,7 @@ object StorageApi {
         }
     }
 
-    private fun handleRead(name: String, inventory: Collection<ItemStack?>) {
+    private fun handleRead(name: String, inventory: Collection<SafeItemStack?>) {
         val saneInventory = inventory.drop(9)
         val old = storage[name]
         val stored: SkyHanniInventoryContainer
@@ -200,7 +201,7 @@ object StorageApi {
         toHighlightResults.removeAll(currentInventoryResults)
     }
 
-    private fun handlePrivateIslandRead(inventory: Collection<ItemStack?>) {
+    private fun handlePrivateIslandRead(inventory: Collection<SafeItemStack?>) {
         val primary = lastChestClicked ?: run {
             ErrorManager.logErrorStateWithData("Failed to save chest", "Failed to save chest on Private Island", "inventory" to inventory)
             return
@@ -235,7 +236,7 @@ object StorageApi {
 
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBlockClick(event: BlockClickEvent) {
-        if (event.clickType != ClickType.RIGHT_CLICK) return
+        if (event.clickType != InteractClickType.RIGHT_CLICK) return
         if (!isPrivateIslandStorageEnabled()) return
         val chest = event.blockState.block as? ChestBlock ?: return
         val position = event.flatPosition
@@ -275,7 +276,7 @@ object StorageApi {
     /**
      * Returns all storage data as a map of storage name to items
      */
-    fun getAllStorageData(): Map<String, List<ItemStack?>> {
+    fun getAllStorageData(): Map<String, List<SafeItemStack?>> {
         return storage.mapValues { (_, container) -> container.items }
     }
 

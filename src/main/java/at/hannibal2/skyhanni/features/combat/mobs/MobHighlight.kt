@@ -145,6 +145,7 @@ object MobHighlight {
 
             entity.isZealotOrBruiser() ->
                 Triple(LorenzColor.DARK_AQUA, 127, config::zealotBruiserHighlighter)
+
             else -> return
         }
 

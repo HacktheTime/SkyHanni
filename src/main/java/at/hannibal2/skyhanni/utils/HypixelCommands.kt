@@ -73,8 +73,8 @@ object HypixelCommands {
         send("gardenlevels")
     }
 
-    fun setHome() {
-        send("sethome")
+    fun setSpawn() {
+        send("setspawn")
     }
 
     // Do not remove this deprecation tag, as we want to catch all wrong uses of /gfs in the future forever.
@@ -220,10 +220,6 @@ object HypixelCommands {
 
     fun viewStash(type: String) {
         send("viewstash $type")
-    }
-
-    fun locraw() {
-        send("locraw")
     }
 
     fun starlynSisters() {

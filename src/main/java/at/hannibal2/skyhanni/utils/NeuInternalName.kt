@@ -55,7 +55,7 @@ open class NeuInternalName private constructor(internalName: String) : BNNEUItem
         }
 
     private val isEnchantedBook: Boolean
-        get() = getItemStackOrNull()?.item == Items.ENCHANTED_BOOK
+        get() = getItemStackOrNull()?.`is`(Items.ENCHANTED_BOOK) == true
 
     companion object {
 

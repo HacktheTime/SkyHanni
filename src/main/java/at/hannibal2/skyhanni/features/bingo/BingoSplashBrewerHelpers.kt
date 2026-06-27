@@ -39,6 +39,7 @@ import at.hannibal2.skyhanni.utils.toLorenzVec
 import de.hype.bingonet.environment.displayName
 import de.hype.bingonet.shared.constants.Formatting
 import net.minecraft.world.entity.decoration.ItemFrame
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
@@ -215,10 +216,10 @@ object BingoSplashBrewerHelpers {
 
             if (missingBrews) {
                 val slotToClick = selfItems.find { it.item.getInternalNameOrNull() == lastBrewingStandData.inputBottle }!!.index
-                InventoryUtils.clickSlot(slotToClick, clickType = GuiContainerEvent.ClickType.SHIFT)
+                InventoryUtils.clickSlot(slotToClick, clickType = ContainerInput.QUICK_MOVE)
             } else if (brewingMaterial != null) {
                 if (wrongMaterial) {
-                    InventoryUtils.clickSlot(BREWING_STAND_MATERIAL_SLOT_INDEX, clickType = GuiContainerEvent.ClickType.SHIFT)
+                    InventoryUtils.clickSlot(BREWING_STAND_MATERIAL_SLOT_INDEX, clickType = ContainerInput.QUICK_MOVE)
                 } else if (gfsDiff != 0 && missingMaterial) {
                     GetFromSackApi.getFromSack(brewingMaterial, gfsDiff)
                 } else {
@@ -228,7 +229,7 @@ object BingoSplashBrewerHelpers {
                                 materialCount
                         }?.index
                     slotToClick?.let {
-                        InventoryUtils.clickSlot(it, clickType = GuiContainerEvent.ClickType.SHIFT)
+                        InventoryUtils.clickSlot(it, clickType = ContainerInput.QUICK_MOVE)
                     }
                 }
             }

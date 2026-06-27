@@ -6,7 +6,7 @@ import net.minecraft.world.level.Level
 
 object WorldCompat {
     val worldTime: Long?
-        get() = localWorldOrNull?.dayTime
+        get() = localWorldOrNull?.gameTime
 
     // TODO maybe make it so if absurd high number we use spooky new day every x ticks and use that to include in the calculation?
     val worldDay: Int?

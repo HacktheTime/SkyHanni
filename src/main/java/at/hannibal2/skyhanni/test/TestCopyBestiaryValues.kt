@@ -10,6 +10,7 @@ import at.hannibal2.skyhanni.utils.ItemUtils.getSkullTexture
 import at.hannibal2.skyhanni.utils.NumberUtil.formatInt
 import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
+import at.hannibal2.skyhanni.utils.SafeItemStack
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.nextAfter
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
@@ -122,7 +123,7 @@ object TestCopyBestiaryValues {
         return if (this < 0.0001) formatted else formatted.replace("[^0]0+$".toRegex(), "")
     }
 
-    private fun process(titleItem: ItemStack, guiScreenName: String, inventoryItems: Map<Int, ItemStack>) {
+    private fun process(titleItem: SafeItemStack, guiScreenName: String, inventoryItems: Map<Int, SafeItemStack>) {
         val fullTitle = titleItem.hoverName.formattedTextCompatLeadingWhiteLessResets()
         val titleName = fullTitle.substringBefore(" ➜").trim()
         val cleanTitle = titleName.removeColor().trim()

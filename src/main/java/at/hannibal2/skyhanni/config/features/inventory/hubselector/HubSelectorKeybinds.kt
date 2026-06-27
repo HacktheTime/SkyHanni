@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.config.features.inventory.hubselector
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.HypixelData
+import at.hannibal2.skyhanni.data.InteractClickType
 import at.hannibal2.skyhanni.data.toBNIsland
 import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.events.GuiKeyPressEvent
@@ -29,6 +30,7 @@ import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
 import net.minecraft.commands.arguments.SlotArgument.slot
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import java.time.Duration
 import java.time.Instant
@@ -140,7 +142,7 @@ object HubSelectorKeybinds {
             }
         }
         bestClick?.let {
-            InventoryUtils.clickSlot(bestClick.second, clickType = GuiContainerEvent.ClickType.NORMAL)
+            InventoryUtils.clickSlot(bestClick.second, clickType = ContainerInput.PICKUP)
         }
     }
 

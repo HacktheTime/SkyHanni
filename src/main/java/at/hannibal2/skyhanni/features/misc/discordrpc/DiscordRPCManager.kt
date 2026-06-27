@@ -196,7 +196,7 @@ object DiscordRPCManager {
         progress.update("call start")
         synchronized(clientLifecycleLock) {
             if (client?.isConnected == true) {
-                progress.end("alr connected")
+                progress.end("already connected")
                 return
             }
             if (startInProgress) {

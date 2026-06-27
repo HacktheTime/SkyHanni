@@ -4,16 +4,12 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.MessageSendToServerEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
-import at.hannibal2.skyhanni.features.garden.sensitivity.LockMouseLook
 import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
-import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
-import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import net.minecraft.client.Minecraft
-import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
 object GardenWarpCommands {
@@ -39,20 +35,20 @@ object GardenWarpCommands {
         if (message == "/home") {
             event.cancel()
             WarpAPI.warp("garden")
-            ChatUtils.chat("§aTeleported you to the spawn location!", prefix = false)
+            return
         }
 
         if (message == "/barn") {
             event.cancel()
             HypixelCommands.teleportToPlot("barn")
-            LockMouseLook.unlockMouse()
+            return
         }
 
-        tpPlotPattern.matchMatcher(event.message) {
+        tpPlotPattern.matchMatcher(message) {
             event.cancel()
             val plotName = group("plot")
             HypixelCommands.teleportToPlot(plotName)
-            LockMouseLook.unlockMouse()
+            return
         }
     }
 
@@ -66,13 +62,12 @@ object GardenWarpCommands {
             }
 
             config.sethomeHotkey -> {
-                HypixelCommands.setHome()
+                HypixelCommands.setSpawn()
             }
 
             config.barnHotkey -> {
                 if (!WarpAPI.offCooldown) return
                 WarpAPI.setWarpCooldown()
-                LockMouseLook.unlockMouse()
                 HypixelCommands.teleportToPlot("barn")
             }
 

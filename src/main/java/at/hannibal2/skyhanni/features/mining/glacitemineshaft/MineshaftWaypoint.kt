@@ -7,4 +7,5 @@ data class MineshaftWaypoint(
     val location: LorenzVec,
     var shared: Boolean = false,
     var isCorpse: Boolean = false,
+    var isLootedCorpse: Boolean = false,
 )
