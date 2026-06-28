@@ -1,3 +1,4 @@
+
 import at.skyhanni.sharedvariables.MappingStyle
 import at.skyhanni.sharedvariables.ProjectTarget
 import at.skyhanni.sharedvariables.SHVersionInfo
@@ -10,11 +11,9 @@ import net.fabricmc.loom.task.RemapSourcesJarTask
 import net.fabricmc.loom.task.ValidateAccessWidenerTask
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.internal.impldep.org.jsoup.nodes.Document
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import skyhannibuildsystem.ChangelogVerification
-import skyhannibuildsystem.CleanupMappingFiles
 import skyhannibuildsystem.DownloadBackupRepo
 import skyhannibuildsystem.PublishToModrinth
 import org.gradle.jvm.tasks.Jar as GradleJar
@@ -58,7 +57,6 @@ fun DependencyHandler.modRuntimeOnly(dep: Any): Dependency? = add("modRuntimeOnl
 // Toolchains:
 java {
     toolchain.languageVersion.set(target.minecraftVersion.javaLanguageVersion)
-    withSourcesJar()
 }
 val runDirectory = rootProject.file("run")
 runDirectory.mkdirs()
@@ -121,38 +119,8 @@ val includeBackupNeuRepo by tasks.registering(DownloadBackupRepo::class) {
     this.outputDirectory.set(layout.buildDirectory.dir("downloadedNeuRepo"))
 }
 
-val cleanupMappingFiles by tasks.registering(CleanupMappingFiles::class) {
-    this.mappingsDirectory.set(layout.projectDirectory.asFile.parentFile)
-}
-
-// Ensure build/libs is clean before compiling to avoid leftover jars
-val cleanLibs by tasks.registering(Delete::class) {
-    delete(layout.buildDirectory.dir("libs"))
-    delete(rootProject.layout.buildDirectory.dir("libs"))
-}
-// Run cleanLibs before classes (compilation) to guarantee a fresh libs directory
-tasks.named("classes") {
-    dependsOn(cleanLibs)
-}
-
-// Register root-only publishToModrinth that depends on all remap tasks
-if (project == rootProject) {
-    tasks.register("publishToModrinth", PublishToModrinth::class) {
-        group = "publishing"
-        description = "Publish all built jars to Modrinth (root-only) and update GitHub release."
-        // Ensure this project builds
-        dependsOn(tasks.named("build"))
-        // Ensure sources for this project
-        dependsOn(sourcesJar)
-    }
-}
-
 tasks.named<JavaExec>("runClient") {
-    this.javaLauncher.set(
-        javaToolchains.launcherFor {
-            languageVersion.set(target.minecraftVersion.javaLanguageVersion)
-        },
-    )
+    this.javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
 }
 
 tasks.register<ClientProductionRunTask>("prodClient") {
@@ -399,7 +367,7 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<GradleJar> {
-    archiveBaseName.set("SkyHanni")
+    archiveBaseName.set("SkyHanni-Bingo Net")
     archiveVersion.set("$version-mc${target.minecraftVersion.versionName}")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Why do we have this here? This only *hides* errors.
 }
@@ -442,11 +410,20 @@ if (isDeobf) {
     tasks.assemble.get().dependsOn(tasks.shadowJar)
 }
 
-val sourcesJar by tasks.named<Jar>("sourcesJar") {
-    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+val sourcesJar by tasks.registering(Jar::class) {
+    // Change destination to the root libs directory
+    destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
+
+    // Set suffix to -src
     archiveClassifier.set("src")
+
+    // Ensure the base name matches the main jar (SkyHanni)
+    archiveBaseName.set("SkyHanni-Bingo Net")
+    archiveVersion.set("$version-mc${target.minecraftVersion.versionName}")
+
     from(sourceSets.main.get().allSource)
 }
+
 
 publishing.publications {
     create<MavenPublication>("maven") {
@@ -536,4 +513,43 @@ tasks.withType<ValidateAccessWidenerTask>().configureEach {
 repositories {
     mavenLocal()
     mavenCentral()
+}
+
+if (!isDeobf) {
+    tasks.named("remapJar") {
+        dependsOn(sourcesJar)
+    }
+} else {
+    tasks.shadowJar {
+        dependsOn(sourcesJar)
+    }
+}
+
+
+if (project == rootProject) {
+    val cleanLibs = tasks.register("cleanLibs") {
+        doLast {
+            val libsDir = rootProject.layout.buildDirectory.dir("libs").get().asFile
+            if (libsDir.exists()) {
+                println("Cleaning outdated jars in ${libsDir.absolutePath}...")
+                libsDir.deleteRecursively()
+                libsDir.mkdirs()
+            }
+            println("cleaned")
+        }
+    }
+
+    tasks.register<PublishToModrinth>("publishToModrinth") {
+        dependsOn(cleanLibs, dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "assemble" } }))
+    }
+
+    subprojects {
+        tasks.matching { it.name == "assemble" }.configureEach {
+            mustRunAfter(cleanLibs)
+        }
+    }
+
+    tasks.named("clean") {
+        dependsOn(cleanLibs)
+    }
 }

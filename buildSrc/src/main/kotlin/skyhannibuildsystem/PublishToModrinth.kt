@@ -159,8 +159,7 @@ abstract class PublishToModrinth : DefaultTask() {
         val content = changelogFile.readText()
         return content.lines().joinToString("\n").trim()
     }
-
-    private val jarNamePattern = "SkyHanni-(?<modVersion>[\\d.]+)-mc(?<mcVersion>[\\d.]+)\\.jar".toPattern()
+    private val jarNamePattern = "SkyHanni-Bingo Net-(?<modVersion>[\\d.]+)-mc(?<mcVersion>[\\d.]+)\\.jar".toPattern()
 
     private fun processJar(file: File) {
         val fileName = file.name
@@ -201,7 +200,7 @@ abstract class PublishToModrinth : DefaultTask() {
         val requestedStatus = "listed"
 
         // Also include a matching sources jar if present next to the main jar
-        val sourcesJar = File(file.parentFile, file.nameWithoutExtension + "-sources.jar").takeIf { it.exists() }
+        val sourcesJar = File(file.parentFile, file.nameWithoutExtension + "-src.jar").takeIf { it.exists() }
         val filesToUpload = buildList<File> {
             add(file)
             if (sourcesJar != null) add(sourcesJar)
