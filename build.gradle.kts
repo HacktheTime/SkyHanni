@@ -15,7 +15,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import skyhannibuildsystem.ChangelogVerification
 import skyhannibuildsystem.DownloadBackupRepo
-import skyhannibuildsystem.PublishToModrinth
 import org.gradle.jvm.tasks.Jar as GradleJar
 
 plugins {
@@ -118,8 +117,6 @@ val includeBackupNeuRepo by tasks.registering(DownloadBackupRepo::class) {
     this.resourcePath = "assets/skyhanni/neu-repo.tar.gz"
     this.outputDirectory.set(layout.buildDirectory.dir("downloadedNeuRepo"))
 }
-
-val publishToModrinth by tasks.registering(PublishToModrinth::class)
 
 tasks.named<JavaExec>("runClient") {
     this.javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
@@ -413,10 +410,13 @@ if (isDeobf) {
 }
 
 val sourcesJar by tasks.registering(Jar::class) {
-      destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-      archiveBaseName.set("SkyHanni-Bingo Net")
-      archiveVersion.set("$version-mc${target.minecraftVersion.versionName}")
-      from(sourceSets.main.get().allSource)
+    // CHANGE THIS: Move from 'badjars' to the root build/libs or project build/libs
+    // so the publisher can find it.
+    destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
+    archiveBaseName.set("SkyHanni-Bingo Net")
+    archiveVersion.set("$version-mc${target.minecraftVersion.versionName}")
+    archiveClassifier.set("sources") // Ensure it has the sources classifier
+    from(sourceSets.main.get().allSource)
 }
 
 publishing.publications {

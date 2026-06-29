@@ -163,12 +163,15 @@ stonecutter parameters {
 if (project == rootProject) {
     tasks.register("publishToModrinth", PublishToModrinth::class) {
         group = "publishing"
-        description = "Publish all SkyHanni jars (all MC versions) to Modrinth..."
+        description = "Publish all SkyHanni jars and sources to Modrinth."
 
-        // CHANGE: Depend on 'assemble' for all subprojects.
-        // This forces Gradle to run compileKotlin -> shadowJar -> remapJar
-        // for every version (1.21.11, 26.1, etc.)
-        dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "remapJar" || t.name == "remapSourcesJar" } })
+        // 1. Depend on 'assemble' for all subprojects (covers compile, shadow, remapJar)
         dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "assemble" } })
+
+        // 2. Explicitly depend on sourcesJar for all subprojects to ensure they are generated
+        dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "sourcesJar" } })
+
+        // 3. Ensure remapJar runs (some loom versions don't link assemble -> remapJar perfectly)
+        dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "remapJar" } })
     }
 }
