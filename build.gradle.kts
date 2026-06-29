@@ -119,6 +119,8 @@ val includeBackupNeuRepo by tasks.registering(DownloadBackupRepo::class) {
     this.outputDirectory.set(layout.buildDirectory.dir("downloadedNeuRepo"))
 }
 
+val publishToModrinth by tasks.registering(PublishToModrinth::class)
+
 tasks.named<JavaExec>("runClient") {
     this.javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
 }
@@ -148,12 +150,9 @@ dependencies {
             mappings(target.mappingDependency)
         }
     }
-    //Bingo Net / Bingo Brewers
     shadowImpl("com.esotericsoftware:kryonet:2.22.0-RC1")
-
     compileOnly(libs.jbAnnotations)
     ksp(project(":annotation-processors"))?.let { compileOnly(it) }
-
     ksp(libs.autoservice.ksp)
     implementation(libs.autoservice.annotations)
 
@@ -237,7 +236,6 @@ dependencies {
 
 fun DependencyHandler.includeImplementation(dep: Any, configure: ExternalModuleDependency.() -> Unit = {}) {
     fun dependencyNotation(): Any = (dep as? Provider<*>)?.get() ?: dep
-
     if (isDeobf) {
         add("shadowImpl", dependencyNotation()).also { (it as? ExternalModuleDependency)?.configure() }
     } else {
@@ -301,9 +299,7 @@ tasks.processResources {
         put("fapi", fapiVersion)
         put("hypixelmodapi", hypixelModApiVersion)
     }
-
     props.forEach(inputs::property)
-
     filesMatching("fabric.mod.json") {
         expand(props)
     }
@@ -323,7 +319,6 @@ if (target == primaryTarget) {
         javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
         dependsOn(tasks.named("configureLaunch"))
         val outputFile = project.file("build/regexes/constants.json")
-
         jvmArgs.add("-DSkyHanniDumpRegex.enabled=true")
         jvmArgs.add("-DSkyHanniDumpRegex=${SHVersionInfo.gitHash}:${outputFile.absolutePath}")
         jvmArgs.add("-Dfabric.client.gametest=true")
@@ -354,11 +349,17 @@ tasks.withType<KotlinCompile> {
         val jvmTargetStr = if (isDeobf) target.minecraftVersion.formattedKotlinJvmTarget
         else target.minecraftVersion.formattedJavaLanguageVersion
         jvmTarget.set(JvmTarget.fromTarget(jvmTargetStr))
-        optIn.addAll("kotlin.concurrent.atomics.ExperimentalAtomicApi")
-        // 0 (all cores) triggers a race condition in JvmIrCodegenFactory's parallel codegen on Kotlin 2.3.x,
-        // leaving corrupt .class files that break subsequent incremental builds.
-        // see: https://youtrack.jetbrains.com/issue/KT-85498/
-        freeCompilerArgs.addAll("-Xbackend-threads=1")
+        optIn.addAll(
+            "kotlin.concurrent.atomics.ExperimentalAtomicApi",
+            "kotlin.time.ExperimentalTime"
+        )
+        freeCompilerArgs.addAll(
+            // 0 (all cores) triggers a race condition in JvmIrCodegenFactory's parallel codegen on Kotlin 2.3.x,
+            // leaving corrupt .class files that break subsequent incremental builds.
+            // see: https://youtrack.jetbrains.com/issue/KT-85498/
+            "-Xbackend-threads=1",
+            "-Xnested-type-aliases",
+        )
     }
 }
 
@@ -401,6 +402,7 @@ tasks.shadowJar {
     relocate("moe.nea.libautoupdate", "at.hannibal2.skyhanni.deps.libautoupdate")
     relocate("net.hypixel.modapi.tweaker", "at.hannibal2.skyhanni.deps.hypixel.modapi.tweaker")
 }
+
 tasks.jar {
     archiveClassifier.set("nodeps")
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
@@ -411,19 +413,11 @@ if (isDeobf) {
 }
 
 val sourcesJar by tasks.registering(Jar::class) {
-    // Change destination to the root libs directory
-    destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
-
-    // Set suffix to -src
-    archiveClassifier.set("src")
-
-    // Ensure the base name matches the main jar (SkyHanni)
-    archiveBaseName.set("SkyHanni-Bingo Net")
-    archiveVersion.set("$version-mc${target.minecraftVersion.versionName}")
-
-    from(sourceSets.main.get().allSource)
+      destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+      archiveBaseName.set("SkyHanni-Bingo Net")
+      archiveVersion.set("$version-mc${target.minecraftVersion.versionName}")
+      from(sourceSets.main.get().allSource)
 }
-
 
 publishing.publications {
     create<MavenPublication>("maven") {
@@ -438,9 +432,9 @@ publishing.publications {
                 }
             }
             developers {
-                developer { name.set("hannibal002 (Original SkyHanni Author)") }
-                developer { name.set("The SkyHanni contributors") }
-                developer { name.set("HacktheTime / other contributors (Bingo Net Modifications)") }
+                developer { name = "hannibal002 (Original SkyHanni Author)" }
+                developer { name = "The SkyHanni contributors" }
+                developer { name = "HacktheTime / other contributors (Bingo Net Modifications)" }
             }
         }
     }
@@ -513,43 +507,4 @@ tasks.withType<ValidateAccessWidenerTask>().configureEach {
 repositories {
     mavenLocal()
     mavenCentral()
-}
-
-if (!isDeobf) {
-    tasks.named("remapJar") {
-        dependsOn(sourcesJar)
-    }
-} else {
-    tasks.shadowJar {
-        dependsOn(sourcesJar)
-    }
-}
-
-
-if (project == rootProject) {
-    val cleanLibs = tasks.register("cleanLibs") {
-        doLast {
-            val libsDir = rootProject.layout.buildDirectory.dir("libs").get().asFile
-            if (libsDir.exists()) {
-                println("Cleaning outdated jars in ${libsDir.absolutePath}...")
-                libsDir.deleteRecursively()
-                libsDir.mkdirs()
-            }
-            println("cleaned")
-        }
-    }
-
-    tasks.register<PublishToModrinth>("publishToModrinth") {
-        dependsOn(cleanLibs, dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "assemble" } }))
-    }
-
-    subprojects {
-        tasks.matching { it.name == "assemble" }.configureEach {
-            mustRunAfter(cleanLibs)
-        }
-    }
-
-    tasks.named("clean") {
-        dependsOn(cleanLibs)
-    }
 }
