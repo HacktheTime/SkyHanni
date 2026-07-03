@@ -47,7 +47,7 @@ object MinionCraftHelper {
     private var display = emptyList<String>()
     private var hasMinionInInventory = false
     private var hasItemsForMinion = false
-    private val tierOneMinions = mutableListOf<NeuInternalName>()
+    val tierOneMinions = mutableListOf<NeuInternalName>()
     private val tierOneMinionsDone get() = BingoApi.bingoStorage.tierOneMinionsDone
     private val allIngredients = mutableListOf<NeuInternalName>()
     private val alreadyNotified = mutableListOf<String>()

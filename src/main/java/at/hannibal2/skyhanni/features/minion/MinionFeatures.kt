@@ -11,8 +11,8 @@ import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.ProfileStorageData
 import at.hannibal2.skyhanni.data.achievements.Achievement
 import at.hannibal2.skyhanni.events.BlockClickEvent
-import at.hannibal2.skyhanni.events.GuiKeyPressEvent
 import at.hannibal2.skyhanni.events.CheckRenderEntityEvent
+import at.hannibal2.skyhanni.events.GuiKeyPressEvent
 import at.hannibal2.skyhanni.events.GuiRenderEvent
 import at.hannibal2.skyhanni.events.InventoryCloseEvent
 import at.hannibal2.skyhanni.events.InventoryFullyOpenedEvent
@@ -27,12 +27,12 @@ import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.events.player.ClickAction
 import at.hannibal2.skyhanni.events.player.PlayerInteractionEvent
 import at.hannibal2.skyhanni.features.achievements.AchievementManager
+import at.hannibal2.skyhanni.features.bingo.MinionCraftHelper
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.BlockUtils.getBlockStateAt
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ColorUtils.toColor
 import at.hannibal2.skyhanni.utils.EntityUtils.getEntitiesNearby
-import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
@@ -42,7 +42,9 @@ import at.hannibal2.skyhanni.utils.LocationUtils
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceTo
 import at.hannibal2.skyhanni.utils.LocationUtils.distanceToPlayer
 import at.hannibal2.skyhanni.utils.LorenzVec
+import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.NeuItems
+import at.hannibal2.skyhanni.utils.NeuItems.getItemStack
 import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
 import at.hannibal2.skyhanni.utils.NumberUtil.formatDouble
 import at.hannibal2.skyhanni.utils.NumberUtil.formatInt
@@ -58,7 +60,6 @@ import at.hannibal2.skyhanni.utils.TimeUtils.format
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import at.hannibal2.skyhanni.utils.compat.EntityCompat.deceased
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLeadingWhiteLessResets
-import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLessResets
 import at.hannibal2.skyhanni.utils.compat.stackUnderCursor
 import at.hannibal2.skyhanni.utils.getLorenzVec
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawString
@@ -239,17 +240,25 @@ object MinionFeatures {
 
     @HandleEvent
     fun openMinionRecipeOnResource(event: GuiKeyPressEvent) {
-        val key = config.openMinionRecipeForHeldResource
-        if (!key.isKeyHeld()) return
+        val directKey = config.openMinionRecipeForHeldResource
+        val genericKey = config.searchGenericMinionRecipesForHeldResource
+        if (!directKey.isKeyHeld() && !genericKey.isKeyHeld()) return
         val stack = stackUnderCursor() ?: return
         SkyHanniMod.launchCoroutine("Open Minion Recipe for Held Resource Processor") {
             val currentItem = NeuItems.getInternalName(stack)
-            for (entry in NeuItems.allItemsCache) {
-                if (!entry.value.asString().endsWith("GENERATOR_1")) continue
-                val recipes = NeuItems.getRecipes(entry.value)
+            for (entry in MinionCraftHelper.tierOneMinions) {
+                val recipes = NeuItems.getRecipes(entry)
                 if (recipes.size != 1) continue
                 if (recipes.first { it.isCraftingRecipe() }.ingredients.any { it.internalName == currentItem }) {
-                    HypixelCommands.viewRecipe(entry.value)
+                    if (genericKey.isKeyHeld()) {
+                        val minionName = entry.getItemStack().hoverName.string.replace("(I$)|(§.)".toRegex(),"").trim()
+                        HypixelCommands.recipe(minionName)
+                    } else {
+                        val wantedTier = config.openMinionRecipeForHeldResourceTier
+                        val open =
+                            if (wantedTier == 1) entry else entry.internalName.replace("_1$".toRegex(), "_$wantedTier").toInternalName()
+                        HypixelCommands.viewRecipe(open)
+                    }
                     return@launchCoroutine
                 }
             }
