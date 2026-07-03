@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.bingo.bingonet
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.features.misc.DiscordRPCConfig
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
@@ -196,7 +197,7 @@ object SplashManager {
     private var waypointPos: LorenzVec? = null
     private var data: DisplaySplash? = null
 
-    @HandleEvent
+    @HandleEvent(priority = HandleEvent.LOWEST)
     fun onIslandChange(event: IslandJoinEvent) {
         val data = getSplashInServer(false)
         val waypointPos = data?.locationInHub?.coords?.toLorenz()
