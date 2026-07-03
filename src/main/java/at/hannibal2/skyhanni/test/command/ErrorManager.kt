@@ -348,6 +348,7 @@ object ErrorManager {
                 fullErrorData,
                 mcVersion,
                 shVersion,
+                "skyhanni",
                 extraData,
             ),true //Block Log since this fills the entire chat at once otherwise.
         )
