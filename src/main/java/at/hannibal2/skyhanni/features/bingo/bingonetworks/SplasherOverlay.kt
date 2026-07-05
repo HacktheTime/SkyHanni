@@ -14,6 +14,7 @@ import at.hannibal2.skyhanni.utils.EntityUtils.isOnIronman
 import at.hannibal2.skyhanni.utils.RenderUtils.renderRenderables
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.primitives.text
+import de.hype.bingonet.shared.constants.StatusConstants
 import net.minecraft.world.entity.player.Player
 
 
@@ -45,7 +46,9 @@ object SplasherOverlay {
         }
 
         val renderables = mutableListOf<Renderable>()
-        renderables.add(Renderable.text("Status: ${splash.status.displayName}"))
+        @Suppress("USELESS_ELVIS") //may be null while its local only with no update packet yet.
+        val status = splash.status?: StatusConstants.WAITING
+        renderables.add(Renderable.text("Status: ${status.displayName}"))
         val players =
             EntityUtils.getEntitiesNearby<Player>(
                 5.0,
