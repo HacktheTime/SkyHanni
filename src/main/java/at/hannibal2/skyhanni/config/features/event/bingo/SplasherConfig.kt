@@ -6,10 +6,18 @@ import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 class SplasherConfig {
+    @Expose
+    @ConfigOption(
+        name = "Alt Accounts",
+        desc = "Comma-separated list of alternate account names considered as yours for splash status updates."
+    )
+    @ConfigEditorText
+    var altAccounts: String = ""
     @Expose
     @FeatureToggle
     @ConfigOption(

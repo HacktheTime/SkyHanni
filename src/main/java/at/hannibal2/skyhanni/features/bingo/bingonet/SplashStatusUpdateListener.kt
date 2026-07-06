@@ -16,6 +16,7 @@ import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.EntityUtils.isOnBingo
 import at.hannibal2.skyhanni.utils.EntityUtils.isOnIronman
 import at.hannibal2.skyhanni.utils.OSUtils
+import at.hannibal2.skyhanni.utils.RegexUtils.groupOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import de.hype.bingonet.BNConnection
 import de.hype.bingonet.shared.constants.StatusConstants
@@ -37,7 +38,7 @@ object SplashStatusUpdateListener {
 
 
     // TODO fix this pattern
-    private val selfSplashPattern = CompactSplashPotionMessage.selfSplashPattern
+    private val splashMessagePatterns = CompactSplashPotionMessage.potionEffectPatternList
 
     private val config get() = SkyHanniMod.feature.event.bingo.bingoNetworks.splasherConfig
 
@@ -79,16 +80,25 @@ object SplashStatusUpdateListener {
     @HandleEvent
     fun onChat(event: SkyHanniChatEvent.Allow) {
         val data = data ?: return
-        selfSplashPattern.matchMatcher(event.cleanMessage) {
+        val cleanMessage =event.cleanMessage
+        val splashing = splashMessagePatterns.any {
+            it.matchMatcher(cleanMessage){
+                val player = groupOrNull("playerName")
+                if (player==null && cleanMessage.contains("splashed yourself")) return@any true
+                return@any config.altAccounts.lowercase().split(",").map { it.trim() }.contains(player)
+            }
+            return@any false
+        }
+        if (splashing){
             val previousStatus = data.status
             synchronized(this) {
-                if (previousStatus == StatusConstants.SPLASHING) return@matchMatcher
+                if (previousStatus == StatusConstants.SPLASHING) return
                 setStatus(StatusConstants.SPLASHING)
             }
             if (leecherConfig.enabled && HypixelData.getRemainingSpace() <= 2) {
                 // Sends a Packet to the Server that these Player Leeched the Splash. User can then confirm the List before Sanctions are caused.
                 val data = EntityUtils.getEntitiesNearby<Player>(5.0).filter { !it.isOnBingo() }
-                    .map { Triple(it.displayName!!.string, it.uuid, it.isOnIronman()) }.toList()
+                    .map { Triple(it.displayName.string, it.uuid, it.isOnIronman()) }.toList()
                 if (HypixelData.getMaxPlayersForCurrentServer() - (HypixelData.getPlayersOnCurrentServer()) <= 2) {
                     BNConnection.sendPacket(SplashLeechReportPacket(data, leecherConfig.allowIman))
                 }

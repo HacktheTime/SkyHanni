@@ -2,7 +2,6 @@ package at.hannibal2.skyhanni.features.bingo.bingonet
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
-import at.hannibal2.skyhanni.config.features.misc.DiscordRPCConfig
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
@@ -28,7 +27,6 @@ import de.hype.bingonet.shared.packets.function.RequestDynamicSplashInvitePacket
 import de.hype.bingonet.shared.packets.function.SplashUpdatePacket
 import de.hype.bingonet.toLorenz
 import kotlinx.coroutines.delay
-import net.minecraft.advancements.criterion.LocationPredicate.Builder.location
 import java.awt.Color
 import java.time.Instant
 import kotlin.time.Duration.Companion.minutes
@@ -77,7 +75,8 @@ object SplashManager {
     fun getSplashInServer(mustBeFromSelf: Boolean, serverId: String? = HypixelData.serverId): DisplaySplash? {
         if (serverId == null) return null
         return splashPool.values.filter { it.serverID == serverId }
-            .filter { !mustBeFromSelf || it.announcer.equals(PlayerUtils.getName(), ignoreCase = true) }.minByOrNull { it.receivedTime }
+            .filter { !mustBeFromSelf || it.announcer.equals(PlayerUtils.getName(), ignoreCase = true) || config.splasherConfig
+                .altAccounts.lowercase().split(",").contains(it.announcer.lowercase()) }.minByOrNull { it.receivedTime }
     }
 
     enum class SplashSource {

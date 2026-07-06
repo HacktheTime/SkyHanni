@@ -11,6 +11,7 @@ import at.hannibal2.skyhanni.config.features.event.bingo.BBSplashMessageConfigur
 import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetSystem
 import at.hannibal2.skyhanni.config.features.inventory.hubselector.HubSelectorKeybinds
 import at.hannibal2.skyhanni.data.HypixelData
+import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.toBNIsland
 import at.hannibal2.skyhanni.features.bingo.bingonet.BNRegistrationScreen
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -76,53 +77,120 @@ object BNCommands {
         }
 
         if (BNConnection.roles.contains(BNRole.SPLASHER)) {
-            event.registerBrigadier("bnsplash") {
-                description = "Announce a Splash (Announces a Splash for the Lobby your currently in)."
-                category = CommandCategory.BINGO_NET
-                arg("location", BrigadierArguments.string(), SplashLocations.values().map { it.getCommandArgNames() }) { loc ->
-                    arg("extraMessage", BrigadierArguments.greedyString()) { extra ->
+            if (HypixelData.skyBlockIsland == IslandType.HUB){
+                event.registerBrigadier("bnsplash") {
+                    description = "Announce a Splash (Hub only)."
+                    category = CommandCategory.BINGO_NET
+                    arg("location", BrigadierArguments.string(), SplashLocations.values().map { it.getCommandArgNames() }) { loc ->
+                        arg("extraMessage", BrigadierArguments.greedyString()) { extra ->
+                            callback {
+                                val location = SplashLocations.values().find { it.getName() == getArg(loc) }
+                                val message = getArg(extra)
+                                if (location == null) {
+                                    ChatUtils.userError("Invalid splash location provided: ${getArg(loc)}. Only use a suggested location!")
+                                    return@callback
+                                }
+                                sendSplash(location, message, false)
+                            }
+                        }
                         callback {
                             val location = SplashLocations.values().find { it.getName() == getArg(loc) }
-                            val message = getArg(extra)
                             if (location == null) {
                                 ChatUtils.userError("Invalid splash location provided: ${getArg(loc)}. Only use a suggested location!")
                                 return@callback
                             }
-                            sendSplash(location, message, false)
+                            sendSplash(location, null, false)
                         }
                     }
-                    callback {
-                        val location = SplashLocations.values().find { it.getName() == getArg(loc) }
-                        if (location == null) {
-                            ChatUtils.userError("Invalid splash location provided: ${getArg(loc)}. Only use a suggested location!")
-                            return@callback
+                }
+                event.registerBrigadier("bnsplashdynamic") {
+                    description = "Announce a Hub Splash in a Server not listed in Hub Selector (Hub only)."
+                    category = CommandCategory.BINGO_NET
+                    arg("location", BrigadierArguments.string(), SplashLocations.values().map { it.getName() }) { loc ->
+                        arg("extraMessage", BrigadierArguments.greedyString()) { extra ->
+                            callback {
+                                val location = SplashLocations.values().find { it.getName() == getArg(loc) }
+                                val message = getArg(extra)
+                                if (location == null) {
+                                    ChatUtils.userError("Invalid splash location provided: ${getArg(loc)}. Only use a suggested location!")
+                                    return@callback
+                                }
+                                sendSplash(location, message, true)
+                            }
                         }
-                        sendSplash(location, null, false)
+                        callback {
+                            val location = SplashLocations.values().find { it.getName() == getArg(loc) }
+                            if (location == null) {
+                                ChatUtils.userError("Invalid splash location provided: ${getArg(loc)}. Only use a suggested location!")
+                                return@callback
+                            }
+                            sendSplash(location, null, true)
+                        }
                     }
                 }
             }
-            event.registerBrigadier("bnsplashdynamic") {
-                description = "Announce a Dynamic Hub Splash"
+
+            // Complex command for custom coordinates
+            event.registerBrigadier("bnsplashcomplex") {
+                description = "Announce a Splash with custom coordinates and visual name."
                 category = CommandCategory.BINGO_NET
-                arg("location", BrigadierArguments.string(), SplashLocations.values().map { it.getName() }) { loc ->
-                    arg("extraMessage", BrigadierArguments.greedyString()) { extra ->
-                        callback {
-                            val location = SplashLocations.values().find { it.getName() == getArg(loc) }
-                            val message = getArg(extra)
-                            if (location == null) {
-                                ChatUtils.userError("Invalid splash location provided: ${getArg(loc)}. Only use a suggested location!")
-                                return@callback
+                arg("x", BrigadierArguments.integer()) { argX ->
+                    arg("y", BrigadierArguments.integer()) { argY ->
+                        arg("z", BrigadierArguments.integer()) { argZ ->
+                            arg("name", BrigadierArguments.string()) { nameArg ->
+                                arg("extraMessage", BrigadierArguments.greedyString()) { extra ->
+                                    callback {
+                                        val x = getArg(argX)
+                                        val y = getArg(argY)
+                                        val z = getArg(argZ)
+                                        val name = getArg(nameArg)
+                                        val location = SplashLocation(name, x, y, z)
+                                        val message = getArg(extra)
+                                        sendSplash(location, message, false)
+                                    }
+                                }
+                                callback {
+                                    val x = getArg(argX)
+                                    val y = getArg(argY)
+                                    val z = getArg(argZ)
+                                    val name = getArg(nameArg)
+                                    val location = SplashLocation(name, x, y, z)
+                                    sendSplash(location, null, false)
+                                }
                             }
-                            sendSplash(location, message, true)
                         }
                     }
-                    callback {
-                        val location = SplashLocations.values().find { it.getName() == getArg(loc) }
-                        if (location == null) {
-                            ChatUtils.userError("Invalid splash location provided: ${getArg(loc)}. Only use a suggested location!")
-                            return@callback
+                }
+            }
+            // Dynamic complex command
+            event.registerBrigadier("bnsplashdynamiccomplex") {
+                description = "Announce a Splash in a Server not listed in hub selector with custom coordinates"
+                category = CommandCategory.BINGO_NET
+                arg("x", BrigadierArguments.integer()) { argX ->
+                    arg("y", BrigadierArguments.integer()) { argY ->
+                        arg("z", BrigadierArguments.integer()) { argZ ->
+                            arg("name", BrigadierArguments.string()) { nameArg ->
+                                arg("extraMessage", BrigadierArguments.greedyString()) { extra ->
+                                    callback {
+                                        val x = getArg(argX)
+                                        val y = getArg(argY)
+                                        val z = getArg(argZ)
+                                        val name = getArg(nameArg)
+                                        val location = SplashLocation(name, x, y, z)
+                                        val message = getArg(extra)
+                                        sendSplash(location, message, true)
+                                    }
+                                }
+                                callback {
+                                    val x = getArg(argX)
+                                    val y = getArg(argY)
+                                    val z = getArg(argZ)
+                                    val name = getArg(nameArg)
+                                    val location = SplashLocation(name, x, y, z)
+                                    sendSplash(location, null, true)
+                                }
+                            }
                         }
-                        sendSplash(location, null, true)
                     }
                 }
             }

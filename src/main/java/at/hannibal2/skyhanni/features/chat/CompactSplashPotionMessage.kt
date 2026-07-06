@@ -15,14 +15,12 @@ object CompactSplashPotionMessage {
 
     private val config get() = SkyHanniMod.feature.chat.compactPotionMessages
 
-    val selfSplashPattern =
-        "BUFF! You splashed yourself with (?<effectName>.*)! Press TAB or type /effects to view your active effects!".toPattern()
 
     @Suppress("MaxLineLength")
-    private val potionEffectPatternList = listOf(
+    val potionEffectPatternList = listOf(
         "BUFF! You were splashed by (?<playerName>.*) with (?<effectName>.*)! Press TAB or type /effects to view your active effects!".toPattern(),
         "BUFF! You have gained (?<effectName>.*)! Press TAB or type /effects to view your active effects!".toPattern(),
-        selfSplashPattern,
+        "BUFF! You splashed yourself with (?<effectName>.*)! Press TAB or type /effects to view your active effects!".toPattern(),
 
         // Fix for Hypixel having a different message for Poisoned Candy.
         // Did not make the first pattern optional to prevent conflicts with Dungeon Buffs/other things
