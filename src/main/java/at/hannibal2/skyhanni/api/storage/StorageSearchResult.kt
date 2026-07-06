@@ -1,6 +1,6 @@
 package at.hannibal2.skyhanni.api.storage
 
-import at.hannibal2.skyhanni.data.HypixelData
+import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.features.misc.WarpAPI
 import at.hannibal2.skyhanni.utils.ChatUtils
@@ -74,20 +74,20 @@ data class StorageSearchResult(
                 }
                 if (allowServerChange) consumer.invoke()
                 else {
-                    if (HypixelData.skyBlockIsland == IslandType.THE_RIFT)
+                    if (HypixelLocationApi.island == IslandType.THE_RIFT)
                         ChatUtils.clickableChat("${this.getDisplayName()} Cant access from here. Click to warp to the rift.", consumer)
                 }
             }
 
             StorageCategory.PRIVATE_ISLAND_CHEST -> {
                 val consumer = {
-                    if (HypixelData.skyBlockIsland != IslandType.PRIVATE_ISLAND) {
+                    if (HypixelLocationApi.island != IslandType.PRIVATE_ISLAND) {
                         WarpAPI.warp("home")
                     }
                 }
                 if (allowServerChange) consumer.invoke()
                 else {
-                    if (HypixelData.skyBlockIsland == IslandType.PRIVATE_ISLAND)
+                    if (HypixelLocationApi.island == IslandType.PRIVATE_ISLAND)
                         ChatUtils.clickableChat(
                             "${this.getDisplayName()} Cant access from here. Click to warp to the Private Island.",
                             consumer,

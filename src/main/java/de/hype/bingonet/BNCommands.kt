@@ -4,6 +4,7 @@ package de.hype.bingonet
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
@@ -77,7 +78,7 @@ object BNCommands {
         }
 
         if (BNConnection.roles.contains(BNRole.SPLASHER)) {
-            if (HypixelData.skyBlockIsland == IslandType.HUB){
+            if (HypixelLocationApi.island == IslandType.HUB){
                 event.registerBrigadier("bnsplash") {
                     description = "Announce a Splash (Hub only)."
                     category = CommandCategory.BINGO_NET
@@ -244,7 +245,7 @@ object BNCommands {
     fun sendSplash(location: SplashLocation, extraMessage: String? = null, dynamic: Boolean) {
         val serverId = HypixelData.serverId ?: return
         var hubData =
-            HubSelectorKeybinds.getHubNumberById(serverId, HypixelData.skyBlockIsland.toBNIsland() ?: error("Not on a Skyblock Island!"))
+            HubSelectorKeybinds.getHubNumberById(serverId, HypixelLocationApi.island.toBNIsland() ?: error("Not on a Skyblock Island!"))
         if (dynamic) {
             hubData = null
         } else if (hubData == null) {

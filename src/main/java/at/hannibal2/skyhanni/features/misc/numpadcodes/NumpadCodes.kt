@@ -1,26 +1,24 @@
 package at.hannibal2.skyhanni.features.misc.numpadcodes
 
 import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.data.IslandType
-import at.hannibal2.skyhanni.events.ConfigLoadEvent
-import at.hannibal2.skyhanni.utils.ChatUtils
-import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
+import at.hannibal2.skyhanni.config.ConfigFileType
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.CommandsRegistry
-import at.hannibal2.skyhanni.data.HypixelData
-import at.hannibal2.skyhanni.events.minecraft.KeyPressEvent
+import at.hannibal2.skyhanni.data.IslandType
+import at.hannibal2.skyhanni.events.ConfigLoadEvent
+import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.ChatUtils
+import at.hannibal2.skyhanni.utils.DelayedRun
 import net.minecraft.client.Minecraft
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.collections.iterator
-import at.hannibal2.skyhanni.config.ConfigFileType
-import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
 
 // Numpad codes: structured actions, per-action delay, client/server execution, island-aware, threaded overlay
 
@@ -126,7 +124,7 @@ object NumpadCodes {
     private val lastOverlayComputeMillis = AtomicLong(0)
 
     var overlayListener: ((OverlayState) -> Unit)? = null
-    val currentIsland get() = HypixelData.skyBlockIsland
+    val currentIsland get() = HypixelLocationApi.island
 
 
     @Volatile
@@ -236,7 +234,7 @@ object NumpadCodes {
     // load saved codes from FEATURES config without triggering additional saves
     private fun loadSavedCodesFromConfig() {
         try {
-            val saved = SkyHanniMod.feature.numpad.savedCodes ?: return
+            val saved = SkyHanniMod.feature.numpad.savedCodes
             synchronized(codes) {
                 codes.clear()
                 IslandType.entries.filter { it.isValidIsland() }.toSet()

@@ -26,7 +26,7 @@ class ItemNameFilter(
     private val regex = Pattern.compile(pattern, if (ignoreCase) Pattern.CASE_INSENSITIVE else 0)
 
     override fun matches(item: ItemStack, storageName: String, category: StorageCategory): Boolean {
-        val displayName = item.displayName.string ?: ""
+        val displayName = item.displayName.string
         return regex.matcher(displayName).find()
     }
 }

@@ -41,12 +41,9 @@ object PlayerUtils {
 
     fun getUuid() = getRawUuid().toUnDashedUUID()
 
-    fun getRawUuid(): UUID = MinecraftCompat.localPlayerOrNull?.uuid ?: Minecraft.getInstance().gameProfile.id()
+    fun getRawUuid(): UUID = MinecraftCompat.localUser.profileId
 
-    fun getName(): String {
-        val player = MinecraftCompat.localPlayerOrNull ?: return Minecraft.getInstance().gameProfile.name
-        return player.plainTextName
-    }
+    fun getName(): String = MinecraftCompat.localUser.name
 
     fun onGround(): Boolean = MinecraftCompat.localPlayer.onGround()
     fun inAir(): Boolean = !onGround()

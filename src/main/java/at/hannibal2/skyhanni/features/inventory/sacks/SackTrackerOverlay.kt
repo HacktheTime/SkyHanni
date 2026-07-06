@@ -34,7 +34,7 @@ object SackTrackerOverlay {
     fun update(){
         val renderables = mutableListOf<Renderable>()
         for ((sack, amountNullable) in toTrack) {
-            val displayName = sack.displayName ?: continue
+            val displayName = sack.displayName
             val wanted = amountNullable
             val sackAmount = sack.getAmountInSacksOrNull() ?: 0
             val amountString = if (wanted == null) {

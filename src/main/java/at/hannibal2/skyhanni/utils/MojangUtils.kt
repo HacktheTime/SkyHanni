@@ -22,7 +22,7 @@ object MojangUtils {
         val sessionService = mc.services().sessionService
         sessionService.joinServer(
             user.profileId,
-            user?.accessToken,
+            user.accessToken,
             server,
         )
     }

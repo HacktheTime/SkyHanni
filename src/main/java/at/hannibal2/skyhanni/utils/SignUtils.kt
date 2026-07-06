@@ -78,8 +78,7 @@ object SignUtils {
         pasteLastClicked = pasteClicked
     }
 
-    private fun SignEditScreen.getSignLines(): List<String>? {
-        if (this !is AbstractSignEditScreen) return null
+    private fun SignEditScreen.getSignLines(): List<String> {
         return (this as AbstractSignEditScreen).signText.map { it.unformattedTextCompat().removeColor() }
     }
 

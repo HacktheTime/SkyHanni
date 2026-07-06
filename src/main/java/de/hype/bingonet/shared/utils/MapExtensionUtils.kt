@@ -19,7 +19,7 @@ fun <K, V> MutableMap<K, V>.modifyKeys(transform: (Map.Entry<K, V>) -> K) {
  */
 fun <K, V> Map<K, V>.skip(int: Int): Map<K, V> {
     if (int <= 0) return this
-    val result = _root_ide_package_.kotlin.collections.HashMap<K, V>()
+    val result = HashMap<K, V>()
     var count = 0
     for (entry in this.entries) {
         if (count >= int) {

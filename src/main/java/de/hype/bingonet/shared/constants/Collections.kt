@@ -606,6 +606,6 @@ interface Collections {
     }
 
     fun asNEUItem(): BNNEUItem {
-        return NeuEnvironmentRepo.getFromSBName(id)!!
+        return NeuEnvironmentRepo.getFromSBName(id)
     }
 }

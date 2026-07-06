@@ -17,6 +17,7 @@ import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils
 import at.hannibal2.skyhanni.utils.renderables.animated.framed.ItemStackAnimatedFrame
 import com.google.gson.annotations.Expose
 import java.util.UUID
+import kotlin.math.roundToInt
 
 data class PetDataStorage(
     @Expose val players: MutableMap<UUID, PlayerSpecific> = mutableMapOf(),
@@ -24,10 +25,10 @@ data class PetDataStorage(
     data class PlayerSpecific(
         @Expose val profiles: MutableMap<String, ProfileSpecific> = mutableMapOf(),
     )
-
     data class ProfileSpecific(
         @Expose val pets: MutableList<PetData> = mutableListOf(),
         @Expose val expSharePets: MutableList<UUID?> = mutableListOf(),
+        @Expose var beastmasterPetXpMultiplier: Double? = null,
     )
 }
 
@@ -46,7 +47,7 @@ data class PetData(
         petInfo.getSkinVariantIndex(),
         petInfo.heldItem,
         petInfo.exp,
-        petInfo.uniqueId,
+        petInfo.ownedUuid
     )
 
     private val tierBoosted get() = heldItemInternalName == TIER_BOOST && petInternalName.hasValidHigherTier()
@@ -62,33 +63,27 @@ data class PetData(
     val coloredName: String get() = "${rarity.chatColorCode}$cleanName"
     val level: Int get() = PetUtils.xpToLevel(exp ?: 0.0, fauxInternalName)
     val skinTag: String? get() = skinInternalName?.getItemStack()?.getItemRarityOrNull()?.let { it.chatColorCode + "✦" }
-    val rarity: LorenzRarity
-        get() = if (tierBoosted) {
-            specifiedRarity.oneAbove() ?: specifiedRarity
-        } else specifiedRarity
-    val levelProgressionPercentage: Double
-        get() = when {
-            exp == null || exp == 0.0 -> 0.0
-            PetUtils.getMaxLevel(fauxInternalName) <= level -> 100.0
-            else -> {
-                val xpDifference = nextLevelXp - currentLevelXp
-                val xpProgress = (exp ?: 0.0) - currentLevelXp
-                xpProgress / xpDifference * 100
-            }
+    val rarity: LorenzRarity get() = if (tierBoosted) { specifiedRarity.oneAbove() ?: specifiedRarity } else specifiedRarity
+    val levelProgressionPercentage: Double get() = when {
+        exp == null || exp == 0.0 -> 0.0
+        PetUtils.getMaxLevel(fauxInternalName) <= level -> 100.0
+        else -> {
+            val xpDifference = nextLevelXp - currentLevelXp
+            val xpProgress = (exp ?: 0.0) - currentLevelXp
+            if (xpDifference <= 0.0) 0.0 else (xpProgress / xpDifference * 100).coerceIn(0.0, 100.0)
         }
+    }
 
     val currentLevelXp get() = PetUtils.levelToXp(level, fauxInternalName) ?: 0.0
     val nextLevelXp get() = PetUtils.levelToXp(level + 1, fauxInternalName) ?: 0.0
-    val overflowXp
-        get() = when {
-            level == PetUtils.getMaxLevel(fauxInternalName) -> {
-                val currentTotalXp = exp ?: 0.0
-                val levelXp = PetUtils.levelToXp(level, fauxInternalName) ?: 0.0
-                (currentTotalXp - levelXp).takeIf { it >= 0.0 } ?: 0.0
-            }
-
-            else -> 0.0
+    val overflowXp get() = when {
+        level == PetUtils.getMaxLevel(fauxInternalName) -> {
+            val currentTotalXp = exp ?: 0.0
+            val levelXp = PetUtils.levelToXp(level, fauxInternalName) ?: 0.0
+            (currentTotalXp - levelXp).takeIf { it >= 0.0 } ?: 0.0
         }
+        else -> 0.0
+    }
 
     fun getUserFriendlyName(
         includeLevel: Boolean = true,
@@ -102,19 +97,18 @@ data class PetData(
     fun getItemStackOrNull(frameIndex: Int = 0): SafeItemStack? =
         getSkinItemStackOrNull(frameIndex) ?: petInternalName.getItemStackOrNull()
 
-    fun getAnimatedItemStackSequence(firstFrameOnly: Boolean = false): List<ItemStackAnimatedFrame>? {
-        val baseStack = getSkinItemStackOrNull(0) ?: run {
-            return null
-        }
+    fun getAnimatedItemStackSequence(firstFrameOnly: Boolean = false, animationSpeed: Float = 1f): List<ItemStackAnimatedFrame>? {
+        val baseStack = getSkinItemStackOrNull(0) ?: return null
         val firstFrame = ItemStackAnimatedFrame(baseStack)
         val animationJson = getAnimatedJsonOrNull()
-        if (firstFrameOnly || animationJson == null) {
+        if (firstFrameOnly || animationJson == null || animationSpeed <= 0f) {
             return listOf(firstFrame)
         }
+        val ticksPerFrame = (animationJson.ticks / animationSpeed).roundToInt().coerceAtLeast(1)
         return animationJson.textures.map {
             ItemStackAnimatedFrame(
                 it.buildTextureItemStack(),
-                ticks = animationJson.ticks,
+                ticks = ticksPerFrame,
             )
         }
     }

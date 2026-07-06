@@ -7,10 +7,10 @@ import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
 import at.hannibal2.skyhanni.events.minecraft.KeyUpEvent
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.config.commands.CommandsRegistry
-import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.KeyboardManager
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
@@ -143,7 +143,7 @@ object Keybinds {
     fun allBinds(): List<Keybind> = synchronized(binds) { binds.toList() }
 
     private fun isAllowedNow(b: Keybind): Boolean {
-        val island = HypixelData.skyBlockIsland
+        val island = HypixelLocationApi.island
         if (island == IslandType.NONE) return b.allowOutsideSkyBlock
         val allowed = b.allowedIslands
         if (allowed.contains(IslandType.ANY)) return true

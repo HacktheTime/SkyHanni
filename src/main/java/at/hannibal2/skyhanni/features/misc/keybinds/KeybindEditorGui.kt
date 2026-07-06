@@ -459,8 +459,8 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
         }
     }
 
-    override fun onKeyTyped(typedChar: Char?, typedKeyCode: Int?) {
-        val kc = typedKeyCode
+    override fun onKeyTyped(typedChar: Char?, keyCode: Int?) {
+        val kc = keyCode
         val ctrl = GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_CONTROL.isKeyHeld()
         if (commandField == null) ensureFields()
         val field = commandField ?: return

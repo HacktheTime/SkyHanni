@@ -149,7 +149,6 @@ object ChestValue {
     private fun sortedList(values: Collection<ChestItem>): List<ChestItem> = when (config.sortingType) {
         SortingTypeEntry.DESCENDING -> values.sortedByDescending { it.total }
         SortingTypeEntry.ASCENDING -> values.sortedBy { it.total }
-        else -> values.sortedByDescending { it.total }
     }
 
     private fun MutableList<Renderable>.addButton() {
@@ -228,7 +227,6 @@ object ChestValue {
                 .shortFormat()
 
             NumberFormatEntry.LONG -> this.addSeparators()
-            else -> "0"
         }
     }
 

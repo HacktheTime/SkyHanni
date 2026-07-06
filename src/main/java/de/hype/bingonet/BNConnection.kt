@@ -8,7 +8,6 @@ import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.data.effect.EffectApi
 import at.hannibal2.skyhanni.events.ConfigLoadEvent
-import at.hannibal2.skyhanni.events.IslandChangeEvent
 import at.hannibal2.skyhanni.events.IslandLeaveEvent
 import at.hannibal2.skyhanni.events.minecraft.SkyHanniRenderWorldEvent
 import at.hannibal2.skyhanni.features.bingo.bingonet.BNRegistrationScreen
@@ -233,6 +232,7 @@ object BNConnection {
                         prefix = false,
                     )
                 }
+                @Suppress("UNCHECKED_CAST") // We can ignore the Issue since it is known to be this and can throw an error otherwise
                 val consumer: Consumer<AbstractPacket> = packet.first.consumer as Consumer<AbstractPacket>
                 consumer.accept(packet.second)
             }

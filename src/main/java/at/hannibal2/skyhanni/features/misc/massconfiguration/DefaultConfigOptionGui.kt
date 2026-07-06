@@ -45,17 +45,17 @@ class DefaultConfigOptionGui(
         .filterValues { it.isNotEmpty() }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    override fun onDrawScreen(originalMouseX: Int, originalMouseY: Int, partialTicks: Float) {
-        drawDefaultBackground(originalMouseX, originalMouseY, partialTicks)
+    override fun onDrawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        drawDefaultBackground(mouseX, mouseY, partialTicks)
         GuiRenderUtils.drawFloatingRectDark((width - xSize) / 2, (height - ySize) / 2, xSize, ySize)
         var hoveringTextToDraw: List<String>? = null
-        val x = originalMouseX - ((width - xSize) / 2) - padding
+        val x = mouseX - ((width - xSize) / 2) - padding
         val isMouseDown = MouseCompat.isButtonDown(0)
         val shouldClick = isMouseDown && !wasMouseDown
         wasMouseDown = isMouseDown
         val isMouseInScrollArea =
-            x in 0..xSize && originalMouseY in ((height - ySize) / 2) + barSize..((height + ySize) / 2 - barSize)
-        var y = originalMouseY - ((height - ySize) / 2 + barSize) + currentScrollOffset
+            x in 0..xSize && mouseY in ((height - ySize) / 2) + barSize..((height + ySize) / 2 - barSize)
+        var y = mouseY - ((height - ySize) / 2 + barSize) + currentScrollOffset
 
         DrawContextUtils.pushMatrix()
         DrawContextUtils.translate(width / 2F, (height - ySize) / 2F)
@@ -79,8 +79,8 @@ class DefaultConfigOptionGui(
         fun button(title: String, tooltip: List<String>, func: () -> Unit) {
             val width = mc.font.width(title)
             var overMouse = false
-            if (originalMouseX - ((this.width - xSize) / 2 + padding) in i..(i + width) &&
-                originalMouseY - (height + ySize) / 2 in -barSize..0
+            if (mouseX - ((this.width - xSize) / 2 + padding) in i..(i + width) &&
+                mouseY - (height + ySize) / 2 in -barSize..0
             ) {
                 overMouse = true
                 hoveringTextToDraw = tooltip

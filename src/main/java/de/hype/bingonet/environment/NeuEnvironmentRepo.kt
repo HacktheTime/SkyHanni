@@ -31,7 +31,7 @@ fun BNNEUItem.toInternalName(): NeuInternalName {
 }
 
 fun MinionType.withTierData(tier: Int): MinionData? {
-    return EnoughUpdatesManager.getTypeMinions(this)?.getOrNull(tier - 1)
+    return EnoughUpdatesManager.getTypeMinions(this).getOrNull(tier - 1)
 }
 
 fun Collections.getMinionType(): MinionType? {

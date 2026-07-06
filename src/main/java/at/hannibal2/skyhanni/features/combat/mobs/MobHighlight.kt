@@ -2,11 +2,11 @@ package at.hannibal2.skyhanni.features.combat.mobs
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierArguments
 import at.hannibal2.skyhanni.config.commands.brigadier.BrigadierUtils.dynamicSuggestionProvider
-import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.data.mob.Mob
 import at.hannibal2.skyhanni.data.mob.MobData
@@ -91,7 +91,7 @@ object MobHighlight {
                 arachne = mob
                 LorenzColor.RED to config::arachneBossHighlighter
             }
-            name == "Witch" && HypixelData.skyBlockIsland == IslandType.PRIVATE_ISLAND -> {
+            name == "Witch" && HypixelLocationApi.island == IslandType.PRIVATE_ISLAND -> {
                 LorenzColor.YELLOW to config::privateIslandWitchHighlight
             }
 

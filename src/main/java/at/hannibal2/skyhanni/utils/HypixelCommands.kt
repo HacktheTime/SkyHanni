@@ -258,6 +258,10 @@ object HypixelCommands {
         send("hb")
     }
 
+    fun tpToDonExpresso() {
+        send("tptodonexpresso")
+    }
+
     private fun send(command: String) {
         if (command.startsWith("/")) {
             debug("Sending wrong command to server? ($command)")

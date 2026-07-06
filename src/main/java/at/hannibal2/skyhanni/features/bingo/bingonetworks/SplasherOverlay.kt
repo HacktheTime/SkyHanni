@@ -66,7 +66,7 @@ object SplasherOverlay {
         if (leechers.isNotEmpty()) {
             renderables.add(Renderable.text("Leechers:"))
             leechers.forEach {
-                renderables.add(Renderable.text(it.displayName!!.string))
+                renderables.add(Renderable.text(it.displayName.string))
             }
         }
         this.renderables = renderables

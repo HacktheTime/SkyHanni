@@ -13,11 +13,7 @@ import de.hype.bingonet.shared.constants.Islands
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import net.minecraft.world.phys.AABB
 
-internal interface SkyHanniIslandType {
-    fun isInIsland(): Boolean
-}
-
-enum class IslandType(private val nameFallback: String) : SkyHanniIslandType {
+enum class IslandType(private val nameFallback: String) {
     PRIVATE_ISLAND("Private Island"),
     PRIVATE_ISLAND_GUEST("Private Island Guest"),
     THE_END("The End"),
@@ -123,7 +119,7 @@ enum class IslandType(private val nameFallback: String) : SkyHanniIslandType {
         }
     }
 
-    override fun isInIsland() = SkyBlockUtils.inSkyBlock && SkyBlockUtils.currentIsland == this
+    fun isInIsland() = SkyBlockUtils.inSkyBlock && SkyBlockUtils.currentIsland == this
 }
 
 data class IslandData(

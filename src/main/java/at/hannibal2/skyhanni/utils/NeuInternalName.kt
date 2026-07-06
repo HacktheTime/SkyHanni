@@ -46,6 +46,7 @@ open class NeuInternalName private constructor(internalName: String) : BNNEUItem
                 val (name, level) = internalName.split(";", limit = 2)
                 "ENCHANTED_BOOK_${name}_$level"
             }
+
             else -> internalName
         }
 

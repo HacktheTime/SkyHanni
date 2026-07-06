@@ -4,6 +4,8 @@ import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
 import io.github.notenoughupdates.moulconfig.common.MyResourceLocation
 import io.github.notenoughupdates.moulconfig.common.RenderContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
+import io.github.notenoughupdates.moulconfig.gui.KeyboardEvent
+import io.github.notenoughupdates.moulconfig.gui.MouseEvent
 
 class GuiOptionEditorBlocked(private val base: GuiOptionEditor, private val extraMessage: String) : GuiOptionEditor(base.getOption()) {
 
@@ -26,11 +28,11 @@ class GuiOptionEditorBlocked(private val base: GuiOptionEditor, private val extr
         context.drawStringScaledMaxWidth(body, font, x + pad, ty, true, width - pad * 2, -0x1)
     }
 
-    override fun mouseInput(x: Int, y: Int, width: Int, mouseX: Int, mouseY: Int): Boolean {
+    override fun mouseInput(x: Int, y: Int, width: Int, mouseX: Int, mouseY: Int, event: MouseEvent): Boolean {
         return false
     }
 
-    override fun keyboardInput(): Boolean {
+    override fun keyboardInput(event: KeyboardEvent): Boolean {
         return false
     }
 

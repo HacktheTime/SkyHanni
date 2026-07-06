@@ -74,7 +74,10 @@ object FeatureDependencyResolver {
                     val typed = kotlinProp as KProperty1<Any, *>
                     return (typed.get(receiver) as? Boolean) ?: false
                 }
-                val javaField = owner.declaredFields.firstOrNull { it.name == fieldName && (it.type == java.lang.Boolean.TYPE || it.type == java.lang.Boolean::class.java) }
+                val javaField = owner.declaredFields.firstOrNull {
+                    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+                    it.name == fieldName && (it.type == java.lang.Boolean.TYPE || it.type == java.lang.Boolean::class.java)
+                }
                     ?.apply { isAccessible = true }
                 if (javaField != null) {
                     return javaField.getBoolean(receiver)

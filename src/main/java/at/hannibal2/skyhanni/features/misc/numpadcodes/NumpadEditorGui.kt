@@ -442,7 +442,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
     private fun mouseIsOver(x: Int, y: Int, w: Int, h: Int) =
         GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, x, y, w, h)
 
-    override fun onMouseClicked(mx: Int, my: Int, btn: Int) {
+    override fun onMouseClicked(originalMouseX: Int, originalMouseY: Int, mouseButton: Int) {
         val totalW = 960
         val totalH = 520
         val left = (width - totalW) / 2
@@ -453,8 +453,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         val listH = totalH - 60
 
         // Codes list always clickable
-        if (GuiRenderUtils.isPointInRect(mx, my, listLeft, listTop, listW, listH)) {
-            val relY = my - listTop + codesScroll
+        if (GuiRenderUtils.isPointInRect(originalMouseX, originalMouseY, listLeft, listTop, listW, listH)) {
+            val relY = originalMouseY - listTop + codesScroll
             val idx = relY / 14
             if (idx in codes.indices) {
                 selectedIndex = idx
@@ -486,7 +486,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         val actionsBoxH = 160
 
         // Suggestions click
-        if (handleSuggestionClick(mx, my, editLeft, editTop, editW, actionsBoxTop)) return
+        if (handleSuggestionClick(originalMouseX, originalMouseY, editLeft, editTop, editW, actionsBoxTop)) return
         // If suggestions are visible but the click was not inside the suggestion box, hide suggestions.
         if (suggestionController.visible && suggestionController.suggestions.isNotEmpty()) {
             val (sx, sy) = suggestionBoxPos(editLeft, editTop, editW, actionsBoxTop)
@@ -494,7 +494,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             val itemH = 12
             val visible = suggestionController.visibleSlice()
             val h = (visible.size * itemH).coerceAtMost(160)
-            if (!GuiRenderUtils.isPointInRect(mx, my, sx, sy, w, h)) {
+            if (!GuiRenderUtils.isPointInRect(originalMouseX, originalMouseY, sx, sy, w, h)) {
                 suggestionController.reset()
                 suggestionSelectionVisible = false
             }
@@ -506,7 +506,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             val startY = editTop + 26
             var y = startY - islandSelectionScroll
             // Unknown row
-            if (mx in editLeft until (editLeft + editW - 4) && my in (y - 2) until (y - 2 + lineH)) {
+            if (originalMouseX in editLeft until (editLeft + editW - 4) && originalMouseY in (y - 2) until (y - 2 + lineH)) {
                 if (IslandType.UNKNOWN in editingAllowedIslands) editingAllowedIslands.remove(IslandType.UNKNOWN) else editingAllowedIslands.add(
                     IslandType.UNKNOWN,
                 )
@@ -514,7 +514,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             }
             y += lineH
             // Outside row
-            if (mx in editLeft until (editLeft + editW - 4) && my in (y - 2) until (y - 2 + lineH)) {
+            if (originalMouseX in editLeft until (editLeft + editW - 4) && originalMouseY in (y - 2) until (y - 2 + lineH)) {
                 allowOutsideSkyBlock = !allowOutsideSkyBlock
                 return
             }
@@ -525,42 +525,42 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                     y += lineH; continue
                 }
                 if (y > startY + boxH - lineH) break
-                if (mx in editLeft until (editLeft + editW - 4) && my in (y - 2) until (y - 2 + lineH)) {
+                if (originalMouseX in editLeft until (editLeft + editW - 4) && originalMouseY in (y - 2) until (y - 2 + lineH)) {
                     if (isl in editingAllowedIslands) editingAllowedIslands.remove(isl) else editingAllowedIslands.add(isl)
                     return
                 }
                 y += lineH
             }
             // Back button
-            if (mx in editLeft until (editLeft + 80) && my in (startY + boxH + 6) until (startY + boxH + 24)) {
+            if (originalMouseX in editLeft until (editLeft + 80) && originalMouseY in (startY + boxH + 6) until (startY + boxH + 24)) {
                 islandSelectionOpen = false
             }
             return
         }
 
         // Code field
-        if (GuiRenderUtils.isPointInRect(mx, my, editLeft, editTop + 12, editW - 4, 20)) {
+        if (GuiRenderUtils.isPointInRect(originalMouseX, originalMouseY, editLeft, editTop + 12, editW - 4, 20)) {
             if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY) finalizeDelayBlur()
             focusTarget = FocusTarget.CODE
             updateSuggestions(false)
             codeController?.click(
-                mx - editLeft,
-                my - (editTop + 12),
+                originalMouseX - editLeft,
+                originalMouseY - (editTop + 12),
                 GLFW.GLFW_KEY_LEFT_SHIFT.isKeyHeld() || GLFW.GLFW_KEY_RIGHT_SHIFT.isKeyHeld(),
             )
             return
         }
 
         // Actions area
-        if (GuiRenderUtils.isPointInRect(mx, my, editLeft, actionsBoxTop, editW - 4, actionsBoxH)) {
-            val relY = my - (actionsBoxTop + 4) + actionsScroll
+        if (GuiRenderUtils.isPointInRect(originalMouseX, originalMouseY, editLeft, actionsBoxTop, editW - 4, actionsBoxH)) {
+            val relY = originalMouseY - (actionsBoxTop + 4) + actionsScroll
             val idx = relY / 18
             if (idx in editActionsList.indices) {
                 val cmdW = (editW - 4) - 140
                 val rowY = actionsBoxTop + 4 + idx * 18 - actionsScroll
-                val cmdRect = GuiRenderUtils.isPointInRect(mx, my, editLeft + 4, rowY - 2, cmdW, 16)
-                val delayRect = GuiRenderUtils.isPointInRect(mx, my, editLeft + 4 + cmdW + 6, rowY - 2, 50, 16)
-                val removeRect = GuiRenderUtils.isPointInRect(mx, my, editLeft + 4 + cmdW + 6 + 56, rowY - 2, 18, 16)
+                val cmdRect = GuiRenderUtils.isPointInRect(originalMouseX, originalMouseY, editLeft + 4, rowY - 2, cmdW, 16)
+                val delayRect = GuiRenderUtils.isPointInRect(originalMouseX, originalMouseY, editLeft + 4 + cmdW + 6, rowY - 2, 50, 16)
+                val removeRect = GuiRenderUtils.isPointInRect(originalMouseX, originalMouseY, editLeft + 4 + cmdW + 6 + 56, rowY - 2, 18, 16)
                 when {
                     removeRect -> {
                         if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex == idx) finalizeDelayBlur(); editActionsList.removeAt(
@@ -571,8 +571,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                         if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex != idx) finalizeDelayBlur(); actionFocusedIndex =
                             idx; actionFocusedField = ActionField.COMMAND; focusTarget =
                             FocusTarget.ACTIONS; updateSuggestions(true); actionCommandControllers[idx].click(
-                            mx - (editLeft + 4),
-                            my - rowY,
+                            originalMouseX - (editLeft + 4),
+                            originalMouseY - rowY,
                             false,
                         )
                     }
@@ -580,8 +580,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                         if (focusTarget == FocusTarget.ACTIONS && actionFocusedField == ActionField.DELAY && actionFocusedIndex != idx) finalizeDelayBlur(); actionFocusedIndex =
                             idx; actionFocusedField = ActionField.DELAY; focusTarget =
                             FocusTarget.ACTIONS; actionDelayControllers[idx].click(
-                            mx - (editLeft + 4 + cmdW + 6),
-                            my - rowY,
+                            originalMouseX - (editLeft + 4 + cmdW + 6),
+                            originalMouseY - rowY,
                             false,
                         ); lastDelayFocusedIndex = idx
                     }

@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.features.bingo.bingonet
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
 import at.hannibal2.skyhanni.data.HypixelData
 import at.hannibal2.skyhanni.data.IslandGraphs
 import at.hannibal2.skyhanni.data.IslandType
@@ -61,7 +62,7 @@ object SplashManager {
     }
 
     fun updateSplash(packet: SplashUpdatePacket) {
-        val splash = splashPool.get(packet.splashId)
+        val splash = splashPool[packet.splashId]
         if (splash != null) {
             splash.status = packet.status
             if (splash.alreadyDisplayed) {
@@ -132,7 +133,7 @@ object SplashManager {
         if (splash.hubSelectorData == null) {
             joinParty(splash, source)
         } else {
-            val currentIsland = HypixelData.skyBlockIsland
+            val currentIsland = HypixelLocationApi.island
             if (splash.hubSelectorData.hubType == Islands.HUB) {
                 if (BNConnection.roles.contains(BNRole.DEBUG)) ChatUtils.chat("§e[Debug] Current Island: $currentIsland")
                 if (
@@ -144,7 +145,7 @@ object SplashManager {
                 ) {
                     // Double warp needed
                     SkyHanniMod.launchCoroutine("Hub double warp", 2.seconds) {
-                        while (HypixelData.skyBlockIsland != IslandType.HUB) {
+                        while (HypixelLocationApi.island != IslandType.HUB) {
                             delay(250)
                         }
                         WarpAPI.warp(Islands.HUB.warpArgument!!)

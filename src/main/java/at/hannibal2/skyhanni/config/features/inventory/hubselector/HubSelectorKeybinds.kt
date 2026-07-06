@@ -2,8 +2,8 @@ package at.hannibal2.skyhanni.config.features.inventory.hubselector
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
 import at.hannibal2.skyhanni.data.HypixelData
-import at.hannibal2.skyhanni.data.InteractClickType
 import at.hannibal2.skyhanni.data.toBNIsland
 import at.hannibal2.skyhanni.events.GuiContainerEvent
 import at.hannibal2.skyhanni.events.GuiKeyPressEvent
@@ -29,7 +29,6 @@ import de.hype.bingonet.shared.constants.Islands
 import de.hype.bingonet.shared.constants.StatusConstants
 import de.hype.bingonet.shared.objects.SplashData
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
-import net.minecraft.commands.arguments.SlotArgument.slot
 import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import java.time.Duration
@@ -117,7 +116,7 @@ object HubSelectorKeybinds {
         event.cancel()
         // First Score | Second Index
         var bestClick: Pair<Int, Int>? = null
-        val island = HypixelData.skyBlockIsland.toBNIsland()
+        val island = HypixelLocationApi.island.toBNIsland()
         val splashPool: Map<String, SplashManager.DisplaySplash> =
             SplashManager.splashPool.filter { it.value.status == StatusConstants.WAITING }
                 .filter { it.value.hubSelectorData?.hubType == island && island != null }
@@ -209,7 +208,7 @@ object HubSelectorKeybinds {
                 slot.highlight(LorenzColor.LIGHT_PURPLE.addOpacity(255))
             }
         }
-        val currentIsland = HypixelData.skyBlockIsland.toBNIsland()
+        val currentIsland = HypixelLocationApi.island.toBNIsland()
         items.forEach {slot ->
             val slotNumber = slot.index
             val cacheData = cache[slotNumber] ?: return@forEach

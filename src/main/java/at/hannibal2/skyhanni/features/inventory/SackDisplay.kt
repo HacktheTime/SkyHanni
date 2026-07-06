@@ -142,11 +142,6 @@ object SackDisplay {
                             addAlignedNumber("§b${total.addSeparators()}")
                         }
 
-                        else -> {
-                            addAlignedNumber("$colorCode${stored.addSeparators()}")
-                            addString("§7/")
-                            addAlignedNumber("§b${total.addSeparators()}")
-                        }
                     }
 
                     // TODO change color of amount if full
