@@ -51,6 +51,7 @@ object ContributorManager {
             contributorNames = namesToUuid.keys.toList()
             isContributor = null
         }
+
     // Do not modify these: they are automatically updated when the contributors map is updated
     var contributorNames = emptyList<String>()
         private set
@@ -75,6 +76,17 @@ object ContributorManager {
     private val contribMentionPattern by patternGroup.pattern(
         "mention",
         """\b(?:sh|skyhann?[iu])\b.*\b(?:dev\w*|contrib\w*|contrubit\w*)\b"""
+    )
+
+    /**
+     * REGEX-TEST: [MVP+] hannibal2
+     * REGEX-TEST: [MVP+] hannibal2 [✪DK✪]
+     * REGEX-TEST: [450] hannibal2
+     * REGEX-FAIL: [450] hannibal2 ⛃
+     */
+    private val contribNametagAppendSpacePattern by patternGroup.pattern(
+        "nametag.appendspace",
+        """[0-9A-Za-z_\]]$"""
     )
 
     private val repoReloadCoroutine = CoroutineSettings("contributor list repo reload")
@@ -192,7 +204,7 @@ object ContributorManager {
 
         val testEntry = ContributorJsonEntry(
             displayName = displayName,
-            componentSuffix = suffix
+            componentSuffix = suffix,
         )
         contributors = contributors + (uuid to testEntry)
 
@@ -226,7 +238,7 @@ object ContributorManager {
             "If you need support, please do not contact contributors directly.\n" +
                 "You can report issues or get help on the SkyHanni Discord.\n ",
             "https://discord.gg/skyhanni-997079228510117908",
-            prefixColor = "§c"
+            prefixColor = "§c",
         )
         ChatUtils.clickableChat(
             "[View seen contributors]",
@@ -235,14 +247,15 @@ object ContributorManager {
             onClick = {
                 ChatUtils.chat {
                     append("Seen contributors (${seenContributors.size}):\n")
+                    val seenContributorText =
+                        seenContributors.keys.joinToString("\n") { uuid -> getDisplayNameFromUUID(uuid) ?: uuid.toString() }
                     appendWithColor(
-                        seenContributors.keys.joinToString("\n")
-                            { uuid -> getDisplayNameFromUUID(uuid) ?: uuid.toString() },
+                        seenContributorText,
                         ChatFormatting.AQUA,
                     )
                 }
             },
-            hover = "§eClick to view contributors you've encountered."
+            hover = "§eClick to view contributors you've encountered.",
         )
     }
 
@@ -257,7 +270,7 @@ object ContributorManager {
                     appendWithColor("Seen contributors list cleared.", ChatFormatting.GREEN)
                 }
             },
-            hover = "§eClick to confirm clearing the seen contributors list."
+            hover = "§eClick to confirm clearing the seen contributors list.",
         )
     }
     // </editor-fold>
@@ -310,6 +323,8 @@ object ContributorManager {
 
         ChatUtils.chat("Total contributor mentions: ${contributorMentions.size}")
         saveConfig("added contributor mention record")
+
+        ContributorAchievement.onContributorMention(amount)
     }
 
     private fun isContributorMentionMessage(message: String): Boolean {
@@ -326,6 +341,7 @@ object ContributorManager {
         getSuffix(gameProfile.id)?.let {
             recordSeenContributor(gameProfile.id, gameProfile.name)
             if (!config.contributorNametags) return
+            if (contribNametagAppendSpacePattern.find(event.chatComponent)) event.chatComponent.append(" ")
             event.chatComponent.append(it)
         }
     }
@@ -374,7 +390,7 @@ object ContributorManager {
     private fun saveConfig(reason: String) {
         SkyHanniMod.configManager.saveConfig(
             ConfigFileType.SEEN_CONTRIBUTORS,
-            reason
+            reason,
         )
     }
 }

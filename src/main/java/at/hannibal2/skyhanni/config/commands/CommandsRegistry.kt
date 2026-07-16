@@ -89,12 +89,12 @@ object CommandsRegistry {
     fun execAutomaticCommand(raw: String) {
         val raw = if (raw.startsWith("/")) raw.removePrefix("/") else raw
         val baseDispatcher = getDispatcherNullable()
-        val baseParse = baseDispatcher?.parse(raw, MinecraftCompat.localPlayer)
+        val baseParse = baseDispatcher?.parse(raw, MinecraftCompat.localPlayerOrThrow)
         if (baseParse!=null && !baseParse.reader.canRead()) {
             baseDispatcher.execute(baseParse)
         } else {
             val serverDispatcher = mcServerDispatcher()
-            val serverParse = serverDispatcher?.parse(raw, MinecraftCompat.localPlayer)
+            val serverParse = serverDispatcher?.parse(raw, MinecraftCompat.localPlayerOrThrow)
             if (serverParse != null && !serverParse.reader.canRead()) {
                 ChatUtils.sendMessageToServer("/$raw")
             } else {

@@ -9,40 +9,57 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.LocationUtils.isInside
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
-import de.hype.bingonet.shared.constants.Islands
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
+import de.hype.bingonet.shared.constants.Islands
 import net.minecraft.world.phys.AABB
 
-enum class IslandType(private val nameFallback: String) {
-    PRIVATE_ISLAND("Private Island"),
-    PRIVATE_ISLAND_GUEST("Private Island Guest"),
-    THE_END("The End"),
-    KUUDRA_ARENA("Kuudra"),
-    CRIMSON_ISLE("Crimson Isle"),
-    DWARVEN_MINES("Dwarven Mines"),
-    DUNGEON_HUB("Dungeon Hub"),
-    CATACOMBS("Catacombs"),
+enum class IslandType(private val nameFallback: String, private val apiNameFallback: String?) {
+    // General
+    PRIVATE_ISLAND("Private Island", "dynamic"),
+    PRIVATE_ISLAND_GUEST("Private Island Guest", null),
+    HUB("Hub", "hub"),
+    DARK_AUCTION("Dark Auction", "dark_auction"),
+    WINTER("Jerry's Workshop", "winter"),
 
-    HUB("Hub"),
-    DARK_AUCTION("Dark Auction"),
-    THE_FARMING_ISLANDS("The Farming Islands"),
-    CRYSTAL_HOLLOWS("Crystal Hollows"),
-    THE_PARK("The Park"),
-    DEEP_CAVERNS("Deep Caverns"),
-    GOLD_MINES("Gold Mine"),
-    GARDEN("Garden"),
-    GARDEN_GUEST("Garden Guest"),
-    SPIDER_DEN("Spider's Den"),
-    WINTER("Jerry's Workshop"),
-    THE_RIFT("The Rift"),
-    MINESHAFT("Mineshaft"),
-    BACKWATER_BAYOU("Backwater Bayou"),
-    GALATEA("Galatea"),
-    LOTUS_ATOLL("Lotus Atoll"),
+    // Farming
+    THE_FARMING_ISLANDS("The Farming Islands", "farming_1"),
+    GARDEN("Garden", "garden"),
+    GARDEN_GUEST("Garden Guest", null),
 
-    NONE(""),
-    ANY(""),
-    UNKNOWN("???"),
+    // Mining
+    GOLD_MINES("Gold Mine", "mining_1"),
+    DEEP_CAVERNS("Deep Caverns", "mining_2"),
+    DWARVEN_MINES("Dwarven Mines", "mining_3"),
+    CRYSTAL_HOLLOWS("Crystal Hollows", "crystal_hollows"),
+    MINESHAFT("Mineshaft", "mineshaft"),
+
+    // Fishing
+    BACKWATER_BAYOU("Backwater Bayou", "fishing_1"),
+    LOTUS_ATOLL("Lotus Atoll", "lotus_atoll"),
+
+    // Foraging
+    THE_PARK("The Park", "foraging_1"),
+    GALATEA("Galatea", "foraging_2"),
+    TORRHUS_CANYON("Torrhus Canyon", "foraging_3"),
+
+    // Combat
+    SPIDER_DEN("Spider's Den", "combat_1"),
+    THE_END("The End", "combat_3"),
+    CRIMSON_ISLE("Crimson Isle", "crimson_isle"),
+
+    // Dungeons
+    DUNGEON_HUB("Dungeon Hub", "dungeon_hub"),
+    CATACOMBS("Catacombs", "dungeon"),
+    KUUDRA_ARENA("Kuudra", "kuudra"),
+
+    // Special
+    THE_RIFT("The Rift", "rift"),
+    SAFARI("Safari", "safari"),
+
+    // Special values
+    NONE("", null),
+    ANY("", null),
+    UNKNOWN("???", null),
     ;
 
     fun isValidIsland(): Boolean = when (this) {
@@ -71,6 +88,8 @@ enum class IslandType(private val nameFallback: String) {
 
     val displayName: String get() = islandData?.name ?: nameFallback
 
+    val apiName: String? get() = islandData?.apiName ?: apiNameFallback
+
     fun isInBounds(vec: LorenzVec): Boolean = islandData?.boundingBox?.isInside(vec) ?: true
 
     @SkyHanniModule
@@ -95,7 +114,7 @@ enum class IslandType(private val nameFallback: String) {
         fun getByNameOrUnknown(name: String): IslandType = getByNameOrNull(name) ?: UNKNOWN
         fun getByNameOrNull(name: String): IslandType? = entries.find { it.displayName == name }
 
-        fun getByIdOrNull(id: String): IslandType? = entries.find { it.islandData?.apiName == id }
+        fun getByIdOrNull(id: String): IslandType? = entries.find { it.apiName == id }
         fun getByIdOrUnknown(id: String): IslandType = getByIdOrNull(id) ?: UNKNOWN
 
         @HandleEvent(priority = HIGHEST)
@@ -131,32 +150,35 @@ data class IslandData(
 @Suppress("CyclomaticComplexMethod")
 fun IslandType.toBNIsland(): Islands? {
     return when (this) {
-        IslandType.PRIVATE_ISLAND -> Islands.PRIVATE_ISLAND
-        IslandType.PRIVATE_ISLAND_GUEST -> Islands.PRIVATE_ISLAND
-        IslandType.THE_END -> Islands.THE_END
-        IslandType.KUUDRA_ARENA -> Islands.KUUDRA
-        IslandType.CRIMSON_ISLE -> Islands.CRIMSON_ISLE
-        IslandType.DWARVEN_MINES -> Islands.DWARVEN_MINES
-        IslandType.DUNGEON_HUB -> Islands.DUNGEON_HUB
-        IslandType.CATACOMBS -> Islands.DUNGEON
-        IslandType.HUB -> Islands.HUB
-        IslandType.DARK_AUCTION -> Islands.DARK_AUCTION
-        IslandType.THE_FARMING_ISLANDS -> Islands.THE_FARMING_ISLANDS
-        IslandType.CRYSTAL_HOLLOWS -> Islands.CRYSTAL_HOLLOWS
-        IslandType.THE_PARK -> Islands.THE_PARK
-        IslandType.DEEP_CAVERNS -> Islands.DEEP_CAVERNS
-        IslandType.GOLD_MINES -> Islands.GOLD_MINE
-        IslandType.GARDEN -> Islands.GARDEN
-        IslandType.GARDEN_GUEST -> Islands.GARDEN
-        IslandType.SPIDER_DEN -> Islands.SPIDERS_DEN
-        IslandType.WINTER -> Islands.JERRYS_WORKSHOP
-        IslandType.THE_RIFT -> Islands.THE_RIFT
-        IslandType.MINESHAFT -> Islands.GLACITE_TUNNEL
-        IslandType.BACKWATER_BAYOU -> Islands.BAYOU
-        IslandType.GALATEA -> Islands.GALATEA
-        IslandType.LOTUS_ATOLL -> Islands.LOTUS_ATOLL
-        IslandType.NONE -> null
-        IslandType.ANY -> null
-        IslandType.UNKNOWN -> null
+        PRIVATE_ISLAND -> PRIVATE_ISLAND
+        PRIVATE_ISLAND_GUEST -> PRIVATE_ISLAND
+        THE_END -> THE_END
+        KUUDRA_ARENA -> KUUDRA
+        CRIMSON_ISLE -> CRIMSON_ISLE
+        DWARVEN_MINES -> DWARVEN_MINES
+        DUNGEON_HUB -> DUNGEON_HUB
+        CATACOMBS -> DUNGEON
+        HUB -> HUB
+        DARK_AUCTION -> DARK_AUCTION
+        THE_FARMING_ISLANDS -> THE_FARMING_ISLANDS
+        CRYSTAL_HOLLOWS -> CRYSTAL_HOLLOWS
+        THE_PARK -> THE_PARK
+        DEEP_CAVERNS -> DEEP_CAVERNS
+        GOLD_MINES -> GOLD_MINE
+        GARDEN -> GARDEN
+        GARDEN_GUEST -> GARDEN
+        SPIDER_DEN -> SPIDERS_DEN
+        WINTER -> JERRYS_WORKSHOP
+        THE_RIFT -> THE_RIFT
+        MINESHAFT -> GLACITE_TUNNEL
+        BACKWATER_BAYOU -> BAYOU
+        GALATEA -> GALATEA
+        LOTUS_ATOLL -> LOTUS_ATOLL
+        TORRHUS_CANYON -> TORRHUS_CANYON
+        SAFARI -> SAFARI
+
+        NONE -> null
+        ANY -> null
+        UNKNOWN -> null
     }
 }

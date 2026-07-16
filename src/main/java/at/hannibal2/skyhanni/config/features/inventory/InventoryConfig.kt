@@ -4,6 +4,7 @@ import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.NoConfigLink
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.inventory.chocolatefactory.CFConfig
+import at.hannibal2.skyhanni.config.features.inventory.customloadout.CustomLoadoutConfig
 import at.hannibal2.skyhanni.config.features.inventory.customwardrobe.CustomWardrobeConfig
 import at.hannibal2.skyhanni.config.features.inventory.experimentationtable.ExperimentationTableConfig
 import at.hannibal2.skyhanni.config.features.inventory.helper.HelperConfig
@@ -57,6 +58,10 @@ class InventoryConfig {
     @Expose
     @Category(name = "Custom Wardrobe", desc = "New Wardrobe Look.")
     val customWardrobe: CustomWardrobeConfig = CustomWardrobeConfig()
+
+    @Expose
+    @Category(name = "Custom Loadout", desc = "New Loadout menu look.")
+    val customLoadout: CustomLoadoutConfig = CustomLoadoutConfig()
 
     @Expose
     @Category(name = "Chocolate Factory", desc = "Features to help you master the Chocolate Factory idle game.")

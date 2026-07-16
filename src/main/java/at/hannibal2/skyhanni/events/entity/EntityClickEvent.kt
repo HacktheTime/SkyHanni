@@ -29,7 +29,7 @@ class EntityClickEvent(clickType: InteractClickType, val action: ActionType, val
         val armorStand = this.clickedEntity.getLorenzVec().getEntitiesNearby<ArmorStand>(2.0)
         val results = NeuItems.npcs.filter {
             val npc = it.value.displayName.replace("§.".toRegex(), "").trim()
-            return@filter armorStand.any { it.displayName?.unformattedTextCompat() == npc }
+            return@filter armorStand.any { it.displayName.unformattedTextCompat() == npc }
         }.values
         if (results.size > 1) {
             ChatUtils.chat("§cMultiple NPCs found with the same name, please report this to the developers.")

@@ -16,7 +16,7 @@ import kotlin.collections.mapNotNull
 
 object BlockUtils {
 
-    private val world get() = MinecraftCompat.localWorld
+    private val world get() = MinecraftCompat.localWorldOrThrow
 
     fun LorenzVec.getBlockAt(): Block = getBlockStateAt().block
 
@@ -54,7 +54,7 @@ object BlockUtils {
             end.toVec3(),
             ClipContext.Block.COLLIDER,
             ClipContext.Fluid.NONE,
-            MinecraftCompat.localPlayer,
+            MinecraftCompat.localPlayerOrThrow,
         ),
     )
 
@@ -64,7 +64,7 @@ object BlockUtils {
 
     fun getTargetedBlockAtDistance(distance: Double) = raycast(
         LocationUtils.playerEyeLocation(),
-        MinecraftCompat.localPlayer.lookAngle.toLorenzVec(),
+        MinecraftCompat.localPlayerOrThrow.lookAngle.toLorenzVec(),
         distance,
     ).roundToBlock()
 

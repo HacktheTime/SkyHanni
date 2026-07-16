@@ -28,7 +28,7 @@ enum class EffectsCompat(
         }
 
         fun getPlayerEffect(effect: EffectsCompat): MobEffectInstance? {
-            return MinecraftCompat.localPlayer.activePotionEffect(effect)
+            return MinecraftCompat.localPlayerOrThrow.activePotionEffect(effect)
         }
     }
 }
