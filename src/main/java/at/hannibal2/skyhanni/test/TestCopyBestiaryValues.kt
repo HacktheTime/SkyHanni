@@ -4,16 +4,15 @@ import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.events.InventoryUpdatedEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.ItemUtils.getSkullOwner
 import at.hannibal2.skyhanni.utils.ItemUtils.getSkullTexture
-import at.hannibal2.skyhanni.utils.NumberUtil.formatInt
 import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.SafeItemStack
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.nextAfter
-import at.hannibal2.skyhanni.utils.compat.formattedTextCompat
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLeadingWhiteLessResets
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.gson.GsonBuilder
@@ -21,7 +20,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import net.minecraft.world.item.ItemStack
 import java.io.File
 import java.util.Locale
 
@@ -186,9 +184,7 @@ object TestCopyBestiaryValues {
 
         for (i in 10..43) {
             val stack = inventoryItems[i] ?: continue
-            val loreLines = stack.getLore()
-
-            bestiaryTypePattern.matchMatcher(stack.hoverName.formattedTextCompat()) {
+            bestiaryTypePattern.matchMatcher(stack.cleanName) {
                 val lvl = group("lvl").toInt()
                 val textGroup = group("text")
                 val master = textGroup.lowercase().contains("(master)")
@@ -203,7 +199,7 @@ object TestCopyBestiaryValues {
                     mobEntries.add(this)
                 }
                 entry.mobs = entry.mobs + apiId
-
+                val loreLines = stack.getLore()
                 val render = stack.getSkullTexture() ?: "minecraft:player_head"
                 val coins = loreLines.find { it.contains("Coins per Kill:") }?.substringAfter("Coins per Kill:")?.removeColor()?.replace(" ", "")?.trim('§', '6', ' ')?.toIntOrNull() ?: 0
                 val xpLine = loreLines.find { it.contains(" Exp:") }

@@ -14,6 +14,7 @@ import at.hannibal2.skyhanni.data.jsonobjects.local.FriendsJson
 import at.hannibal2.skyhanni.data.jsonobjects.local.JacobContestsJson
 import at.hannibal2.skyhanni.data.jsonobjects.local.KnownFeaturesJson
 import at.hannibal2.skyhanni.data.jsonobjects.local.VisualWordsJson
+import at.hannibal2.skyhanni.features.misc.ContributorManager
 import at.hannibal2.skyhanni.features.misc.update.UpdateManager
 import at.hannibal2.skyhanni.features.pets.PetDisplayConfigGuiManager
 import at.hannibal2.skyhanni.test.command.ErrorManager
@@ -82,7 +83,7 @@ class ConfigManager {
         }
 
         // TODO use SecondPassedEvent
-        fixedRateTimer(name = "skyhanni-config-auto-save", period = 60_000L, initialDelay = 60_000L) {
+        fixedRateTimer(name = "skyhanni-config-auto-save", daemon = true, period = 60_000L, initialDelay = 60_000L) {
             saveConfig(ConfigFileType.FEATURES, "auto-save-60s")
         }
 
@@ -296,13 +297,15 @@ enum class ConfigFileType(val fileName: String, val clazz: Class<*>, val propert
 }
 
 open class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(SkyHanniMod.feature) {
+    val isDev by lazy { ContributorManager.isSelfDeveloper() }
+
     @Suppress("ReturnCount")
     override fun createOptionGui(
         processedOption: ProcessedOption,
         field: Field,
         option: ConfigOption,
     ): GuiOptionEditor? {
-        val default: GuiOptionEditor
+        var default: GuiOptionEditor
         try {
             default = super.createOptionGui(processedOption, field, option) ?: return null
         } catch (e: Exception) {
@@ -317,6 +320,12 @@ open class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(Sky
         extraPath += processedOption.getPath()
         if (default is GuiOptionEditorKeybind) {
             UpdateKeybinds.keybinds.add(extraPath)
+        }
+
+        if (!isDev) {
+            if (field.isAnnotationPresent(OnlyDebug::class.java)) {
+                default = GuiOptionEditorHidden(default)
+            }
         }
 
         EnforcedConfigValues.isBlockedFromEditing(extraPath)?.let { extraMessage ->

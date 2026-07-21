@@ -5,6 +5,7 @@ package at.hannibal2.skyhanni.utils.chat
 import at.hannibal2.skyhanni.utils.ColorUtils
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.compat.addDeletableMessageToChat
 import at.hannibal2.skyhanni.utils.compat.append
 import at.hannibal2.skyhanni.utils.compat.command
@@ -67,7 +68,7 @@ object TextHelper {
 
     fun Component.fitToChat(): Component {
         val width = this.width()
-        val maxWidth = Minecraft.getInstance().gui.chat.width
+        val maxWidth = MinecraftCompat.hud.chat.width
         if (width < maxWidth) {
             val repeat = maxWidth / width
             val component = "".asComponent()
@@ -77,7 +78,7 @@ object TextHelper {
         return this
     }
 
-    fun Component.center(width: Int = Minecraft.getInstance().gui.chat.width): Component {
+    fun Component.center(width: Int = MinecraftCompat.hud.chat.width): Component {
         val textWidth = this.width()
         val spaceWidth = SPACE.width().coerceAtLeast(1)
         val padding = (width - textWidth).coerceAtLeast(0) / 2

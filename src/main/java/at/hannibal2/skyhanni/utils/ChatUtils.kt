@@ -4,7 +4,6 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.config.features.chat.ChatPromptUtils
-import at.hannibal2.skyhanni.data.ChatManager
 import at.hannibal2.skyhanni.events.MessageSendToServerEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -151,8 +150,7 @@ object ChatUtils {
         messageId: Int? = null,
     ): Boolean {
         val text = message.asComponent()
-        if (onlySendOnce && !messagesThatAreOnlySentOnce.add(message)) return false
-        return if (replaceSameMessage || messageId != null) {
+        return !(onlySendOnce && !messagesThatAreOnlySentOnce.add(message)) && if (replaceSameMessage || messageId != null) {
             text.send(messageId ?: message.getMessageIdForString())
             logAndSendMessage(text, false)
         } else logAndSendMessage(text)
@@ -164,8 +162,7 @@ object ChatUtils {
         onlySendOnce: Boolean = false,
         messageId: Int? = null,
     ): Boolean {
-        if (onlySendOnce && !messagesThatAreOnlySentOnceComponent.add(message)) return false
-        return if (replaceSameMessage || messageId != null) {
+        return !(onlySendOnce && !messagesThatAreOnlySentOnceComponent.add(message)) && if (replaceSameMessage || messageId != null) {
             message.send(messageId ?: message.getMessageIdForString())
             logAndSendMessage(message, false)
         } else logAndSendMessage(message)
@@ -398,7 +395,7 @@ object ChatUtils {
         if (autoOpen) OSUtils.openBrowser(url)
     }
 
-    private val chatGui get() = Minecraft.getInstance().gui.chat
+    private val chatGui get() = MinecraftCompat.hud.chat
 
     val chatMessages: MutableList<GuiMessage>
         get() = chatGui.allMessages
@@ -562,14 +559,8 @@ object ChatUtils {
             `skyhanni$setCreated`(value)
         }
 
-    var GuiMessage.fullComponent: Component
-        get() = `skyhanni$getFullComponent`()
-        set(value) {
-            `skyhanni$setFullComponent`(value)
-        }
-
     val GuiMessage.chatMessage get() = content.formattedTextCompat().stripHypixelMessage()
-    fun GuiMessage.passedSinceSent() = (Minecraft.getInstance().gui.guiTicks - addedTime()).ticks
+    fun GuiMessage.passedSinceSent() = (MinecraftCompat.hud.guiTicks - addedTime()).ticks
 
     fun consoleLog(text: String) {
         SkyHanniMod.consoleLog(text)

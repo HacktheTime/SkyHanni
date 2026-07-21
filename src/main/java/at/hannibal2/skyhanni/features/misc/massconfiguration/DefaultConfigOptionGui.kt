@@ -4,10 +4,12 @@ import at.hannibal2.skyhanni.utils.GuiRenderUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager
 import at.hannibal2.skyhanni.utils.StringUtils.splitLines
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.compat.MouseCompat
 import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.renderables.RenderableTooltips
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
+import net.minecraft.client.Minecraft
 import kotlin.math.max
 import kotlin.math.min
 
@@ -56,6 +58,7 @@ class DefaultConfigOptionGui(
         val isMouseInScrollArea =
             x in 0..xSize && mouseY in ((height - ySize) / 2) + barSize..((height + ySize) / 2 - barSize)
         var y = mouseY - ((height - ySize) / 2 + barSize) + currentScrollOffset
+        val font = Minecraft.getInstance().font
 
         DrawContextUtils.pushMatrix()
         DrawContextUtils.translate(width / 2F, (height - ySize) / 2F)
@@ -63,71 +66,71 @@ class DefaultConfigOptionGui(
         GuiRenderUtils.drawStringCenteredScaledMaxWidth(
             guiTitle,
             0F,
-            mc.font.lineHeight.toFloat(),
+            font.lineHeight.toFloat(),
             false,
             xSize / 2 - padding,
             -1,
         )
         DrawContextUtils.popMatrix()
 
-        DrawContextUtils.pushMatrix()
-        DrawContextUtils.translate(
-            (width - xSize) / 2F + padding,
-            (height + ySize) / 2F - mc.font.lineHeight * 2,
-        )
-        var i = 0
-        fun button(title: String, tooltip: List<String>, func: () -> Unit) {
-            val width = mc.font.width(title)
-            var overMouse = false
-            if (mouseX - ((this.width - xSize) / 2 + padding) in i..(i + width) &&
-                mouseY - (height + ySize) / 2 in -barSize..0
-            ) {
-                overMouse = true
-                hoveringTextToDraw = tooltip
-                if (shouldClick) {
-                    func()
+        DrawContextUtils.translatedPushPopResult(
+            x = (width - xSize) / 2F + padding,
+            y = (height + ySize) / 2F - font.lineHeight * 2,
+        ) {
+            var i = 0
+            fun button(title: String, tooltip: List<String>, func: () -> Unit) {
+                val width = font.width(title)
+                var overMouse = false
+                if (mouseX - ((this.width - xSize) / 2 + padding) in i..(i + width) &&
+                    mouseY - (height + ySize) / 2 in -barSize..0
+                ) {
+                    overMouse = true
+                    hoveringTextToDraw = tooltip
+                    if (shouldClick) {
+                        func()
+                    }
+                }
+                GuiRenderUtils.drawFloatingRectDark(i - 1, -3, width + 4, 14)
+                GuiRenderUtils.drawString(
+                    title,
+                    2 + i.toFloat(),
+                    0F,
+                    if (overMouse) 0xFF00FF00.toInt() else -1,
+                    overMouse,
+                )
+                i += width + 12
+            }
+            button("Apply choices", listOf()) {
+                DefaultConfigFeatures.applyCategorySelections(resetSuggestionState, orderedOptions)
+                MinecraftCompat.screen = null
+            }
+            button("Turn all on", listOf()) {
+                for (entry in resetSuggestionState.entries) {
+                    entry.setValue(ResetSuggestionState.TURN_ALL_ON)
+                    orderedOptions[entry.key]?.let { opts ->
+                        opts.forEach { it.toggleOverride = null }
+                    }
                 }
             }
-            GuiRenderUtils.drawFloatingRectDark(i - 1, -3, width + 4, 14)
-            GuiRenderUtils.drawString(
-                title,
-                2 + i.toFloat(),
-                0F,
-                if (overMouse) 0xFF00FF00.toInt() else -1,
-                overMouse,
-            )
-            i += width + 12
-        }
-        button("Apply choices", listOf()) {
-            DefaultConfigFeatures.applyCategorySelections(resetSuggestionState, displayOptions)
-            mc.setScreen(null)
-        }
-        button("Turn all on", listOf()) {
-            for (entry in resetSuggestionState.entries) {
-                entry.setValue(ResetSuggestionState.TURN_ALL_ON)
-                displayOptions[entry.key]?.let { opts ->
-                    opts.forEach { it.toggleOverride = null }
+            button("Turn all off", listOf()) {
+                for (entry in resetSuggestionState.entries) {
+                    entry.setValue(ResetSuggestionState.TURN_ALL_OFF)
+                    orderedOptions[entry.key]?.let { opts ->
+                        opts.forEach { it.toggleOverride = null }
+                    }
                 }
             }
-        }
-        button("Turn all off", listOf()) {
-            for (entry in resetSuggestionState.entries) {
-                entry.setValue(ResetSuggestionState.TURN_ALL_OFF)
-                displayOptions[entry.key]?.let { opts ->
-                    opts.forEach { it.toggleOverride = null }
+            button("Leave all untouched", listOf()) {
+                for (entry in resetSuggestionState.entries) {
+                    entry.setValue(ResetSuggestionState.LEAVE_DEFAULTS)
+                    orderedOptions[entry.key]?.let { opts ->
+                        opts.forEach { it.toggleOverride = null }
+                    }
                 }
             }
-        }
-        button("Leave all untouched", listOf()) {
-            for (entry in resetSuggestionState.entries) {
-                entry.setValue(ResetSuggestionState.LEAVE_DEFAULTS)
-                displayOptions[entry.key]?.let { opts ->
-                    opts.forEach { it.toggleOverride = null }
-                }
+            button("Cancel", listOf()) {
+                MinecraftCompat.screen = null
             }
-        }
-        button("Cancel", listOf()) {
-            mc.setScreen(null)
         }
         DrawContextUtils.popMatrix()
 
@@ -144,7 +147,7 @@ class DefaultConfigOptionGui(
         )
 
         for ((cat) in displayOptions.entries) {
-            val suggestionState = resetSuggestionState[cat]!!
+            val suggestionState = resetSuggestionState[cat] ?: continue
 
             GuiRenderUtils.drawRect(0, 0, xSize - padding * 2, 1, 0xFF808080.toInt())
             GuiRenderUtils.drawRect(0, 30, xSize - padding * 2, cardHeight + 1, 0xFF808080.toInt())
