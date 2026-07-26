@@ -32,6 +32,7 @@ object TestCopyBestiaryValues {
         @Expose var cap: Int = 0
         @Expose var mobs: List<String> = emptyList()
         @Expose var bracket: Int = 0
+        var panorama: String = ""
     }
 
     class BestiaryObject {
@@ -55,6 +56,9 @@ object TestCopyBestiaryValues {
         @Expose @SerializedName("mob_types") val mobTypes: List<String>,
         @Expose @SerializedName("api_id") val apiId: String,
         @Expose val drops: List<MobDrop>,
+        @Expose val health: Int = 0,
+        @Expose val damage: Int = 0,
+        @Expose @SerializedName("magic_resistance") val magicResistance: Int = 0,
         var skillXps: MutableMap<String, Int> = mutableMapOf(),
     )
 
@@ -69,6 +73,28 @@ object TestCopyBestiaryValues {
     )
 
     private val romanNumeralRegex = Regex("\\s+[IVXLCDM]+$")
+    private val romanToIntMap = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
+
+    private fun romanToInt(roman: String): Int {
+        var result = 0
+        var prev = 0
+        for (c in roman.reversed()) {
+            val curr = romanToIntMap[c] ?: 0
+            if (curr < prev) result -= curr else result += curr
+            prev = curr
+        }
+        return result
+    }
+
+    private fun resolveEnchantedBookId(enchantInfo: String): String? {
+        val match = romanNumeralRegex.find(enchantInfo) ?: return null
+        val enchantType = enchantInfo.replace(romanNumeralRegex, "").trim().uppercase().replace(" ", "_")
+        val levelInt = romanToInt(match.value.trim())
+        val possibleId = "$enchantType;$levelInt"
+        return if (EnoughUpdatesManager.getItemById(possibleId) != null) possibleId else null
+    }
+
+    private const val PAGE_SIZE = 28
 
     @HandleEvent(priority = HandleEvent.LOW)
     fun onInventoryUpdated(event: InventoryUpdatedEvent) {
@@ -117,9 +143,14 @@ object TestCopyBestiaryValues {
 
     private fun Double.format(digits: Int): String {
         val formatted = String.format(Locale.US, "%.${digits}f", this)
-        // Only strip trailing zeros if the number is not extremely small (avoid 0.0000% issue)
-        return if (this < 0.0001) formatted else formatted.replace("[^0]0+$".toRegex(), "")
+        if (this == 0.0) return "0"
+        return formatted.trimEnd('0').trimEnd('.')
     }
+
+    private val accumulatedRecipes = mutableMapOf<String, MutableList<MobRecipe>>()
+    private val accumulatedMobEntries = mutableMapOf<String, MutableList<MobEntry>>()
+    private val accumulatedObj = mutableMapOf<String, BestiaryObject>()
+    private val processedPages = mutableMapOf<String, MutableSet<Int>>()
 
     private fun process(titleItem: SafeItemStack, guiScreenName: String, inventoryItems: Map<Int, SafeItemStack>) {
         val fullTitle = titleItem.hoverName.formattedTextCompatLeadingWhiteLessResets()
@@ -163,14 +194,14 @@ object TestCopyBestiaryValues {
                         if (subKey != "name" && subKey != "icon" && subKey != "hasSubcategories") {
                             val subCatObj = subValue.asJsonObject
                             val subCatName = (subCatObj.get("name")?.asString ?: "").removeColor()
-                            if (subCatName.contains(categorySearch, ignoreCase = true) || categorySearch.contains(subCatName, ignoreCase = true)) {
+                            if (subCatName.equals(categorySearch, ignoreCase = true)) {
                                 panorama = key
                                 targetCategoryKey = "$key.$subKey"
                             }
                         }
                     }
                 } else {
-                    if (catName.contains(categorySearch, ignoreCase = true) || categorySearch.contains(catName, ignoreCase = true)) {
+                    if (catName.equals(categorySearch, ignoreCase = true)) {
                         panorama = key
                         targetCategoryKey = key
                     }
@@ -178,11 +209,21 @@ object TestCopyBestiaryValues {
             }
         }
 
+        val bottomSlots = (45..53).mapNotNull { inventoryItems[it] }
+        fun hasPageText(text: String) = bottomSlots.any {
+            it.cleanName.contains(text) || it.getLore().any { l -> l.contains(text) }
+        }
+        val hasPrevPage = hasPageText("Previous Page")
+        val hasNextPage = hasPageText("Next Page")
+        val currentPage = bottomSlots.mapNotNull { it.getLore().firstNotNullOfOrNull { l -> Regex("Page (\\d+)").find(l)?.groupValues?.get(1)?.toIntOrNull() } }.firstOrNull() ?: 1
+        val hasPagination = hasPrevPage || hasNextPage
+
         val mobsIds = mutableListOf<String>()
         val mobEntries = mutableListOf<MobEntry>()
         val recipes = mutableListOf<MobRecipe>()
 
         for (i in 10..43) {
+            if (mobsIds.size >= PAGE_SIZE) break
             val stack = inventoryItems[i] ?: continue
             bestiaryTypePattern.matchMatcher(stack.cleanName) {
                 val lvl = group("lvl").toInt()
@@ -192,7 +233,7 @@ object TestCopyBestiaryValues {
                 val apiId = generateApiId(cleanBaseName, lvl, master)
                 mobsIds.add(apiId)
 
-                val entry = mobEntries.find { it.name == cleanBaseName } ?: MobEntry().apply {
+                val entry = mobEntries.find { it.name == cleanBaseName && it.panorama == panorama } ?: MobEntry().apply {
                     name = cleanBaseName
                     texture = stack.getSkullTexture() ?: ""
                     skullOwner = stack.getSkullOwner() ?: ""
@@ -201,10 +242,13 @@ object TestCopyBestiaryValues {
                 entry.mobs = entry.mobs + apiId
                 val loreLines = stack.getLore()
                 val render = stack.getSkullTexture() ?: "minecraft:player_head"
-                val coins = loreLines.find { it.contains("Coins per Kill:") }?.substringAfter("Coins per Kill:")?.removeColor()?.replace(" ", "")?.trim('§', '6', ' ')?.toIntOrNull() ?: 0
+                val coins = loreLines.find { it.contains("Coins per Kill:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
+                val health = loreLines.find { it.contains("Health:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
+                val damage = loreLines.find { it.contains("Damage:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
+                val magicResistance = loreLines.find { it.contains("Magic Resistance:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
                 val xpLine = loreLines.find { it.contains(" Exp:") }
                 val xpTypeName = xpLine?.substringBefore(" Exp:")?.removeColor()?.trim() ?: "Combat"
-                val skillXp = xpLine?.substringAfter(" Exp:")?.removeColor()?.replace(" ", "")?.toIntOrNull() ?: 0
+                val skillXp = xpLine?.substringAfter(" Exp:")?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
                 val orbXp = loreLines.find { it.contains("XP Orbs:") }?.removeColor()?.substringAfter("XP Orbs:")?.replace(",", "")?.replace(" ", "")?.toIntOrNull() ?: 0
                 val mobTypes = loreLines.find { it.contains("Mob Types?:".toRegex()) }?.substringAfter(":")?.split(",")?.map { it.removeColor().trim().uppercase().replace(Regex("[^A-Z]"), "") } ?: emptyList()
 
@@ -215,12 +259,22 @@ object TestCopyBestiaryValues {
                     if (inDrops && line.contains("■")) {
                         val dropLineRaw = line.substringAfter("■").trim()
                         val dropLine = dropLineRaw.removeColor()
-                        val nameWithQty = dropLine.substringBefore("(").trim()
+                        val nameWithQty = dropLine.substringBeforeLast("(").trim()
                         val qtyMatch = Regex("x(\\d+)(?:-(\\d+))?").find(nameWithQty)
                         val cleanDropName = nameWithQty.replace(Regex("x\\d+(?:-\\d+)?"), "").trim()
-                        val chanceRaw = dropLine.substringAfter("(").substringBefore(")").trim()
+                        val chanceRaw = dropLine.substringAfterLast("(").substringBeforeLast(")").trim()
 
-                        var id = resolveIdByDisplayName(cleanDropName) ?: "${cleanDropName.uppercase().replace(" ", "_")} TODO"
+                        var id: String? = null
+                        val parenIdx = cleanDropName.indexOf("(")
+                        if (parenIdx >= 0) {
+                            val enchantInfo = cleanDropName.substring(parenIdx + 1, cleanDropName.length - 1).trim()
+                            id = resolveEnchantedBookId(enchantInfo)
+                        }
+                        if (id == null) id = resolveIdByDisplayName(cleanDropName)
+                        if (id == null) {
+                            val baseName = cleanDropName.substringBefore("(").trim()
+                            id = resolveIdByDisplayName(baseName) ?: "${cleanDropName.uppercase().replace(" ", "_")} TODO"
+                        }
                         var finalChance = parseChance(chanceRaw)
 
                         if (qtyMatch != null) {
@@ -233,7 +287,6 @@ object TestCopyBestiaryValues {
                                 finalChance = "100%"
                             }
                         }
-                        // FIX: Guaranteed drops should be 100%, not 0%
                         if (finalChance == cleanDropName) finalChance = "100%"
                         drops.add(MobDrop(id, finalChance))
                     }
@@ -242,24 +295,63 @@ object TestCopyBestiaryValues {
                 val recipe = MobRecipe(
                     coins = coins, orbXp = orbXp, level = lvl,
                     name = textGroup, panorama = panorama, render = render, mobTypes = mobTypes, apiId = apiId, drops = drops,
+                    health = health, damage = damage, magicResistance = magicResistance,
                 )
                 recipe.skillXps["${xpTypeName.lowercase()}_xp"] = skillXp
                 recipes.add(recipe)
             }
         }
         obj.mobs = mobsIds
-        if (DevApi.config.debug.copyBestiaryData) OSUtils.copyToClipboard(gson.toJson(obj))
-        if (DevApi.config.debug.inlineReplaceBestiaryData) {
-            if (targetCategoryKey != null) {
-                updateBestiaryJson(targetCategoryKey, mobEntries, obj)
+
+        if (hasPagination) {
+            val cacheKey = "$cleanTitle|$targetCategoryKey"
+            val seen = processedPages.getOrPut(cacheKey) { mutableSetOf() }
+            if (currentPage in seen) return
+            seen.add(currentPage)
+            if (!hasPrevPage) {
+                processedPages[cacheKey] = mutableSetOf(currentPage)
+                accumulatedRecipes[cacheKey] = recipes.toMutableList()
+                accumulatedMobEntries[cacheKey] = mobEntries.toMutableList()
+                accumulatedObj[cacheKey] = obj
+            } else {
+                accumulatedRecipes.getOrPut(cacheKey) { mutableListOf() }.addAll(recipes)
+                val existing = accumulatedMobEntries.getOrPut(cacheKey) { mutableListOf() }
+                for (entry in mobEntries) {
+                    (existing.find { it.name == entry.name && it.panorama == entry.panorama })?.let {
+                        it.mobs = (it.mobs + entry.mobs).distinct()
+                    } ?: existing.add(entry)
+                }
+                val existingObj = accumulatedObj.getOrPut(cacheKey) { obj }
+                existingObj.mobs = (existingObj.mobs + obj.mobs).distinct()
             }
-            updateRepoFile(cleanTitle, recipes, titleName)
+            if (hasNextPage) return
+            val allRecipes = accumulatedRecipes.remove(cacheKey) ?: recipes
+            val allMobEntries = accumulatedMobEntries.remove(cacheKey) ?: mobEntries
+            val allObj = accumulatedObj.remove(cacheKey) ?: obj
+            if (DevApi.config.debug.copyBestiaryData) OSUtils.copyToClipboard(gson.toJson(allObj))
+            if (DevApi.config.debug.inlineReplaceBestiaryData) {
+                if (targetCategoryKey != null) {
+                    updateBestiaryJson(targetCategoryKey, allMobEntries, allObj)
+                }
+                updateRepoFile(cleanTitle, allRecipes, titleName)
+            }
+        } else {
+            if (DevApi.config.debug.copyBestiaryData) OSUtils.copyToClipboard(gson.toJson(obj))
+            if (DevApi.config.debug.inlineReplaceBestiaryData) {
+                if (targetCategoryKey != null) {
+                    updateBestiaryJson(targetCategoryKey, mobEntries, obj)
+                }
+                updateRepoFile(cleanTitle, recipes, titleName)
+            }
         }
     }
 
     private fun resolveIdByDisplayName(displayName: String): String? {
         val clean = displayName.removeColor().trim().lowercase()
-        return EnoughUpdatesManager.getItemInformation().entries.find { it.value.displayName?.removeColor()?.trim()?.lowercase() == clean }?.key?.internalName
+        val itemInfo = EnoughUpdatesManager.getItemInformation()
+        val formattedMatch = itemInfo.entries.find { it.value.displayName?.trim() == displayName.trim() }
+        if (formattedMatch != null) return formattedMatch.key.internalName
+        return itemInfo.entries.find { it.value.displayName?.removeColor()?.trim()?.lowercase() == clean }?.key?.internalName
     }
 
     private fun updateBestiaryJson(categoryPath: String, newMobs: List<MobEntry>, groupData: BestiaryObject) {
@@ -282,22 +374,33 @@ object TestCopyBestiaryValues {
 
     private fun updateMobArray(mobsArray: JsonArray, newMobs: List<MobEntry>, groupData: BestiaryObject) {
         for (newMob in newMobs) {
-            var existingMob = mobsArray.find {
-                it.isJsonObject && it.asJsonObject.get("name")?.asString?.removeColor()?.trim() == newMob.name.removeColor().trim()
-            } as? JsonObject
+            var existingMob: JsonObject? = null
+            val newName = newMob.name.removeColor().trim()
+            val newPanorama = newMob.panorama
+
+            for (entry in mobsArray) {
+                if (!entry.isJsonObject) continue
+                val obj = entry.asJsonObject
+                val entryName = obj.get("name")?.asString?.removeColor()?.trim()
+                val entryPanorama = obj.get("panorama")?.asString ?: ""
+                if (entryName == newName && entryPanorama == newPanorama) {
+                    existingMob = obj
+                    break
+                }
+            }
 
             if (existingMob == null) {
                 existingMob = JsonObject().apply {
                     addProperty("name", newMob.name)
                     addProperty("skullOwner", newMob.skullOwner)
                     addProperty("texture", newMob.texture)
-                    addProperty("cap", groupData.cap) // Use Group Cap
-                    addProperty("bracket", groupData.bracket) // Use Group Bracket
+                    addProperty("cap", groupData.cap)
+                    addProperty("bracket", groupData.bracket)
+                    if (newPanorama.isNotEmpty()) addProperty("panorama", newPanorama)
                     add("mobs", JsonArray())
                 }
                 mobsArray.add(existingMob)
             } else {
-                // Always update group data if present in the title item
                 if (groupData.cap > 0) existingMob.addProperty("cap", groupData.cap)
                 if (groupData.bracket > 0) existingMob.addProperty("bracket", groupData.bracket)
             }
@@ -325,21 +428,39 @@ object TestCopyBestiaryValues {
     private fun updateRepoFile(cleanTitle: String, newRecipes: List<MobRecipe>, categoryName: String) {
         val repoItems = EnoughUpdatesManager.getItemInformation()
         val existingFiles = repoItems.filter { it.value.displayName?.removeColor()?.trim() == categoryName.removeColor().trim() }
-            .map { File(EnoughUpdatesManager.repoDirectory, "items/${it.key}.json") }.toMutableSet()
+            .map { File(EnoughUpdatesManager.repoDirectory, "items/${it.key.internalName}.json") }.toMutableSet()
 
         var finalFiles = existingFiles
         if (finalFiles.isEmpty()) {
-            val isFishing = newRecipes.any { it.skillXps.containsKey("fishing_xp") }
-            val isBoss = newRecipes.all { it.level > 200 && !it.name.lowercase().contains("master") }
-            val suffix = when {
-                isFishing -> "_SC"; isBoss -> "_BOSS"; else -> "_MONSTER"
+            val nameUpper = categoryName.removeColor().trim().uppercase().replace(" ", "_")
+            val match = repoItems.entries.find { (key, value) ->
+                key.internalName.uppercase().contains(nameUpper) && value.recipes.isNotEmpty()
             }
-            finalFiles = mutableSetOf(File(EnoughUpdatesManager.repoDirectory, "items/${generateRepoId(cleanTitle, suffix)}.json"))
+            if (match != null) finalFiles = mutableSetOf(File(EnoughUpdatesManager.repoDirectory, "items/${match.key.internalName}.json"))
+        }
+        if (finalFiles.isEmpty()) {
+            val allTags = newRecipes.flatMap { it.mobTypes }.toSet()
+            val suffix = when {
+                "AQUATIC" in allTags -> "_SC"
+                allTags.all { it == "ANIMAL" } && allTags.isNotEmpty() -> "_ANIMAL"
+                else -> "_MONSTER"
+            }
+            val repoId = if ("PEST" in allTags) {
+                "PEST_${generateRepoId(cleanTitle, "_MONSTER")}"
+            } else {
+                generateRepoId(cleanTitle, suffix)
+            }
+            finalFiles = mutableSetOf(File(EnoughUpdatesManager.repoDirectory, "items/$repoId.json"))
         }
 
-        val suffixText = if (newRecipes.any { it.skillXps.containsKey("fishing_xp") }) " (Sea Creature)"
-        else if (newRecipes.all { it.level > 200 && !it.name.lowercase().contains("master") }) " (Boss)"
-        else " (Monster)"
+        val allTags = newRecipes.flatMap { it.mobTypes }.toSet()
+        val suffixText = when {
+            "AQUATIC" in allTags -> " (Sea Creature)"
+            "PEST" in allTags -> " (Pest)"
+            allTags.all { it == "ANIMAL" } && allTags.isNotEmpty() -> " (Animal)"
+            newRecipes.all { it.level > 200 && !it.name.lowercase().contains("master") } -> " (Boss)"
+            else -> " (Monster)"
+        }
 
         val cleanCatName = categoryName.removeColor().trim().replace(romanNumeralRegex, "")
         val fullDisplayName = "§9${cleanCatName}$suffixText"
@@ -353,15 +474,41 @@ object TestCopyBestiaryValues {
                     addProperty("internalname", file.nameWithoutExtension)
                 }
 
+                val oldExtras = mutableMapOf<String, List<String>>()
+                val oldRecipes = json.getAsJsonArray("recipes")
+                if (oldRecipes != null) {
+                    for (i in 0 until oldRecipes.size()) {
+                        val oldR = oldRecipes.get(i).asJsonObject
+                        val apiId = oldR.get("api_id")?.asString
+                        if (apiId != null) {
+                            val oldExtra = oldR.get("extra")
+                            if (oldExtra != null && oldExtra.isJsonArray) {
+                                oldExtras[apiId] = oldExtra.asJsonArray.map { it.asString }
+                            }
+                        }
+                    }
+                }
+
                 if (newRecipes.isNotEmpty()) {
                     val recipesArray = JsonArray()
                     for (recipe in newRecipes) {
                         val rObj = gson.toJsonTree(recipe).asJsonObject
                         rObj.remove("skillXps")
                         recipe.skillXps.forEach { (key, value) -> rObj.addProperty(key, value) }
+
+                        val oldExtra = oldExtras[recipe.apiId]
+                        if (oldExtra != null && oldExtra.isNotEmpty()) {
+                            val extraArray = JsonArray()
+                            oldExtra.forEach { extraArray.add(it) }
+                            rObj.add("extra", extraArray)
+                        }
+
+                        if (recipe.magicResistance == 0) {
+                            rObj.remove("magic_resistance")
+                        }
+
                         recipesArray.add(rObj)
                     }
-                    val oldRecipes = json.getAsJsonArray("recipes")
                     if (oldRecipes != null && oldRecipes.size() > 0) {
                         val oldRender = oldRecipes.get(0).asJsonObject.get("render")?.asString
                         if (oldRender != null && oldRender != "minecraft:player_head" && !oldRender.startsWith("eyJ")) {
