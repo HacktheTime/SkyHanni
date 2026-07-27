@@ -174,7 +174,10 @@ object ErrorManager {
         )
     }
 
-    inline fun crashInDevEnv(reason: String, t: (String) -> Throwable = { RuntimeException(it) }) {
+    inline fun crashInDevEnv(
+        reason: String,
+        t: (String) -> Throwable = { IllegalStateException(it) },
+    ) {
         if (!PlatformUtils.isDevEnvironment) return
         Minecraft.getInstance().delayCrash(CrashReport("SkyHanni - $reason", t(reason)))
     }

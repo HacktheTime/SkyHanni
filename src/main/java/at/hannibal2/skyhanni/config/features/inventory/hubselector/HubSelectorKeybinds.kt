@@ -101,7 +101,7 @@ object HubSelectorKeybinds {
             openedCache = cache
         },
         onCloseInventory = { openedCache = null },
-        pattern = hubSelectorGuiNamePattern,
+        repoPattern = { hubSelectorGuiNamePattern },
     )
 
     @HandleEvent(onlyOnSkyblock = true)

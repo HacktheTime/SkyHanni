@@ -24,7 +24,7 @@ import com.google.gson.annotations.Expose
 import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.milliseconds
 
-abstract class WardrobeApi {
+abstract class AbstractWardrobeApi {
 
     companion object {
         @JvmStatic
