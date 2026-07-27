@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalName
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyClicked
+import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.SkyBlockItemModifierUtils.getItemId
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 
@@ -26,7 +27,7 @@ object PetXPComGoalKeybind {
             } else {
                 val carrots = InventoryUtils.getItemsInOwnInventory().filter { it.getItemId().equals("CARROT_ITEM") }.sumOf { it.count }
                 if (carrots >= 9 * 64) {
-                    HypixelCommands.recipe("SIMPLE_CARROT_CANDY")
+                    HypixelCommands.viewRecipe("SIMPLE_CARROT_CANDY".toInternalName())
                 }
             }
         }
