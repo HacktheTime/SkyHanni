@@ -140,7 +140,9 @@ object StorageApi {
     @HandleEvent(onlyOnSkyblock = true)
     fun onTick() {
         if (!shouldReCheck) return
-        currentStorage?.items = InventoryUtils.getItemsInOpenChestWithNull().map { it.item }.drop(9)
+        val container = currentStorage ?: return
+        val items = InventoryUtils.getItemsInOpenChestWithNull().map { it.item }
+        container.items = if (container.displayName == "Private Island Chest") items else items.drop(9)
         shouldReCheck = false
         shouldSave = true
     }
@@ -190,7 +192,6 @@ object StorageApi {
         if (old == null) {
             stored = SkyHanniInventoryContainer(name, 9, saneInventory)
             storage[name] = stored
-            return
         } else {
             stored = old
             old.items = saneInventory
@@ -214,7 +215,6 @@ object StorageApi {
         if (old == null) {
             stored = SkyHanniInventoryContainer(name, 9, saneInventory, "Private Island Chest", primary, secondary)
             storage[name] = stored
-            return
         } else {
             stored = old
             old.items = saneInventory
