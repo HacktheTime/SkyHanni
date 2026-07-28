@@ -27,7 +27,7 @@ object TabListReader {
         private set
 
     private var lastTabComponents: List<Component>? = null
-    private var lastFooterComponent: Component? = null
+    private var lastFooterComponent: List<Component>? = null
 
     private var inUpgrades = false
 
@@ -126,20 +126,20 @@ object TabListReader {
     )
 
     @HandleEvent
-    fun onConfigLoad() {
+    private fun onConfigLoad() {
         ConditionalUtils.onToggle(config.enabled) {
             rebuildRenderColumns()
         }
     }
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onTabListUpdate(event: TabListUpdateEvent) {
+    private fun onTabListUpdate(event: TabListUpdateEvent) {
         lastTabComponents = event.tabList
         rebuildRenderColumns()
     }
 
     @HandleEvent(onlyOnSkyblock = true)
-    fun onTabListFooterUpdate(event: TablistFooterUpdateEvent) {
+    private fun onTabListFooterUpdate(event: TablistFooterUpdateEvent) {
         lastFooterComponent = event.footer
         rebuildRenderColumns()
     }
@@ -158,8 +158,7 @@ object TabListReader {
         val components = this@TabListReader.lastTabComponents ?: emptyList()
         addAll(parseComponentColumns(components))
 
-        val footer = this@TabListReader.lastFooterComponent ?: return@buildList
-        parseFooterAsColumn(footer)?.let { add(it) }
+        parseFooterAsColumn()?.let { add(it) }
     }.toMutableList()
 
     private fun parseComponentColumns(components: List<Component>): MutableList<TabColumn> {
@@ -268,10 +267,9 @@ object TabListReader {
 
     // TODO refactor
     @Suppress("CyclomaticComplexMethod")
-    private fun parseFooterAsColumn(component: Component): TabColumn? {
+    private fun parseFooterAsColumn(): TabColumn? {
+        val lines = lastFooterComponent ?: return null
         inUpgrades = false
-
-        val lines = TextHelper.split(component, "\n") ?: listOf(component)
 
         val godPotTimer = lines.firstNotNullOfOrNull {
             godPotPattern.matchMatcher(it.string) { group("timer") }
