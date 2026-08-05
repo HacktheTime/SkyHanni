@@ -80,7 +80,6 @@ loom.apply {
         named("client") {
             appendProjectPathToDisplayName.set(true)
             this.runDir(rootProject.file("versions/${target.projectName}/run").relativeTo(projectDir).toString())
-            property("mixin.debug", "true")
             if (System.getenv("repo_action") != "true") {
                 property("devauth.configDir", rootProject.file(".devauth").absolutePath)
             }
@@ -293,6 +292,7 @@ val mixinTest by tasks.registering(Test::class) {
     group = "verification"
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = sourceSets.test.get().output + sourceSets.main.get().output + mixinTestRuntime
+    systemProperty("skyhanni.minecraftIsObfuscated", !isDeobf)
     filter {
         includeTestsMatching("at.hannibal2.skyhanni.test.MixinTest")
     }
