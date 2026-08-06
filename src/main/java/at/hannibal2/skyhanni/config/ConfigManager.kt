@@ -32,6 +32,7 @@ import com.google.gson.Gson
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.common.RenderContext
+import io.github.notenoughupdates.moulconfig.gui.GuiContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.editors.GuiOptionEditorKeybind
 import io.github.notenoughupdates.moulconfig.processor.BuiltinMoulConfigGuis
@@ -45,7 +46,6 @@ import java.lang.reflect.Field
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.concurrent.fixedRateTimer
-import kotlin.jvm.java
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.jvm.javaField
 import kotlin.time.Duration.Companion.days
@@ -423,6 +423,10 @@ open class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(Sky
 
         override fun getHeight(): Int {
             return (resolved ?: base).height
+        }
+
+        override fun setGuiContext(guiContext: GuiContext) {
+            (resolved ?: base).setGuiContext(guiContext)
         }
     }
 
