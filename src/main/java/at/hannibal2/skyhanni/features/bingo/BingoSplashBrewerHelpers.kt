@@ -22,6 +22,7 @@ import at.hannibal2.skyhanni.utils.EntityUtils
 import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.InventoryDetector
 import at.hannibal2.skyhanni.utils.InventoryUtils
+import at.hannibal2.skyhanni.utils.ItemUtils.getCleanLore
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.getLoreComponent
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyClicked
@@ -30,8 +31,8 @@ import at.hannibal2.skyhanni.utils.LocationUtils.distanceTo
 import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
-import at.hannibal2.skyhanni.utils.NeuItems.getItemStack
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
+import at.hannibal2.skyhanni.utils.SafeItemStack
 import at.hannibal2.skyhanni.utils.compat.WorldCompat
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
@@ -148,7 +149,7 @@ object BingoSplashBrewerHelpers {
                 }
             }
         } else {
-            val potion = lastChestClick?.getItemFrame { it.isPotion() }?:return
+            val potion = lastChestClick?.getItemFrame { it.getInternalNameOrNull()?.isPotion()==true }?:return
             val xpBoost = potion.internalName.contains("_XP_BOOST")
             val potionType = potion.internalName.split(";").first()
             InventoryUtils.getItemsInOpenChest().forEach {
@@ -249,7 +250,7 @@ object BingoSplashBrewerHelpers {
 
     @OptIn(AllEntitiesGetter::class)
     private fun autoDetectBrewingStands() {
-        val itemFrames = EntityUtils.getEntities<ItemFrame>().filter { it.item.item == Items.OAK_SIGN }.toList()
+        val itemFrames = EntityUtils.getEntities<ItemFrame>().filter { it.item.`is`(Items.OAK_SIGN) }.toList()
         val size = itemFrames.size
         if (size == 0) {
             ChatUtils.userError("There is no marker for the mod to use. Please add the Oak Sign marker or go near it.")
@@ -314,11 +315,11 @@ object BingoSplashBrewerHelpers {
         }
     }
 
-    private fun LorenzVec.getItemFrame(filter: (NeuInternalName) -> Boolean): NeuInternalName? {
+    private fun LorenzVec.getItemFrame(filter: (SafeItemStack) -> Boolean): NeuInternalName? {
         return EntityUtils.getEntitiesInBox(
             this, 5.0,
         ) { itemFrame: ItemFrame ->
-            return@getEntitiesInBox itemFrame.item.getInternalNameOrNull()?.let(filter) == true
+            return@getEntitiesInBox filter(itemFrame.item)
         }.minByOrNull { it.distanceTo(LorenzVec(this.x + 0.5, this.y + 0.5, this.z + 0.5)) }?.item?.getInternalNameOrNull()
     }
 
@@ -385,8 +386,8 @@ object BingoSplashBrewerHelpers {
         val inputBottle: NeuInternalName?,
     )
 
-    private fun isMaterial(item: NeuInternalName): Boolean {
-        return item.getItemStack().getLoreComponent().map { it.string }.any { it.contains("Brewing Ingredient", true) }
+    private fun isMaterial(item: SafeItemStack): Boolean {
+        return item.getCleanLore().any { it.contains("Brewing Ingredient", true) }
     }
 
     const val BREWING_STAND_MATERIAL_SLOT_INDEX = 13
