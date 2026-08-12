@@ -30,8 +30,8 @@ import de.hype.bingonet.shared.objects.SplashLocations
 import de.hype.bingonet.shared.packets.function.SplashNotifyPacket
 import de.hype.bingonet.shared.packets.function.SplashTimeRequestPacket
 import de.hype.bingonet.shared.packets.network.BingoChatMessagePacket
-import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 
 @SkyHanniModule
 @Suppress("LongMethod", "NoUnusedImports")

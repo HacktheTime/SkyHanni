@@ -108,10 +108,12 @@ object BNConnection {
 
     val waypoints: MutableMap<Int, WaypointData> = HashMap()
 
-    val connectedSystem : BingoNetSystem? get() {
-        if (!isConnected) return null
-        return BingoNetSystem.entries.firstOrNull { socket?.port == it.port }
-    }
+    val connectedSystem: BingoNetSystem?
+        get() {
+            if (!isConnected) return null
+            return BingoNetSystem.entries.firstOrNull { socket?.port == it.port }
+        }
+
     private fun createSSLContext(): SSLContext {
         // Load the certificate from resources/assets/public_bingonet_cert.crt
         val certificateFactory = CertificateFactory.getInstance("X.509")
@@ -350,6 +352,30 @@ object BNConnection {
                 }
             }
         }
+    }
+
+    inline fun <Base : ExpectReplyPacket<Reply>, reified Reply : ExpectReplyPacket.ReplyPacket> sendPacketAwaitReply(
+        packet: Base,
+        blockLog: Boolean,
+        cancelPacket: Boolean = true,
+        blockIntercepts: Boolean = true,
+        ignoreIfIntercepted: Boolean = true,
+        blockExecutionForCompletion: Boolean = false,
+        crossinline block: (Reply) -> Unit,
+    ) {
+        val interceptor = object : InterceptPacketInfo<Reply>(
+            clazz = Reply::class.java,
+            cancelPacket = cancelPacket,
+            blockIntercepts = blockIntercepts,
+            ignoreIfIntercepted = ignoreIfIntercepted,
+            blockExecutionForCompletion = blockExecutionForCompletion
+            ) {
+            override fun run(packet: Reply) {
+                block(packet)
+            }
+        }
+        packetIntercepts.add(interceptor)
+        sendPacket(packet, blockLog)
     }
 
     @Synchronized
@@ -734,7 +760,7 @@ object BNConnection {
     }
 
     fun disconnect(silent: Boolean = false) {
-        if (!silent && socket?.isConnected==true) ChatUtils.chat("Disconnected from Bingo Net Server")
+        if (!silent && socket?.isConnected == true) ChatUtils.chat("Disconnected from Bingo Net Server")
         socket?.close()
         reader = null
         writer = null

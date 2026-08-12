@@ -17,6 +17,7 @@ import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ClipboardUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager
+import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.StringUtils
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
@@ -26,7 +27,6 @@ import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.system.PlatformUtils
 import de.hype.bingonet.BNConnection
 import de.hype.bingonet.shared.packets.network.ErrorReportPacket
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.CrashReport
 import net.minecraft.client.Minecraft
 import java.util.Collections
@@ -221,6 +221,7 @@ object ErrorManager {
     // This is intentionally not an enum, because unnecessary object allocation can be problematic
     // if we're dealing with a stack overflow.
     private typealias ErrorStateT = Int
+
     private object ErrorState {
         const val LOGGED = 0
         const val BLOCKED_NOT_NEEDED = 1
@@ -350,16 +351,30 @@ object ErrorManager {
         val mcVersion = PlatformUtils.MC_VERSION
         val shVersion = SkyHanniMod.VERSION
         val extraData: List<Pair<String, String?>> = extraData.map { it.first to it.second?.toString() }
-        BNConnection.sendPacket(
-            ErrorReportPacket(
-                original,
-                fullErrorData,
-                mcVersion,
-                shVersion,
-                "skyhanni",
-                extraData,
-            ),true //Block Log since this fills the entire chat at once otherwise.
+        val packet = ErrorReportPacket(
+            original,
+            fullErrorData,
+            mcVersion,
+            shVersion,
+            "skyhanni",
+            extraData,
         )
+        BNConnection.sendPacketAwaitReply(
+            packet, true, //Block Log since this fills the entire chat at once otherwise.
+        ) {
+            ChatUtils.clickableChat(
+                "Report Created! | New Report: ${it.isNew} | Id: ${it.errorReportId}",
+                onClick = {
+                    if (KeyboardManager.isShiftKeyDown()) {
+                        ClipboardUtils.copyToClipboardAsync(it.url).start()
+                        ChatUtils.chat("Copied error report url to clipboard!")
+                    } else OSUtils.openBrowser(url = it.url)
+                },
+                "§eClick to open the error report in your browser!",
+                prefix = false,
+            )
+            println("Report Created! | New Report: ${it.isNew} | Id: ${it.errorReportId} | Url: ${it.url}")
+        }
         ChatUtils.chat("Sent Error Report to Bingo Net Server")//replacement for blocking.
     }
 
