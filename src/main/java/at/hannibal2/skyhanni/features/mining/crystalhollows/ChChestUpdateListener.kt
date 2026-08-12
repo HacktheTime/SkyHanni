@@ -33,7 +33,6 @@ import de.hype.bingonet.shared.packets.function.RequestServerWarpPacket
 import de.hype.bingonet.shared.packets.mining.ChChestPacket
 import de.hype.bingonet.shared.packets.mining.SubscribeToChServer
 import de.hype.bingonet.shared.packets.mining.UnSubscribeToChServer
-import io.github.notenoughupdates.moulconfig.common.ClickType
 import net.minecraft.world.level.block.Blocks
 import java.time.Instant
 import kotlin.time.Duration.Companion.milliseconds

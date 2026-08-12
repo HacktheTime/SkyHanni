@@ -4,10 +4,7 @@ The following List may not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- Added moby warp for trapper helper (glowing mushroom cave only). Requires Mvp+ and Scroll.
-- Fixed Carrot Candy Helper opening the gui while inside inventory and searching the recipe instead of openeing it directly.
-- Changed minion via resource opener to open minion tier 5 by default. There is now a keybind that searches for the recipe to open the generic recipe tree if you wish.
-- Internal changes around bestiary updater.
+- updated sh
 
 ## Static Info for modrinth:
 
