@@ -21,7 +21,7 @@ object NeuEnvironmentRepo {
     }
 
     fun getFromSBName(sbItemID: String): NeuInternalName {
-        return NeuItems.getInternalNameFromHypixelId(sbItemID)
+        return NeuItems.getInternalNameFromHypixelIdOrNull(sbItemID) ?: error("$sbItemID not found in repo")
     }
 }
 

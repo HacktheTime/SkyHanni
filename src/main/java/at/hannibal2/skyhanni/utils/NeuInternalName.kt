@@ -90,6 +90,10 @@ open class NeuInternalName private constructor(internalName: String) : BNNEUItem
 
         private val itemNameCache = mutableMapOf<String, NeuInternalName?>()
 
+        internal fun clearItemNameCache() {
+            itemNameCache.clear()
+        }
+
         fun fromItemNameOrNull(itemName: String): NeuInternalName? = itemNameCache.getOrPut(itemName) {
             ItemNameResolver.getInternalNameOrNull(itemName.removeSuffix(" Pet")) ?: getCoins(itemName)
         }

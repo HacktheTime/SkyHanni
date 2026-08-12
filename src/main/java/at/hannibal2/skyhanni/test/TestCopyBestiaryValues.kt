@@ -1,4 +1,5 @@
 package at.hannibal2.skyhanni.test
+
 import at.hannibal2.skyhanni.api.enoughupdates.EnoughUpdatesManager
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
@@ -8,6 +9,7 @@ import at.hannibal2.skyhanni.utils.ItemUtils.cleanName
 import at.hannibal2.skyhanni.utils.ItemUtils.getLore
 import at.hannibal2.skyhanni.utils.ItemUtils.getSkullOwner
 import at.hannibal2.skyhanni.utils.ItemUtils.getSkullTexture
+import at.hannibal2.skyhanni.utils.NumberUtil.formatInt
 import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.SafeItemStack
@@ -42,6 +44,7 @@ object TestCopyBestiaryValues {
         @Expose var cap: Int = 0
         @Expose var mobs: List<String> = emptyList()
         @Expose var bracket: Int = 0
+        @Expose var bracketType: String? = null
     }
 
     class MobRecipe(
@@ -67,6 +70,8 @@ object TestCopyBestiaryValues {
         @Expose val chance: String,
     )
 
+    // TODO add regex test
+    @Suppress("RepoPatternRegexTestMissing")
     private val bestiaryTypePattern by RepoPattern.pattern(
         "test.bestiary.type",
         "(?:§[0-9a-fk-or])*\\[(?:§[0-9a-fk-or])*Lv(?<lvl>\\d+)(?:§[0-9a-fk-or])*] (?:§r)?(?<text>§.[a-zA-Z ]*) ?.*",
@@ -97,7 +102,7 @@ object TestCopyBestiaryValues {
     private const val PAGE_SIZE = 28
 
     @HandleEvent(priority = HandleEvent.LOW)
-    fun onInventoryUpdated(event: InventoryUpdatedEvent) {
+    private fun onInventoryUpdated(event: InventoryUpdatedEvent) {
         if (!DevApi.config.debug.copyBestiaryData && !DevApi.config.debug.inlineReplaceBestiaryData) return
         val backItem = event.inventoryItems[3 + 9 * 5 + 3] ?: return
         if (backItem.getLore().none { it.contains("Bestiary Milestone") }) return
@@ -213,9 +218,13 @@ object TestCopyBestiaryValues {
         fun hasPageText(text: String) = bottomSlots.any {
             it.cleanName.contains(text) || it.getLore().any { l -> l.contains(text) }
         }
+
         val hasPrevPage = hasPageText("Previous Page")
         val hasNextPage = hasPageText("Next Page")
-        val currentPage = bottomSlots.mapNotNull { it.getLore().firstNotNullOfOrNull { l -> Regex("Page (\\d+)").find(l)?.groupValues?.get(1)?.toIntOrNull() } }.firstOrNull() ?: 1
+        val currentPage =
+            bottomSlots.mapNotNull {
+                it.getLore().firstNotNullOfOrNull { l -> Regex("Page (\\d+)").find(l)?.groupValues?.get(1)?.toIntOrNull() }
+            }.firstOrNull() ?: 1
         val hasPagination = hasPrevPage || hasNextPage
 
         val mobsIds = mutableListOf<String>()
@@ -226,7 +235,7 @@ object TestCopyBestiaryValues {
             if (mobsIds.size >= PAGE_SIZE) break
             val stack = inventoryItems[i] ?: continue
             bestiaryTypePattern.matchMatcher(stack.cleanName) {
-                val lvl = group("lvl").toInt()
+                val lvl = group("lvl").formatInt()
                 val textGroup = group("text")
                 val master = textGroup.lowercase().contains("(master)")
                 val cleanBaseName = if (master) textGroup.substringBeforeLast(" (").trim() else textGroup.trim()
@@ -242,20 +251,28 @@ object TestCopyBestiaryValues {
                 entry.mobs = entry.mobs + apiId
                 val loreLines = stack.getLore()
                 val render = stack.getSkullTexture() ?: "minecraft:player_head"
-                val coins = loreLines.find { it.contains("Coins per Kill:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
+                val coins =
+                    loreLines.find { it.contains("Coins per Kill:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
                 val health = loreLines.find { it.contains("Health:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
                 val damage = loreLines.find { it.contains("Damage:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
-                val magicResistance = loreLines.find { it.contains("Magic Resistance:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
+                val magicResistance =
+                    loreLines.find { it.contains("Magic Resistance:") }?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
                 val xpLine = loreLines.find { it.contains(" Exp:") }
                 val xpTypeName = xpLine?.substringBefore(" Exp:")?.removeColor()?.trim() ?: "Combat"
                 val skillXp = xpLine?.substringAfter(" Exp:")?.removeColor()?.replace(Regex("[^\\d]"), "")?.toIntOrNull() ?: 0
-                val orbXp = loreLines.find { it.contains("XP Orbs:") }?.removeColor()?.substringAfter("XP Orbs:")?.replace(",", "")?.replace(" ", "")?.toIntOrNull() ?: 0
-                val mobTypes = loreLines.find { it.contains("Mob Types?:".toRegex()) }?.substringAfter(":")?.split(",")?.map { it.removeColor().trim().uppercase().replace(Regex("[^A-Z]"), "") } ?: emptyList()
+                val orbXp =
+                    loreLines.find { it.contains("XP Orbs:") }?.removeColor()?.substringAfter("XP Orbs:")?.replace(",", "")
+                        ?.replace(" ", "")?.toIntOrNull() ?: 0
+                val mobTypes =
+                    loreLines.find { it.contains("Mob Types?:".toRegex()) }?.substringAfter(":")?.split(",")
+                        ?.map { it.removeColor().trim().uppercase().replace(Regex("[^A-Z]"), "") } ?: emptyList()
 
                 val drops = mutableListOf<MobDrop>()
                 var inDrops = false
                 for (line in loreLines) {
-                    if (line.contains("Loot") && !line.contains("■")) { inDrops = true; continue }
+                    if (line.contains("Loot") && !line.contains("■")) {
+                        inDrops = true; continue
+                    }
                     if (inDrops && line.contains("■")) {
                         val dropLineRaw = line.substringAfter("■").trim()
                         val dropLine = dropLineRaw.removeColor()
@@ -276,6 +293,10 @@ object TestCopyBestiaryValues {
                             id = resolveIdByDisplayName(baseName) ?: "${cleanDropName.uppercase().replace(" ", "_")} TODO"
                         }
                         var finalChance = parseChance(chanceRaw)
+
+                        if (lore.any { it.contains("Critter") }) {
+                            obj.bracketType = "CRITTERS"
+                        }
 
                         if (qtyMatch != null) {
                             val min = qtyMatch.groupValues[1]
@@ -369,7 +390,9 @@ object TestCopyBestiaryValues {
             val mobsArray = category.getAsJsonArray("mobs") ?: JsonArray().also { category.add("mobs", it) }
             updateMobArray(mobsArray, newMobs, groupData)
             file.writeText(gson.toJson(root))
-        } catch (e: Exception) { e.printStackTrace() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun updateMobArray(mobsArray: JsonArray, newMobs: List<MobEntry>, groupData: BestiaryObject) {
@@ -519,12 +542,14 @@ object TestCopyBestiaryValues {
                 }
                 json.addProperty("displayname", fullDisplayName)
                 file.writeText(gson.toJson(json))
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
     @HandleEvent
-    fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
+    private fun onConfigFix(event: ConfigUpdaterMigrator.ConfigFixEvent) {
         event.move(3, "dev.copyBestiaryData", "dev.debug.copyBestiaryData")
     }
 }
