@@ -168,17 +168,36 @@ object ChatUtils {
         } else logAndSendMessage(message)
     }
 
+    // Messages that were requested before the player joined a server and therefore could not be shown yet.
+    // They are logged immediately but delayed to be displayed in chat (in order) once a player exists.
+    private val pendingChatMessages = LinkedList<Component>()
+
     private fun logAndSendMessage(message: Component, send: Boolean = true): Boolean {
         val formattedMessage = message.formattedTextCompat()
         log.log(formattedMessage)
 
         if (!MinecraftCompat.localPlayerExists) {
             consoleLog(message.string.removeColor())
+            if (send) {
+                synchronized(pendingChatMessages) {
+                    pendingChatMessages.add(message)
+                }
+            }
             return false
         }
 
+        flushPendingChatMessages()
+
         if (send) addChatMessageToChat(message)
         return true
+    }
+
+    private fun flushPendingChatMessages() {
+        if (!MinecraftCompat.localPlayerExists) return
+        while (true) {
+            val message = synchronized(pendingChatMessages) { pendingChatMessages.poll() } ?: break
+            addChatMessageToChat(message)
+        }
     }
 
     /**
@@ -445,6 +464,7 @@ object ChatUtils {
 
     @HandleEvent
     fun onTick() {
+        flushPendingChatMessages()
         if (lastMessageSent.passedSince() > messageDelay) {
             val message = sendQueue.poll() ?: return
             MinecraftCompat.localPlayerOrThrow.connection.dispatchMessage(message)

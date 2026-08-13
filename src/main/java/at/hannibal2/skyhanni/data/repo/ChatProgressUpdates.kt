@@ -32,6 +32,7 @@ import kotlin.time.Duration.Companion.seconds
  * Ideally for repo reload.
  */
 class ChatProgressUpdates private constructor(val category: ChatProgressCategory) {
+    private val lock = Any()
     private var startOfFirst: SimpleTimeMark? = null
     private var title: String? = null
     private var currentlyRunning = false
@@ -41,6 +42,7 @@ class ChatProgressUpdates private constructor(val category: ChatProgressCategory
     private var innerProgress = ""
     private var innerProgressMax = 0
     private val innerProgressCount = AtomicInteger(0)
+    @Volatile
     var currentText: ProgressText? = null
 
     data class ProgressText(val text: String, val hoverText: String)
@@ -53,17 +55,21 @@ class ChatProgressUpdates private constructor(val category: ChatProgressCategory
     private fun isEnabled() = category.enabled
 
     fun innerProgressStart(max: Int) {
-        if (max > 0) {
-            innerProgress(0, max)
-        } else {
-            update("inner progress with max=$max!")
+        synchronized(lock) {
+            if (max > 0) {
+                innerProgress(0, max)
+            } else {
+                update("inner progress with max=$max!")
+            }
+            innerProgressMax = max
+            innerProgressCount.set(0)
         }
-        innerProgressMax = max
-        innerProgressCount.set(0)
     }
 
     fun innerProgressStep() {
-        innerProgress(innerProgressCount.incrementAndGet(), innerProgressMax)
+        synchronized(lock) {
+            innerProgress(innerProgressCount.incrementAndGet(), innerProgressMax)
+        }
     }
 
     private fun innerProgress(min: Int, max: Int) {
@@ -84,55 +90,57 @@ class ChatProgressUpdates private constructor(val category: ChatProgressCategory
     }
 
     private fun statusUpdate(nextStep: String, phase: Phase) {
-        if (phase == Phase.START) {
-            if (currentlyRunning) {
-                ErrorManager.logErrorStateWithData(
-                    "error properly logging something in SkyHanni",
-                    "trying to start an already running chat",
-                    "next step" to nextStep,
-                    "last step" to currentStep?.lastOrNull(),
-                )
+        synchronized(lock) {
+            if (phase == Phase.START) {
+                if (currentlyRunning) {
+                    ErrorManager.logErrorStateWithData(
+                        "error properly logging something in SkyHanni",
+                        "trying to start an already running chat",
+                        "next step" to nextStep,
+                        "last step" to currentStep?.lastOrNull(),
+                    )
+                }
+                currentlyRunning = true
+                startOfFirst = SimpleTimeMark.now()
+                title = nextStep
             }
-            currentlyRunning = true
-            startOfFirst = SimpleTimeMark.now()
-            title = nextStep
-        }
-        if (phase == Phase.UPDATE) {
-            if (!currentlyRunning) {
-                ErrorManager.logErrorStateWithData(
-                    "error properly logging something in SkyHanni",
-                    "trying to update a chat that is not running",
-                    "next step" to nextStep,
-                )
+            if (phase == Phase.UPDATE) {
+                if (!currentlyRunning) {
+                    ErrorManager.logErrorStateWithData(
+                        "error properly logging something in SkyHanni",
+                        "trying to update a chat that is not running",
+                        "next step" to nextStep,
+                    )
+                }
             }
-        }
 
-        currentStep?.let {
-            val format = startOfCurrent?.format() ?: error("start of current is null")
-            previousSteps.add("§8- §f$it $innerProgress$format")
-        }
-        innerProgress = ""
-
-        currentStep = nextStep
-        startOfCurrent = SimpleTimeMark.now()
-        category.log(nextStep)
-
-        if (phase == Phase.END) {
-            if (!currentlyRunning) {
-                ErrorManager.logErrorStateWithData(
-                    "error properly logging something in SkyHanni",
-                    "trying to end a chat that is not running",
-                    "next step" to nextStep,
-                    "last step" to currentStep?.lastOrNull(),
-                )
+            currentStep?.let {
+                val format = startOfCurrent?.format() ?: ""
+                previousSteps.add("§8- §f$it $innerProgress$format")
             }
-            currentlyRunning = false
-            update()
-            currentStep = null
-            startOfCurrent = null
-            previousSteps.clear()
-        } else {
-            update()
+            innerProgress = ""
+
+            currentStep = nextStep
+            startOfCurrent = SimpleTimeMark.now()
+            category.log(nextStep)
+
+            if (phase == Phase.END) {
+                if (!currentlyRunning) {
+                    ErrorManager.logErrorStateWithData(
+                        "error properly logging something in SkyHanni",
+                        "trying to end a chat that is not running",
+                        "next step" to nextStep,
+                        "last step" to currentStep?.lastOrNull(),
+                    )
+                }
+                currentlyRunning = false
+                update()
+                currentStep = null
+                startOfCurrent = null
+                previousSteps.clear()
+            } else {
+                update()
+            }
         }
     }
 
@@ -150,15 +158,16 @@ class ChatProgressUpdates private constructor(val category: ChatProgressCategory
     }
 
     private fun update() {
-        val title = title ?: error("title is null")
-        val currentStep = currentStep ?: error("currentStep is null")
-        val totalTime = startOfFirst?.format() ?: error("startOfFirst is null: $currentStep")
+        val title = title ?: return
+        val currentStep = currentStep ?: return
+        val startOfCurrent = startOfCurrent ?: return
+        val totalTime = startOfFirst?.format() ?: return
 
         val hover = buildList {
             add("§e$title")
             add("")
             addAll(previousSteps)
-            val currentTime = startOfCurrent?.format() ?: error("startOfCurrent is null")
+            val currentTime = startOfCurrent.format()
             val currentLine = "§8- §f$currentStep $innerProgress$currentTime"
             add(currentLine)
             add("")
@@ -170,7 +179,7 @@ class ChatProgressUpdates private constructor(val category: ChatProgressCategory
         }
 
         val text = if (currentlyRunning) {
-            "§8- §f$currentStep $innerProgress${startOfCurrent?.format()}"
+            "§8- §f$currentStep $innerProgress${startOfCurrent.format()}"
         } else {
             "§a✓ §f$currentStep $totalTime"
         }
