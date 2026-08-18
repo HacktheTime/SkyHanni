@@ -132,7 +132,6 @@ class DefaultConfigOptionGui(
                 MinecraftCompat.screen = null
             }
         }
-        DrawContextUtils.popMatrix()
 
         DrawContextUtils.pushMatrix()
         GuiRenderUtils.enableScissor(
