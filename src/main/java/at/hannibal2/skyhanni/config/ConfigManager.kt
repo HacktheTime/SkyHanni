@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.config
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.core.config.PositionList
+import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.config.storage.AchievementStorage
 import at.hannibal2.skyhanni.config.storage.CustomTodosStorage
 import at.hannibal2.skyhanni.config.storage.OrderedWaypointsRoutes
@@ -320,6 +321,9 @@ open class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(Sky
         extraPath += processedOption.getPath()
         if (default is GuiOptionEditorKeybind) {
             UpdateKeybinds.keybinds.add(extraPath)
+            if (field.declaringClass == KeyBind::class.java && field.name == "key") {
+                default = GuiOptionEditorChatPromptKeybind(default)
+            }
         }
 
         if (!isDev) {
@@ -333,17 +337,20 @@ open class BlockingMoulConfigProcessor : MoulConfigProcessor<SkyHanniConfig>(Sky
         }
 
         // Defer heavy dependency/third-party resolution so UI renders immediately.
-        return DeferredDependencyEditor(default, field)
+        return GuiOptionEditorBigDescription(GuiOptionEditorUsedBy(DeferredDependencyEditor(default, field), field), field)
     }
 
     private inner class DeferredDependencyEditor(
         private val base: GuiOptionEditor,
         private val field: Field,
-    ) : GuiOptionEditor(base.getOption()) {
+    ) : GuiOptionEditor(base.getOption()), ConfigBannerProvider {
         @Volatile
         private var resolved: GuiOptionEditor? = null
         @Volatile
         private var started = false
+
+        override fun bannerOffset(): Int =
+            ((resolved ?: base) as? ConfigBannerProvider)?.bannerOffset() ?: 0
 
         private fun ensureStarted() {
             if (started) return

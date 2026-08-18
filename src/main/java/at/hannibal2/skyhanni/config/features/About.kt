@@ -6,8 +6,10 @@ import at.hannibal2.skyhanni.utils.OSUtils.openBrowser
 import at.hannibal2.skyhanni.utils.system.ModVersion
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.annotations.SearchTag
 import io.github.notenoughupdates.moulconfig.observer.Property
@@ -34,6 +36,16 @@ class About {
     @Expose
     @ConfigEditorDropdown
     val updateStream: Property<UpdateStream> = Property.of(UpdateStream.forInstalledVersion())
+
+    @ConfigOption(name = "Large Description Hover", desc = "Shows a large tooltip with the option name and description when hovering a config row for a few seconds (or immediately while holding Shift).")
+    @ConfigEditorBoolean
+    @Expose
+    var bigDescriptionEnabled: Boolean = true
+
+    @ConfigOption(name = "Large Description Delay", desc = "How many seconds to hover a config row before the large description appears.")
+    @Expose
+    @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
+    var bigDescriptionDelay: Float = 3f
 
     @Suppress("unused")
     @ConfigOption(name = "Used Software", desc = "Information about used software and licenses")

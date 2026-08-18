@@ -123,6 +123,7 @@ class FeatureToggleProcessor : ConfigStructureReader {
             latestCategory!!,
             setter,
             optionPath,
+            field,
             finalTp?.first,
             finalTp?.second ?: true,
         )

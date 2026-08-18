@@ -6,7 +6,7 @@ import at.hannibal2.skyhanni.data.model.TextInput
 import at.hannibal2.skyhanni.features.misc.discordrpc.DiscordRPCManager
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.ChatUtils
-import at.hannibal2.skyhanni.utils.GuiRenderUtils
+import at.hannibal2.skyhanni.utils.ColorUtils.toColor
 import at.hannibal2.skyhanni.utils.MojangUtils
 import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.PlayerUtils
@@ -23,6 +23,8 @@ import de.hype.bingonet.BNConnection.reconnectToBNServer
 import de.hype.bingonet.environment.packetconfig.InterceptPacketInfo
 import de.hype.bingonet.shared.packets.network.RequestAuthentication
 import de.hype.bingonet.shared.packets.network.RequestRegisterPacket
+import io.github.notenoughupdates.moulconfig.ChromaColour
+import java.awt.Color
 import java.lang.Thread.sleep
 import kotlin.time.Duration.Companion.seconds
 
@@ -76,10 +78,11 @@ class BNRegistrationScreen(
     )
 
     var clickedTos: SimpleTimeMark? = null
-    private fun confirmButton(maxSize: Int) = Renderable.darkRectButton(
+    private fun confirmButton(maxSize: Int) = buildButton(
         text(
             "§8I accept the Terms of Service, Privacy Policy and Rules (click to register)", maxSize,
         ),
+        colorBtnConfirm.toColor(),
         onClick = {
             val clicked = clickedTos
             if (clicked == null) {
@@ -87,17 +90,33 @@ class BNRegistrationScreen(
                 clickedTos = SimpleTimeMark.now().plus(30.seconds)
                 feedbackMessage =
                     "§cYou need to read the Text above before you can continue."
-                return@darkRectButton
             } else if (clicked.isInPast()) {
                 registerNow()
             } else openTerms()
         },
-        horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+    )
+
+    private fun buildButton(
+        content: Renderable,
+        color: Color,
+        onClick: () -> Unit,
+    ): Renderable = Renderable.clickable(
+        Renderable.hoverable(
+            Renderable.drawInsideRoundedRect(content, color.brighter(), padding = 6, radius = 6),
+            Renderable.drawInsideRoundedRect(content, color, padding = 6, radius = 6),
+            bypassChecks = true,
+        ),
+        onLeftClick = onClick,
         bypassChecks = true,
     )
 
     // Feedback message to show to the user
     private var feedbackMessage: String? = null
+
+    private val colorBg = ChromaColour.fromStaticRGB(18, 18, 28, 235)
+    private val colorOutlineTop = ChromaColour.fromStaticRGB(100, 100, 160, 255)
+    private val colorOutlineBot = ChromaColour.fromStaticRGB(55, 55, 100, 255)
+    private val colorBtnConfirm = ChromaColour.fromStaticRGB(45, 45, 90, 215)
 
     override fun onDrawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         val contentWidth = 4 * this.width / 5
@@ -107,10 +126,6 @@ class BNRegistrationScreen(
         val textWidth = contentWidth - 40
         // Calculate the main area similar to ChangeLogViewerScreen
         drawDefaultBackground(mouseX, mouseY, partialTicks)
-        DrawContextUtils.translate(xTranslate - 2.0, yTranslate - 2.0)
-        GuiRenderUtils.drawFloatingRectDark(0, 0, contentWidth, contentHeight)
-        DrawContextUtils.translate(-(xTranslate - 2.0), -(yTranslate - 2.0))
-
         DrawContextUtils.translate(xTranslate.toFloat(), yTranslate.toFloat() + 5)
         Renderable.withMousePosition(mouseX - xTranslate, mouseY - yTranslate) {
             // Text width should be smaller than content width for proper wrapping
@@ -131,9 +146,20 @@ class BNRegistrationScreen(
             }
 
             // Create a vertical list that centers itself
-            Renderable.vertical(
-                elements,
-                spacing = 10,
+            Renderable.drawInsideFloatingRectWithBorder(
+                Renderable.vertical(
+                    elements,
+                    spacing = 10,
+                    horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
+                    verticalAlign = RenderUtils.VerticalAlignment.CENTER,
+                ),
+                backgroundColor = colorBg,
+                lightColor = colorOutlineTop,
+                darkColor = colorOutlineBot,
+                padding = 18,
+                radius = 12,
+                smoothness = 2,
+                borderThickness = 2,
                 horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
                 verticalAlign = RenderUtils.VerticalAlignment.CENTER,
             ).renderXYAligned(0, 0, contentWidth, contentHeight)

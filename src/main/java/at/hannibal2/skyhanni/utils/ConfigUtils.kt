@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.utils
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.ConfigGuiManager
 import at.hannibal2.skyhanni.config.MoulConfigEditorComponent
+import at.hannibal2.skyhanni.config.UsedByResolver
 import at.hannibal2.skyhanni.features.pets.PetDisplayConfigGuiManager
 import at.hannibal2.skyhanni.test.command.ErrorManager
 import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
@@ -31,6 +32,62 @@ object ConfigUtils {
         PetDisplayConfigGuiManager::getEditorInstance,
     )
     private val editorIndexCache = mutableMapOf<Field, Int>()
+
+    // moulconfig only consults the SearchFunction when the search text is non-blank, so the
+    // filtered config view keeps a sentinel in the search box; typing clears it and falls back
+    // to normal text search, clearing the box shows everything again.
+    private const val FILTER_SENTINEL = "###"
+    private var activeSearchFilter: Set<String>? = null
+
+    /**
+     * Open the config GUI filtered to only show the given config option keys
+     * (see [UsedByResolver.transitiveUsedBy]).
+     */
+    fun openFilteredConfig(keys: Set<String>) {
+        val editor = ConfigGuiManager.getEditorInstance()
+        activeSearchFilter = keys.takeIf { it.isNotEmpty() }
+        if (activeSearchFilter == null) {
+            // moulconfig crashes when the search function is null and a query is entered,
+            // so restore the default (plain text search) instead
+            editor.setSearchFunction { optionEditor, query -> optionEditor.fulfillsSearch(query) }
+            editor.search("")
+        } else {
+            editor.setSearchFunction { optionEditor, query ->
+                if (query != FILTER_SENTINEL) {
+                    optionEditor.fulfillsSearch(query)
+                } else {
+                    (optionEditor.getOption() as? ProcessedOption.HasField)?.field
+                        ?.let { "${it.declaringClass.name}#${it.name}" in keys }
+                        ?: false
+                }
+            }
+            editor.search(FILTER_SENTINEL)
+        }
+        openEditor(editor, reuseOpenScreen = true)
+    }
+
+    /** Removes any active search filter so the full config is visible again. */
+    fun clearSearchFilter() {
+        activeSearchFilter = null
+        ConfigGuiManager.getEditorInstance().apply {
+            setSearchFunction { optionEditor, query -> optionEditor.fulfillsSearch(query) }
+            search("")
+        }
+    }
+
+    private fun MoulConfigEditor<*>.searchForJump(field: Field?) {
+        val filter = activeSearchFilter
+        if (filter == null) {
+            search("")
+            return
+        }
+        // jumps to an option inside the filter keep the filter, jumps outside exit it
+        if (field != null && "${field.declaringClass.name}#${field.name}" in filter) {
+            search(FILTER_SENTINEL)
+        } else {
+            clearSearchFilter()
+        }
+    }
 
     /**
      * Migrates a Boolean to an Enum Constant.
@@ -99,13 +156,17 @@ object ConfigUtils {
     }
 
     private fun MoulConfigEditor<*>.jumpToOption(option: ProcessedOption): Boolean {
-        search("")
+        searchForJump((option as? ProcessedOption.HasField)?.field)
         if (!goToOption(option)) return false
         openEditor(this)
         return true
     }
 
-    fun openEditor(editor: MoulConfigEditor<*>) {
+    fun openEditor(editor: MoulConfigEditor<*>, reuseOpenScreen: Boolean = false) {
+        // When the config screen is already open it wraps the same cached editor instance,
+        // so the live screen scrolls to the target itself - recreating it would restart the
+        // scroll animation from the top and always scroll down.
+        if (reuseOpenScreen && MinecraftCompat.screen is MoulConfigScreenComponent) return
         SkyHanniMod.screenToOpen = createConfigScreen(editor)
     }
 
@@ -122,9 +183,10 @@ object ConfigUtils {
         val field = runCatching { owner.getDeclaredField(fieldName) }.getOrNull() ?: return
         field.isAccessible = true
         val option = editor.getOptionFromField(field) ?: return
-        editor.search("")
+        ConfigJumpHighlight.highlight(field)
+        editor.searchForJump(field)
         if (!editor.goToOption(option)) return
-        openEditor(editor)
+        openEditor(editor, reuseOpenScreen = true)
     }
 
     /**
@@ -135,13 +197,42 @@ object ConfigUtils {
         val editor = ConfigGuiManager.getEditorInstance()
         val field = this.javaField ?: return
         val option = editor.getOptionFromField(field) ?: return
-        editor.search("")
+        ConfigJumpHighlight.highlight(field)
+        editor.searchForJump(field)
         if (!editor.goToOption(option)) return
-        openEditor(editor)
+        openEditor(editor, reuseOpenScreen = true)
     }
 
     val configScreenCurrentlyOpen: Boolean
         get() = MinecraftCompat.screen is MoulConfigScreenComponent
 
     fun String.asStructuredText() = StructuredText.of(this)
+}
+
+/**
+ * Tracks a config option that the user just jumped to from elsewhere in the config,
+ * so the target option row can blink yellow briefly after the jump.
+ */
+object ConfigJumpHighlight {
+    private var target: String? = null
+    private var until = 0L
+    const val DURATION_MS = 3000L
+
+    fun highlight(field: Field) {
+        target = "${field.declaringClass.name}#${field.name}"
+        until = System.currentTimeMillis() + DURATION_MS
+    }
+
+    fun isActive(ownerName: String, fieldName: String): Boolean = remainingMs(ownerName, fieldName) > 0
+
+    /** Milliseconds left of the highlight, or 0 when inactive/expired. */
+    fun remainingMs(ownerName: String, fieldName: String): Long {
+        if (target != "$ownerName#$fieldName") return 0
+        val remaining = until - System.currentTimeMillis()
+        if (remaining <= 0) {
+            target = null
+            return 0
+        }
+        return remaining
+    }
 }

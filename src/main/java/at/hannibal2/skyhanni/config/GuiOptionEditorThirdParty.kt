@@ -1,6 +1,6 @@
 package at.hannibal2.skyhanni.config
 
-import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.utils.ConfigUtils
 import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
 import at.hannibal2.skyhanni.utils.renderables.RenderableTooltips
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
@@ -8,6 +8,7 @@ import io.github.notenoughupdates.moulconfig.common.RenderContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.KeyboardEvent
 import io.github.notenoughupdates.moulconfig.gui.MouseEvent
+import kotlin.reflect.jvm.javaField
 
 /**
  * Unified GUI wrapper for third-party dependencies.
@@ -20,7 +21,7 @@ class GuiOptionEditorThirdParty(
     private val usesMainToggle: Boolean,
     private val requiresMainToggle: Boolean,
     private val extraMessage: String,
-) : GuiOptionEditor(base.getOption()) {
+) : GuiOptionEditor(base.getOption()), ConfigBannerProvider {
     // Button bounds for mouse handling when blocked
     private var btnX1 = 0
     private var btnY1 = 0
@@ -29,6 +30,9 @@ class GuiOptionEditorThirdParty(
     private var warningBannerHeightCache = WARN_BANNER_MIN_HEIGHT
     private var lastState: UiState = UiState(consentAllows = true, mainToggleEnabled = true, blocked = false)
     private var hoverTooltip: List<String>? = null
+
+    override fun bannerOffset(): Int =
+        warningBannerHeightCache + ((base as? ConfigBannerProvider)?.bannerOffset() ?: 0)
 
     override fun render(context: RenderContext, x: Int, y: Int, width: Int) {
         val state = resolveState().also { lastState = it }
@@ -70,7 +74,7 @@ class GuiOptionEditorThirdParty(
 
         if (dueToMainToggle) {
             val buttonHeight = font.height + pad
-            val label = "Enable ${thirdParty.displayName}"
+            val label = "Jump to Main Toggle"
             val btnW = (font.getStringWidth(label) + pad * 4).coerceAtLeast((width * 0.25f).toInt())
             val btnX = x + width - btnW - pad
             val btnY = y + (warningHeight - buttonHeight) / 2
@@ -144,11 +148,17 @@ class GuiOptionEditorThirdParty(
             if (dueToMainToggle) {
                 val insideBtn = mouseX in btnX1..btnX2 && mouseY in btnY1..btnY2
                 if (insideBtn && clicked) {
-                    // Enable the third-party main toggle (same as before)
-                    thirdParty.setEnabled(true)
-                    try {
-                        SkyHanniMod.configManager.recreateConfig()
-                    } catch (_: Throwable) { /* ignore */ }
+                    // Jump to the third-party main toggle in the config
+                    thirdParty.mainToggleField?.javaField?.let { field ->
+                        ConfigUtils.openEditorForField(field.declaringClass, field.name)
+                    }
+                    return true
+                }
+                val insideBanner = mouseX in x..(x + width) && mouseY in y..(y + warningBannerHeightCache)
+                if (insideBanner && clicked) {
+                    thirdParty.mainToggleField?.javaField?.let { field ->
+                        ConfigUtils.openEditorForField(field.declaringClass, field.name)
+                    }
                     return true
                 }
                 return base.mouseInput(x, baseY, width, mouseX, mouseY, mouseEvent)
@@ -156,6 +166,14 @@ class GuiOptionEditorThirdParty(
             return insideRow && clicked
         }
         if (!insideRow) return false
+        // Not blocked: clicking anywhere on the warning banner jumps to the main toggle
+        val insideBanner = mouseY in y..(y + warningBannerHeightCache)
+        if (insideBanner && clicked) {
+            thirdParty.mainToggleField?.javaField?.let { field ->
+                ConfigUtils.openEditorForField(field.declaringClass, field.name)
+            }
+            return true
+        }
         return base.mouseInput(x, baseY, width, mouseX, mouseY, mouseEvent)
     }
 
@@ -184,8 +202,7 @@ class GuiOptionEditorThirdParty(
 
     override fun keyboardInput(event: KeyboardEvent?): Boolean {
         val state = lastState
-        if (state.blocked) return false
-        return base.keyboardInput(event)
+        return !state.blocked && base.keyboardInput(event)
     }
 
     override fun getHeight(): Int {

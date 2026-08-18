@@ -12,8 +12,10 @@ import at.hannibal2.skyhanni.utils.compat.MouseCompat
 import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.RenderableComponents
+import at.hannibal2.skyhanni.utils.render.ShaderRenderUtils
 import at.hannibal2.skyhanni.utils.renderables.primitives.TextFieldController
 import at.hannibal2.skyhanni.utils.ui.CommandSuggestionController
+import io.github.notenoughupdates.moulconfig.common.IMinecraft
 import kotlinx.coroutines.runBlocking
 import org.lwjgl.glfw.GLFW
 
@@ -254,26 +256,27 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
 
     private fun drawButton(x: Int, y: Int, w: Int, text: String) {
         val base = when {
-            text.contains("§a") || text.contains("§2") -> 0x30304A30
-            text.contains("§c") || text.contains("§4") -> 0x303A2020
-            text.contains("§e") || text.contains("§6") -> 0x303A3A20
-            text.contains("§b") || text.contains("§3") -> 0x3020333A
-            else -> 0x20202020
+            text.contains("§a") || text.contains("§2") -> 0x34235A23
+            text.contains("§c") || text.contains("§4") -> 0x346E1E1E
+            text.contains("§e") || text.contains("§6") -> 0x344B4120
+            text.contains("§b") || text.contains("§3") -> 0x34212144
+            else -> 0x3420202E.toInt()
         }
         val hover = when {
-            text.contains("§a") || text.contains("§2") -> 0x404F6540
-            text.contains("§c") || text.contains("§4") -> 0x40554040
-            text.contains("§e") || text.contains("§6") -> 0x40585832
-            text.contains("§b") || text.contains("§3") -> 0x40324455
-            else -> 0x30333333
+            text.contains("§a") || text.contains("§2") -> 0x45408240
+            text.contains("§c") || text.contains("§4") -> 0x45853838
+            text.contains("§e") || text.contains("§6") -> 0x45695536
+            text.contains("§b") || text.contains("§3") -> 0x45393866
+            else -> 0x45373757
         }
-        GuiRenderUtils.drawRect(x, y, x + w, y + 18, if (mouseIsOver(x, y, w, 18)) hover else base)
+        val hovered = mouseIsOver(x, y, w, 18)
+        ShaderRenderUtils.drawRoundRect(x, y, w, 18, if (hovered) hover else base, 5, 1f)
         GuiRenderUtils.drawStringCentered(text, x + w / 2, y + 9)
     }
 
     private fun drawEditor(editLeft: Int, editTop: Int, editW: Int) {
         GuiRenderUtils.drawString("Code:", editLeft, editTop)
-        GuiRenderUtils.drawRect(editLeft, editTop + 12 - 2, editLeft + editW - 4, editTop + 12 + 20, 0xFF2B2B2B.toInt())
+        ShaderRenderUtils.drawRoundRect(editLeft, editTop + 10, editW - 4, 22, 0xFF20202E.toInt(), 5, 1f)
         codeController?.setSize(editW - 4, 20)
         codeController?.render(editLeft, editTop + 12)
         editCodeText = codeController?.getText() ?: editCodeText
@@ -281,7 +284,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         GuiRenderUtils.drawString("Actions (command + delay):", editLeft, editTop + 38)
         val actionsBoxTop = editTop + 50
         val actionsBoxH = 160
-        GuiRenderUtils.drawRect(editLeft, actionsBoxTop, editLeft + editW - 4, actionsBoxTop + actionsBoxH, 0x20202020)
+        ShaderRenderUtils.drawRoundRect(editLeft, actionsBoxTop, editW - 4, actionsBoxH, 0xD01A1A2A.toInt(), 8, 1f)
         var y = actionsBoxTop + 4 - actionsScroll
         // Enable scissor to clip to box
         GuiRenderUtils.enableScissor(editLeft, actionsBoxTop, editLeft + editW - 4, actionsBoxTop + actionsBoxH)
@@ -292,13 +295,13 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                 val cmdW = (editW - 4) - 140
                 val cmdField = actionCommandControllers.getOrNull(i)
                 if (cmdField != null) {
-                    GuiRenderUtils.drawRect(editLeft + 4, y - 2, editLeft + 4 + cmdW, y + 14, 0xFF2B2B2B.toInt())
+                    ShaderRenderUtils.drawRoundRect(editLeft + 4, y - 2, cmdW, 16, 0xFF20202E.toInt(), 4, 1f)
                     cmdField.setSize(cmdW, 14)
                     cmdField.render(editLeft + 4, y)
                     editActionsList[i].command = cmdField.getText()
                 }
                 val delayX = editLeft + 4 + cmdW + 6
-                GuiRenderUtils.drawRect(delayX, y - 2, delayX + 50, y + 14, 0xFF2B2B2B.toInt())
+                ShaderRenderUtils.drawRoundRect(delayX, y - 2, 50, 16, 0xFF20202E.toInt(), 4, 1f)
                 val delayField = actionDelayControllers.getOrNull(i)
                 if (delayField != null) {
                     delayField.setSize(50, 14)
@@ -307,7 +310,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                         delayField.getText() else editActionDelayText.add(delayField.getText())
                 }
                 val removeX = delayX + 56
-                GuiRenderUtils.drawRect(removeX, y - 2, removeX + 18, y + 14, 0x30AA5555)
+                ShaderRenderUtils.drawRoundRect(removeX, y - 2, 18, 16, 0x307A2E2E, 4, 1f)
                 GuiRenderUtils.drawStringCentered("§c×", removeX + 9, y + 7)
             }
             y += 18
@@ -325,13 +328,14 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         val lineH = 14
         val boxH = 200
         val startY = editTop + 26
+        ShaderRenderUtils.drawRoundRect(editLeft, startY - 4, editW - 4, boxH + 8, 0xD01A1A2A.toInt(), 8, 1f)
         var y = startY - islandSelectionScroll
         val unknown = IslandType.UNKNOWN in editingAllowedIslands
         val unknownLabel = "New Islands (future sb updated default)"
         val outsideLabel = "Outside SkyBlock (Lobby etc.)"
         fun drawToggleRow(label: String, selected: Boolean) {
             if (y + lineH >= startY && y <= startY + boxH - lineH) {
-                GuiRenderUtils.drawRect(editLeft, y - 2, editLeft + editW - 4, y + lineH - 2, if (selected) 0x3044AA44 else 0x20101010)
+                GuiRenderUtils.drawRect(editLeft, y - 2, editLeft + editW - 4, y + lineH - 2, if (selected) 0x30235A23 else 0x20151521)
                 GuiRenderUtils.drawString("[${if (selected) 'x' else ' '}] $label", editLeft + 4, y)
             }
             y += lineH
@@ -342,7 +346,7 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         for (isl in valid) {
             val sel = isl in editingAllowedIslands
             if (y + lineH >= startY && y <= startY + boxH - lineH) {
-                GuiRenderUtils.drawRect(editLeft, y - 2, editLeft + editW - 4, y + lineH - 2, if (sel) 0x3044AA44 else 0x20101010)
+                GuiRenderUtils.drawRect(editLeft, y - 2, editLeft + editW - 4, y + lineH - 2, if (sel) 0x30235A23 else 0x20151521)
                 GuiRenderUtils.drawString("[${if (sel) 'x' else ' '}] ${isl.displayName}", editLeft + 4, y)
             }
             y += lineH
@@ -365,7 +369,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
         val listTop = top + 30
         val listW = 300
         val listH = totalH - 60
-        GuiRenderUtils.drawFloatingRectDark(left, top, totalW, totalH)
+        ShaderRenderUtils.drawRoundRect(left, top, totalW, totalH, 0xEB12121C.toInt(), 12, 2f)
+        ShaderRenderUtils.drawRoundRectOutline(left, top, totalW, totalH, 0xFF6464A0.toInt(), 0xFF373764.toInt(), 2, 12, 0.7f)
 
         // Always show codes list
         DrawContextUtils.pushPop {
@@ -416,8 +421,10 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             val w = (editW - 4).coerceAtMost(360)
             val itemH = 12
             val visible = suggestionController.visibleSlice()
-            val h = (visible.size * itemH).coerceAtMost(160)
-            GuiRenderUtils.drawRect(sx - 2, sy - 2, sx + w + 2, sy + h + 2, 0xC0202020.toInt())
+            val h = (visible.size * itemH).coerceAtMost(160).coerceAtMost((height - sy - 8).coerceAtLeast(0))
+            ShaderRenderUtils.drawRoundRect(sx - 2, sy - 2, sx + w + 2, sy + h + 2, 0xC01A1A2A.toInt(), 8, 1f)
+            val font = IMinecraft.INSTANCE.defaultFontRenderer
+            val maxTextWidth = (w - 10).coerceAtLeast(0)
             visible.forEachIndexed { i, s ->
                 val real = suggestionController.scroll + i
                 if (real == suggestionController.index && suggestionSelectionVisible) GuiRenderUtils.drawRect(
@@ -427,7 +434,8 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
                     sy + (i + 1) * itemH,
                     0x80446699.toInt(),
                 )
-                GuiRenderUtils.drawString(s, sx + 4, sy + i * itemH + 2)
+                val display = if (font.getStringWidth(s) > maxTextWidth) font.trimStringToWidth(s, maxTextWidth - 6) + "..." else s
+                GuiRenderUtils.drawString(display, sx + 4, sy + i * itemH + 2)
             }
             GuiRenderUtils.drawScrollbar(
                 sx + w + 3,
@@ -1038,6 +1046,11 @@ class NumpadEditorGui : SkyHanniBaseScreen() {
             return
         }
         if (kc == GLFW.GLFW_KEY_TAB && focusTarget == FocusTarget.ACTIONS) {
+            if (suggestionController.visible && suggestionController.suggestions.isNotEmpty()) {
+                acceptSuggestion(true)
+                updateSuggestions(true)
+                return
+            }
             updateSuggestions(true); return
         }
         // Forward char input

@@ -33,8 +33,8 @@ object RenderableComponents {
                 for ((i, c) in codes.withIndex()) {
                     if (i >= visibleCount) break
                     val isHover = GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, mouseOffsetX + listLeft, mouseOffsetY + y, width, 12)
-                    if (i == selectedIndexProvider()) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x20288a33)
-                    else if (isHover) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x20555555)
+                    if (i == selectedIndexProvider()) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x30235A23)
+                    else if (isHover) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x30373757)
                     GuiRenderUtils.drawString("${i + 1}. ${c.code} -> ${c.actions.size} actions", listLeft, y)
                     y += 14
                 }
@@ -92,8 +92,8 @@ object RenderableComponents {
                 for ((i, b) in binds.withIndex()) {
                     if (i >= visibleCount) break
                     val isHover = GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, mouseOffsetX + listLeft, mouseOffsetY + y, width, 12)
-                    if (i == selectedIndexProvider()) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x20288a33)
-                    else if (isHover) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x20555555)
+                    if (i == selectedIndexProvider()) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x30235A23)
+                    else if (isHover) GuiRenderUtils.drawRect(listLeft - 4, y - 2, listLeft + width, y + 12, 0x30373757)
                     GuiRenderUtils.drawString("${i + 1}. ${b.combo} -> ${b.command}", listLeft, y)
                     y += 14
                 }

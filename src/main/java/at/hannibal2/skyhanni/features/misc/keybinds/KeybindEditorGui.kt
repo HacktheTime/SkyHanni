@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
 import at.hannibal2.skyhanni.utils.compat.GuiScreenUtils
 import at.hannibal2.skyhanni.utils.GuiRenderUtils
+import io.github.notenoughupdates.moulconfig.common.IMinecraft
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
 import at.hannibal2.skyhanni.utils.renderables.primitives.TextFieldController
@@ -14,6 +15,7 @@ import at.hannibal2.skyhanni.utils.KeyboardManager
 import at.hannibal2.skyhanni.utils.compat.MouseCompat
 import at.hannibal2.skyhanni.utils.ui.CommandSuggestionController
 import at.hannibal2.skyhanni.utils.ClipboardUtils
+import at.hannibal2.skyhanni.utils.render.ShaderRenderUtils
 import kotlinx.coroutines.runBlocking
 import org.lwjgl.glfw.GLFW
 
@@ -130,7 +132,8 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
         val listLeft = left + 10; val listTop = top + 30
         val listW = 260; val listH = totalH - 60
 
-        GuiRenderUtils.drawFloatingRectDark(left, top, totalW, totalH)
+        ShaderRenderUtils.drawRoundRect(left, top, totalW, totalH, 0xEB12121C.toInt(), 12, 2f)
+        ShaderRenderUtils.drawRoundRectOutline(left, top, totalW, totalH, 0xFF6464A0.toInt(), 0xFF373764.toInt(), 2, 12, 0.7f)
         DrawContextUtils.pushPop {
             DrawContextUtils.translate(listLeft.toFloat(), listTop.toFloat())
             val r = RenderableComponents.keybindsList(listW, listH, { binds }, { selectedIndex })
@@ -162,7 +165,7 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
 
         ensureFields()
         GuiRenderUtils.drawString("Combo (click to capture, Enter to finish, Esc to cancel):", editLeft, editTop)
-        GuiRenderUtils.drawRect(editLeft, editTop + 12 - 2, editLeft + 260, editTop + 12 + 20, 0xFF2B2B2B.toInt())
+        ShaderRenderUtils.drawRoundRect(editLeft, editTop + 10, 260, 22, 0xFF20202E.toInt(), 5, 1f)
         val comboLabel = when {
             capturingCombo && capturingBaseKeys.isEmpty() -> "Press base keys..."
             capturingCombo -> capturingBaseKeys.joinToString("+")
@@ -198,7 +201,7 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
         }
 
         GuiRenderUtils.drawString("Command:", editLeft, warnY)
-        GuiRenderUtils.drawRect(editLeft, warnY + 12 - 2, editLeft + editW - 4, warnY + 12 + 20, 0xFF2B2B2B.toInt())
+        ShaderRenderUtils.drawRoundRect(editLeft, warnY + 10, editW - 4, 22, 0xFF20202E.toInt(), 5, 1f)
         commandField?.setSize(editW - 4, 20); commandField?.render(editLeft, warnY + 12)
         editCommand = commandField?.getText() ?: editCommand
 
@@ -207,7 +210,7 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
         GuiRenderUtils.drawString("Islands (toggle):", editLeft, islandsLabelY)
         val boxTop = islandsLabelY + 12
         val boxH = 200
-        GuiRenderUtils.drawRect(editLeft, boxTop, editLeft + editW - 4, boxTop + boxH, 0x20202020)
+        ShaderRenderUtils.drawRoundRect(editLeft, boxTop, editW - 4, boxH, 0xD01A1A2A.toInt(), 8, 1f)
         val lineH = 16
         val unknownSelected = IslandType.UNKNOWN in editingAllowedIslands
         val outsideSelected = allowOutside
@@ -216,7 +219,7 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
         GuiRenderUtils.enableScissor(editLeft, boxTop, editLeft + editW - 4, boxTop + boxH)
         fun rowRect(yy: Int, selected: Boolean, label: String) {
             if (yy + lineH < boxTop || yy > boxTop + boxH - lineH) return
-            GuiRenderUtils.drawRect(editLeft + 2, yy - 2, editLeft + editW - 6, yy + lineH - 2, if (selected) 0x3044AA44 else 0x20101010)
+            GuiRenderUtils.drawRect(editLeft + 2, yy - 2, editLeft + editW - 6, yy + lineH - 2, if (selected) 0x30235A23 else 0x20151521)
             GuiRenderUtils.drawString("[${if (selected) 'x' else ' '}] $label", editLeft + 6, yy)
         }
         rowRect(y, unknownSelected, "New Islands (future updates)"); y += lineH
@@ -241,21 +244,37 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
             val w = (editW - 4).coerceAtMost(360)
             val itemH = 12
             val visible = suggestionController.visibleSlice()
-            val h = (visible.size * itemH).coerceAtMost(160)
-            GuiRenderUtils.drawRect(sx - 2, sy - 2, sx + w + 2, sy + h + 2, 0xC0202020.toInt())
+            val h = (visible.size * itemH).coerceAtMost(160).coerceAtMost((height - sy - 8).coerceAtLeast(0))
+            ShaderRenderUtils.drawRoundRect(sx - 2, sy - 2, sx + w + 2, sy + h + 2, 0xC01A1A2A.toInt(), 8, 1f)
+            val font = IMinecraft.INSTANCE.defaultFontRenderer
+            val maxTextWidth = (w - 10).coerceAtLeast(0)
             visible.forEachIndexed { i, s ->
                 val real = suggestionController.scroll + i
                 if (real == suggestionController.index) GuiRenderUtils.drawRect(sx, sy + i * itemH, sx + w, sy + (i + 1) * itemH, 0x80446699.toInt())
-                GuiRenderUtils.drawString(s, sx + 4, sy + i * itemH + 2)
+                val display = if (font.getStringWidth(s) > maxTextWidth) font.trimStringToWidth(s, maxTextWidth - 6) + "..." else s
+                GuiRenderUtils.drawString(display, sx + 4, sy + i * itemH + 2)
             }
             GuiRenderUtils.drawScrollbar(sx + w + 3, sy, h, suggestionController.suggestions.size * itemH, suggestionController.scroll * itemH)
         }
     }
 
     private fun drawButton(x: Int, y: Int, w: Int, text: String) {
-        val base = 0x20202020
-        val hover = 0x30333333
-        GuiRenderUtils.drawRect(x, y, x + w, y + 18, if (GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, x, y, w, 18)) hover else base)
+        val base = when {
+            text.contains("§a") || text.contains("§2") -> 0x34235A23
+            text.contains("§c") || text.contains("§4") -> 0x346E1E1E
+            text.contains("§e") || text.contains("§6") -> 0x344B4120
+            text.contains("§b") || text.contains("§3") -> 0x34212144
+            else -> 0x3420202E.toInt()
+        }
+        val hover = when {
+            text.contains("§a") || text.contains("§2") -> 0x45408240
+            text.contains("§c") || text.contains("§4") -> 0x45853838
+            text.contains("§e") || text.contains("§6") -> 0x45695536
+            text.contains("§b") || text.contains("§3") -> 0x45393866
+            else -> 0x45373757
+        }
+        val hovered = GuiRenderUtils.isPointInRect(GuiScreenUtils.mouseX, GuiScreenUtils.mouseY, x, y, w, 18)
+        ShaderRenderUtils.drawRoundRect(x, y, w, 18, if (hovered) hover else base, 5, 1f)
         GuiRenderUtils.drawStringCentered(text, x + w / 2, y + 9)
     }
 
@@ -517,7 +536,9 @@ class KeybindEditorGui : SkyHanniBaseScreen() {
                         pageSuggestions(kc == GLFW.GLFW_KEY_PAGE_DOWN); return
                     }
                     GLFW.GLFW_KEY_TAB -> {
-                        updateSuggestions(); return
+                        acceptSuggestion()
+                        updateSuggestions()
+                        return
                     }
                     GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER -> {
                         acceptSuggestion(); return

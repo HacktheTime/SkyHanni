@@ -13,12 +13,24 @@ enum class ThirdParty(
     val displayName: String,
     val description: String,
     val mainToggleField: KMutableProperty1<out Any, Boolean>?,
+    val sourceAccess: Boolean,
+    val serverAccess: Boolean,
+    val websiteUrl: String? = null,
+    val privacyPolicyUrl: String? = null,
+    val termsOfServiceUrl: String? = null,
+    val discordUrl: String? = null,
 ) {
     BINGO_NET(
         id = "bingo_net",
         displayName = "Bingo Net",
         description = "Advanced Network centered around Skyblock Bingo by Hype_the_Time.",
         mainToggleField = BingoNetConfig::useBN,
+        sourceAccess = false,
+        serverAccess = false,
+        websiteUrl = "https://hackthetime.de",
+        privacyPolicyUrl = "https://hackthetime.de/privacy",
+        termsOfServiceUrl = "https://hackthetime.de/tos",
+        discordUrl = "https://hackthetime.de/discord",
     ) {
         override fun isEnabled(): Boolean =
             try {
@@ -38,6 +50,12 @@ enum class ThirdParty(
         id = "bingo_brewers",
         displayName = "Bingo Brewers",
         description = "Simple Bingo network by indigo_polecat.",
+        termsOfServiceUrl = null,
+        privacyPolicyUrl = null,
+        websiteUrl = null,
+        serverAccess = false,
+        sourceAccess = false,
+        discordUrl = "https://discord.gg/bingobrewers",
         mainToggleField = BingoNetworksConfig::useBB,
     ) {
         override fun isEnabled(): Boolean =
@@ -58,6 +76,11 @@ enum class ThirdParty(
         id = "bingo_splash_community",
         displayName = "Bingo Splash Community",
         description = "Very basic splash announcement server by the Bingo Splash Community Discord Server. Hosted by Morazzer",
+        termsOfServiceUrl = null,
+        privacyPolicyUrl = null,
+        websiteUrl = null,
+        serverAccess = false,
+        sourceAccess = false,
         mainToggleField = BingoNetworksConfig::useBSC
     ){
         override fun isEnabled(): Boolean =

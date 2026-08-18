@@ -4,7 +4,6 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.FeatureDependencyResolver.Requirements
 import at.hannibal2.skyhanni.utils.ConfigUtils
 import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
-import at.hannibal2.skyhanni.utils.ConfigUtils.jumpToEditor
 import at.hannibal2.skyhanni.utils.renderables.RenderableTooltips
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 import io.github.notenoughupdates.moulconfig.common.RenderContext
@@ -23,7 +22,7 @@ class GuiOptionEditorDependencies(
     private val base: GuiOptionEditor,
     private val initialRequirements: Requirements,
     private val dependencyField: Field? = null,
-) : GuiOptionEditor(base.getOption()) {
+) : GuiOptionEditor(base.getOption()), ConfigBannerProvider {
     private data class ButtonHitbox(
         val sourceLabel: String,
         var x1: Int,
@@ -31,7 +30,13 @@ class GuiOptionEditorDependencies(
         var x2: Int,
         var y2: Int,
         val labelText: String,
+        val hasButton: Boolean = true,
+        var rowY1: Int = 0,
+        var rowY2: Int = 0,
     )
+
+    override fun bannerOffset(): Int =
+        bannerHeight + dependencyListHeight + ((base as? ConfigBannerProvider)?.bannerOffset() ?: 0)
 
     private val buttons = mutableListOf<ButtonHitbox>()
     // private val bannerButtons = mutableListOf<ButtonHitbox>() // bannerButtons removed; we only use rowButtons now
@@ -39,6 +44,7 @@ class GuiOptionEditorDependencies(
     private var bannerHeight = MIN_BANNER_HEIGHT
     private var hoverTooltip: List<String>? = null
     private var blocked = true
+    private var requirementsExpanded = false
     private var currentRequirements = initialRequirements
     private var dependencyListHeight = 0
     // caches to avoid expensive reflection/string work each frame
@@ -122,52 +128,47 @@ class GuiOptionEditorDependencies(
                     // fallback: keep currentRequirements
                 }
             }
-        } ?: run {
-            // keep the async-expanded currentRequirements when possible
-            // but if dependencyField exists, prefer to re-resolve live so we reflect runtime changes
         }
-        // Do not eagerly clear caches here. Keep satisfiedCache/ownerInstanceCache across frames where possible
-        // to reduce flicker and expensive reflection. We still clear them when a dependency is enabled.
         // start of render: clear per-frame satisfied cache so we recompute current states and avoid stale values
         frameSatisfied.clear()
-         // compute buttons for rendering so they look correct; still compute on-demand in mouseInput
-         buttons.clear()
+        buttons.clear()
         val font = IMinecraft.INSTANCE.defaultFontRenderer
         val pad = (base.height * 0.08f).toInt().coerceAtLeast(3)
-        val text = cachedBannerText ?: buildBannerText().also { cachedBannerText = it }
         val satisfiedAnyGroup = currentRequirements.groups.any { group ->
-            val satisfied = if (group.requireAll) {
-                group.dependencies.all { isSatisfied(it) }
-            } else {
-                group.dependencies.any { isSatisfied(it) }
-            }
-            satisfied
+            isGroupMet(group)
         }
         blocked = !satisfiedAnyGroup
-        // Only reserve banner/dependency list space when blocked (i.e. requirements not satisfied).
-        if (blocked) {
-            val bannerH = max(font.height + pad * 2, MIN_BANNER_HEIGHT)
-            bannerHeight = bannerH
-            val bannerBottom = y + bannerH
-            val bgColor = BLOCKED_BG
-            context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), bannerBottom.toFloat(), bgColor)
-            val ty = y + (bannerH - font.height) / 2
-            context.drawStringScaledMaxWidth("§c⚠ ${text}".asStructuredText(), font, x + pad, ty, true, width - pad * 2, TEXT_COLOR)
 
-            // render dependency rows and then the base content
-            val bodyY = y + bannerH
-            // recompute layout each render so positions exactly match; avoids stale offsets
-            layoutRowButtons(x, bodyY, width)
-            renderDependencyList(context, x, bodyY, width)
-            val contentY = bodyY + dependencyListHeight
-            base.render(context, x, contentY, width)
-            // draw overlay to visually block interaction with base content
-            context.drawColoredRect(x.toFloat(), contentY.toFloat(), (x + width).toFloat(), (contentY + base.height).toFloat(), OVERLAY_BG)
+        // Always reserve space for the requirements banner (collapsed + neutral when satisfied)
+        val bannerH = max(font.height + pad * 2, MIN_BANNER_HEIGHT)
+        bannerHeight = bannerH
+        val bannerBottom = y + bannerH
+        val bannerText = if (blocked) {
+            "§c⚠ ${cachedBannerText ?: buildBannerText().also { cachedBannerText = it }}"
+        } else if (requirementsExpanded) {
+            "§aRequirements met §7(click to collapse)"
         } else {
-            // not blocked: clear banner/dependency heights so no reserved space
-            bannerHeight = 0
+            "§aRequirements met §7(click to expand)"
+        }
+        val bgColor = if (blocked) BLOCKED_BG else SATISFIED_BG
+        context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), bannerBottom.toFloat(), bgColor)
+        val ty = y + (bannerH - font.height) / 2
+        context.drawStringScaledMaxWidth(bannerText.asStructuredText(), font, x + pad, ty, true, width - pad * 2, TEXT_COLOR)
+
+        // render dependency rows when blocked or manually expanded, then the base content
+        val bodyY = y + bannerH
+        val showList = blocked || requirementsExpanded
+        layoutRowButtons(x, bodyY, width)
+        if (showList) {
+            renderDependencyList(context, x, bodyY, width)
+        } else {
             dependencyListHeight = 0
-            base.render(context, x, y, width)
+        }
+        val contentY = bodyY + dependencyListHeight
+        base.render(context, x, contentY, width)
+        // draw overlay to visually block interaction with base content
+        if (blocked) {
+            context.drawColoredRect(x.toFloat(), contentY.toFloat(), (x + width).toFloat(), (contentY + base.height).toFloat(), OVERLAY_BG)
         }
     }
 
@@ -190,23 +191,14 @@ class GuiOptionEditorDependencies(
                 val rowTop = cursorY
                 val rowBottom = rowTop + rowHeight
                 context.drawColoredRect(x.toFloat(), rowTop.toFloat(), (x + width).toFloat(), rowBottom.toFloat(), ROW_BG)
-                // Append a short third-party marker if the overall annotated field declares ThirdPartyDependency
-                var lblStr = buildDependencyLabel(dep)
-                if (dep.source is FeatureDependencyResolver.DependencySource.ThirdParty && dependencyField?.getAnnotation(ThirdPartyDependency::class.java) != null) {
-                    val tp = dep.source.value
-                    lblStr += " §e(Third-party)"
-                    // include main toggle name when present so user understands what's unlockable
-                    tp.mainToggleField?.javaField?.let { f ->
-                        lblStr += " §7[main: ${f.name}]"
-                    }
-                }
-                val label = lblStr.asStructuredText()
-                context.drawStringScaledMaxWidth(label, font, x + pad, rowTop + pad, true, width - pad * 3, TEXT_COLOR)
-                val satisfied = frameSatisfied[dep] ?: isSatisfied(dep).also { frameSatisfied[dep] = it }
-                if (!satisfied) {
-                    // draw the enable button using the layout computed earlier
-                    val hb = rowButtons.firstOrNull { it.sourceLabel == dep.label }
-                    if (hb != null) drawEnableButton(context, hb.x1, hb.y1, hb.x2 - hb.x1, hb.y2 - hb.y1, hb.labelText.asStructuredText(), mx, my)
+                val label = buildDependencyLabel(dep).asStructuredText()
+                // Reserve space for the row button so the label never overlaps it
+                val hb = rowButtons.firstOrNull { it.sourceLabel == dep.label }
+                val labelMaxWidth = width - pad * 3 - (if (hb != null && hb.hasButton) hb.x2 - hb.x1 else 0) - 8
+                context.drawStringScaledMaxWidth(label, font, x + pad, rowTop + pad, true, labelMaxWidth.coerceAtLeast(20), TEXT_COLOR)
+                // draw the jump button using the layout computed earlier (every row gets one)
+                if (hb != null && hb.hasButton) {
+                    drawEnableButton(context, hb.x1, hb.y1, hb.x2 - hb.x1, hb.y2 - hb.y1, hb.labelText.asStructuredText(), mx, my)
                 }
                 // debug: draw hitbox rectangles/lines if enabled
                 if (DEBUG_HITBOX) {
@@ -231,36 +223,32 @@ class GuiOptionEditorDependencies(
          val padList = 4
          rowButtons.clear()
          var cursorY = y
-         // cache annotation presence once
-         val hasTpAnn = dependencyField?.getAnnotation(ThirdPartyDependency::class.java) != null
          currentRequirements.groups.forEach { group ->
              // only reserve space for a group header when a message is present (matches renderDependencyList)
              if (group.message.isNotBlank()) cursorY += font.height + padList
              group.dependencies.forEach { dep ->
                  val rowHeight = font.height + padList * 2
                  val rowTop = cursorY
-                 val satisfied = frameSatisfied[dep] ?: isSatisfied(dep).also { frameSatisfied[dep] = it }
-                 if (!satisfied) {
-                     // Determine label: if dependency is a third-party and the annotation requests main-toggle behavior,
-                     // show a more descriptive label like "Enable <ThirdParty.DisplayName>"; otherwise use generic "Enable".
-                     val label = when (val s = dep.source) {
-                         is FeatureDependencyResolver.DependencySource.ThirdParty -> {
-                             if (hasTpAnn) {
-                                 // descriptive button for annotated third-party dependency
-                                 "Enable ${s.value.displayName}"
-                             } else {
-                                 // fallback to default short label
-                                 "Enable"
-                             }
-                         }
-                         else -> "Enable"
-                     }
+                 // Only actionable rows get a button: satisfied/enabled dependencies show no
+                 // button (no reserved space, no tooltip, no click action). Third-party main
+                 // toggles get no enable button either (so a server integration can't be
+                 // enabled unknowingly), but the row itself stays clickable to jump to the
+                 // main toggle.
+                 if (!isSatisfied(dep) && thirdPartyOf(dep) == null) {
+                     val label = "§fEnable"
                      val btnW = font.getStringWidth(label) + 8
                      val buttonWidth = btnW.coerceAtLeast(font.height + 8)
                      val btnX = x + width - buttonWidth - padList
                      val btnH = font.height + 4
                      val btnY = rowTop + (rowHeight - btnH) / 2
                      val hb = ButtonHitbox(dep.label, btnX, btnY, btnX + buttonWidth, btnY + btnH, label)
+                     hb.rowY1 = rowTop
+                     hb.rowY2 = rowTop + rowHeight
+                     rowButtons.add(hb)
+                 } else if (thirdPartyOf(dep) != null) {
+                     val hb = ButtonHitbox(dep.label, 0, 0, 0, 0, "", hasButton = false)
+                     hb.rowY1 = rowTop
+                     hb.rowY2 = rowTop + rowHeight
                      rowButtons.add(hb)
                  }
                  cursorY += rowHeight + padList / 2
@@ -273,8 +261,35 @@ class GuiOptionEditorDependencies(
     private fun buildDependencyLabel(dep: FeatureDependencyResolver.Dependency): String {
         val state = if (isSatisfied(dep)) "§aEnabled" else "§cDisabled"
         return when (val source = dep.source) {
-            is FeatureDependencyResolver.DependencySource.ThirdParty -> "${source.value.displayName} - $state"
-            is FeatureDependencyResolver.DependencySource.BooleanField -> "${dep.label} - $state"
+            is FeatureDependencyResolver.DependencySource.ThirdParty -> "§c⚠ Third-Party: ${source.value.displayName} - $state"
+            is FeatureDependencyResolver.DependencySource.BooleanField ->
+                thirdPartyOf(dep)?.let { "§c⚠ Third-Party: ${it.displayName} - $state" } ?: "${dep.label} - $state"
+        }
+    }
+
+    /**
+     * A requirement group counts as met only when every third-party main toggle in it is
+     * satisfied; an unsatisfied main toggle must never make the group look green.
+     */
+    private fun isGroupMet(group: FeatureDependencyResolver.RequirementGroup): Boolean {
+        return group.dependencies.filter { thirdPartyOf(it) != null }.all { isSatisfied(it) } && if (group.requireAll) {
+            group.dependencies.all { isSatisfied(it) }
+        } else {
+            group.dependencies.any { isSatisfied(it) }
+        }
+    }
+
+    /**
+     * Returns the third party this dependency belongs to, when the dependency is either a
+     * [FeatureDependencyResolver.DependencySource.ThirdParty] requirement or a plain boolean
+     * field that is the main toggle of a third party (e.g. [ThirdParty.BINGO_NET]'s useBN).
+     */
+    private fun thirdPartyOf(dep: FeatureDependencyResolver.Dependency): ThirdParty? = when (val source = dep.source) {
+        is FeatureDependencyResolver.DependencySource.ThirdParty -> source.value
+        is FeatureDependencyResolver.DependencySource.BooleanField -> ThirdParty.entries.firstOrNull { tp ->
+            tp.mainToggleField?.javaField?.let {
+                it.declaringClass.name == source.owner.name && it.name == source.fieldName
+            } == true
         }
     }
 
@@ -339,148 +354,6 @@ class GuiOptionEditorDependencies(
         }
     }
 
-    override fun mouseInput(
-        x: Int,
-        y: Int,
-        width: Int,
-        mouseX: Int,
-        mouseY: Int,
-        mouseEvent: MouseEvent?,
-    ): Boolean {
-        val isClick = mouseEvent is MouseEvent.Click && mouseEvent.mouseState
-        // compute hitboxes on-demand (font available via IMinecraft.INSTANCE) so mouse events are reliable even before render
-        // compute hitboxes once and populate caches (computeHitboxes will populate ownerInstanceCache and satisfiedCache)
-        val computed = computeHitboxes(x, y, width)
-        // compute the full height reserved for this editor (banner + dependency list + base)
-        val totalBannerAndList = bannerHeight + dependencyListHeight
-        val dependencyZoneBottom = y + totalBannerAndList
-        val insideDependencyZone = mouseX in x..(x + width) && mouseY in y..dependencyZoneBottom
-        if (isClick && insideDependencyZone) {
-            computed.firstOrNull { mouseX in it.x1..it.x2 && mouseY in it.y1..it.y2 }?.let { hit ->
-                // resolve the live Dependency object by label before action
-                findCurrentDependencyByLabel(hit.sourceLabel)?.let { dep ->
-                    // Shift-click: jump to editor instead of enabling
-                    if (at.hannibal2.skyhanni.utils.KeyboardManager.isShiftKeyDown()) {
-                        when (val s = dep.source) {
-                            is FeatureDependencyResolver.DependencySource.BooleanField -> ConfigUtils.openEditorForField(s.owner, s.fieldName)
-                            is FeatureDependencyResolver.DependencySource.ThirdParty -> {
-                                // try to jump to the third party's main toggle field if exists
-                                val tp = dep.source.value
-                                tp.mainToggleField?.javaField?.let { field ->
-                                    ConfigUtils.openEditorForField(field.declaringClass, field.name)
-                                }
-                            }
-                        }
-                        return true
-                    }
-                    // normal click: enable
-                    enableDependency(dep)
-                    return true
-                }
-            }
-        }
-        if (blocked) {
-            return insideDependencyZone && isClick
-        }
-        // forward remaining mouse events to base editor, adjusting y to the base content top
-        val contentTop = y + totalBannerAndList
-        return base.mouseInput(x, contentTop, width, mouseX, mouseY, mouseEvent)
-    }
-
-    // Ensure parent layout reserves space for our banner + dependency list
-    override fun getHeight(): Int {
-        // compute whether we'd be blocked to determine reserved height; keep same resolution logic as render
-        // Avoid heavy synchronous resolution on initial load: if we haven't resolved async yet, rely on cached currentRequirements
-        val reqs = if (!requirementsResolved) currentRequirements else (dependencyField?.let {
-            try { expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) } catch (_: Throwable) { currentRequirements }
-        } ?: currentRequirements)
-        val satisfiedAnyGroup = reqs.groups.any { group ->
-            if (group.requireAll) group.dependencies.all { isSatisfied(it) } else group.dependencies.any { isSatisfied(it) }
-        }
-        return if (satisfiedAnyGroup) base.height else base.height + bannerHeight + dependencyListHeight
-    }
-
-    private fun enableDependency(dep: FeatureDependencyResolver.Dependency) {
-        val summary = buildEnableSummary(dep)
-        // show persistent summary in our own hoverTooltip and also through RenderableTooltips for compatibility
-        if (summary.isNotEmpty()) {
-            hoverTooltip = summary
-            RenderableTooltips.setTooltipForRender(summary.map(StringRenderable::from))
-        } else {
-            hoverTooltip = null
-        }
-        when (val source = dep.source) {
-            is FeatureDependencyResolver.DependencySource.ThirdParty -> {
-                source.value.setEnabled(true)
-                SkyHanniMod.configManager.recreateConfig()
-                // re-resolve requirements immediately and refresh state so UI updates
-                dependencyField?.let { currentRequirements = expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) }
-            }
-            is FeatureDependencyResolver.DependencySource.BooleanField -> {
-                // prefer to enable on existing singleton instance; avoid creating a new instance when owner isn't an object.
-                val ownerClass = source.owner
-                val singleton = ownerClass.kotlin.objectInstance
-                val prop = source.property
-                if (prop != null && singleton != null) {
-                    try {
-                        prop.set(singleton, true)
-                        SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "dependency-unlock")
-                        // rebuild config processor and editor so the option state refreshes everywhere
-                        SkyHanniMod.configManager.recreateConfig()
-                        // clear caches so subsequent render/input recomputes fresh state
-                        ownerInstanceCache.clear(); cachedBannerText = null
-                        dependencyField?.let { currentRequirements = expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) }
-                        return
-                    } catch (_: Throwable) {
-                        // fallthrough to editor navigation
-                    }
-                }
-                // prefer to find any existing instance of the owner class in known roots and set it there
-                val existing = findExistingInstance(ownerClass)
-                if (prop != null && existing != null) {
-                    try {
-                        prop.set(existing, true)
-                        SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "dependency-unlock")
-                        SkyHanniMod.configManager.recreateConfig()
-                        ownerInstanceCache.clear(); cachedBannerText = null
-                        dependencyField?.let { currentRequirements = expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) }
-                        return
-                    } catch (_: Throwable) {
-                        // fallthrough
-                    }
-                }
-                // if no Kotlin mutable property or it failed, try to set the java boolean field directly
-                try {
-                    val javaField = ownerClass.declaredFields.firstOrNull { it.name == source.fieldName }
-                    if (javaField != null) {
-                        val instanceForField = existing ?: findExistingInstance(ownerClass) ?: ownerClass.kotlin.objectInstance
-                        if (instanceForField != null) {
-                            javaField.isAccessible = true
-                            if (javaField.type == java.lang.Boolean.TYPE || javaField.type == java.lang.Boolean::class.java) {
-                                javaField.setBoolean(instanceForField, true)
-                                SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "dependency-unlock")
-                                SkyHanniMod.configManager.recreateConfig()
-                                ownerInstanceCache.clear(); cachedBannerText = null
-                                dependencyField?.let { currentRequirements = expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) }
-                                return
-                            }
-                        }
-                    }
-                } catch (_: Throwable) {
-                    // ignore and fall through to editor view
-                }
-
-                 // if we can't set the field programmatically, open the editor to the option so user can enable it
-                 prop?.let { p ->
-                     // try to jump to editor bound to an object instance if possible
-                     singleton?.let { s -> p.jumpToEditor(s); return }
-                 }
-                 // fallback: open editor by field name on the owner class
-                 ConfigUtils.openEditorForField(ownerClass, source.fieldName)
-             }
-         }
-     }
-
     /**
      * Try to find an existing live instance of the given type in known roots (SkyHanniMod fields).
      */
@@ -521,22 +394,157 @@ class GuiOptionEditorDependencies(
         return null
     }
 
-    private fun buildEnableSummary(dep: FeatureDependencyResolver.Dependency): List<String> {
-        // Build summary listing what enabling this dependency will unlock. Use the expanded currentRequirements so
-        // dependencies of dependencies are included.
-        val dependents = currentRequirements.groups
-            .filter { group -> group.dependencies.contains(dep) }
-            .flatMap { group -> group.dependencies.map { it.label } }
-            .distinct()
-        return if (dependents.isEmpty()) emptyList() else buildList {
-            add("§7Enabling dependency unlocks:")
-            dependents.forEach { add(" §8- §f$it") }
-            // if this dep is a third-party, surface main toggle info as well
-            if (dep.source is FeatureDependencyResolver.DependencySource.ThirdParty) {
-                val tp = dep.source.value
-                tp.mainToggleField?.javaField?.let { f -> add("\n§7Main toggle: §f${f.name}") }
+    override fun mouseInput(
+        x: Int,
+        y: Int,
+        width: Int,
+        mouseX: Int,
+        mouseY: Int,
+        mouseEvent: MouseEvent?,
+    ): Boolean {
+        val isClick = mouseEvent is MouseEvent.Click && mouseEvent.mouseState
+        // recompute state so hitboxes match the current render
+        updateLayout(x, y, width)
+        // compute the full height reserved for this editor (banner + dependency list + base)
+        val totalBannerAndList = bannerHeight + dependencyListHeight
+        val dependencyZoneBottom = y + totalBannerAndList
+        val insideDependencyZone = mouseX in x..(x + width) && mouseY in y..dependencyZoneBottom
+        if (isClick && insideDependencyZone) {
+            // Banner click: when requirements are met, toggle the collapsed/expanded state
+            if (mouseY <= y + bannerHeight && !blocked) {
+                requirementsExpanded = !requirementsExpanded
+                return true
+            }
+            // Click on a dependency row button: enable the dependency option in the config
+            rowButtons.firstOrNull { it.hasButton && mouseX in it.x1..it.x2 && mouseY in it.y1..it.y2 }?.let { hit ->
+                findCurrentDependencyByLabel(hit.sourceLabel)?.let { dep -> enableDependency(dep) }
+                return true
+            }
+            // Click anywhere else on a dependency row: jump to the option in the config
+            rowButtons.firstOrNull { mouseY in it.rowY1..it.rowY2 && mouseX in x..(x + width) }?.let { hit ->
+                findCurrentDependencyByLabel(hit.sourceLabel)?.let { dep -> jumpToDependency(dep) }
+                return true
+            }
+            if (blocked) return true
+        }
+        if (blocked) {
+            // clicks outside the dependency zone are not consumed; base stays blocked
+            return false
+        }
+        // forward remaining mouse events to base editor, adjusting y to the base content top
+        val contentTop = y + totalBannerAndList
+        return base.mouseInput(x, contentTop, width, mouseX, mouseY, mouseEvent)
+    }
+
+    private fun jumpToDependency(dep: FeatureDependencyResolver.Dependency) {
+        when (val s = dep.source) {
+            is FeatureDependencyResolver.DependencySource.BooleanField -> ConfigUtils.openEditorForField(s.owner, s.fieldName)
+            is FeatureDependencyResolver.DependencySource.ThirdParty -> {
+                // try to jump to the third party's main toggle field if exists
+                s.value.mainToggleField?.javaField?.let { field ->
+                    ConfigUtils.openEditorForField(field.declaringClass, field.name)
+                }
             }
         }
+    }
+
+    /**
+     * Enables the option a dependency refers to directly. Falls back to jumping to the option
+     * in the config if the value cannot be set programmatically.
+     */
+    private fun enableDependency(dep: FeatureDependencyResolver.Dependency) {
+        when (val s = dep.source) {
+            is FeatureDependencyResolver.DependencySource.ThirdParty -> {
+                s.value.setEnabled(true)
+                SkyHanniMod.configManager.recreateConfig()
+                afterEnable(dep)
+            }
+            is FeatureDependencyResolver.DependencySource.BooleanField -> {
+                if (enableBooleanField(s)) {
+                    SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "dependency-unlock")
+                    SkyHanniMod.configManager.recreateConfig()
+                    afterEnable(dep)
+                } else {
+                    // cannot set the value programmatically, so jump to the option instead
+                    jumpToDependency(dep)
+                }
+            }
+        }
+    }
+
+    private fun enableBooleanField(source: FeatureDependencyResolver.DependencySource.BooleanField): Boolean {
+        val property = source.property
+        if (property != null) {
+            val instance = source.owner.kotlin.objectInstance
+                ?: runCatching { findExistingInstance(source.owner) }.getOrNull()
+            if (instance != null) {
+                return runCatching {
+                    property.set(instance, true)
+                    true
+                }.getOrElse { false }
+            }
+        }
+        val javaField = runCatching { source.owner.getDeclaredField(source.fieldName) }.getOrNull()
+        if (javaField != null &&
+            (javaField.type == Boolean::class.javaPrimitiveType || javaField.type == Boolean::class.javaObjectType)
+        ) {
+            val instance = runCatching { source.owner.kotlin.objectInstance ?: findExistingInstance(source.owner) }.getOrNull()
+            if (instance != null) {
+                return runCatching {
+                    javaField.isAccessible = true
+                    javaField.setBoolean(instance, true)
+                    true
+                }.getOrElse { false }
+            }
+        }
+        return false
+    }
+
+    private fun afterEnable(dep: FeatureDependencyResolver.Dependency) {
+        // invalidate per-frame state so the next render reflects the new value
+        frameSatisfied.clear()
+        ownerInstanceCache.clear()
+        hoverTooltip = listOf("§aEnabled ${dep.label}", "§7Click to jump to this option")
+    }
+
+    // Ensure parent layout reserves space for our banner + dependency list
+    override fun getHeight(): Int {
+        // compute whether we'd be blocked to determine reserved height; keep same resolution logic as render
+        // Avoid heavy synchronous resolution on initial load: if we haven't resolved async yet, rely on cached currentRequirements
+        val reqs = if (!requirementsResolved) currentRequirements else (dependencyField?.let {
+            try { expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) } catch (_: Throwable) { currentRequirements }
+        } ?: currentRequirements)
+        val satisfiedAnyGroup = reqs.groups.any { group ->
+            isGroupMet(group)
+        }
+        val showList = !satisfiedAnyGroup || requirementsExpanded
+        return base.height + bannerHeight + (if (showList) dependencyListHeight else 0)
+    }
+
+    /**
+     * Recompute requirements state, banner/list heights and row button hitboxes.
+     * Called from render and mouseInput so both stay in sync.
+     */
+    private fun updateLayout(x: Int, y: Int, width: Int) {
+        if (requirementsResolved) {
+            dependencyField?.let { currentRequirements = try { expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) } catch (_: Throwable) { currentRequirements } }
+        }
+        frameSatisfied.clear()
+        val font = IMinecraft.INSTANCE.defaultFontRenderer
+        val pad = (base.height * 0.08f).toInt().coerceAtLeast(3)
+        val satisfiedAnyGroup = currentRequirements.groups.any { group ->
+            isGroupMet(group)
+        }
+        blocked = !satisfiedAnyGroup
+        bannerHeight = max(font.height + pad * 2, MIN_BANNER_HEIGHT)
+        rowButtons.clear()
+        buttons.clear()
+        if (blocked || requirementsExpanded) {
+            layoutRowButtons(x, y + bannerHeight, width)
+        } else {
+            dependencyListHeight = 0
+        }
+        buttons.addAll(rowButtons)
     }
 
     private fun buildBannerText(): String {
@@ -579,47 +587,26 @@ class GuiOptionEditorDependencies(
         val mx = IMinecraft.INSTANCE.mouseX
         val my = IMinecraft.INSTANCE.mouseY
         val bannerBottom = y + bannerHeight
-        if (mx in x..(x + width) && my in y..bannerBottom) {
-            RenderableTooltips.setTooltipForRender(tips.map(StringRenderable::from))
+        when {
+            mx in x..(x + width) && my in y..bannerBottom -> {
+                RenderableTooltips.setTooltipForRender(tips.map(StringRenderable::from))
+            }
+            (blocked || requirementsExpanded) -> {
+                rowButtons.firstOrNull { my in it.rowY1..it.rowY2 && mx in x..(x + width) }?.let { hb ->
+                    val tooltip = if (hb.hasButton && mx in hb.x1..hb.x2 && my in hb.y1..hb.y2) {
+                        listOf("§7Click to enable this option")
+                    } else {
+                        listOf("§7Click to jump to this option")
+                    }
+                    RenderableTooltips.setTooltipForRender(tooltip.map(StringRenderable::from))
+                }
+            }
         }
         // forward overlay rendering for base (content) offset by bannerHeight
         base.renderOverlay(context, x, y + bannerHeight + dependencyListHeight, width)
     }
 
-    /**
-     * Compute button hitboxes and update banner/dependency list heights using font metrics.
-     * This is safe to call before render().
-     */
-    private fun computeHitboxes(x: Int, y: Int, width: Int): List<ButtonHitbox> {
-        // Recompute currentRequirements and per-frame satisfied cache similar to render so hitboxes line up
-        // Avoid blocking synchronous resolution on first load: only re-resolve when async resolution has completed.
-        if (requirementsResolved) {
-            dependencyField?.let { currentRequirements = try { expandRequirementsRecursive(FeatureDependencyResolver.resolve(it)) } catch (_: Throwable) { currentRequirements } }
-        } // else: keep currentRequirements (initial/previous) so UI is immediate
-        frameSatisfied.clear()
-        // decide whether blocked
-        val font = IMinecraft.INSTANCE.defaultFontRenderer
-        val pad = (base.height * 0.08f).toInt().coerceAtLeast(3)
-        val satisfiedAnyGroup = currentRequirements.groups.any { group ->
-            if (group.requireAll) group.dependencies.all { isSatisfied(it) } else group.dependencies.any { isSatisfied(it) }
-        }
-        val localBlocked = !satisfiedAnyGroup
-        if (localBlocked) {
-            val bannerH = max(font.height + pad * 2, MIN_BANNER_HEIGHT)
-            bannerHeight = bannerH
-            // populate layout hitboxes for rows using the same logic as render so positions match
-            layoutRowButtons(x, y + bannerH, width)
-        } else {
-            // not blocked: no banner or dependency rows reserved
-            bannerHeight = 0
-            dependencyListHeight = 0
-            rowButtons.clear()
-        }
-        buttons.clear(); buttons.addAll(rowButtons)
-        return buttons
-     }
-
-     private fun findCurrentDependencyByLabel(label: String): FeatureDependencyResolver.Dependency? {
+    private fun findCurrentDependencyByLabel(label: String): FeatureDependencyResolver.Dependency? {
         currentRequirements.groups.forEach { g ->
             g.dependencies.forEach { d -> if (d.label == label) return d }
         }
@@ -689,12 +676,26 @@ class GuiOptionEditorDependencies(
             }
         }
 
-        return Requirements(outGroups)
+        // Remove duplicate dependencies (including the main toggle showing up multiple times
+        // via recursive expansion) and duplicate groups
+        val seenGroups = mutableSetOf<String>()
+        val finalGroups = outGroups.mapNotNull { group ->
+            val deduped = group.dependencies.distinctBy { keyOf(it) }
+            val key = group.requireAll.toString() + "|" + group.message + "|" + deduped.joinToString(",") { keyOf(it) }
+            if (!seenGroups.add(key)) null else group.copy(dependencies = deduped)
+        }
+        return Requirements(finalGroups)
+    }
+
+    private fun keyOf(dep: FeatureDependencyResolver.Dependency): String = when (val source = dep.source) {
+        is FeatureDependencyResolver.DependencySource.BooleanField -> "${source.owner.name}#${source.fieldName}"
+        is FeatureDependencyResolver.DependencySource.ThirdParty -> "third:${source.value.id}"
     }
 
     companion object {
         private const val MIN_BANNER_HEIGHT = 16
         private const val BLOCKED_BG = 0x33FF8888
+        private const val SATISFIED_BG = 0x3323A55A
         private const val TEXT_COLOR = -0x1
         private const val OVERLAY_BG = 0x55000000
         private const val ROW_BG = 0x22000000
@@ -703,6 +704,6 @@ class GuiOptionEditorDependencies(
         private const val BUTTON_HIGHLIGHT = 0xFF66BB6A.toInt()
         private const val BUTTON_HOVER_OVERLAY = 0x44333333
         // Debugging: when true, draw hitboxes for enable buttons
-        private const val DEBUG_HITBOX = true
+        private const val DEBUG_HITBOX = false
     }
  }

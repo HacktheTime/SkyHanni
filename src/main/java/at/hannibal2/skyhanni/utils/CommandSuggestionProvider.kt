@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.utils
 
 import at.hannibal2.skyhanni.config.commands.CommandsRegistry
+import at.hannibal2.skyhanni.events.chat.TabCompletionEvent
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.ParseResults
 import com.mojang.brigadier.suggestion.Suggestions
@@ -15,6 +16,9 @@ import java.util.concurrent.CompletableFuture
  *  - Leading slash preserved only for first token suggestions.
  *  - Cursor-aware: parses only substring up to cursor first; falls back to full line parse if needed.
  *  - Merges client + server suggestions in insertion order, removing duplicates.
+ *  - Fires [TabCompletionEvent] directly for the input as typed, and additionally for a slash-prefixed
+ *    variant when the user typed without a leading slash, so command listeners that require a "/"
+ *    prefix (TabComplete, WarpTabComplete, PartyChatCommands, ...) also contribute suggestions.
  */
 object CommandSuggestionProvider {
 
@@ -26,6 +30,22 @@ object CommandSuggestionProvider {
 
         val effectiveCursor = cursor.coerceIn(0, input.length)
         val leadingSlash = input.startsWith('/')
+
+        // Fire the tab-completion event first (synchronous dispatch). Fire it for the input as typed
+        // and, when there is no leading slash, also for a slash-prefixed variant so slash-requiring
+        // listeners still see it. Each event is created with an empty existing list so the merged
+        // event suggestions are exactly what the listeners contributed.
+        val eventSuggestions = LinkedHashSet<String>()
+        fun fireEvent(text: String, fullText: String) {
+            val event = TabCompletionEvent(text, fullText, emptyList())
+            event.post()
+            event.intoSuggestionArray()?.let { eventSuggestions.addAll(it) }
+        }
+        fireEvent(input.take(effectiveCursor), input)
+        if (!leadingSlash) {
+            fireEvent("/" + input.take(effectiveCursor), "/$input")
+        }
+
         val rawFull = if (leadingSlash) input.drop(1) else input
         val rawCursor = rawFull.take((if (leadingSlash) effectiveCursor - 1 else effectiveCursor).coerceAtLeast(0).coerceAtMost(rawFull.length))
 
@@ -42,18 +62,21 @@ object CommandSuggestionProvider {
 
         val clientFuture = collect(client, rawCursor)
         val serverFuture = server?.let { collect(it, rawCursor) }
-        val primaryMerged = LinkedHashSet<String>().apply {
+        val brigadierMerged = LinkedHashSet<String>().apply {
             runCatching { clientFuture.get().list }.getOrElse { emptyList() }.forEach { add(it.text) }
             runCatching { serverFuture?.get()?.list ?: emptyList() }.getOrElse { emptyList() }.forEach { add(it.text) }
         }
-        if (primaryMerged.isNotEmpty()) return applyLeadingSlash(primaryMerged)
-
-        val clientFull = collect(client, rawFull)
-        val serverFull = server?.let { collect(it, rawFull) }
-        val fallbackMerged = LinkedHashSet<String>().apply {
-            runCatching { clientFull.get().list }.getOrElse { emptyList() }.forEach { add(it.text) }
-            runCatching { serverFull?.get()?.list ?: emptyList() }.getOrElse { emptyList() }.forEach { add(it.text) }
+        if (brigadierMerged.isEmpty()) {
+            val clientFull = collect(client, rawFull)
+            val serverFull = server?.let { collect(it, rawFull) }
+            runCatching { clientFull.get().list }.getOrElse { emptyList() }.forEach { brigadierMerged.add(it.text) }
+            runCatching { serverFull?.get()?.list ?: emptyList() }.getOrElse { emptyList() }.forEach { brigadierMerged.add(it.text) }
         }
-        return applyLeadingSlash(fallbackMerged)
+
+        // Merge event suggestions first (they are the direct answer to what the user typed),
+        // then the brigadier completions as a fallback/supplement.
+        val merged = LinkedHashSet<String>(eventSuggestions)
+        brigadierMerged.forEach { merged.add(it) }
+        return applyLeadingSlash(merged)
     }
 }
