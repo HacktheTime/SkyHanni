@@ -24,6 +24,13 @@ class ItemAbilityConfig {
     var itemAbilityCooldownBackground: Boolean = false
 
     @Expose
+    @ConfigOption(
+        name = "Anti Enderpearl Spam",
+        desc = "Prevents you from throwing Ender pearls faster than Enderman Spawn from them in the End.",
+    )
+    @ConfigEditorBoolean
+    val antiEnderpearlSpam: Boolean = false
+    @Expose
     @ConfigOption(name = "Show When Ready", desc = "Show the R and background (if enabled) when the ability is ready.")
     @ConfigEditorBoolean
     var itemAbilityShowWhenReady: Boolean = true
