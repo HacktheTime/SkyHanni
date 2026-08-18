@@ -1,10 +1,17 @@
 package at.hannibal2.skyhanni.config.features.misc
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.config.ConfigFileType
 import at.hannibal2.skyhanni.config.NoConfigLink
+import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.data.FriendApi
+import at.hannibal2.skyhanni.features.commands.PartyUsersGui
 import com.google.gson.annotations.Expose
+import io.github.notenoughupdates.moulconfig.Config
+import io.github.notenoughupdates.moulconfig.annotations.Accordion
+import io.github.notenoughupdates.moulconfig.annotations.Category
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
@@ -37,7 +44,10 @@ enum class PermissionLevel(val displayName: String) {
 
 class PartyCommandsConfig {
 
-    //     @ConfigOption(name = "Users", desc = "Configure permissions for specific user")
+    @ConfigOption(name = "Party Command Users", desc = "Configure permissions for individual users.")
+    @ConfigEditorButton(buttonText = "Edit")
+    val openUserConfig: Runnable = Runnable { PartyUsersGui.open() }
+
     @Expose
     @NoConfigLink
     val users: MutableMap<String, TrustUserConfig> = mutableMapOf()
@@ -131,6 +141,23 @@ class PartyCommandsConfig {
 
     @Expose
     @ConfigEditorDropdown
+    @ConfigOption(
+        name = "Default Accept/Join Party - Instant Threshold",
+        desc = "Minimum trust level to accept a party invite or join a party without asking. " +
+            "Off by default, so even best friends will need to ask.",
+    )
+    var defaultAcceptJoinInstant: FriendLevel = FriendLevel.IGNORED
+
+    @Expose
+    @ConfigEditorDropdown
+    @ConfigOption(
+        name = "Default Accept/Join Party - Ask Threshold",
+        desc = "Minimum trust level to be asked to accept a party invite or join a party",
+    )
+    var defaultAcceptJoinAsk: FriendLevel = FriendLevel.FRIENDS
+
+    @Expose
+    @ConfigEditorDropdown
     @ConfigOption(name = "Warp - Instant Threshold", desc = "Minimum trust level to warp the party without asking")
     var warpInstant: FriendLevel = FriendLevel.BEST_FRIENDS
 
@@ -153,56 +180,93 @@ class PartyCommandsConfig {
     @ConfigOption(name = "TPS", desc = "Sends current TPS into Party Chat if someone types §b!tps§7.")
     var tpsCommand: Boolean = false
 
-    inner class TrustUserConfig(val name: String) {
+    inner class TrustUserConfig(@Expose var name: String) : Config() {
         @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Self Invite Permission", desc = "Override permission for letting users invite themselves")
-        var canSelfInvite: PermissionOverride = PermissionOverride.DEFAULT
+        @Category(name = "Permissions", desc = "Override permissions for this user. \"Default\" uses the global thresholds.")
+        var permissions: UserPermissions = UserPermissions()
+            get() {
+                if (field == null) {
+                    field = UserPermissions()
+                }
+                return field
+            }
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Invite Others Permission", desc = "Override permission for inviting others (Default uses global thresholds)")
-        var canInviteOthers: PermissionOverride = PermissionOverride.DEFAULT
+        /** Ensures the [permissions] backing field is non-null, e.g. after Gson deserialization skipped it. */
+        fun ensurePermissions() {
+            if (permissions == null) {
+                permissions = UserPermissions()
+            }
+            if (saveRunnables == null) {
+                saveRunnables = ArrayList()
+            }
+        }
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Kick Permission", desc = "Override permission for kicking users")
-        var canKick: PermissionOverride = PermissionOverride.DEFAULT
+        /** Persists the features config when the editor for this user is closed. */
+        override fun saveNow() {
+            SkyHanniMod.configManager.saveConfig(ConfigFileType.FEATURES, "Updated party command user permissions")
+        }
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Kick Offline Permission", desc = "Override permission for kicking offline users")
-        var canKickOffline: PermissionOverride = PermissionOverride.DEFAULT
+        inner class UserPermissions : Config() {
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Self Invite Permission", desc = "Override permission for letting users invite themselves")
+            var canSelfInvite: PermissionOverride = PermissionOverride.DEFAULT
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Transfer Leader Permission", desc = "Override permission for transferring party leader")
-        var canTransferLeader: PermissionOverride = PermissionOverride.DEFAULT
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Invite Others Permission", desc = "Override permission for inviting others (Default uses global thresholds)")
+            var canInviteOthers: PermissionOverride = PermissionOverride.DEFAULT
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Can Warp", desc = "Override permission for warping the party")
-        var canWarp: PermissionOverride = PermissionOverride.DEFAULT
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Kick Permission", desc = "Override permission for kicking users")
+            var canKick: PermissionOverride = PermissionOverride.DEFAULT
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Enable All Invite Permission", desc = "Override permission for enabling all invites")
-        var canEnableAllInvite: PermissionOverride = PermissionOverride.DEFAULT
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Kick Offline Permission", desc = "Override permission for kicking offline users")
+            var canKickOffline: PermissionOverride = PermissionOverride.DEFAULT
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Bypass Party Limit Permission", desc = "Override permission for bypassing party limit")
-        var canBypassPartyLimit: PermissionOverride = PermissionOverride.DEFAULT
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Transfer Leader Permission", desc = "Override permission for transferring party leader")
+            var canTransferLeader: PermissionOverride = PermissionOverride.DEFAULT
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Polls Permission", desc = "Override permission for polls")
-        var canDoPolls: PermissionOverride = PermissionOverride.DEFAULT
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Can Warp", desc = "Override permission for warping the party")
+            var canWarp: PermissionOverride = PermissionOverride.DEFAULT
 
-        @Expose
-        @ConfigEditorDropdown
-        @ConfigOption(name = "Stream Open Permission", desc = "Override permission for opening stream")
-        var canStreamOpen: PermissionOverride = PermissionOverride.DEFAULT
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Enable All Invite Permission", desc = "Override permission for enabling all invites")
+            var canEnableAllInvite: PermissionOverride = PermissionOverride.DEFAULT
+
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Bypass Party Limit Permission", desc = "Override permission for bypassing party limit")
+            var canBypassPartyLimit: PermissionOverride = PermissionOverride.DEFAULT
+
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Polls Permission", desc = "Override permission for polls")
+            var canDoPolls: PermissionOverride = PermissionOverride.DEFAULT
+
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(name = "Stream Open Permission", desc = "Override permission for opening stream")
+            var canStreamOpen: PermissionOverride = PermissionOverride.DEFAULT
+
+            @Expose
+            @ConfigEditorDropdown
+            @ConfigOption(
+                name = "Accept/Join Party Permission",
+                desc = "Override permission for accepting party invites or joining parties",
+            )
+            var canAcceptJoin: PermissionOverride = PermissionOverride.DEFAULT
+        }
+
+
 
         private fun resolvePermission(
             override: PermissionOverride,
@@ -236,28 +300,40 @@ class PartyCommandsConfig {
             }
 
         val effectiveInviteOthers: PermissionLevel
-            get() = resolvePermission(canInviteOthers, defaultInviteOthersInstant, defaultInviteOthersAsk, trustLevel)
+            get() = resolvePermission(permissions.canInviteOthers, defaultInviteOthersInstant, defaultInviteOthersAsk, trustLevel)
+        val effectiveSelfInvite: PermissionLevel
+            get() = resolvePermission(permissions.canSelfInvite, defaultInviteOthersInstant, defaultInviteOthersAsk, trustLevel)
         val effectiveKick: PermissionLevel
-            get() = resolvePermission(canKick, defaultKickInstant, defaultKickAsk, trustLevel)
+            get() = resolvePermission(permissions.canKick, defaultKickInstant, defaultKickAsk, trustLevel)
         val effectiveKickOffline: PermissionLevel
-            get() = resolvePermission(canKickOffline, defaultKickOfflineInstant, defaultKickOfflineAsk, trustLevel)
+            get() = resolvePermission(permissions.canKickOffline, defaultKickOfflineInstant, defaultKickOfflineAsk, trustLevel)
         val effectiveTransferLeader: PermissionLevel
-            get() = resolvePermission(canTransferLeader, defaultTransferLeaderInstant, defaultTransferLeaderAsk, trustLevel)
+            get() = resolvePermission(permissions.canTransferLeader, defaultTransferLeaderInstant, defaultTransferLeaderAsk, trustLevel)
         val effectiveEnableAllInvite: PermissionLevel
-            get() = resolvePermission(canEnableAllInvite, defaultEnableAllInviteInstant, defaultEnableAllInviteAsk, trustLevel)
+            get() = resolvePermission(permissions.canEnableAllInvite, defaultEnableAllInviteInstant, defaultEnableAllInviteAsk, trustLevel)
         val effectiveBypassPartyLimit: PermissionLevel
-            get() = resolvePermission(canBypassPartyLimit, defaultBypassPartyLimitInstant, defaultBypassPartyLimitAsk, trustLevel)
+            get() = resolvePermission(permissions.canBypassPartyLimit, defaultBypassPartyLimitInstant, defaultBypassPartyLimitAsk, trustLevel)
         val effectiveDoPolls: PermissionLevel
-            get() = resolvePermission(canDoPolls, defaultDoPollsInstant, defaultDoPollsAsk, trustLevel)
+            get() = resolvePermission(permissions.canDoPolls, defaultDoPollsInstant, defaultDoPollsAsk, trustLevel)
         val effectiveStreamOpen: PermissionLevel
-            get() = resolvePermission(canStreamOpen, defaultStreamOpenInstant, defaultStreamOpenAsk, trustLevel)
+            get() = resolvePermission(permissions.canStreamOpen, defaultStreamOpenInstant, defaultStreamOpenAsk, trustLevel)
+        val effectiveAcceptJoin: PermissionLevel
+            get() = resolvePermission(permissions.canAcceptJoin, defaultAcceptJoinInstant, defaultAcceptJoinAsk, trustLevel)
 
         val effectiveWarp: PermissionLevel
-            get() = resolvePermission(canWarp, warpInstant, warpAsk, trustLevel)
+            get() = resolvePermission(permissions.canWarp, warpInstant, warpAsk, trustLevel)
     }
 
     @Expose
     @ConfigEditorBoolean
     @ConfigOption(name = "Show reminder", desc = "Show a reminder when an unauthorized player tries to run a command.")
     var showIgnoredReminder: Boolean = true
+
+    @Expose
+    @ConfigOption(
+        name = "Party Command Prompt Key",
+        desc = "Press this key to confirm party command requests that are set to ask.",
+    )
+    @Accordion
+    val partyCommandPromptKey: KeyBind = KeyBind()
 }

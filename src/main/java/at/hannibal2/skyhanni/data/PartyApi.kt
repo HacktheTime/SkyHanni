@@ -4,7 +4,6 @@ import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.commands.CommandCategory
 import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
-import de.hype.bingonet.BNConnection
 import at.hannibal2.skyhanni.data.hypixel.chat.event.PartyChatEvent
 import at.hannibal2.skyhanni.events.DebugDataCollectEvent
 import at.hannibal2.skyhanni.events.chat.SkyHanniChatEvent
@@ -15,14 +14,17 @@ import at.hannibal2.skyhanni.utils.HypixelCommands
 import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.PlayerUtils
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
+import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.StringUtils.cleanPlayerName
 import at.hannibal2.skyhanni.utils.StringUtils.removeColor
 import at.hannibal2.skyhanni.utils.StringUtils.removeResets
 import at.hannibal2.skyhanni.utils.StringUtils.trimWhiteSpace
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
+import de.hype.bingonet.BNConnection
 import de.hype.bingonet.shared.packets.function.RequestPartyStatePacket
 import de.hype.bingonet.shared.packets.function.RequestPartyStatePacket.PartyStatePacket
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 
 @SkyHanniModule
 @Suppress("LongMethod", "ComplexMethod")
@@ -147,6 +149,46 @@ object PartyApi {
     )
 
     /**
+     * REGEX-TEST: The party invite to [MVP++] Mininoob46 has expired.
+     */
+    private val inviteExpiredPattern by patternGroup.pattern(
+        "invite.expired",
+        "The party invite to (?<name>.*) has expired\\.",
+    )
+
+    /**
+     * REGEX-TEST: [MVP+] Hype_the_Time has promoted [VIP] NPCforCommands to Party Moderator
+     */
+    private val promoteModeratorPattern by patternGroup.pattern(
+        "moderator.promoted",
+        "(?<promoter>.*) has promoted (?<name>.*) to Party Moderator",
+    )
+
+    /**
+     * REGEX-TEST: [MVP+] Hype_the_Time has promoted [VIP] NPCforCommands to Party Leader
+     */
+    private val promoteLeaderPattern by patternGroup.pattern(
+        "moderator.promoted.leader",
+        "(?<promoter>.*) has promoted (?<name>.*) to Party Leader",
+    )
+
+    /**
+     * REGEX-TEST: [MVP+] Hype_the_Time has demoted [VIP] NPCforCommands to Party Member
+     */
+    private val demoteModeratorPattern by patternGroup.pattern(
+        "moderator.demoted",
+        "(?<demoter>.*) has demoted (?<name>.*) to Party Member",
+    )
+
+    /**
+     * REGEX-TEST: [MVP+] Hype_the_Time is now a Party Moderator
+     */
+    private val nowModeratorPattern by patternGroup.pattern(
+        "moderator.now",
+        "(?<name>.*) is now a Party Moderator",
+    )
+
+    /**
      * REGEX-TEST: Party Members: [MVP+] Throwpo ●
      * REGEX-TEST: Party Leader: [MVP+] CalMWolfs ●
      */
@@ -169,9 +211,41 @@ object PartyApi {
 
     val partyMembers = mutableListOf<String>()
 
+    val partyModerators = mutableListOf<String>()
+
     var partyLeader: String? = null
     var prevPartyLeader: String? = null
     var allInvite: Boolean = false
+
+    // The maximum amount of players that are allowed to join the party. null means no limit is set.
+    var partyLimit: Int? = null
+
+    // The names of players we sent an invite to (or accepted a join request for) that have not yet joined the party.
+    // A player may also join without an invite while the party is open (e.g. stream open), those are not tracked here.
+    // Entries are removed when the player joins the party or when their invite expires.
+    val pendingInvites: MutableMap<String, SimpleTimeMark> = mutableMapOf()
+
+    fun addPendingInvites(names: List<String>) {
+        val expiry = SimpleTimeMark.now() + 60.seconds
+        names.forEach { pendingInvites[it] = expiry }
+    }
+
+    fun removePendingInvite(name: String) {
+        pendingInvites.remove(name)
+    }
+
+    /**
+     * The amount of outstanding invites, removing entries whose invite already expired.
+     */
+    fun pendingInviteCount(): Int {
+        pendingInvites.entries.removeIf { it.value.passedSince() > 60.seconds }
+        return pendingInvites.size
+    }
+
+    fun poll(question: String, options: List<String>){
+        val message = question+"/"+options.joinToString("/")
+        send("party poll $message")
+    }
 
     fun isInParty() = partyMembers.isNotEmpty()
 
@@ -184,6 +258,9 @@ object PartyApi {
         ChatUtils.chat("Tracked party members ($size) :", prefixColor = "")
         for (member in partyMembers) {
             ChatUtils.chat(" - $member" + if (partyLeader == member) " (Leader)" else "", false)
+        }
+        if (partyModerators.isNotEmpty()) {
+            ChatUtils.chat("Moderators: ${partyModerators.joinToString(", ")}", false)
         }
 
         if (partyLeader == PlayerUtils.getName()) {
@@ -276,14 +353,45 @@ object PartyApi {
                 event.blockedReason = "Hide Party Messages: Hide Disconnects"
             }
         }
+        inviteExpiredPattern.matchMatcher(message) {
+            removePendingInvite(group("name").cleanPlayerName())
+        }
+        promoteModeratorPattern.matchMatcher(message.removeColor()) {
+            val name = group("name").cleanPlayerName()
+            if (!partyModerators.contains(name)) {
+                partyModerators.add(name)
+            }
+        }
+        promoteLeaderPattern.matchMatcher(message.removeColor()) {
+            val promoted = group("name").cleanPlayerName()
+            partyModerators.remove(promoted)
+            partyLeader = promoted
+            prevPartyLeader = group("promoter").cleanPlayerName()
+            // The previous leader becomes a Party Moderator, covered by the "is now a Party Moderator" message.
+        }
+        demoteModeratorPattern.matchMatcher(message.removeColor()) {
+            partyModerators.remove(group("name").cleanPlayerName())
+        }
+        nowModeratorPattern.matchMatcher(message.removeColor()) {
+            val name = group("name").cleanPlayerName()
+            if (!partyModerators.contains(name)) {
+                partyModerators.add(name)
+            }
+        }
         transferOnLeavePattern.matchMatcher(message.removeColor()) {
             val name = group("name").cleanPlayerName()
             partyLeader = group("newowner").cleanPlayerName()
             partyMembers.remove(name)
+            partyModerators.remove(name)
         }
         transferVoluntaryPattern.matchMatcher(message.removeColor()) {
             partyLeader = group("newowner").cleanPlayerName()
             prevPartyLeader = group("name").cleanPlayerName()
+            // Transferring the party lets the previous leader keep moderator status.
+            val oldLeader = group("name").cleanPlayerName()
+            if (!partyModerators.contains(oldLeader)) {
+                partyModerators.add(oldLeader)
+            }
         }
 
         // party disbanded
@@ -305,16 +413,20 @@ object PartyApi {
         // party list
         partyMembersStartPattern.matchMatcher(message.removeResets()) {
             partyMembers.clear()
+            partyModerators.clear()
         }
 
         partyMemberListPattern.matchMatcher(message.removeColor()) {
             val kind = group("kind")
             val isPartyLeader = kind == "Leader"
+            val isModerators = kind == "Moderators"
             for (name in group("names").split(" ● ")) {
                 val playerName = name.replace(" ●", "").cleanPlayerName()
                 addPlayer(playerName)
                 if (isPartyLeader) {
                     partyLeader = playerName
+                } else if (isModerators && !partyModerators.contains(playerName)) {
+                    partyModerators.add(playerName)
                 }
             }
         }
@@ -322,6 +434,7 @@ object PartyApi {
 
     private fun removeWithLeader(name: String) {
         partyMembers.remove(name)
+        partyModerators.remove(name)
         if (name == prevPartyLeader) {
             prevPartyLeader = null
         }
@@ -331,20 +444,24 @@ object PartyApi {
         if (partyMembers.contains(playerName)) return
         if (playerName == PlayerUtils.getName()) return
         partyMembers.add(playerName)
+        // The player joined, so any outstanding invite to them is consumed.
+        pendingInvites.remove(playerName)
     }
 
     private fun partyLeft() {
         partyMembers.clear()
+        partyModerators.clear()
         partyLeader = null
         prevPartyLeader = null
         allInvite = false
+        partyLimit = null
+        pendingInvites.clear()
     }
 
     fun isPartyLeader() = partyLeader == PlayerUtils.getName()
 
     fun canInvite(): Boolean {
-        if (!isInParty()) return true
-        return isPartyLeader() || isModerator() || allInvite
+        return !isInParty() || isPartyLeader() || isModerator() || allInvite
     }
 
     @HandleEvent
@@ -367,6 +484,9 @@ object PartyApi {
                 add("Tracked party members ($size)")
                 for (member in partyMembers) {
                     add(" - $member" + if (partyLeader == member) " (Leader)" else "")
+                }
+                if (partyModerators.isNotEmpty()) {
+                    add("Moderators: ${partyModerators.joinToString(", ")}")
                 }
             }
 
@@ -428,6 +548,19 @@ object PartyApi {
         return true
     }
 
+    fun streamOpen(limit: Int? = null): Boolean {
+        if (!isPartyLeader()) return false
+        if (limit != null && limit > 0) {
+            // Opening the party with a limit also sets the tracked limit, so normal invite
+            // requests (e.g. via party chat commands) can not bypass it.
+            partyLimit = limit
+            send("stream open $limit")
+        } else {
+            send("stream")
+        }
+        return true
+    }
+
 
     fun invite(username: String): Boolean {
         if (!canInvite()) return false
@@ -447,13 +580,8 @@ object PartyApi {
     private fun send(message: String) {
         ChatUtils.sendMessageToServer("/$message")
     }
-    @Suppress("FunctionOnlyReturningConstant")
-    fun isModerator(): Boolean {
-        // TODO add moderator tracking
-        // TODO add allinvite tracking
-        // WARNING if you add moderator tracking but not allinvite this blocks commands
-        // due to expecting not being able to invite.
-        return true
+    fun isModerator(name: String = PlayerUtils.getName()): Boolean {
+        return partyModerators.contains(name)
     }
 
     fun leaveParty() {
@@ -501,5 +629,4 @@ object PartyApi {
             prefix,
         )
     }
-    // TODO track party invites as part of player count since potential accepts.
 }
