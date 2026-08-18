@@ -1,11 +1,11 @@
 package de.hype.bingonet.environment.packetconfig
 
-import de.hype.bingonet.BNConnection
+// import de.hype.bingonet.shared.packets.function.MinionDataResponse
 import at.hannibal2.skyhanni.data.PartyApi
 import at.hannibal2.skyhanni.features.bingo.bingonet.SplashManager
 import at.hannibal2.skyhanni.features.mining.crystalhollows.ChChestUpdateListener
+import de.hype.bingonet.BNConnection
 import de.hype.bingonet.shared.packets.function.GetWaypointsPacket
-// import de.hype.bingonet.shared.packets.function.MinionDataResponse
 import de.hype.bingonet.shared.packets.function.PacketChatPromptPacket
 import de.hype.bingonet.shared.packets.function.PartyPacket
 import de.hype.bingonet.shared.packets.function.PlaySoundPacket
@@ -20,6 +20,7 @@ import de.hype.bingonet.shared.packets.network.BingoChatMessagePacket
 import de.hype.bingonet.shared.packets.network.BroadcastMessagePacket
 import de.hype.bingonet.shared.packets.network.CompletedGoalPacket
 import de.hype.bingonet.shared.packets.network.DisconnectPacket
+import de.hype.bingonet.shared.packets.network.ErrorReportedIdPacket
 import de.hype.bingonet.shared.packets.network.InvalidCommandFeedbackPacket
 import de.hype.bingonet.shared.packets.network.PunishedPacket
 import de.hype.bingonet.shared.packets.network.RequestAuthentication
@@ -120,6 +121,12 @@ object BNPacketManager {
                 ChestLobbyUpdatePacket::class.java,
                 (ChChestUpdateListener::onChLobbyDataReceived),
             ),
+        )
+        packets.add(
+            Packet<ErrorReportedIdPacket>(
+                ErrorReportedIdPacket::class.java,
+                BNConnection::dummy,
+            )
         )
     }
 }
