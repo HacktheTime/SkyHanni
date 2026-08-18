@@ -20,6 +20,7 @@ import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.SimpleTimeMark
 import at.hannibal2.skyhanni.utils.SkyBlockUtils
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import net.minecraft.client.Minecraft
@@ -69,7 +70,7 @@ object SearchableStorage {
 
     @HandleEvent
     fun onInventoryClose(event: InventoryCloseEvent) {
-        if (Minecraft.getInstance().screen is SearchableStorageGui) lastCloseTime = SimpleTimeMark.now()
+        if (MinecraftCompat.screen is SearchableStorageGui) lastCloseTime = SimpleTimeMark.now()
         if (inventoryName.isNotBlank() && event.inventoryTitle.contains(inventoryName)) {
             highlightSlots = listOf()
             waypoints = listOf()

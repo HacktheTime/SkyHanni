@@ -13,7 +13,7 @@ object GuiScreenUtils {
         val scaleFactor: Int,
     )
 
-    val isAnyScreenOpen get() = mc.screen != null
+    val isAnyScreenOpen get() = MinecraftCompat.screen != null
 
     val scaledWindowHeight: Int
         get() = screenMetricsOverride?.scaledWindowHeight ?: mc.window.guiScaledHeight

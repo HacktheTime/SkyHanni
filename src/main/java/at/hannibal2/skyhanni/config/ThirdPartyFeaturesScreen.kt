@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.config
 
 import at.hannibal2.skyhanni.features.misc.massconfiguration.FeatureToggleProcessor
 import at.hannibal2.skyhanni.utils.RenderUtils
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.renderXYAligned
@@ -43,7 +44,7 @@ class ThirdPartyFeaturesScreen(
         val list = scrollRenderable ?: Renderable.text("§7No features registered")
         val backButton = Renderable.darkRectButton(
             content = Renderable.text("Back"),
-            onClick = { mc.setScreen(parent) },
+            onClick = { MinecraftCompat.screen=parent },
             horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
         )
 

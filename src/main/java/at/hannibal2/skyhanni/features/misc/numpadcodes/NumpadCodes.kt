@@ -13,7 +13,7 @@ import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
-import net.minecraft.client.Minecraft
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
@@ -208,7 +208,7 @@ object NumpadCodes {
     @HandleEvent
     fun onKeyPress(event: KeyDownEvent) {
         if (!settings.enabled) return
-        if (Minecraft.getInstance().screen != null) return
+        if (MinecraftCompat.screen != null) return
 
         val mapped = when (event.keyCode) {
             key_numpad0 -> "0"

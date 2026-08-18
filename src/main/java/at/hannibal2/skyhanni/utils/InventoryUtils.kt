@@ -16,7 +16,6 @@ import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import at.hannibal2.skyhanni.utils.compat.SkyHanniGuiContainer
 import at.hannibal2.skyhanni.utils.compat.normalizeAsArray
 import at.hannibal2.skyhanni.utils.compat.slotUnderCursor
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
 import net.minecraft.client.gui.screens.inventory.InventoryScreen
 import net.minecraft.client.resources.language.I18n
@@ -84,7 +83,7 @@ object InventoryUtils {
     }
 
     fun getSlotsInOwnInventoryWithNull(): List<Slot> {
-        val guiInventory = Minecraft.getInstance().screen as? SkyHanniGuiContainer ?: return emptyList()
+        val guiInventory = MinecraftCompat.screen as? SkyHanniGuiContainer ?: return emptyList()
         return guiInventory.slots().filter { it.container is Inventory }
     }
 

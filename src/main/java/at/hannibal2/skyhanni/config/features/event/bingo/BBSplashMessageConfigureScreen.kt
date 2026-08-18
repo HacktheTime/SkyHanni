@@ -2,15 +2,16 @@ package at.hannibal2.skyhanni.config.features.event.bingo
 
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.ConfigFileType
-import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
-import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
-import at.hannibal2.skyhanni.utils.renderables.Renderable
-import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.renderXYAligned
-import at.hannibal2.skyhanni.utils.renderables.Renderable.Companion.darkRectButton
-import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
-import at.hannibal2.skyhanni.utils.renderables.primitives.WrappedStringRenderable.Companion.wrappedText
 import at.hannibal2.skyhanni.data.model.TextInput
 import at.hannibal2.skyhanni.utils.RenderUtils
+import at.hannibal2.skyhanni.utils.compat.DrawContextUtils
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
+import at.hannibal2.skyhanni.utils.compat.SkyHanniBaseScreen
+import at.hannibal2.skyhanni.utils.renderables.Renderable
+import at.hannibal2.skyhanni.utils.renderables.Renderable.Companion.darkRectButton
+import at.hannibal2.skyhanni.utils.renderables.RenderableUtils.renderXYAligned
+import at.hannibal2.skyhanni.utils.renderables.container.VerticalContainerRenderable.Companion.vertical
+import at.hannibal2.skyhanni.utils.renderables.primitives.WrappedStringRenderable.Companion.wrappedText
 
 /**
  * Simple screen to configure the Bingo Brewers splash message stored in SplasherConfig.bbSplashMessage
@@ -91,7 +92,7 @@ class BBSplashMessageConfigureScreen : SkyHanniBaseScreen() {
                 darkRectButton(
                     Renderable.wrappedText("Cancel", textWidth),
                     onClick = {
-                        mc.setScreen(null)
+                        MinecraftCompat.screen=null
                     },
                     horizontalAlign = RenderUtils.HorizontalAlignment.CENTER,
                 ),

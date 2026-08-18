@@ -1,19 +1,20 @@
 package at.hannibal2.skyhanni.features.misc.keybinds
 
 import at.hannibal2.skyhanni.SkyHanniMod
-import at.hannibal2.skyhanni.data.IslandType
-import at.hannibal2.skyhanni.events.ConfigLoadEvent
-import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
-import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
-import at.hannibal2.skyhanni.events.minecraft.KeyUpEvent
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.api.hypixelapi.HypixelLocationApi
-import at.hannibal2.skyhanni.utils.ChatUtils
-import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.config.commands.CommandRegistrationEvent
 import at.hannibal2.skyhanni.config.commands.CommandsRegistry
+import at.hannibal2.skyhanni.data.IslandType
+import at.hannibal2.skyhanni.events.ConfigLoadEvent
+import at.hannibal2.skyhanni.events.minecraft.KeyDownEvent
+import at.hannibal2.skyhanni.events.minecraft.KeyUpEvent
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.test.command.ErrorManager
+import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.KeyboardManager
 import at.hannibal2.skyhanni.utils.KeyboardManager.isKeyHeld
+import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import net.minecraft.client.Minecraft
 import org.lwjgl.glfw.GLFW
 
@@ -257,8 +258,7 @@ object Keybinds {
     fun onKeyDown(e: KeyDownEvent) {
         if (binds.isEmpty()) return
         try {
-            val mc = Minecraft.getInstance()
-            if (mc.screen != null) {
+            if (MinecraftCompat.screen != null) {
                 resetChord(); return
             }
             val code = e.keyCode
@@ -277,8 +277,7 @@ object Keybinds {
     fun onKeyUp(e: KeyUpEvent) {
         if (binds.isEmpty()) return
         try {
-            val mc = Minecraft.getInstance()
-            if (mc.screen != null) {
+            if (MinecraftCompat.screen != null) {
                 resetChord(); return
             }
             val code = e.keyCode
