@@ -37,7 +37,7 @@ object PartyChatCommands {
         val requiresPartyLead: Boolean = true,
         val offCooldown: () -> Boolean = { true },
         val validateArgs: (List<String>) -> Boolean = { true },
-        val execute: (event: PartyChatEvent.Allow, args: List<String>) -> Unit,
+        val execute: (authorName: String, args: List<String>) -> Unit,
     ) {
         fun canUse(userConfig: PartyCommandsConfig.TrustUserConfig): PermissionLevel = permission(userConfig)
     }
@@ -47,8 +47,8 @@ object PartyChatCommands {
             listOf("pt", "ptme", "transfer"),
             { it.effectiveTransferLeader },
             triggerableBySelf = false,
-            execute = { event, _ ->
-                PartyApi.partyTransfer(event.authorName)
+            execute = { name, _ ->
+                PartyApi.partyTransfer(name)
             },
         ),
         PartyChatCommand(
@@ -63,8 +63,8 @@ object PartyChatCommands {
         PartyChatCommand(
             listOf("allinv", "allinvite"),
             { it.effectiveEnableAllInvite },
-            execute = { event, _ ->
-                if (PartyApi.partyLimit != null && !canEnableAllInviteWhileLimited(event.authorName)) {
+            execute = { name, _ ->
+                if (PartyApi.partyLimit != null && !canEnableAllInviteWhileLimited(name)) {
                     ChatUtils.chat(
                         "§cA party limit is set, you need permission to bypass it to enable all invites.",
                     )
@@ -79,8 +79,7 @@ object PartyChatCommands {
             listOf("inv", "invite"),
             { it.effectiveInviteOthers },
             requiresPartyLead = false,
-            execute = { event, args ->
-                val name = event.authorName
+            execute = { name, args ->
                 val invitees = if (args.isEmpty()) listOf(name) else args
                 if (wouldExceedLimit(invitees.size) && !canBypassPartyLimit(name)) {
                     ChatUtils.chat("§cParty limit reached, cannot invite ${invitees.joinToString(", ")}.")
@@ -94,8 +93,7 @@ object PartyChatCommands {
             listOf("inviteme", "request"),
             { it.effectiveSelfInvite },
             requiresPartyLead = false,
-            execute = { event, _ ->
-                val name = event.authorName
+            execute = { name, _ ->
                 if (wouldExceedLimit(1) && !canBypassPartyLimit(name)) {
                     ChatUtils.chat("§cParty limit reached, cannot invite $name.")
                     return@PartyChatCommand
@@ -196,6 +194,13 @@ object PartyChatCommands {
     private var lastWarp = SimpleTimeMark.farPast()
     private var lastAllInvite = SimpleTimeMark.farPast()
 
+    private var lastDmAnnounce = SimpleTimeMark.farPast()
+    private var lastDmExecution = SimpleTimeMark.farPast()
+
+    // How long to wait between announcing DM requests in party chat and between executing DM-triggered commands.
+    private val dmAnnounceThrottle = 2.seconds
+    private val dmExecutionThrottle = 2.seconds
+
     private val indexedPartyChatCommands = buildMap {
         for (command in allPartyCommands) {
             for (name in command.names) {
@@ -203,9 +208,6 @@ object PartyChatCommands {
             }
         }
     }
-
-    // Names of commands that let a user request to join the party (self invite).
-    private val selfInviteCommandNames = setOf("inviteme", "request")
 
     private fun getUserConfig(name: String): PartyCommandsConfig.TrustUserConfig {
         return config.users.get(name) ?: config.TrustUserConfig(name)
@@ -297,21 +299,36 @@ object PartyChatCommands {
         val commandLabel = event.cleanMessage.substring(1).substringBefore(' ')
         val command = indexedPartyChatCommands[commandLabel.lowercase()] ?: return
         val name = event.authorName
+        val args = event.cleanMessage.substring(1).removePrefix(commandLabel).trim()
+            .split(' ')
+            .filter { it.isNotEmpty() }
+        handlePartyCommand(name, commandLabel, command, args, fromPm = false)
+    }
+
+    /**
+     * Dispatches a party chat command shared by both party chat and private message triggers.
+     * When triggered from a private message ([fromPm]) the request is announced in party chat and
+     * both the announce and the execution are throttled to avoid spam.
+     */
+    private fun handlePartyCommand(
+        name: String,
+        commandLabel: String,
+        command: PartyChatCommand,
+        args: List<String>,
+        fromPm: Boolean,
+    ) {
         if (name == PlayerUtils.getName() && (!command.triggerableBySelf)) return
         if (command.requiresPartyLead && !PartyApi.isPartyLeader()) return
         if (isBlockedUser(name)) {
             if (config.showIgnoredReminder) ChatUtils.clickableChat(
-                "§cIgnoring chat command from ${event.author}. " +
+                "§cIgnoring chat command from $name. " +
                     "Stop ignoring them using /shignore remove <player> or click here!",
-                onClick = { blacklistModify(event.author) },
-                "§eClick to ignore ${event.author}!",
+                onClick = { blacklistModify(name) },
+                "§eClick to ignore $name!",
             )
             return
         }
         if (!command.offCooldown.invoke()) return
-        val args = event.cleanMessage.substring(1).removePrefix(commandLabel).trim()
-            .split(' ')
-            .filter { it.isNotEmpty() }
         if (!command.validateArgs(args)) {
             ChatUtils.chat("§cInvalid arguments for !$commandLabel.")
             return
@@ -321,16 +338,38 @@ object PartyChatCommands {
             notifyPermissionDenied(name)
             return
         } else if (level == PermissionLevel.INSTANT) {
-            command.execute.invoke(event, args)
+            executePartyCommand(name, commandLabel, command, args, fromPm)
         } else if (level == PermissionLevel.ASK) {
             ChatUtils.chatPrompt(
-                "§e${event.author} wants to run §b!$commandLabel§e. Press §a%KEY%§e to allow it.",
+                "§e$name wants to run §b!$commandLabel§e. Press §a%KEY%§e to allow it.",
                 config.partyCommandPromptKey,
                 code = {
-                    command.execute.invoke(event, args)
+                    executePartyCommand(name, commandLabel, command, args, fromPm)
                 },
             )
         }
+    }
+
+    /**
+     * Executes a party command. For private message triggers this announces who requested the command
+     * in party chat first and throttles both the announce and the execution to avoid spam.
+     */
+    private fun executePartyCommand(
+        name: String,
+        commandLabel: String,
+        command: PartyChatCommand,
+        args: List<String>,
+        fromPm: Boolean,
+    ) {
+        if (fromPm) {
+            if (lastDmAnnounce.passedSince() >= dmAnnounceThrottle) {
+                lastDmAnnounce = SimpleTimeMark.now()
+                PartyApi.partyChat("$name requested !$commandLabel.", prefix = true)
+            }
+            if (lastDmExecution.passedSince() < dmExecutionThrottle) return
+            lastDmExecution = SimpleTimeMark.now()
+        }
+        command.execute(name, args)
     }
 
     /**
@@ -383,15 +422,13 @@ object PartyChatCommands {
         val name = event.author.cleanPlayerName()
         if (isBlockedUser(name)) return
 
+        // Regular party chat commands can also be triggered via private message.
+        indexedPartyChatCommands[commandLabel]?.let { command ->
+            handlePartyCommand(name, commandLabel, command, args, fromPm = true)
+            return
+        }
+
         when (commandLabel) {
-            in selfInviteCommandNames -> handlePmCommand(name, commandLabel, { it.effectiveSelfInvite }, validate = {
-                if (wouldExceedLimit(1) && !canBypassPartyLimit(name)) {
-                    "Party limit reached, cannot invite you."
-                } else null
-            }) {
-                PartyApi.invite(name)
-                PartyApi.addPendingInvites(listOf(name))
-            }
             "accept" -> {
                 val force = args.firstOrNull()?.lowercase() == "force"
                 handlePmCommand(
