@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.inventory.experimentationtable
 
 import at.hannibal2.skyhanni.api.ExperimentationTableApi
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -21,21 +22,25 @@ class ExperimentsProfitTrackerConfig {
     @Expose
     @ConfigOption(name = "Hide Messages", desc = "Change the messages to be hidden after completing Add-on/Main experiments.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val hideMessages: MutableList<ExperimentationTableApi.ExperimentationMessages> = mutableListOf()
 
     @Expose
     @ConfigOption(name = "Track Time Spent", desc = "Track time spent doing addons and experiments.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var trackTimeSpent: Boolean = false
 
     @Expose
     @ConfigOption(name = "Track Used Bottles", desc = "Track thrown XP bottles while near the experimentation table.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var trackUsedBottles: Boolean = true
 
     @Expose
     @ConfigOption(name = "Bottle Warnings", desc = "Display warnings once per session about bottles being auto-tracked.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled", "#trackUsedBottles")
     var bottleWarnings: Boolean = true
 
     @Expose
@@ -48,5 +53,6 @@ class ExperimentsProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = ExperimentsProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 }

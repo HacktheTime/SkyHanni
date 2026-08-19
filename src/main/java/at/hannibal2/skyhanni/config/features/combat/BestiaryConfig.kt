@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -18,6 +19,7 @@ class BestiaryConfig {
     @Expose
     @ConfigOption(name = "Number format", desc = "Short: 1.1k\nLong: 1.100")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var numberFormat: NumberFormatEntry = NumberFormatEntry.SHORT
 
     enum class NumberFormatEntry(private val displayName: String) {
@@ -31,6 +33,7 @@ class BestiaryConfig {
     @Expose
     @ConfigOption(name = "Display type", desc = "Choose what the display should show")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var displayType: DisplayTypeEntry = DisplayTypeEntry.GLOBAL_MAX
 
     enum class DisplayTypeEntry(private val displayName: String) {
@@ -50,14 +53,17 @@ class BestiaryConfig {
     @Expose
     @ConfigOption(name = "Hide maxed", desc = "Hide maxed mobs.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideMaxed: Boolean = false
 
     @Expose
     @ConfigOption(name = "Replace Romans", desc = "Replace Roman numerals (IX) with regular numbers (9)")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var replaceRoman: Boolean = false
 
     @Expose
     @ConfigLink(owner = BestiaryConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(100, 100)
 }

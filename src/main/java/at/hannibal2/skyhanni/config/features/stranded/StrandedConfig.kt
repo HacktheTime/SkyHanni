@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.stranded
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -25,5 +26,6 @@ class StrandedConfig {
 
     @Expose
     @ConfigLink(owner = StrandedConfig::class, field = "inWaterDisplay")
+    @FeatureDependencyRequirement("#inWaterDisplay")
     val inWaterPosition: Position = Position(20, 20)
 }

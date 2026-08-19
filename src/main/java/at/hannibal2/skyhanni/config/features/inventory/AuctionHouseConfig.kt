@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -29,11 +30,13 @@ class AuctionHouseConfig {
     @Expose
     @ConfigOption(name = "Sold Color", desc = "Color of sold items.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightAuctions")
     var soldColor: ChromaColour = LorenzColor.GREEN.toChromaColor(255)
 
     @Expose
     @ConfigOption(name = "Expired Color", desc = "Color of expired items.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightAuctions")
     var expiredColor: ChromaColour = LorenzColor.RED.toChromaColor(255)
 
     @Expose
@@ -48,6 +51,7 @@ class AuctionHouseConfig {
     @Expose
     @ConfigOption(name = "Underbid Color", desc = "Color of underbid BIN items.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightAuctionsUnderbid")
     var underbidColor: ChromaColour = LorenzColor.GOLD.toChromaColor(255)
 
     @Expose
@@ -66,6 +70,7 @@ class AuctionHouseConfig {
         desc = "Copy the price of the hovered item in Auction House minus 1 coin into the clipboard for easier under-bidding.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#autoCopyUnderbidPrice")
     var copyUnderbidKeybind: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose

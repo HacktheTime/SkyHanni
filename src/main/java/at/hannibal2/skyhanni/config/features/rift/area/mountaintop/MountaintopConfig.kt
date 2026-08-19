@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.mountaintop
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -48,6 +49,7 @@ class MountaintopConfig {
     @ConfigOption(name = "Only Show When Ready", desc = "Only show the Ubik's Cube GUI when it is ready.")
     @ConfigEditorBoolean
     @SearchTag("split or steal")
+    @FeatureDependencyRequirement("#ubikGui")
     var ubikOnlyWhenReady: Boolean = false
 
     @Expose
@@ -61,5 +63,6 @@ class MountaintopConfig {
 
     @Expose
     @ConfigLink(owner = MountaintopConfig::class, field = "ubikGui")
+    @FeatureDependencyRequirement("#ubikGui")
     val timerPosition: Position = Position(100, 10)
 }

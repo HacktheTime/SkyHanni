@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.mountaintop
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -17,19 +18,23 @@ class SunGeckoConfig {
     @Expose
     @ConfigOption(name = "Show Modifiers", desc = "Show a list of modifiers in the overlay.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showModifiers: Boolean = false
 
     @Expose
     @ConfigOption(name = "Highlight Real Boss", desc = "Highlights the real boss in green.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var highlightRealBoss: Boolean = false
 
     @Expose
     @ConfigOption(name = "Highlight Clones", desc = "Highlights the fakes bosses in red.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var highlightFakeBoss: Boolean = true
 
     @Expose
     @ConfigLink(owner = SunGeckoConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-256, 140)
 }

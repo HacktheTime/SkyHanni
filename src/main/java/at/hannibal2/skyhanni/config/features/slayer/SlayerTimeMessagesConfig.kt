@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -28,5 +29,6 @@ class SlayerTimeMessagesConfig {
     @Expose
     @ConfigOption(name = "Compact Time Messages", desc = "Shorter Time to Kill and Quest Complete messages.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement(value = ["#timeToKill", "#questComplete"], requireAll = false)
     var compact: Boolean = false
 }

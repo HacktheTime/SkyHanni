@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer.blaze
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -36,6 +37,7 @@ class BlazeHellionConfig {
     @Expose
     @ConfigOption(name = "First Dagger", desc = "Select the first, left sided dagger for the display.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#daggers")
     var firstDagger: FirstDaggerEntry = FirstDaggerEntry.SPIRIT_OR_CRYSTAL
 
     enum class FirstDaggerEntry(private val displayName: String) {
@@ -54,9 +56,11 @@ class BlazeHellionConfig {
 
     @Expose
     @ConfigLink(owner = BlazeHellionConfig::class, field = "daggers")
+    @FeatureDependencyRequirement("#daggers")
     val positionTop: Position = Position(-475, 173, 4.4f, true)
 
     @Expose
     @ConfigLink(owner = BlazeHellionConfig::class, field = "daggers")
+    @FeatureDependencyRequirement("#daggers")
     val positionBottom: Position = Position(-475, 230, 3.2f, true)
 }

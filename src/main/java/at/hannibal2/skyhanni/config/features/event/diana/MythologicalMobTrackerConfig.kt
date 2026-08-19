@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.diana
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualTrackerConfig
@@ -19,16 +20,19 @@ class MythologicalMobTrackerConfig {
 
     @Expose
     @ConfigLink(owner = MythologicalMobTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 
     @Expose
     @ConfigOption(name = "Show Percentage", desc = "Show percentage how often what mob spawned.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     val showPercentage: Property<Boolean> = Property.of(false)
 
     @Expose
     @ConfigOption(name = "Hide Chat", desc = "Hide the chat messages when digging up a mythological mob.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideChat: Boolean = false
 
     @Expose
@@ -37,6 +41,7 @@ class MythologicalMobTrackerConfig {
         desc = "Sends \"Black Hole\" title when a Cretan Bull, Harpy, or Minotaur spawns",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var shardWarn: Boolean = false
 
     @Expose

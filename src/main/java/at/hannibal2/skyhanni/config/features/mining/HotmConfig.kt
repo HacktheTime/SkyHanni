@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.mining
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.data.hotx.CurrencyPerHotxPerk.CurrencySpentDesign
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -28,7 +30,15 @@ class HotmConfig {
 
     @Expose
     @ConfigLink(owner = HotmConfig::class, field = "skyMallDisplay")
+    @FeatureDependencyRequirement("#hasSkyMallDisplay")
     val skyMallPosition: Position = Position(100, 100)
+
+    @DependencyDelegate(field = "skyMallDisplay")
+    private var hasSkyMallDisplay: Boolean
+        get() = skyMallDisplay != SkyMallDisplayVisibility.OFF
+        set(value) {
+            if (value) skyMallDisplay = SkyMallDisplayVisibility.MINING_ONLY
+        }
 
     @Expose
     @ConfigOption(name = "Level Stack", desc = "Show the level of a perk as item stacks.")

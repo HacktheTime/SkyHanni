@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.gui
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.PositionList
 import at.hannibal2.skyhanni.features.gui.TabWidgetDisplay
@@ -35,9 +36,11 @@ class TabWidgetConfig {
     @Expose
     @ConfigOption(name = "Widgets", desc = "")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val display: Property<MutableList<TabWidgetDisplay>> = Property.of(mutableListOf())
 
     @Expose
     @ConfigLink(owner = TabWidgetConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val displayPositions: PositionList = PositionList(TabWidgetDisplay.entries.size)
 }

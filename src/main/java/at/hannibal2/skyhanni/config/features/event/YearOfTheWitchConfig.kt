@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -20,6 +21,7 @@ class YearOfTheWitchConfig {
 
     @Expose
     @ConfigLink(owner = YearOfTheWitchConfig::class, field = "stewHelper")
+    @FeatureDependencyRequirement("#stewHelper")
     val stewHelperPosition: Position = Position(174, 139)
 
     @Expose

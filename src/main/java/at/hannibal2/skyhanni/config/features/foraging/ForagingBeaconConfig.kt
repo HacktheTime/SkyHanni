@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.foraging
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -18,11 +19,13 @@ class ForagingBeaconConfig {
     @Expose
     @ConfigOption(name = "Use Middle Click", desc = "Click on slots with middle click to speed up interactions.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var useMiddleClick: Boolean = true
 
     @Expose
     @ConfigOption(name = "Prevent Over-Clicking", desc = "Prevents clicking on a slot that already is set correctly.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var preventOverClicking: Boolean = true
 
     @Expose
@@ -33,6 +36,7 @@ class ForagingBeaconConfig {
 
     @Expose
     @ConfigLink(owner = ForagingBeaconConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val displayPosition: Position = Position(-300, 140)
 
 }

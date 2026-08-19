@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.chocolatefactory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -7,6 +8,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("CFConfig#enabled")
 class CFUpgradeWarningsConfig {
     @Expose
     @ConfigOption(
@@ -24,6 +26,7 @@ class CFUpgradeWarningsConfig {
             "§eUpgrade warning must be turned on."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#upgradeWarning")
     var upgradeWarningSound: Boolean = false
 
     @Expose
@@ -32,6 +35,7 @@ class CFUpgradeWarningsConfig {
         desc = "How often the upgrade-available warning is repeated in minutes."
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 10f, minStep = 0.25f)
+    @FeatureDependencyRequirement("#upgradeWarning")
     var timeBetweenWarnings: Float = 1f
 
     @Expose

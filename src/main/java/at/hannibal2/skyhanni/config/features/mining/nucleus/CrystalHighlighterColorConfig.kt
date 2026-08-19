@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.nucleus
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.storage.Resettable
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -8,6 +9,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("CrystalHighlighterConfig#enabled")
 class CrystalHighlighterColorConfig : Resettable {
     @Expose
     @ConfigOption(name = "Amber", desc = "§7Default: §#§c§b§6§4§0§0§/#CB6400")

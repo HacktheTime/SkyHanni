@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.garden.cropmilestones
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.features.garden.CropType
 import at.hannibal2.skyhanni.utils.TimeUnit
 import com.google.gson.annotations.Expose
@@ -33,6 +35,7 @@ class CropMilestonesConfig {
     @Expose
     @ConfigOption(name = "Show Without Tool", desc = "Show progress display when not holding a farming tool")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#progress")
     var showWithoutTool: Boolean = false
 
     @Expose
@@ -42,11 +45,13 @@ class CropMilestonesConfig {
             "Useful for switching to a different pet for leveling.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#progress")
     var warnClose: Boolean = false
 
     @Expose
     @ConfigOption(name = "Time Format", desc = "Change the highest time unit to show (1h30m vs 90min)")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#progress")
     val highestTimeFormat: Property<TimeFormatEntry> = Property.of(TimeFormatEntry.YEAR)
 
     enum class TimeFormatEntry(private val displayName: String) {
@@ -68,6 +73,7 @@ class CropMilestonesConfig {
         desc = "Calculate the progress and ETA till maxed milestone (46) instead of next milestone.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#progress")
     val showMaxTier: Property<Boolean> = Property.of(false)
 
     @Expose
@@ -76,7 +82,12 @@ class CropMilestonesConfig {
         desc = "What crops to set custom milestone goals for."
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#progress")
     val customGoalCrops: Property<MutableList<CropType>> = Property.of(mutableListOf())
+
+    @DependencyDelegate(field = "customGoalCrops")
+    private val hasCustomGoals: Boolean
+        get() = customGoalCrops.get().isNotEmpty()
 
     @Expose
     @ConfigOption(
@@ -92,6 +103,7 @@ class CropMilestonesConfig {
         desc = "Drag text to change the appearance of the overlay.\n"
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#progress")
     val text: MutableList<MilestoneTextEntry> = mutableListOf(
         MilestoneTextEntry.TITLE,
         MilestoneTextEntry.MILESTONE_TIER,
@@ -119,15 +131,18 @@ class CropMilestonesConfig {
     @Expose
     @ConfigOption(name = "Block Broken Precision", desc = "The amount of decimals displayed in blocks/second.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 6f, minStep = 1f)
+    @FeatureDependencyRequirement("#progress")
     var blocksBrokenPrecision: Int = 2
 
     @Expose
     @ConfigOption(name = "Seconds Before Reset", desc = "How many seconds of not farming until blocks/second resets.")
     @ConfigEditorSlider(minValue = 2f, maxValue = 60f, minStep = 1f)
+    @FeatureDependencyRequirement("#progress")
     var blocksBrokenResetTime: Int = 5
 
     @Expose
     @ConfigLink(owner = CropMilestonesConfig::class, field = "progress")
+    @FeatureDependencyRequirement("#progress")
     val progressDisplayPos: Position = Position(-400, -200)
 
     @Expose

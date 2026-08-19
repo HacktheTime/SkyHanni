@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.optimalspeed
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -30,6 +31,7 @@ class OptimalSpeedConfig {
     @Expose
     @ConfigOption(name = "Only Warn With Rancher's", desc = "Only send a warning when wearing Rancher's Boots.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#warning")
     var onlyWarnRanchers: Boolean = false
 
     @Expose
@@ -44,10 +46,12 @@ class OptimalSpeedConfig {
     @Expose
     @ConfigOption(name = "Compact GUI", desc = "Compact the Rancher Boots GUI only showing crop icons")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#signEnabled")
     var compactRancherGui: Boolean = false
 
     @Expose
     @ConfigLink(owner = OptimalSpeedConfig::class, field = "signEnabled")
+    @FeatureDependencyRequirement("#signEnabled")
     val signPosition: Position = Position(20, -195)
 
     @Expose
@@ -57,5 +61,6 @@ class OptimalSpeedConfig {
 
     @Expose
     @ConfigLink(owner = OptimalSpeedConfig::class, field = "showOnHUD")
+    @FeatureDependencyRequirement("#showOnHUD")
     val pos: Position = Position(5, -200)
 }

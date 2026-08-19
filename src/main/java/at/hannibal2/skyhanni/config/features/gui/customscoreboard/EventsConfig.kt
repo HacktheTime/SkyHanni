@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.gui.customscoreboard
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.features.gui.customscoreboard.ScoreboardConfigEventElement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -8,6 +9,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableLi
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("CustomScoreboardConfig#hasEnabled")
 class EventsConfig {
     @Expose
     @ConfigOption(name = "Events Priority", desc = "Drag your list to select the priority of each event.")

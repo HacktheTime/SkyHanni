@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -23,6 +24,7 @@ class GreatSpookConfig {
 
     @Expose
     @ConfigLink(owner = GreatSpookConfig::class, field = "primalFearTimer")
+    @FeatureDependencyRequirement("#primalFearTimer")
     val positionTimer: Position = Position(20, 20)
 
     @Expose
@@ -37,6 +39,7 @@ class GreatSpookConfig {
 
     @Expose
     @ConfigLink(owner = GreatSpookConfig::class, field = "fearStatDisplay")
+    @FeatureDependencyRequirement("#fearStatDisplay")
     val positionFear: Position = Position(30, 30)
 
     @Expose
@@ -47,6 +50,7 @@ class GreatSpookConfig {
 
     @Expose
     @ConfigLink(owner = GreatSpookConfig::class, field = "greatSpookTimeLeft")
+    @FeatureDependencyRequirement("#greatSpookTimeLeft")
     val positionTimeLeft: Position = Position(40, 40)
 
     @ConfigOption(name = "Primal Fear Solvers", desc = "Solvers for the Primal Fears.")

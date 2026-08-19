@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.mining.FlowstateElements
@@ -25,17 +26,20 @@ class FlowstateHelperConfig {
     @Expose
     @ConfigOption(name = "Appearance", desc = "Drag text to change the appearance.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val appearance: MutableList<FlowstateElements> = FlowstateElements.defaultOption.toMutableList()
 
     @Expose
     @ConfigOption(name = "Dynamic Color", desc = "Makes the timer's color dynamic.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var colorfulTimer: Boolean = false
 
     @Expose
     @ConfigOption(name = "Auto Hide", desc = "Automatically hides the GUI after being idle, in seconds.")
     @SearchTag("autohide")
     @ConfigEditorSlider(minValue = -1f, maxValue = 30f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var autoHide: Int = 10
 
     @Expose
@@ -46,5 +50,6 @@ class FlowstateHelperConfig {
 
     @Expose
     @ConfigLink(owner = FlowstateHelperConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-110, 9)
 }

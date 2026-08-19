@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.minion
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -21,6 +22,7 @@ class MinionsConfig {
     @Expose
     @ConfigOption(name = "Only Tier", desc = "Show only the tier number over the minion. (Useful for Bingo)")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#nameDisplay")
     var nameOnlyTier: Boolean = false
 
     // TODO rename minionConfigHelper to minionUpgradeHelper
@@ -60,6 +62,7 @@ class MinionsConfig {
 
     @Expose
     @ConfigLink(owner = MinionsConfig::class, field = "hopperProfitDisplay")
+    @FeatureDependencyRequirement("#hopperProfitDisplay")
     val hopperProfitPos: Position = Position(360, 90)
 
     @Expose

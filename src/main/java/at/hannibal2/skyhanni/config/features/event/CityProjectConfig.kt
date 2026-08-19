@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -28,5 +29,6 @@ class CityProjectConfig {
 
     @Expose
     @ConfigLink(owner = CityProjectConfig::class, field = "showMaterials")
+    @FeatureDependencyRequirement("#showMaterials")
     val pos: Position = Position(150, 150)
 }

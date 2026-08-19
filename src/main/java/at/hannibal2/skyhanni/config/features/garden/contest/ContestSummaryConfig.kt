@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.contest
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
@@ -18,5 +19,6 @@ class ContestSummaryConfig {
     @Expose
     @ConfigOption(name = "Hide 0-Crop Stats", desc = "Do not display stats for events with 0 crops broken. Useful for pest farming.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideZeroCropStats: Boolean = true
 }

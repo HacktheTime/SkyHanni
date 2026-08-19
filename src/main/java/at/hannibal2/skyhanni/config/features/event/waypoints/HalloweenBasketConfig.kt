@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.event.waypoints
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
@@ -18,14 +20,21 @@ class HalloweenBasketConfig {
     @FeatureToggle
     val enabled: Property<Boolean> = Property.of(false)
 
+    @DependencyDelegate(field = "enabled")
+    private var isEnabled: Boolean
+        get() = enabled.get()
+        set(value) { enabled.set(value) }
+
     @Expose
     @ConfigOption(name = "Only Closest", desc = "Only show the closest waypoint.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#isEnabled")
     var onlyClosest: Boolean = true
 
     @Expose
     @ConfigOption(name = "Pathfinder", desc = "Show a path to the closest basket.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#isEnabled")
     @FeatureToggle
     val pathfind: Property<Boolean> = Property.of(true)
 }

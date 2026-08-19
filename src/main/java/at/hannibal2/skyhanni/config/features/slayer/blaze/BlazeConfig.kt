@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer.blaze
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -46,5 +47,6 @@ class BlazeConfig {
 
     @Expose
     @ConfigLink(owner = BlazeConfig::class, field = "firePillarDisplay")
+    @FeatureDependencyRequirement("#firePillarDisplay")
     val firePillarDisplayPosition: Position = Position(400, -150, 3f)
 }

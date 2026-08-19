@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.broodmother
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.utils.OSUtils
 import at.hannibal2.skyhanni.utils.SoundUtils
 import at.hannibal2.skyhanni.utils.SoundUtils.playSound
@@ -9,6 +10,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("BroodmotherConfig#alertOnSpawn")
 class BroodmotherSpawnAlertConfig {
     @Expose
     @ConfigOption(name = "Alert Sound", desc = "The sound that plays for the alert.")

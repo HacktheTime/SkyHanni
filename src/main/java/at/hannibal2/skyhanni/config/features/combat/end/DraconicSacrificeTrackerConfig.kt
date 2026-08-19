@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.end
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -19,6 +20,7 @@ class DraconicSacrificeTrackerConfig {
     @Expose
     @ConfigOption(name = "Only In Void Slate", desc = "Show the tracker only when inside the Void Slate area.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyInVoidSlate: Boolean = true
 
     @Expose
@@ -31,5 +33,6 @@ class DraconicSacrificeTrackerConfig {
 
     @Expose
     @ConfigLink(owner = DraconicSacrificeTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(201, 199)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -28,6 +29,7 @@ class StashConfig {
     @Accordion
     val hideDuplicateWarning: HideDuplicateWarningConfig = HideDuplicateWarningConfig()
 
+    @FeatureDependencyRequirement("StashConfig#enabled")
     class HideDuplicateWarningConfig {
         @Expose
         @ConfigOption(
@@ -43,31 +45,37 @@ class StashConfig {
             desc = "Show warnings even if the counts are previously reported, once per world change."
         )
         @ConfigEditorBoolean
+        @FeatureDependencyRequirement("#enabled")
         var worldChangeReset: Boolean = true
     }
 
     @Expose
     @ConfigOption(name = "Hide Added Messages", desc = "Hide the messages when something is added to your stash.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideAddedMessages: Boolean = true
 
     @Expose
     @ConfigOption(name = "Hide Low Warnings", desc = "Hide warnings with a total count below this number.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 1_000_000f, minStep = 100f)
+    @FeatureDependencyRequirement("#enabled")
     var hideLowWarningsThreshold: Int = 0
 
     @Expose
     @ConfigOption(name = "Use /ViewStash", desc = "Use /viewstash [type] instead of /pickupstash.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var useViewStash: Boolean = false
 
     @Expose
     @ConfigOption(name = "Disable Empty Warnings", desc = "Disable first-time warnings for empty messages left behind.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var disableEmptyWarnings: Boolean = false
 
     @Expose
     @ConfigOption(name = "Tab Complete Stash Command", desc = "Adds tab completion to the /viewstash commands.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var tabCompleteStashCommand: Boolean = true
 }

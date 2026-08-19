@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.NoConfigLink
 import at.hannibal2.skyhanni.config.core.config.Position
@@ -252,6 +253,7 @@ class GardenConfig {
 
     @Expose
     @ConfigLink(owner = GardenConfig::class, field = "showLogBookStats")
+    @FeatureDependencyRequirement("#showLogBookStats")
     val logBookStatsPos: Position = Position(427, 92)
 
     @Expose

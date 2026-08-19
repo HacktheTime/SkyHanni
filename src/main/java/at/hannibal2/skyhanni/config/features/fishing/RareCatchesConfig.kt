@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -38,11 +39,15 @@ class RareCatchesConfig {
     @Expose
     @ConfigOption(name = "Creature Name", desc = "Say what creature was caught in the alert.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#alertOwnCatches")
+    @FeatureDependencyRequirement("#alertOtherCatches")
     var creatureName: Boolean = true
 
     @Expose
     @ConfigOption(name = "Play Sound Alert", desc = "Play a sound effect when rare sea creature alerts are displayed.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#alertOwnCatches")
+    @FeatureDependencyRequirement("#alertOtherCatches")
     var playSound: Boolean = true
 
     @ConfigOption(name = "Custom Party Chat List", desc = "This Feature can be customized under /shseacreatures!")

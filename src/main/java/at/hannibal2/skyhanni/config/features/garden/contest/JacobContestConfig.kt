@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.contest
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.garden.NextJacobContestConfig
 import at.hannibal2.skyhanni.config.features.garden.PersonalBestsConfig
@@ -42,6 +43,7 @@ class JacobContestConfig {
 
     @Expose
     @ConfigLink(owner = JacobContestConfig::class, field = "ffForContest")
+    @FeatureDependencyRequirement("#ffForContest")
     val ffForContestPosition: Position = Position(180, 156)
 
     @Expose

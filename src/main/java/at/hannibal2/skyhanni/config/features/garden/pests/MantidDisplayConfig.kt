@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -20,6 +21,7 @@ class MantidDisplayConfig {
     @Expose
     @ConfigOption(name = "When to show", desc = "When to show this display")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val whenToShow: MutableList<WhenShowDisplay> = mutableListOf(WhenShowDisplay.MANTID)
 
     enum class WhenShowDisplay(val displayName: String) {
@@ -36,9 +38,11 @@ class MantidDisplayConfig {
     @Expose
     @ConfigOption(name = "Group Similar Expiry", desc = "Group pests that expire within this many seconds together.")
     @ConfigEditorSlider(minValue = 0.0F, maxValue = 120F, minStep = 5f)
+    @FeatureDependencyRequirement("#enabled")
     var groupSimilarExpire: Int = 30
 
     @Expose
     @ConfigLink(owner = MantidDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(200, 50)
 }

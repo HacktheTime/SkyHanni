@@ -1,10 +1,12 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("PowderMiningConfig#enabled")
 class PowderMiningGemstoneConfig {
     @Expose
     @ConfigOption(name = "Stronger Tool Messages", desc = "Hide 'You need a stronger tool..' messages.")

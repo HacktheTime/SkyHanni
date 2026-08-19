@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.KeyBind
 import com.google.gson.annotations.Expose
@@ -79,6 +80,7 @@ class MobsConfig {
     @Expose
     @ConfigOption(name = "Line to Arachne Width", desc = "The width of the line pointing to where Arachne is at.")
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 10f)
+    @FeatureDependencyRequirement("#lineToArachne")
     var lineToArachneWidth: Int = 5
 
     @Expose
@@ -120,6 +122,7 @@ class MobsConfig {
     @Expose
     @ConfigOption(name = "Arachne Warp On Death Keybind", desc = "They Keybind to activate the warp")
     @ConfigLink(owner = MobsConfig::class, field = "chatPromptArachneWarpOnDeath")
+    @FeatureDependencyRequirement("#chatPromptArachneWarpOnDeath")
     val arachneDeathWarpKeybind: KeyBind = KeyBind()
 
     @Expose

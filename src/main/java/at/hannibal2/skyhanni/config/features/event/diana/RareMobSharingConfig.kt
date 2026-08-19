@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.diana
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -20,6 +21,7 @@ class RareMobSharingConfig {
     @Expose
     @ConfigOption(name = "Focus", desc = "Hide other waypoints when your Party finds a Rare Diana Mob.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var focus: Boolean = false
 
     @Expose
@@ -28,11 +30,13 @@ class RareMobSharingConfig {
         desc = "Share the waypoint as soon as you find a Rare Diana Mob. As an alternative, you can share it only via key press.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var instantShare: Boolean = true
 
     @Expose
     @ConfigOption(name = "Share Key", desc = "Press this key to share your Rare Diana Mob Waypoint.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_Y)
+    @FeatureDependencyRequirement("#enabled")
     var keyBindShare: Int = GLFW.GLFW_KEY_Y
 
     @Expose
@@ -43,6 +47,7 @@ class RareMobSharingConfig {
     @Expose
     @ConfigOption(name = "Show Despawn Time", desc = "Show the time until the shared Inquisitor will despawn.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showDespawnTime: Boolean = true
 
     @Expose
@@ -51,6 +56,7 @@ class RareMobSharingConfig {
         desc = "Also read the global chat for detecting Rare Diana Mobs, not only party chat.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var globalChat: Boolean = false
 
     @Expose

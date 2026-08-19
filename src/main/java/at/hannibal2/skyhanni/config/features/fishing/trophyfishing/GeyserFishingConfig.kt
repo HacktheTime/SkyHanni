@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing.trophyfishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -26,10 +27,12 @@ class GeyserFishingConfig {
     @Expose
     @ConfigOption(name = "Geyser Box Color", desc = "Color of the Geyser Box.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#drawBox")
     var boxColor: ChromaColour = ChromaColour.fromStaticRGB(85, 255, 85, 245)
 
     @Expose
     @ConfigOption(name = "Only With Rod", desc = "Only render the geyser box while holding a lava rod.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#drawBox")
     var onlyWithRod: Boolean = true
 }

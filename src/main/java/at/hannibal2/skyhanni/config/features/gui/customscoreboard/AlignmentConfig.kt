@@ -1,11 +1,13 @@
 package at.hannibal2.skyhanni.config.features.gui.customscoreboard
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.utils.RenderUtils
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("CustomScoreboardConfig#hasEnabled")
 class AlignmentConfig {
     @Expose
     @ConfigOption(name = "Horizontal Alignment", desc = "Alignment for the scoreboard on the horizontal axis.")

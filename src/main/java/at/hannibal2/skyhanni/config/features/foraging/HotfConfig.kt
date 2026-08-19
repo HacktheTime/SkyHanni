@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.foraging
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.data.hotx.CurrencyPerHotxPerk.CurrencySpentDesign
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -29,8 +31,16 @@ class HotfConfig {
     @SearchTag("Lottery Beekeeper")
     var lotteryDisplay: RotatingPerkDisplayVisibility = RotatingPerkDisplayVisibility.OFF
 
+    @DependencyDelegate(field = "lotteryDisplay")
+    private var hasLotteryDisplay: Boolean
+        get() = lotteryDisplay != RotatingPerkDisplayVisibility.OFF
+        set(value) {
+            lotteryDisplay = if (value) RotatingPerkDisplayVisibility.EVERYWHERE else RotatingPerkDisplayVisibility.OFF
+        }
+
     @Expose
     @ConfigLink(owner = HotfConfig::class, field = "lotteryDisplay")
+    @FeatureDependencyRequirement("#hasLotteryDisplay")
     val lotteryPosition: Position = Position(100, 120)
 
     @Expose
@@ -54,6 +64,7 @@ class HotfConfig {
     @Expose
     @ConfigOption(name = "Whispers Spent Design", desc = "Change the design of the whispers spent display.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#whispersSpent")
     var whispersSpentDesign: CurrencySpentDesign = CurrencySpentDesign.NUMBER_AND_PERCENTAGE
 
     @Expose

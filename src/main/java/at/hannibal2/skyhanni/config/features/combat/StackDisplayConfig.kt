@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -19,5 +20,6 @@ class StackDisplayConfig {
 
     @Expose
     @ConfigLink(owner = StackDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(480, -210, 1.9f)
 }

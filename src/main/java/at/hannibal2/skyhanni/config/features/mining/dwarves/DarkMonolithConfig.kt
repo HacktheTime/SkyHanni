@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.dwarves
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -25,6 +26,7 @@ class DarkMonolithConfig {
 
     @Expose
     @ConfigLink(owner = DarkMonolithConfig::class, field = "tracker")
+    @FeatureDependencyRequirement("#tracker")
     val trackerPosition: Position = Position(100, 100)
 
     @Expose
@@ -42,6 +44,7 @@ class DarkMonolithConfig {
         @Expose
         @ConfigOption(name = "Beacon Color", desc = "What color to show the beacon.\n§cCustom alpha values won't work§7.")
         @ConfigEditorColour
+        @FeatureDependencyRequirement("#enabled")
         var color: ChromaColour = ChromaColour.fromStaticRGB(155, 29, 194, 255)
     }
 
@@ -60,6 +63,7 @@ class DarkMonolithConfig {
         @Expose
         @ConfigOption(name = "Highlight Color", desc = "What color to highlight the egg.")
         @ConfigEditorColour
+        @FeatureDependencyRequirement("#enabled")
         var color: ChromaColour = ChromaColour.fromStaticRGB(155, 29, 194, 75)
     }
 
@@ -79,6 +83,7 @@ class DarkMonolithConfig {
         @Expose
         @ConfigOption(name = "Title Text", desc = "What the text of the title should be.")
         @ConfigEditorText
+        @FeatureDependencyRequirement("#enabled")
         var text: String = "§5§lDark Monolith"
 
     }

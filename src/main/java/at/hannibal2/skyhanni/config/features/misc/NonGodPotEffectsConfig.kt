@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -24,6 +25,7 @@ class NonGodPotEffectsConfig {
     @ConfigOption(name = "Show Mixins", desc = "Include God Pot mixins in the Non God Pot Effects display.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#displayEnabled")
     var showMixins: Boolean = false
 
     @Expose
@@ -44,9 +46,11 @@ class NonGodPotEffectsConfig {
         desc = "Change the time in seconds before the potion expires to warn you."
     )
     @ConfigEditorSlider(minValue = 30f, maxValue = 300f, minStep = 5f)
+    @FeatureDependencyRequirement("#expireWarning")
     var expireWarnTime: Int = 30
 
     @Expose
     @ConfigLink(owner = NonGodPotEffectsConfig::class, field = "displayEnabled")
+    @FeatureDependencyRequirement("#displayEnabled")
     val position: Position = Position(10, 10)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -24,6 +25,7 @@ class MoneyPerHourConfig {
     @Expose
     @ConfigOption(name = "Only Show Top", desc = "Only show the best # items.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 25f, minStep = 1f)
+    @FeatureDependencyRequirement("#display")
     var showOnlyBest: Int = 5
 
     @Expose
@@ -32,22 +34,26 @@ class MoneyPerHourConfig {
         desc = "Add current crop to the list if its lower ranked than the set limit by extending the list.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var showCurrent: Boolean = true
 
     // TODO Write ConditionalUtils.onToggle()-s for these values in their feature classes
     @Expose
     @ConfigOption(name = "Always On", desc = "Always show the money/hour Display while in the garden.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var alwaysOn: Boolean = false
 
     @Expose
     @ConfigOption(name = "Compact Mode", desc = "Hide the item name and the position number.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var compact: Boolean = false
 
     @Expose
     @ConfigOption(name = "Compact Price", desc = "Show the price more compact.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var compactPrice: Boolean = false
 
     @Expose
@@ -56,11 +62,13 @@ class MoneyPerHourConfig {
         desc = "Use the custom format below instead of classic ➜ §eSell Offer §7and other profiles ➜ §eNPC Price.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var useCustomFormat: Boolean = false
 
     @Expose
     @ConfigOption(name = "Custom Format", desc = "Set what prices to show")
     @ConfigEditorDraggableList(requireNonEmpty = true)
+    @FeatureDependencyRequirement("#display", "#useCustomFormat")
     val customFormat: MutableList<CustomFormatEntry> = mutableListOf(
         CustomFormatEntry.SELL_OFFER,
         CustomFormatEntry.INSTANT_SELL,
@@ -79,11 +87,13 @@ class MoneyPerHourConfig {
     @Expose
     @ConfigOption(name = "Merge Seeds", desc = "Merge the seeds price with the wheat price.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var mergeSeeds: Boolean = true
 
     @Expose
     @ConfigOption(name = "Include Bountiful", desc = "Include the coins from Bountiful in the calculation.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var bountiful: Boolean = true
 
     @Expose
@@ -92,20 +102,24 @@ class MoneyPerHourConfig {
         desc = "Include the coins you get from selling the mushrooms from your Mooshroom Cow pet.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var mooshroom: Boolean = true
 
     @Expose
     @ConfigOption(name = "Include Rare Crops", desc = "Include the average rare crop coins/hr.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var armor: Boolean = true
 
     @Expose
     @ConfigOption(name = "Hide Title", desc = "Hide the first line of 'Money Per Hour' entirely.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var hideTitle: Boolean = false
 
     // Todo rename to position
     @Expose
     @ConfigLink(owner = MoneyPerHourConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val pos: Position = Position(-330, 170)
 }

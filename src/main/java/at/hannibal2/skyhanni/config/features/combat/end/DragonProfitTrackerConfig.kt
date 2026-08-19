@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.end
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -23,6 +24,7 @@ class DragonProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = DragonProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 
     @Expose
@@ -32,6 +34,7 @@ class DragonProfitTrackerConfig {
     )
     @FeatureToggle
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var countLeechedDragons: Boolean = true
 
     @Expose

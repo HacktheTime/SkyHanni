@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.misc.frogmask
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
@@ -28,6 +30,10 @@ class FrogMaskFeaturesConfig {
         override fun toString() = displayName
     }
 
+    @DependencyDelegate(field = "display")
+    private val hasDisplay: Boolean
+        get() = display != FrogMaskCondition.DISABLED
+
     @Expose
     @ConfigOption(name = "Frog Mask Warning", desc = "")
     @Accordion
@@ -35,6 +41,7 @@ class FrogMaskFeaturesConfig {
 
     @Expose
     @ConfigLink(owner = FrogMaskFeaturesConfig::class, field = "display")
+    @FeatureDependencyRequirement("#hasDisplay")
     val position: Position = Position(25, 25)
 
 }

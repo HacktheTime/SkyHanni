@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.cropmilestones
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -10,6 +11,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("CropMilestonesConfig#progress")
 class NextConfig {
     @Expose
     @ConfigOption(
@@ -23,6 +25,7 @@ class NextConfig {
     @Expose
     @ConfigOption(name = "Sort Type", desc = "Sort the crops by either garden or SkyBlock EXP.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#bestDisplay")
     val bestType: Property<BestTypeEntry> = Property.of(BestTypeEntry.GARDEN_EXP)
 
     enum class BestTypeEntry(private val displayName: String) {
@@ -36,6 +39,7 @@ class NextConfig {
     @Expose
     @ConfigOption(name = "Only Show Top", desc = "Only show the top # crops.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#bestDisplay")
     val showOnlyBest: Property<Int> = Property.of(10)
 
     @Expose
@@ -44,11 +48,13 @@ class NextConfig {
         desc = "Add current crop to the list if its lower ranked than the set limit by extending the list.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#bestDisplay")
     val showCurrent: Property<Boolean> = Property.of(true)
 
     @Expose
     @ConfigOption(name = "Always On", desc = "Show the Best Display always while in the garden.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#bestDisplay")
     val bestAlwaysOn: Property<Boolean> = Property.of(false)
 
     @Expose
@@ -57,14 +63,17 @@ class NextConfig {
         desc = "A more compact best crop time: Removing the crop name and exp, hide the # number and using a more compact time format.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#bestDisplay")
     val bestCompact: Property<Boolean> = Property.of(false)
 
     @Expose
     @ConfigOption(name = "Hide Title", desc = "Hide the 'Best Crop Time' line entirely.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#bestDisplay")
     val bestHideTitle: Property<Boolean> = Property.of(false)
 
     @Expose
     @ConfigLink(owner = NextConfig::class, field = "bestDisplay")
+    @FeatureDependencyRequirement("#bestDisplay")
     val displayPos: Position = Position(-200, -200)
 }

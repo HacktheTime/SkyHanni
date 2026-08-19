@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.chat.SoundResponseTypes
 import com.google.gson.annotations.Expose
@@ -20,5 +21,6 @@ class ChatSoundResponseConfig {
     @Expose
     @ConfigOption(name = "Sound Responses", desc = "Add animal sounds to play when certain words are said in chat.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     var soundResponses = SoundResponseTypes.entries.toMutableList()
 }

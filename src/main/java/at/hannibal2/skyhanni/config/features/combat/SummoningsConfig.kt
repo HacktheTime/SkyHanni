@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -26,6 +27,7 @@ class SummoningsConfig {
 
     @Expose
     @ConfigLink(owner = SummoningsConfig::class, field = "summoningMobDisplay")
+    @FeatureDependencyRequirement("#summoningMobDisplay")
     val summoningMobDisplayPos: Position = Position(10, 10)
 
     @Expose

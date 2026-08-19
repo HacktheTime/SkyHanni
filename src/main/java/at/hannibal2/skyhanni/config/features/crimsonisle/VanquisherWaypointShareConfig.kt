@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -17,15 +18,18 @@ class VanquisherWaypointShareConfig {
     @Expose
     @ConfigOption(name = "Instant Share", desc = "Instantly share your Vanquisher spawns via Party Chat.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var instantShare: Boolean = true
 
     @Expose
     @ConfigOption(name = "Keybind Share", desc = "Manually share your Vanquisher spawns with a keybind.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_Y)
+    @FeatureDependencyRequirement("#enabled")
     var keybindSharing: Int = GLFW.GLFW_KEY_Y
 
     @Expose
     @ConfigOption(name = "Read Global Chat", desc = "Register Vanquisher spawns from All Chat.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var readGlobalChat: Boolean = false
 }

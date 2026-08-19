@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.gui
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -18,10 +19,12 @@ class LegionBobbinOverlayConfig {
     @Expose
     @ConfigOption(name = "Hide without enchant", desc = "Hide the gui when you aren't wearing armor with Legion or Bobbin' on it.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideWithoutEnchant: Boolean = true
 
     @Expose
     @ConfigLink(owner = LegionBobbinOverlayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(100, 100)
 
 }

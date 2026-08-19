@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.damageindicator
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -20,6 +21,7 @@ class DamageIndicatorConfig {
     @Expose
     @ConfigOption(name = "Boss Name", desc = "Change how boss names are displayed.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var bossName: NameVisibility = NameVisibility.FULL_NAME
 
     enum class NameVisibility(private val displayName: String) {
@@ -35,6 +37,7 @@ class DamageIndicatorConfig {
     @Expose
     @ConfigOption(name = "Select Boss", desc = "Change what bosses the damage indicator should be enabled for.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val bossesToShow: MutableList<BossCategory> = mutableListOf(
         BossCategory.NETHER_MINI_BOSSES,
         BossCategory.VANQUISHER,
@@ -87,16 +90,19 @@ class DamageIndicatorConfig {
     @Expose
     @ConfigOption(name = "Hide Damage Splash", desc = "Hide damage splashes near selected mobs.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideDamageSplash: Boolean = false // remain dependent on dmg indicator
 
     @Expose
     @ConfigOption(name = "Damage Over Time", desc = "Show damage and health over time below the damage indicator.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showDamageOverTime: Boolean = false // remain dependent on dmg indicator
 
     @Expose
     @ConfigOption(name = "Hide Nametag", desc = "Hide the vanilla nametag of bosses with damage indicator enabled.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideVanillaNametag: Boolean = false // remain dependent on dmg indicator
 
     @Expose
@@ -118,6 +124,7 @@ class DamageIndicatorConfig {
             "instead of their names for the indicator.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var compactStatusEffects: Boolean = false
 
     @Expose

@@ -44,12 +44,30 @@ class ThirdPartyConsentConfig {
     @ConfigEditorBoolean
     var allowBSC: Boolean = false
 
+    @Expose
+    @ConfigOption(
+        name = "Allow Soopy",
+        desc = "Permit features that depend on Soopy services when in SELECT mode.",
+    )
+    @ConfigEditorBoolean
+    var allowSoopy: Boolean = false
+
+    @Expose
+    @ConfigOption(
+        name = "Allow Farming Elite",
+        desc = "Permit features that depend on Farming Elite (eliteskyblock.com) when in SELECT mode.",
+    )
+    @ConfigEditorBoolean
+    var allowFarmingElite: Boolean = false
+
     fun isAllowed(thirdParty: ThirdParty): Boolean {
         // Prefer explicit toggles for known entries
         return when (thirdParty) {
             ThirdParty.BINGO_NET -> allowBingoNet
             ThirdParty.BINGO_BREWERS -> allowBingoBrewers
             ThirdParty.BINGO_SPLASH_COMMUNITY -> allowBSC
+            ThirdParty.SOOPY -> allowSoopy
+            ThirdParty.FARMING_ELITE -> allowFarmingElite
         }
     }
 
@@ -58,6 +76,8 @@ class ThirdPartyConsentConfig {
             ThirdParty.BINGO_NET -> allowBingoNet = allowed
             ThirdParty.BINGO_BREWERS -> allowBingoBrewers = allowed
             ThirdParty.BINGO_SPLASH_COMMUNITY -> allowBSC = allowed
+            ThirdParty.SOOPY -> allowSoopy = allowed
+            ThirdParty.FARMING_ELITE -> allowFarmingElite = allowed
         }
     }
 }

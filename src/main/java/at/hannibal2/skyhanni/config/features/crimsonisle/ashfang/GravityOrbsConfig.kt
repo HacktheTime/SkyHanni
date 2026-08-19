@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle.ashfang
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -17,5 +18,6 @@ class GravityOrbsConfig {
     @Expose
     @ConfigOption(name = "Color", desc = "Color of the Gravity Orbs.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var color: ChromaColour = ChromaColour.fromStaticRGB(255, 85, 85, 120)
 }

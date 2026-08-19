@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.pets
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.features.pets.display.PetDisplayConfig
 import at.hannibal2.skyhanni.features.pets.PetDisplayConfigGuiManager
@@ -54,6 +55,7 @@ class PetConfig {
         @Expose
         @ConfigOption(name = "Highlight Color", desc = "What color the slot should be highlighted.")
         @ConfigEditorColour
+        @FeatureDependencyRequirement("#enabled")
         var color: ChromaColour = LorenzColor.GREEN.toChromaColor(alpha = 128)
     }
 

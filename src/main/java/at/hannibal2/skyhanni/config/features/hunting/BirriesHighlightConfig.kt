@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.hunting
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.ColorUtils.toChromaColor
 import com.google.gson.annotations.Expose
@@ -22,6 +23,7 @@ class BirriesHighlightConfig {
     @Expose
     @ConfigOption(name = "Color", desc = "Color for the Birries highlight")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     @SearchTag("tadpole tad pole poll")
     var color: ChromaColour = Color.GREEN.toChromaColor()
 

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -24,6 +25,7 @@ class MineshaftTimerConfig {
         desc = "Seconds remaining at which the timer turns §eyellow§7."
     )
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 59f)
+    @FeatureDependencyRequirement("#enabled")
     var cautionThreshold: Int = 30
 
     @Expose
@@ -32,6 +34,7 @@ class MineshaftTimerConfig {
         desc = "Seconds remaining at which the timer turns §cred§7."
     )
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 59f)
+    @FeatureDependencyRequirement("#enabled")
     var warningThreshold: Int = 10
 
     @Expose
@@ -40,6 +43,7 @@ class MineshaftTimerConfig {
         desc = "Also displays how long you have been in the mineshaft."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showTimeInMineshaft: Boolean = true
 
     @Expose
@@ -48,9 +52,11 @@ class MineshaftTimerConfig {
         desc = "Estimates how long you can stay before cold reaches 100, based on your current cold rate."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showEstimatedTimeLeft: Boolean = true
 
     @Expose
     @ConfigLink(owner = MineshaftTimerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(10, 10)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.garden.GardenIndividualItemTrackerConfig
@@ -22,11 +23,13 @@ class CropFeverTrackerConfig {
     @ConfigOption(name = "Only Show With Enchant", desc = "Only show when holding a farming with the crop fever enchant.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var onlyWithTool: Boolean = true
 
     @Expose
     @ConfigOption(name = "Only Show During Fever", desc = "Only show during a crop fever.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyDuringFever: Boolean = true
 
     @Expose
@@ -35,6 +38,7 @@ class CropFeverTrackerConfig {
         desc = "Drag text to change the appearance of the overlay.\n"
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val text: Property<MutableList<CropFeverTrackerTextEntry>> = Property.of(
         mutableListOf(
             CropFeverTrackerTextEntry.TITLE,
@@ -72,5 +76,6 @@ class CropFeverTrackerConfig {
 
     @Expose
     @ConfigLink(owner = CropFeverTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(80, 20)
 }

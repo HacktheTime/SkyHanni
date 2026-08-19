@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.utils.ItemPriceSource
@@ -37,11 +38,13 @@ class SackDisplayConfig {
             "§eUnformatted: §72,240/2,200",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var numberFormat: NumberFormatEntry = NumberFormatEntry.FORMATTED
 
     @Expose
     @ConfigOption(name = "Alignment", desc = "Change the alignment for numbers and money.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var alignment: RenderUtils.HorizontalAlignment = RenderUtils.HorizontalAlignment.LEFT
 
     enum class NumberFormatEntry(private val displayName: String) {
@@ -56,11 +59,13 @@ class SackDisplayConfig {
     @Expose
     @ConfigOption(name = "Extra space", desc = "Space between each line of text.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var extraSpace: Int = 1
 
     @Expose
     @ConfigOption(name = "Sorting Type", desc = "Sorting type of items in sack.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var sortingType: SortingTypeEntry = SortingTypeEntry.DESC_STORED
 
     enum class SortingTypeEntry(private val displayName: String) {
@@ -80,16 +85,19 @@ class SackDisplayConfig {
             "in larger GUI scales, like the nether sack.)",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 45f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var itemToShow: Int = 15
 
     @Expose
     @ConfigOption(name = "Show Empty Item", desc = "Show empty item quantity in the display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showEmpty: Boolean = true
 
     @Expose
     @ConfigOption(name = "Show Price", desc = "Show price for each item in sack.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showPrice: Boolean = true
 
     @Expose
@@ -100,6 +108,7 @@ class SackDisplayConfig {
             "§eUnformatted: §7(12,421)",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled", "#showPrice")
     var priceFormat: PriceFormatEntry = PriceFormatEntry.FORMATTED
 
     enum class PriceFormatEntry(private val displayName: String) {
@@ -116,9 +125,11 @@ class SackDisplayConfig {
         desc = "Change what price to use: Bazaar (Sell Offer or Buy Order) or NPC.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled", "#showPrice")
     var priceSource: ItemPriceSource = ItemPriceSource.BAZAAR_INSTANT_BUY
 
     @Expose
     @ConfigLink(owner = SackDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(144, 139)
 }

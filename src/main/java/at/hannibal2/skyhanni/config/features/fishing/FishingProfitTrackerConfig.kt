@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -18,6 +19,7 @@ class FishingProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = FishingProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 
     @Expose
@@ -26,6 +28,7 @@ class FishingProfitTrackerConfig {
         desc = "Show the fishing tracker for a couple of seconds after catching something even while moving.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showWhenPickup: Boolean = true
 
     @Expose

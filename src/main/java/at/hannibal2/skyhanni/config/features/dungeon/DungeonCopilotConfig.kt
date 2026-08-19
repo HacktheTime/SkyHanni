@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -16,5 +17,6 @@ class DungeonCopilotConfig {
 
     @Expose
     @ConfigLink(owner = DungeonCopilotConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(10, 10)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -22,6 +23,7 @@ class CommonSeaCreatureHiderConfig {
         desc = "Only apply the filter while holding a fishing rod."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyWhileHoldingRod: Boolean = true
 
     @Expose
@@ -30,5 +32,6 @@ class CommonSeaCreatureHiderConfig {
         desc = "How visible common sea creatures should remain."
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var transparency: Int = 50
 }

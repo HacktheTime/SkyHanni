@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualTrackerConfig
@@ -19,11 +20,13 @@ class SeaCreatureTrackerConfig {
 
     @Expose
     @ConfigLink(owner = SeaCreatureTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 
     @Expose
     @ConfigOption(name = "Show Percentage", desc = "Show percentage how often what sea creature got caught.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     val showPercentage: Property<Boolean> = Property.of(false)
 
     // TODO move into sea creature category as this is now independent of the tracker
@@ -36,6 +39,7 @@ class SeaCreatureTrackerConfig {
     @Expose
     @ConfigOption(name = "Count Double", desc = "Count double hook catches as two catches.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var countDouble: Boolean = true
 
     @Expose

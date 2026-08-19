@@ -1,10 +1,12 @@
 package at.hannibal2.skyhanni.config.features.inventory.helper
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import org.lwjgl.glfw.GLFW
 
+@FeatureDependencyRequirement("at.hannibal2.skyhanni.config.features.inventory.helper.HelperConfig\$HarpConfig#keybinds")
 class HarpConfigKeyBinds {
     @Expose
     @ConfigOption(name = "Key 1", desc = "Key for the first node")

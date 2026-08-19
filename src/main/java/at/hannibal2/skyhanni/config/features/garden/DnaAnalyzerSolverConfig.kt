@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -17,16 +18,19 @@ class DnaAnalyzerSolverConfig {
     @Expose
     @ConfigOption(name = "Use Middle Click", desc = "Click on slots with middle click to speed up interactions.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var useMiddleClick: Boolean = true
 
     @Expose
     @ConfigOption(name = "Block Close Button", desc = "Blocks accidentally clicking the close button while in the puzzle.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var blockAccidentalClosing: Boolean = true
 
     @Expose
     @ConfigOption(name = "Hide tooltips", desc = "Hide the item tooltips inside the DNA Analyzer.")
     @ConfigEditorBoolean
     @SearchTag("Analyser")
+    @FeatureDependencyRequirement("#enabled")
     var hideTooltips: Boolean = true
 }

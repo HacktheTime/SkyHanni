@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -18,5 +19,6 @@ class HoppityWarpMenuConfig {
     @Expose
     @ConfigOption(name = "Hide when maxed", desc = "Stops the above feature from working when the island is complete.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideWhenMaxed: Boolean = true
 }

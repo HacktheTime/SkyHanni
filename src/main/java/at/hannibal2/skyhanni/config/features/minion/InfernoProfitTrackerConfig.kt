@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.minion
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -18,6 +19,7 @@ class InfernoProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = InfernoProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(250, 250)
 
     @Expose
@@ -26,6 +28,7 @@ class InfernoProfitTrackerConfig {
         desc = "Show the tracker for a few seconds after collecting from an Inferno Minion.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showAfterCollection: Boolean = true
 
     @Expose

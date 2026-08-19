@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.helper
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -27,6 +28,7 @@ class TiaRelayConfig {
     @Expose
     @ConfigOption(name = "All Waypoints", desc = "Show all relay waypoints at once (intended for debugging).")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#nextWaypoint")
     var allWaypoints: Boolean = false
 
     @Expose

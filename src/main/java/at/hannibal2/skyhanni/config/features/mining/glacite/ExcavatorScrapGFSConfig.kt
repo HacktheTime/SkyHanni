@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -19,6 +20,7 @@ class ExcavatorScrapGFSConfig {
 
     @Expose
     @ConfigLink(owner = ExcavatorScrapGFSConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(100, 100)
 
     @Expose
@@ -28,6 +30,7 @@ class ExcavatorScrapGFSConfig {
             "§8Can also be changed using the §a+ §8and §c-§8 buttons in the GUI."
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 64f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     val fetchAmount: Property<Int> = Property.of(16)
 
     @Expose
@@ -36,6 +39,7 @@ class ExcavatorScrapGFSConfig {
         desc = "If enabled, the button will only be shown if you do not have any Suspicious Scrap in your inventory."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyIfNoScrap: Boolean = true
 
     @Expose
@@ -44,6 +48,7 @@ class ExcavatorScrapGFSConfig {
         desc = "If you do not have any Suspicious Scrap in your sacks, show a link to open the bazaar page for Suspicious Scrap."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var bzIfSacksEmpty: Boolean = true
 
 }

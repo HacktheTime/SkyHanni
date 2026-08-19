@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.NoConfigLink
 import at.hannibal2.skyhanni.config.core.config.KeyBind
@@ -292,6 +293,7 @@ class MiscConfig {
 
     @Expose
     @ConfigLink(owner = MiscConfig::class, field = "playerMovementSpeed")
+    @FeatureDependencyRequirement("#playerMovementSpeed")
     val playerMovementSpeedPos: Position = Position(394, 124)
 
     @Expose
@@ -330,6 +332,7 @@ class MiscConfig {
 
     @Expose
     @ConfigLink(owner = MiscConfig::class, field = "showTimeInLimbo")
+    @FeatureDependencyRequirement("#showTimeInLimbo")
     val showTimeInLimboPosition: Position = Position(400, 200, 1.3f)
 
     @Expose
@@ -467,6 +470,7 @@ class MiscConfig {
 
     @Expose
     @ConfigLink(owner = MiscConfig::class, field = "coralFishHelper")
+    @FeatureDependencyRequirement("#coralFishHelper")
     val coralFishHelperPosition: Position = Position(174, 139)
 
     @Expose

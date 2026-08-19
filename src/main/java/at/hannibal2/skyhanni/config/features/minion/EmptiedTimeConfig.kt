@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.minion
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,5 +17,6 @@ class EmptiedTimeConfig {
     @Expose
     @ConfigOption(name = "Distance", desc = "Maximum distance to display minion data.")
     @ConfigEditorSlider(minValue = 3f, maxValue = 30f, minStep = 1f)
+    @FeatureDependencyRequirement("#display")
     var distance: Int = 10
 }

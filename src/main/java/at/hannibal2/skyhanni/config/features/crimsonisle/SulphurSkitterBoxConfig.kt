@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -18,6 +19,7 @@ class SulphurSkitterBoxConfig {
     @Expose
     @ConfigOption(name = "Box Type", desc = "Choose the look of the box.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var boxType: BoxType = BoxType.WIREFRAME
 
     enum class BoxType(private val displayName: String) {
@@ -31,10 +33,12 @@ class SulphurSkitterBoxConfig {
     @Expose
     @ConfigOption(name = "Box Color", desc = "Choose the color of the box.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var boxColor: ChromaColour = ChromaColour.fromStaticRGB(255, 216, 0, 102)
 
     @Expose
     @ConfigOption(name = "Only With Rods", desc = "Render the box only when holding a lava fishing rod.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyWithRods: Boolean = true
 }

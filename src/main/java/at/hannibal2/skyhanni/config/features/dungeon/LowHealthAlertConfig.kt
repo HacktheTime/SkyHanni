@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -16,6 +17,7 @@ class LowHealthAlertConfig {
     @Expose
     @ConfigOption(name = "Only while being Healer", desc = "Only show the alert if you're playing a healer.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyWhileHealer: Boolean = true
 
     @Expose

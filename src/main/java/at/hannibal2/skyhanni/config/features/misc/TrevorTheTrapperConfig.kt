@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.config.core.config.Position
@@ -32,11 +33,13 @@ class TrevorTheTrapperConfig {
             "Will show in the Trapper's Den regardless. §cToggle 'Enable Data Tracker' above.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#dataTracker")
     var displayType: Boolean = true
 
     @Expose
     @ConfigOption(name = "Text Format", desc = "Drag text to change the appearance of the overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#dataTracker")
     val textFormat: MutableList<TrackerEntry> = mutableListOf(
         TrackerEntry.TITLE,
         TrackerEntry.QUESTS_STARTED,
@@ -71,6 +74,7 @@ class TrevorTheTrapperConfig {
 
     @Expose
     @ConfigLink(owner = TrevorTheTrapperConfig::class, field = "dataTracker")
+    @FeatureDependencyRequirement("#dataTracker")
     val position: Position = Position(10, 80)
 
     @Expose
@@ -89,6 +93,7 @@ class TrevorTheTrapperConfig {
         desc = "Shows a Tracer to the location found by the solver.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#solver")
     var solverTracer = true
 
     @Expose
@@ -151,5 +156,6 @@ class TrevorTheTrapperConfig {
 
     @Expose
     @ConfigLink(owner = TrevorTheTrapperConfig::class, field = "cooldownGui")
+    @FeatureDependencyRequirement("#cooldownGui")
     val cooldownGuiPosition: Position = Position(10, 10)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -23,6 +24,7 @@ class GardenCommandsConfig {
         desc = "Press this key to teleport you to your Garden spawn. §cOnly works while in the garden.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#warpCommands")
     var homeHotkey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -31,6 +33,7 @@ class GardenCommandsConfig {
         desc = "Press this key to set your Garden spawn. §cOnly works while in the garden.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#warpCommands")
     var sethomeHotkey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -39,5 +42,6 @@ class GardenCommandsConfig {
         desc = "Press this key to teleport you to the Garden barn. §cOnly works while in the garden."
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#warpCommands")
     var barnHotkey: Int = GLFW.GLFW_KEY_UNKNOWN
 }

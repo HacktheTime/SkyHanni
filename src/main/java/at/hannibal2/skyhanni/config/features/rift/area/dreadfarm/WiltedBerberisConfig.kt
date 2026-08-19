@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.dreadfarm
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -15,11 +16,13 @@ class WiltedBerberisConfig {
     @Expose
     @ConfigOption(name = "Only on Farmland", desc = "Only show the helper while standing on Farmland blocks.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyOnFarmland: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hide Particles", desc = "Hide the Wilted Berberis particles.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideParticles: Boolean = false
 
     @Expose
@@ -37,5 +40,6 @@ class WiltedBerberisConfig {
         desc = "Track and show the Wilted Berberis respawn sequence to farm efficiently.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var respawnSequence: Boolean = true
 }

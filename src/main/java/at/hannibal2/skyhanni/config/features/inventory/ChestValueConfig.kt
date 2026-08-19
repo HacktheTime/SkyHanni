@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -19,11 +20,13 @@ class ChestValueConfig {
     @Expose
     @ConfigOption(name = "Enabled in own Inventory", desc = "Enable the feature for your own inventory.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var enableInOwnInventory: Boolean = false
 
     @Expose
     @ConfigOption(name = "Enabled in dungeons", desc = "Enable the feature in dungeons.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var enableInDungeons: Boolean = false
 
     @Expose
@@ -32,16 +35,19 @@ class ChestValueConfig {
         desc = "Show this display even if the Estimated Item Value is visible.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showDuringEstimatedItemValue: Boolean = false
 
     @Expose
     @ConfigOption(name = "Show Stacks", desc = "Show the item icon before name.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showStacks: Boolean = true
 
     @Expose
     @ConfigOption(name = "Display Type", desc = "Try to align everything to look nicer.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var alignedDisplay: Boolean = true
 
     @Expose
@@ -50,6 +56,7 @@ class ChestValueConfig {
         desc = "Reduce item name length to gain extra space on screen.\n§cCalculated in pixels!",
     )
     @ConfigEditorSlider(minStep = 1f, minValue = 100f, maxValue = 150f)
+    @FeatureDependencyRequirement("#enabled")
     var nameLength: Int = 100
 
     @Expose
@@ -64,6 +71,7 @@ class ChestValueConfig {
     @Expose
     @ConfigOption(name = "Sorting Type", desc = "Price sorting type.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var sortingType: SortingTypeEntry = SortingTypeEntry.DESCENDING
 
     enum class SortingTypeEntry(private val displayName: String) {
@@ -77,6 +85,7 @@ class ChestValueConfig {
     @Expose
     @ConfigOption(name = "Value formatting Type", desc = "Format of the price.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var formatType: NumberFormatEntry = NumberFormatEntry.SHORT
 
     enum class NumberFormatEntry(private val displayName: String) {
@@ -94,6 +103,7 @@ class ChestValueConfig {
             "All items in the chest are still counted for the total value.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 54f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var itemToShow: Int = 15
 
     @Expose
@@ -103,6 +113,7 @@ class ChestValueConfig {
             "Items are still counted for the total value.",
     )
     @ConfigEditorSlider(minValue = 50000f, maxValue = 10000000f, minStep = 50000f)
+    @FeatureDependencyRequirement("#enabled")
     var hideBelow: Int = 100000
 
     @Expose
@@ -111,9 +122,11 @@ class ChestValueConfig {
         desc = "Exclude Soulbound items from being counted in total value."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var ignoreSoulbound: Boolean = false
 
     @Expose
     @ConfigLink(owner = ChestValueConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(107, 141)
 }

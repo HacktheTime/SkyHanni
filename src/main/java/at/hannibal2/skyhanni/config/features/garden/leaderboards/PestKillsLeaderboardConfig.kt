@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden.leaderboards
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.EliteDisplayGenericConfig
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.EliteLeaderboardGenericConfig
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.MultiModeTypeRankGoalConfig
@@ -23,6 +24,7 @@ class PestKillsLeaderboardConfig : EliteLeaderboardGenericConfig<
     { PestKillsDisplayConfig() },
 )
 
+@FeatureDependencyRequirement("EliteFarmersLeaderboardsConfig#enabled")
 class PestRankGoalConfig : MultiModeTypeRankGoalConfig<PestTypeWithAll, PestTypeRankGoalsConfig, PestTypeMonthlyRankGoalsConfig>(
     { PestTypeRankGoalsConfig() },
     { PestTypeMonthlyRankGoalsConfig() }
@@ -37,6 +39,7 @@ class PestRankGoalConfig : MultiModeTypeRankGoalConfig<PestTypeWithAll, PestType
     override val rankGoalTypes: Property<MutableList<PestTypeWithAll>> = Property.of(mutableListOf())
 }
 
+@FeatureDependencyRequirement("EliteFarmersLeaderboardsConfig#enabled")
 class PestKillsDisplayConfig : EliteDisplayGenericConfig() {
     @Expose
     @ConfigOption(
@@ -52,6 +55,7 @@ class PestKillsDisplayConfig : EliteDisplayGenericConfig() {
     var timeDisplayed: Int = 30
 }
 // Pests only support monthly rank goals for all pests
+@FeatureDependencyRequirement("EliteFarmersLeaderboardsConfig#enabled")
 class PestTypeMonthlyRankGoalsConfig : TypeRankGoalGenericConfig<PestTypeWithAll>() {
     @Expose
     @ConfigOption(name = "All pests", desc = "")
@@ -88,4 +92,3 @@ enum class PestTypeWithAll(val pestType: PestType?, val displayName: String) {
 
     override fun toString(): String = displayName
 }
-

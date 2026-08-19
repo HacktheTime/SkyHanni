@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,6 +17,7 @@ class WormholeFinderConfig {
     @Expose
     @ConfigOption(name = "Departure Alert", desc = "Show a title alert when a nearby wormhole departs.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var departureAlert: Boolean = true
 
 }

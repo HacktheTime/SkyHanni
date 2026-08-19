@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden.leaderboards.generics
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -7,6 +8,9 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement(
+    "at.hannibal2.skyhanni.config.features.garden.leaderboards.EliteFarmersLeaderboardsConfig#enabled",
+)
 open class EliteLeaderboardGenericConfig<RankGoal : RankGoalGenericConfig, Display : EliteDisplayGenericConfig>(
     rankGoalConfig: () -> RankGoal,
     displayConfig: () -> Display,

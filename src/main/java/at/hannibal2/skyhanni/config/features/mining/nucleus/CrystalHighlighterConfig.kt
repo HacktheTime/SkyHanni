@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.nucleus
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -20,6 +21,7 @@ class CrystalHighlighterConfig {
     @Expose
     @ConfigOption(name = "Highlight Design", desc = "Change the design of the highlighted boxes.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var boxStyle: BoundingBoxType = BoundingBoxType.FILLED
 
     enum class BoundingBoxType(private val displayName: String) {
@@ -37,5 +39,6 @@ class CrystalHighlighterConfig {
     @Expose
     @ConfigOption(name = "Only Show During Hoppity's", desc = "Only show the highlighted boxes during Hoppity's Hunt.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyDuringHoppity: Boolean = false
 }

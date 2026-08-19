@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.mining.nucleus
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.utils.EnumUtils.toFormattedName
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -22,6 +24,7 @@ class PowderChestTimerConfig {
     @Expose
     @ConfigOption(name = "Only When Max Great Explorer", desc = "Only enable the feature when your Great Explorer is maxed.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyMaxGreatExplorer: Boolean = false
 
     @Expose
@@ -30,6 +33,7 @@ class PowderChestTimerConfig {
         desc = "Highlight chests with a color depending on how much time left until they despawn.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var highlightChests: Boolean = true
 
     @Expose
@@ -38,22 +42,33 @@ class PowderChestTimerConfig {
         desc = "Use a single color for the chest highlight instead of changing it depending on the time.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled", "#highlightChests")
     var useStaticColor: Boolean = false
 
     @Expose
     @ConfigOption(name = "Static Color", desc = "Static color to use.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled", "#highlightChests", "#useStaticColor")
     var staticColor: ChromaColour = ChromaColour.fromStaticRGB(85, 255, 85, 245)
 
     @Expose
     @ConfigOption(name = "Draw Timer", desc = "Draw time left until the chest despawns.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var drawTimerOnChest: Boolean = true
 
     @Expose
     @ConfigOption(name = "Draw Line", desc = "Draw a line starting at your cursor to the chosen chest.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var lineMode: LineMode = LineMode.OLDEST
+
+    @DependencyDelegate(field = "lineMode")
+    private var hasLineMode: Boolean
+        get() = lineMode != LineMode.NONE
+        set(value) {
+            if (value && lineMode == LineMode.NONE) lineMode = LineMode.OLDEST
+        }
 
     enum class LineMode {
         OLDEST,
@@ -67,6 +82,7 @@ class PowderChestTimerConfig {
     @Expose
     @ConfigOption(name = "Line Count", desc = "Specify the number of chests to draw a line between.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 30f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled", "#hasLineMode")
     var drawLineToChestAmount: Int = 5
 
     @Expose
@@ -83,5 +99,6 @@ class PowderChestTimerConfig {
 
     @Expose
     @ConfigLink(owner = PowderChestTimerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(100, 100)
 }

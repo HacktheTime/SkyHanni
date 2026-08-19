@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.cropmilestones
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -9,6 +10,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
 // TODO Write ConditionalUtils.onToggle()-s for these values in their feature classes
+@FeatureDependencyRequirement("CropMilestonesConfig#progress")
 class MushroomPetPerkConfig {
     @Expose
     @ConfigOption(
@@ -26,6 +28,7 @@ class MushroomPetPerkConfig {
             "Hold a farming tool to show the overlay.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val text: MutableList<MushroomTextEntry> = mutableListOf(
         MushroomTextEntry.TITLE,
         MushroomTextEntry.MUSHROOM_TIER,
@@ -48,5 +51,6 @@ class MushroomPetPerkConfig {
     // Todo rename to position
     @Expose
     @ConfigLink(owner = MushroomPetPerkConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(-112, -143)
 }

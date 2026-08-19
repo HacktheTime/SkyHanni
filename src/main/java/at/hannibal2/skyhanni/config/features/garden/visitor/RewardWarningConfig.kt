@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.config.features.garden.visitor
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.features.garden.visitor.VisitorReward
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import com.google.gson.annotations.Expose
@@ -35,12 +36,14 @@ class RewardWarningConfig {
     @Expose
     @ConfigOption(name = "Bypass Key", desc = "Hold this key to bypass the Prevent Refusing feature.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_LEFT_CONTROL)
+    @FeatureDependencyRequirement("#preventRefusing")
     var bypassKey: Int = GLFW.GLFW_KEY_LEFT_CONTROL
 
 
     @Expose
     @ConfigOption(name = "Items", desc = "Warn for these reward item visitor drops.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#notifyInChat")
     val drops: MutableList<VisitorReward> = mutableListOf(
         VisitorReward.OVERGROWN_GRASS,
         VisitorReward.GREEN_BANDANA,
@@ -61,6 +64,10 @@ class RewardWarningConfig {
             "Requires at least one of them to be on."
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 50_000f, minStep = 250f)
+    @FeatureDependencyRequirement(
+        value = ["#preventRefusingCopper", "#preventAcceptingCopper"],
+        requireAll = false,
+    )
     var coinsPerCopperPrice: Int = 6_000
 
     @Expose
@@ -89,6 +96,10 @@ class RewardWarningConfig {
             "Above options take precedence."
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 500_000f, minStep = 1_000f)
+    @FeatureDependencyRequirement(
+        value = ["#preventRefusingLowLoss", "#preventAcceptingHighLoss"],
+        requireAll = false,
+    )
     var coinsLossThreshold: Int = 150_000
 
     @Expose
@@ -122,6 +133,17 @@ class RewardWarningConfig {
     @Expose
     @ConfigOption(name = "Transparency", desc = "How transparent the offer buttons should be when blocked.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 255f, minStep = 5f)
+    @FeatureDependencyRequirement(
+        value = [
+            "#preventRefusing",
+            "#preventRefusingCopper",
+            "#preventAcceptingCopper",
+            "#preventRefusingLowLoss",
+            "#preventAcceptingHighLoss",
+            "#preventRefusingNew",
+        ],
+        requireAll = false,
+    )
     var transparency: Int = 180
 
     @Expose

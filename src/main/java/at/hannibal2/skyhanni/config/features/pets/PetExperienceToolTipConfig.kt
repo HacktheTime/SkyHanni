@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.pets
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -19,11 +20,13 @@ class PetExperienceToolTipConfig {
     @Expose
     @ConfigOption(name = "Show Always", desc = "Show this info always, even if not pressing shift key.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#petDisplay")
     var showAlways: Boolean = false
 
     @Expose
     @ConfigOption(name = "Dragon Egg", desc = "For a Dragon pets that start as an egg, show progress to level 100 instead of 200.")
     @SearchTag("golden jade")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#petDisplay")
     var showDragonEgg: Boolean = true
 }

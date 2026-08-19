@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -22,11 +23,13 @@ class ExcavatorProfitTrackerConfig {
         desc = "Track Glacite Powder gained as well (no profit, but progress).",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var trackGlacitePowder: Boolean = true
 
     @Expose
     @ConfigOption(name = "Track Fossil Dust", desc = "Track Fossil Dust and use it for profit calculation.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showFossilDust: Boolean = true
 
     @Expose
@@ -39,5 +42,6 @@ class ExcavatorProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = ExcavatorProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-380, 150)
 }

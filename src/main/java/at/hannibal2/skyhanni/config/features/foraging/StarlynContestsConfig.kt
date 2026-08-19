@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.foraging
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -32,6 +33,7 @@ class StarlynContestsConfig {
 
     @Expose
     @ConfigLink(owner = StarlynContestsConfig::class, field = "starlynCouponProfitEnabled")
+    @FeatureDependencyRequirement("#starlynCouponProfitEnabled")
     val starlynCouponProfitPos: Position = Position(206, 158)
 
 }

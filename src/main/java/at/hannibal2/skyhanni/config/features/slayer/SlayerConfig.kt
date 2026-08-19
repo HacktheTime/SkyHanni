@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.config.features.slayer
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.slayer.blaze.BlazeConfig
@@ -110,6 +111,7 @@ class SlayerConfig {
         desc = "The width of the line pointing to every Slayer Mini-Boss around you.",
     )
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 10f)
+    @FeatureDependencyRequirement("#slayerMinibossLine")
     var slayerMinibossLineWidth: Int = 3
 
     @Expose
@@ -135,6 +137,7 @@ class SlayerConfig {
     @ConfigOption(name = "Quest Warning Title", desc = "Send a title when warning.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#questWarning")
     var questWarningTitle: Boolean = true
 
     @Expose
@@ -155,6 +158,7 @@ class SlayerConfig {
     )
     @SearchTag("magma cube tarantula tara spider slayer quest")
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 1f)
+    @FeatureDependencyRequirement("#hideIrrelevantMobs")
     var hideIrrelevantMobsTransparency: Int = 40
 
     @Expose
@@ -189,6 +193,7 @@ class SlayerConfig {
 
     @Expose
     @ConfigLink(owner = SlayerConfig::class, field = "gummyWarning")
+    @FeatureDependencyRequirement("#gummyWarning")
     val gummyWarningPosition: Position = Position(2, 100)
 
     @SkyHanniModule

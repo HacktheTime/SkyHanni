@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -18,21 +19,25 @@ class StereoHarmonyConfig {
     @Expose
     @ConfigOption(name = "Always Show", desc = "Show the display even while not farming.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#displayEnabled")
     var alwaysShow: Boolean = false
 
     @Expose
     @ConfigOption(name = "Show Pest Head", desc = "Show the head of the pest being boosted.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#displayEnabled")
     val showHead: Property<Boolean> = Property.of(true)
 
     @Expose
     @ConfigOption(name = "Show Crop Icon", desc = "Show the icon of the crops dropped by the pests being boosted.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#displayEnabled")
     val showCrop: Property<Boolean> = Property.of(true)
 
     @Expose
     @ConfigOption(name = "Hide when None", desc = "Hide when no vinyl selected.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#displayEnabled")
     var hideWhenNone: Boolean = true
 
     @Expose
@@ -43,5 +48,6 @@ class StereoHarmonyConfig {
 
     @Expose
     @ConfigLink(owner = StereoHarmonyConfig::class, field = "displayEnabled")
+    @FeatureDependencyRequirement("#displayEnabled")
     val position: Position = Position(205, 55, 1f)
 }

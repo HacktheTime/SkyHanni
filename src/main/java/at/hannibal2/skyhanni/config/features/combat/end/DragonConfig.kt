@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.end
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -32,6 +33,7 @@ class DragonConfig {
 
     @Expose
     @ConfigLink(owner = DragonConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val displayPosition: Position = Position(120, 40)
 
     @Expose
@@ -44,5 +46,6 @@ class DragonConfig {
     @ConfigOption(name = "Skyhanni Prefix", desc = "Displays the Skyhanni prefix in the dragon weight message.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#chat")
     var skyhanniMessagePrefix: Boolean = true
 }

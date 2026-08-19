@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -25,6 +26,7 @@ class PestTimerConfig {
             "Leave empty to always show.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val onlyWhenHolding: MutableList<HeldItem> = mutableListOf(
         HeldItem.FARMING_TOOL,
     )
@@ -41,6 +43,7 @@ class PestTimerConfig {
     @Expose
     @ConfigOption(name = "Pest Timer Text", desc = "Drag text to change the appearance of the overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val pestDisplay: MutableList<PestTimerTextEntry> = mutableListOf(
         PestTimerTextEntry.PEST_TIMER,
         PestTimerTextEntry.PEST_COOLDOWN,
@@ -67,11 +70,13 @@ class PestTimerConfig {
         desc = "Repeats the warning sound and title until the wardrobe is opened or the pest cooldown expires."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#cooldownOverWarning")
     var repeatWarning: Boolean = false
 
     @Expose
     @ConfigOption(name = "Warn Before Cooldown End", desc = "Warn this many seconds before the cooldown is over.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 30f, minStep = 1f)
+    @FeatureDependencyRequirement("#cooldownOverWarning")
     var cooldownWarningTime: Int = 5
 
     @Expose
@@ -101,6 +106,7 @@ class PestTimerConfig {
         desc = "Don't include spawn time in average spawn time display when the player goes AFK for at least this many seconds.",
     )
     @ConfigEditorSlider(minValue = 5f, maxValue = 300f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var averagePestSpawnTimeout: Int = 30
 
     @Expose
@@ -118,5 +124,6 @@ class PestTimerConfig {
 
     @Expose
     @ConfigLink(owner = PestTimerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(383, 93)
 }

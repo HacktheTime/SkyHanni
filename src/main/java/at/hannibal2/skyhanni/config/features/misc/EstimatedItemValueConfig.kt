@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.utils.ItemPriceSource
@@ -29,11 +30,13 @@ class EstimatedItemValueConfig {
     @Expose
     @ConfigOption(name = "Hotkey", desc = "Press this key to show the Estimated Item Value.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enabled")
     var hotkey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
     @ConfigOption(name = "Show Always", desc = "Ignore the hotkey and always display the item value.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var alwaysEnabled: Boolean = true
 
     @Expose
@@ -88,5 +91,6 @@ class EstimatedItemValueConfig {
 
     @Expose
     @ConfigLink(owner = EstimatedItemValueConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(140, 90)
 }

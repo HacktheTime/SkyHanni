@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.hunting
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.ColorUtils.toChromaColor
 import com.google.gson.annotations.Expose
@@ -22,5 +23,6 @@ class InvisibugHighlightConfig {
     @Expose
     @ConfigOption(name = "Color", desc = "Color for the Invisibug highlight")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var color: ChromaColour = Color.CYAN.toChromaColor()
 }

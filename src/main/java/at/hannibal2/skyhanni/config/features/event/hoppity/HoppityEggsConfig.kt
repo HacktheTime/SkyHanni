@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.config.features.event.hoppity
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.features.event.hoppity.summary.HoppityEventSummaryConfig
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
@@ -55,6 +56,7 @@ class HoppityEggsConfig {
         desc = "Adjust the transparency of players near shared & guessed egg waypoints. (in %)",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 1f)
+    @FeatureDependencyRequirement("HoppityWaypointsConfig#enabled")
     var playerTransparency: Int = 40
 
     @Expose

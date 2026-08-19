@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.gui.customscoreboard
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.features.gui.customscoreboard.CustomScoreboard
 import at.hannibal2.skyhanni.features.gui.customscoreboard.ScoreboardConfigElement
 import at.hannibal2.skyhanni.utils.OSUtils.openBrowser
@@ -29,9 +31,15 @@ class CustomScoreboardConfig {
     @FeatureToggle
     val enabled: Property<Boolean> = Property.of(false)
 
+    @DependencyDelegate(field = "enabled")
+    private var hasEnabled: Boolean
+        get() = enabled.get()
+        set(value) { enabled.set(value) }
+
     @Expose
     @ConfigOption(name = "Appearance", desc = "Drag text to change the appearance of the advanced scoreboard.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#hasEnabled")
     val scoreboardEntries: Property<MutableList<ScoreboardConfigElement>> =
         Property.of(ScoreboardConfigElement.defaultOptions.toMutableList())
 
@@ -61,9 +69,11 @@ class CustomScoreboardConfig {
             "§cReporting these in the Discord Server is very important, so we can know what lines are missing."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasEnabled")
     var unknownLinesWarning: Boolean = true
 
     @Expose
     @ConfigLink(owner = CustomScoreboardConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#hasEnabled")
     val position: Position = Position(10, 80)
 }

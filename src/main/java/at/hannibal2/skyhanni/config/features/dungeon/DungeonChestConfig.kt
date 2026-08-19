@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -47,6 +48,7 @@ class DungeonChestConfig {
         desc = "Displays the Unopened Croesus Chest Display in Kuudra.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#croesusOverlay")
     @FeatureToggle
     var croesusOverlayKuudra: Boolean = false
 
@@ -56,10 +58,12 @@ class DungeonChestConfig {
         desc = "Displays the Unopened Croesus Chest Display in Dungeons.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#croesusOverlay")
     @FeatureToggle
     var croesusOverlayDungeons: Boolean = false
 
     @Expose
     @ConfigLink(owner = DungeonChestConfig::class, field = "croesusOverlay")
+    @FeatureDependencyRequirement("#croesusOverlay")
     val croesusOverlayPosition: Position = Position(200, 100)
 }

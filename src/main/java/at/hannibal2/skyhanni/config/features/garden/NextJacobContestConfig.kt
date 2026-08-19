@@ -3,7 +3,10 @@ package at.hannibal2.skyhanni.config.features.garden
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigManager
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.enums.SharePolicy
 import at.hannibal2.skyhanni.features.garden.CropType
@@ -32,6 +35,7 @@ class NextJacobContestConfig {
     @Expose
     @ConfigOption(name = "Outside Garden", desc = "Show the timer not only in the Garden but everywhere in SkyBlock.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var showOutsideGarden: Boolean = false
 
     @Expose
@@ -40,6 +44,7 @@ class NextJacobContestConfig {
         desc = "Mark the current or next Farming Contest crops in other farming GUIs as underlined.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var otherGuis: Boolean = false
 
     @Expose
@@ -48,6 +53,8 @@ class NextJacobContestConfig {
         desc = "Automatically fetch Contests from eliteskyblock.com for the current year if they're uploaded already.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
+    @ThirdPartyDependency(ThirdParty.FARMING_ELITE)
     var fetchAutomatically: Boolean = true
 
     @Expose
@@ -56,6 +63,7 @@ class NextJacobContestConfig {
         desc = "Highlight the current boosted crop with an outline in addition to the enchant glint.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var additionalBoostedHighlight: Boolean = false
 
     @Expose
@@ -64,6 +72,7 @@ class NextJacobContestConfig {
         desc = "Set the color of the highlight for the current boosted crop.",
     )
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#additionalBoostedHighlight")
     var additionalBoostedHighlightColor: ChromaColour = ChromaColour.fromStaticRGB(0, 255, 0, a = 80)
 
     @Expose
@@ -72,16 +81,20 @@ class NextJacobContestConfig {
         desc = "Share the list of upcoming Contests to eliteskyblock.com for everyone else to then fetch automatically.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#display")
+    @ThirdPartyDependency(ThirdParty.FARMING_ELITE)
     var shareAutomatically: SharePolicy = SharePolicy.ASK
 
     @Expose
     @ConfigOption(name = "Warning", desc = "Show a warning shortly before a new Jacob's Contest starts.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var warn: Boolean = false
 
     @Expose
     @ConfigOption(name = "Warning Time", desc = "Set the warning time in seconds before a Jacob's Contest begins.")
     @ConfigEditorSlider(minValue = 10f, maxValue = 300f, minStep = 1f)
+    @FeatureDependencyRequirement("#warn")
     var warnTime: Int = 120
 
     @Expose
@@ -90,19 +103,23 @@ class NextJacobContestConfig {
         desc = "Create a popup when the warning time is reached and Minecraft is not in focus.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#warn")
     var warnPopup: Boolean = false
 
     @Expose
     @ConfigOption(name = "Warn For", desc = "Only warn for these crops.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#warn")
     val warnFor: MutableList<CropType> = CropType.entries.toMutableList()
 
     @Expose
     @ConfigLink(owner = NextJacobContestConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val position: Position = Position(-200, 10)
 
     @Expose
     @ConfigLink(owner = NextJacobContestConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val inventoryPosition: Position = Position(394, 124)
 
     @SkyHanniModule

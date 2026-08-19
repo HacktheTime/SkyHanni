@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer.vampire
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -17,6 +18,7 @@ class OthersBossConfig {
     @Expose
     @ConfigOption(name = "Highlight Color", desc = "What color to highlight the boss in.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlight")
     var highlightColor: ChromaColour = ChromaColour.fromStaticRGB(0, 255, 88, 249)
 
     @Expose

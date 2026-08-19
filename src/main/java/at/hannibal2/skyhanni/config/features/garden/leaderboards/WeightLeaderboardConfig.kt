@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden.leaderboards
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.EliteDisplayGenericConfig
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.EliteLeaderboardGenericConfig
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.SingleTypeRankGoalConfig
@@ -16,6 +17,7 @@ class WeightLeaderboardConfig : EliteLeaderboardGenericConfig<
     { WeightDisplayConfig() },
 )
 
+@FeatureDependencyRequirement("EliteFarmersLeaderboardsConfig#enabled")
 class WeightDisplayConfig : EliteDisplayGenericConfig() {
 
     @Expose

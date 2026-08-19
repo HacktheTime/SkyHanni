@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.nucleus
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualTrackerConfig
@@ -21,11 +22,13 @@ class PowderTrackerConfig {
     @Expose
     @ConfigOption(name = "Only when Grinding", desc = "Only show the overlay when powder grinding.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyWhenPowderGrinding: Boolean = false
 
     @Expose
     @ConfigOption(name = "Text Format", desc = "Drag text to change the appearance of the overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val textFormat: Property<MutableList<PowderDisplayEntry>> = Property.of(
         mutableListOf(
             PowderDisplayEntry.TOTAL_CHESTS,
@@ -97,5 +100,6 @@ class PowderTrackerConfig {
 
     @Expose
     @ConfigLink(owner = PowderTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-274, 0)
 }

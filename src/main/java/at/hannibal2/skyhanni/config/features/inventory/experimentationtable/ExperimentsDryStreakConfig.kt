@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.experimentationtable
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.inventory.experimentationtable.ExperimentsDryStreakDisplay
@@ -19,11 +20,13 @@ class ExperimentsDryStreakConfig {
     @Expose
     @ConfigOption(name = "Attempts", desc = "Display Attempts since.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var attemptsSince: Boolean = true
 
     @Expose
     @ConfigOption(name = "XP", desc = "Display XP since.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var xpSince: Boolean = true
 
     @ConfigOption(name = "Reset Dry Streak", desc = "Manually resets the dry-streak counter to zero. This cannot be undone.")
@@ -32,5 +35,6 @@ class ExperimentsDryStreakConfig {
 
     @Expose
     @ConfigLink(owner = ExperimentsDryStreakConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(200, -187)
 }

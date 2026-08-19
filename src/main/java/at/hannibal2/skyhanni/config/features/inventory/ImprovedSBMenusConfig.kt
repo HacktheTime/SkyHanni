@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.inventory.LegacyBetterContainers
 import com.google.gson.annotations.Expose
@@ -21,6 +22,7 @@ class ImprovedSBMenusConfig {
         desc = "Change the background style of SkyBlock menus."
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var menuBackgroundStyle: LegacyBetterContainers.BackgroundStyle = LegacyBetterContainers.BackgroundStyle.DARK_1
 
     @Expose
@@ -29,6 +31,7 @@ class ImprovedSBMenusConfig {
         desc = "Change the background style of foreground elements in SkyBlock menus."
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var buttonBackgroundStyle: LegacyBetterContainers.BackgroundStyle = LegacyBetterContainers.BackgroundStyle.DARK_1
 
 }

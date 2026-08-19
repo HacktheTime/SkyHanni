@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -23,5 +24,6 @@ class LastStorageConfig {
         desc = "What command to run when no last Ender Chest or Backpack is found.",
     )
     @ConfigEditorText
+    @FeatureDependencyRequirement("#openLastStorage")
     var fallbackCommand: String = "ec 1"
 }

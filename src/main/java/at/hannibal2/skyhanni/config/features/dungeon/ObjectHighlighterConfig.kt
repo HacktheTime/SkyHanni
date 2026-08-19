@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -24,6 +26,11 @@ class ObjectHighlighterConfig {
         @FeatureToggle
         val highlight: Property<Boolean> = Property.of(false)
 
+        @DependencyDelegate(field = "highlight")
+        private var hasHighlight: Boolean
+            get() = highlight.get()
+            set(value) { highlight.set(value) }
+
         /*
         TODO for someone who has time
         @Expose
@@ -37,6 +44,7 @@ class ObjectHighlighterConfig {
         @Expose
         @ConfigOption(name = "Color", desc = "The color used to highlight starred mobs.")
         @ConfigEditorColour
+        @FeatureDependencyRequirement("#hasHighlight")
         val color: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(255, 255, 0, 60))
     }
 
@@ -52,14 +60,21 @@ class ObjectHighlighterConfig {
         @FeatureToggle
         val highlight: Property<Boolean> = Property.of(true)
 
+        @DependencyDelegate(field = "highlight")
+        private var hasHighlight: Boolean
+            get() = highlight.get()
+            set(value) { highlight.set(value) }
+
         @Expose
         @ConfigOption(name = "Draw Line", desc = "Draws a line to fels skulls. Requires highlight to be enabled.")
         @ConfigEditorBoolean
+        @FeatureDependencyRequirement("#hasHighlight")
         var line: Boolean = false
 
         @Expose
         @ConfigOption(name = "Color", desc = "The color used to highlight fel skulls and draw the line.")
         @ConfigEditorColour
+        @FeatureDependencyRequirement("#hasHighlight")
         val color: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(255, 0, 255, 200))
     }
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -21,11 +22,13 @@ class FarmingFortuneConfig {
     @Expose
     @ConfigOption(name = "Compact Format", desc = "Compact the farming fortune display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var compactFormat: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hide Missing Fortune Warnings", desc = "Hide missing fortune warnings from the display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var hideMissingFortuneWarnings: Boolean = false
 
     @Expose
@@ -34,6 +37,7 @@ class FarmingFortuneConfig {
         desc = "Display the bonus fortune amount and time left from the bonus given by trading in pests at Pesthunter Phillip.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#display")
     var showPestBonusFortune: Boolean = false
 
     @Expose
@@ -51,6 +55,7 @@ class FarmingFortuneConfig {
         desc = "Click on the chat warning to call Phillip instead of warping to barn",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#bonusFortuneChat")
     var callPhillip: Boolean = false
 
     @Expose
@@ -69,5 +74,6 @@ class FarmingFortuneConfig {
 
     @Expose
     @ConfigLink(owner = FarmingFortuneConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val position: Position = Position(5, -180)
 }

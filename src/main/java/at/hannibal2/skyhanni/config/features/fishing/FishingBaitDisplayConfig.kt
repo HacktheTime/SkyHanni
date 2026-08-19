@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -17,10 +18,12 @@ class FishingBaitDisplayConfig {
 
     @Expose
     @ConfigLink(owner = FishingBaitDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(260, -15)
 
     @Expose
     @ConfigOption(name = "Show bait icon", desc = "Display an icon next to the Fishing Bait Display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     val showIcon: Property<Boolean> = Property.of(true)
 }

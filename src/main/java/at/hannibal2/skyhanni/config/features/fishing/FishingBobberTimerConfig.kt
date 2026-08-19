@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -23,9 +24,11 @@ class FishingBobberTimerConfig {
         desc = "Start the timer when the bobber touches the water/lava, instead of when it is cast.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var startOnLiquidTouch: Boolean = true
 
     @Expose
     @ConfigLink(owner = FishingBobberTimerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(10, 10)
 }

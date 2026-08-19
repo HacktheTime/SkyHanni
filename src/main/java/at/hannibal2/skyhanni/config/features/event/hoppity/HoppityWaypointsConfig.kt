@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -20,23 +21,27 @@ class HoppityWaypointsConfig {
         desc = "Enable being able to share and receive egg waypoints in your lobby.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var shared: Boolean = true
 
     @Expose
     @ConfigOption(name = "Color", desc = "Color of the waypoint.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var color: ChromaColour = ChromaColour.fromStaticRGB(46, 224, 73, 53)
 
     @Expose
     @ConfigOption(name = "Show Line", desc = "Show a line to the waypoint.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var showLine: Boolean = false
 
     @Expose
     @ConfigOption(name = "Show Path Finder", desc = "Show a pathfind to the next hoppity egg.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var showPathFinder: Boolean = false
 
@@ -47,6 +52,7 @@ class HoppityWaypointsConfig {
             "Only works when you don't have an Egglocator in your inventory.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showAll: Boolean = false
 
     @Expose
@@ -56,6 +62,7 @@ class HoppityWaypointsConfig {
             "§eOnly works when you don't have an Egglocator in your inventory.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var hideDuplicates: Boolean = false
 
@@ -65,12 +72,14 @@ class HoppityWaypointsConfig {
         desc = "Marks egg location waypoints which you have already found in red.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var highlightDuplicates: Boolean = false
 
     @Expose
     @ConfigOption(name = "Mark Nearby Duplicates", desc = "Always show duplicate egg locations when nearby.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var showNearbyDuplicates: Boolean = false
 
@@ -80,6 +89,7 @@ class HoppityWaypointsConfig {
         desc = "Load Hoppity Egg Location data from API when opening the SkyBlock Profile Viewer mod.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var loadFromNeuPv: Boolean = true
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc.frogmask
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -21,11 +22,13 @@ class FrogMaskWarningConfig {
     @Expose
     @ConfigOption(name = "Cooldown", desc = "Change how much time needs to pass before you get warned again.")
     @ConfigEditorSlider(minValue = 5f, maxValue = 60f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var cooldown = 30
 
     @Expose
     @ConfigOption(name = "Warning Type", desc = "Change when you want to be warned.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var warningType = WarningType.FORAGING
 
     enum class WarningType(private val displayName: String) {

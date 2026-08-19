@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -22,6 +23,7 @@ class FocusModeConfig {
     @Expose
     @ConfigOption(name = "Toggle Key", desc = "Key to toggle the focus mode on and off.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enabled")
     var toggleKey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -30,15 +32,18 @@ class FocusModeConfig {
         desc = "Disable the line in item tooltips that shows how to enable or disable this feature via key press.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var disableHint: Boolean = false
 
     @Expose
     @ConfigOption(name = "Always Enabled", desc = "Ignore the keybind and enable this feature all the time.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var alwaysEnabled: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hide Menu Items", desc = "Also hide the lore of non-SkyBlock items in menus.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideMenuItems: Boolean = true
 }

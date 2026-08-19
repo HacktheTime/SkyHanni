@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -22,10 +23,12 @@ class CenturyPartyInvitationConfig {
     @Expose
     @ConfigOption(name = "Can Invite", desc = "Color for players you can invite.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#playerHighlighter")
     val canColor: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(85, 255, 85, 1))
 
     @Expose
     @ConfigOption(name = "No invitation", desc = "Color for players you can't invite.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#playerHighlighter")
     val canNotColor: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(76, 76, 76, 1))
 }

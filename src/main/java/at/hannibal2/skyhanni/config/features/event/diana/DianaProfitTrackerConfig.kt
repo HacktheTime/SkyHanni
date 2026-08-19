@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.diana
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -30,5 +31,6 @@ class DianaProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = DianaProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 }

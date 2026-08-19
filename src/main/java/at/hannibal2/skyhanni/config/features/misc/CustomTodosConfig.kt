@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -24,9 +25,11 @@ class CustomTodosConfig {
     )
     @FeatureToggle
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var separateGuis: Boolean = true
 
     @Expose
     @ConfigLink(owner = CustomTodosConfig::class, field = "separateGuis")
+    @FeatureDependencyRequirement("#separateGuis")
     val position: Position = Position(150, 200)
 }

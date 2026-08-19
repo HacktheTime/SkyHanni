@@ -1,10 +1,12 @@
 package at.hannibal2.skyhanni.config.features.combat.damageindicator
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("DamageIndicatorConfig#enabled")
 class SpiderSlayerConfig {
 
     @Expose

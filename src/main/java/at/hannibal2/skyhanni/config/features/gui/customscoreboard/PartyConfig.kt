@@ -1,11 +1,13 @@
 package at.hannibal2.skyhanni.config.features.gui.customscoreboard
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("CustomScoreboardConfig#hasEnabled")
 class PartyConfig {
     @Expose
     @ConfigOption(

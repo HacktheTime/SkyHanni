@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.storage.NoReset
 import at.hannibal2.skyhanni.config.storage.Resettable
@@ -21,38 +22,45 @@ class HighlightClickedBlocksConfig : Resettable {
     @Expose
     @ConfigOption(name = "Chest Color", desc = "Color of clicked chests.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var chestColor: ChromaColour = ChromaColour.fromStaticRGB(85, 255, 85, 178)
 
     @Expose
     @ConfigOption(name = "Trapped Chest Color", desc = "Color of clicked trapped chests.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var trappedChestColor: ChromaColour = ChromaColour.fromStaticRGB(0, 170, 0, 178)
 
     @Expose
     @ConfigOption(name = "Locked Chest Color", desc = "Color of clicked locked chests.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var lockedChestColor: ChromaColour = ChromaColour.fromStaticRGB(255, 85, 85, 178)
 
     @Expose
     @ConfigOption(name = "Wither Essence Color", desc = "Color of clicked wither essence.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var witherEssenceColor: ChromaColour = ChromaColour.fromStaticRGB(255, 85, 255, 178)
 
     @Expose
     @ConfigOption(name = "Lever Color", desc = "Color of clicked levers.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var leverColor: ChromaColour = ChromaColour.fromStaticRGB(255, 255, 85, 178)
 
     @Expose
     @ConfigOption(name = "Show Text", desc = "Shows a text saying what you clicked with the highlight.")
     @ConfigEditorBoolean
     @NoReset
+    @FeatureDependencyRequirement("#enabled")
     var showText: Boolean = true
 
     @Expose
     @ConfigOption(name = "Random Color", desc = "If enabled makes the colors random.")
     @ConfigEditorBoolean
     @NoReset
+    @FeatureDependencyRequirement("#enabled")
     var randomColor: Boolean = false
 
     @ConfigOption(name = "Reset Colors", desc = "Resets the colors of the highlights to default ones.")

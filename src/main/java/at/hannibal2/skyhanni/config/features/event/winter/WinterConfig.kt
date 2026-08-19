@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.winter
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -36,6 +37,7 @@ class WinterConfig {
 
     @Expose
     @ConfigLink(owner = WinterConfig::class, field = "islandCloseTime")
+    @FeatureDependencyRequirement("#islandCloseTime")
     val islandCloseTimePosition: Position = Position(10, 10)
 
     @Expose

@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
@@ -27,6 +29,7 @@ class PestFinderConfig {
     @Expose
     @ConfigOption(name = "Plot Visibility Type", desc = "Choose how to show infested plots in the world.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#showPlotInWorld")
     var visibilityType: VisibilityType = VisibilityType.BOTH
 
     enum class VisibilityType(private val displayName: String) {
@@ -41,6 +44,7 @@ class PestFinderConfig {
     @Expose
     @ConfigOption(name = "When to Show", desc = "Change when the pest display and plot markers should be visible in the Garden.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement(value = ["#showDisplay", "#showPlotInWorld"], requireAll = false)
     var whenToShow: WhenToShow = WhenToShow.BOTH
 
     enum class WhenToShow(private val displayName: String) {
@@ -60,10 +64,12 @@ class PestFinderConfig {
             "after switching away from the item(s) specified in 'When To Show'.",
     )
     @ConfigEditorSlider(minStep = 1f, minValue = 0f, maxValue = 10f)
+    @FeatureDependencyRequirement("#showPlotInWorld")
     var showBorderForSeconds: Int = 1
 
     @Expose
     @ConfigLink(owner = PestFinderConfig::class, field = "showDisplay")
+    @FeatureDependencyRequirement("#showDisplay")
     val position: Position = Position(-350, 200, 1.3f)
 
     @Expose
@@ -85,6 +91,7 @@ class PestFinderConfig {
         desc = "Allow teleporting with the Teleport Hotkey even when you're already in an infested plot.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasTeleportHotkey")
     var alwaysTp: Boolean = false
 
     @Expose
@@ -93,5 +100,10 @@ class PestFinderConfig {
         desc = "Make the Teleport Hotkey warp you to Garden if you don't have any pests.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasTeleportHotkey")
     var backToGarden: Boolean = false
+
+    @DependencyDelegate(field = "teleportHotkey")
+    private val hasTeleportHotkey: Boolean
+        get() = teleportHotkey != GLFW.GLFW_KEY_UNKNOWN
 }

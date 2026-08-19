@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -21,5 +22,6 @@ class PersonalBestsConfig {
         desc = "Show in chat how much more FF you would have gotten over your previous record if personal best fortune cap was not 100.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#increaseFF")
     var overflow: Boolean = false
 }

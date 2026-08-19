@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon.spiritleap
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.storage.Resettable
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -7,6 +8,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("SpiritLeapConfig#enabled")
 class SpiritLeapColorConfig : Resettable {
 
     companion object {

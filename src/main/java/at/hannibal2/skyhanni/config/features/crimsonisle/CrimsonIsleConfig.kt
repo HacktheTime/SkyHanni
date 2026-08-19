@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.crimsonisle.ashfang.AshfangConfig
@@ -47,6 +48,7 @@ class CrimsonIsleConfig {
 
     @Expose
     @ConfigLink(owner = CrimsonIsleConfig::class, field = "minibossRespawnTimer")
+    @FeatureDependencyRequirement("#minibossRespawnTimer")
     val minibossTimerPosition: Position = Position(20, 50)
 
     @Expose
@@ -83,6 +85,7 @@ class CrimsonIsleConfig {
 
     @Expose
     @ConfigLink(owner = CrimsonIsleConfig::class, field = "volcanoExplosivity")
+    @FeatureDependencyRequirement("#volcanoExplosivity")
     val positionVolcano: Position = Position(20, 20)
 
     @Expose
@@ -97,6 +100,7 @@ class CrimsonIsleConfig {
 
     @Expose
     @ConfigLink(owner = CrimsonIsleConfig::class, field = "showDojoRankDisplay")
+    @FeatureDependencyRequirement("#showDojoRankDisplay")
     val dojoRankDisplayPosition: Position = Position(-378, 206)
 
     @Expose

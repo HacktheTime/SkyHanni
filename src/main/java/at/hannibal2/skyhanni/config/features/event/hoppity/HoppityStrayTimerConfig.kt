@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -18,6 +19,7 @@ class HoppityStrayTimerConfig {
 
     @Expose
     @ConfigLink(owner = HoppityStrayTimerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val strayTimerPosition: Position = Position(200, 200)
 
     @Expose
@@ -28,6 +30,7 @@ class HoppityStrayTimerConfig {
     )
     @SearchTag("prevent close")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var blockClosing: Boolean = false
 
     @Expose
@@ -36,5 +39,6 @@ class HoppityStrayTimerConfig {
         desc = "Play a ding sound when the timer drops below this number. Set to 0 to disable.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 30f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var dingForTimer: Int = 3
 }

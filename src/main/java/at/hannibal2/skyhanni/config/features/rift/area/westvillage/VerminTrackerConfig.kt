@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.westvillage
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualTrackerConfig
@@ -44,6 +45,6 @@ class VerminTrackerConfig {
 
     @Expose
     @ConfigLink(owner = VerminTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(16, -232)
 }
-

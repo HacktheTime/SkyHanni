@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.combat.DeployableType
@@ -24,6 +25,7 @@ class DeployableReminderConfig {
         desc = "Warn when the required deployable is missing: Flux for Slayer, Umberella for Trophy Fishing, and Lantern for Mineshafts.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val warningTypes: MutableList<WarningType> = mutableListOf(
         WarningType.SLAYER,
         WarningType.TROPHY_FISHING,
@@ -44,14 +46,17 @@ class DeployableReminderConfig {
     @Expose
     @ConfigOption(name = "Warning Delay", desc = "Delay before warning to place deployable.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var warningDelay: Int = 5
 
     @Expose
     @ConfigOption(name = "Warning Duration", desc = "Duration to show warning to place deployable.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 0.5f)
+    @FeatureDependencyRequirement("#enabled")
     var warningDuration: Double = 3.0
 
     @Expose
     @ConfigLink(owner = DeployableReminderConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val warningPosition: Position = Position(10, 10)
 }

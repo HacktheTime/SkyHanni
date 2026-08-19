@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.winter
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualTrackerConfig
@@ -24,6 +25,7 @@ class FrozenTreasureConfig {
     @Expose
     @ConfigOption(name = "Text Format", desc = "Drag text to change the appearance of the overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val textFormat: MutableList<FrozenTreasureDisplayEntry> = mutableListOf(
         FrozenTreasureDisplayEntry.TITLE,
         FrozenTreasureDisplayEntry.TREASURES_MINED,
@@ -68,6 +70,7 @@ class FrozenTreasureConfig {
     @Expose
     @ConfigOption(name = "Only in Glacial Cave", desc = "Only show the overlay while in the Glacial Cave.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyInCave: Boolean = true
 
     @Expose
@@ -77,11 +80,13 @@ class FrozenTreasureConfig {
             "E.g. 3 Ice Bait -> 48 Ice Bait",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showAsDrops: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hide Chat Messages", desc = "Hide the chat messages from Frozen Treasures.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideMessages: Boolean = false
 
     @Expose
@@ -94,5 +99,6 @@ class FrozenTreasureConfig {
 
     @Expose
     @ConfigLink(owner = FrozenTreasureConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(10, 80)
 }

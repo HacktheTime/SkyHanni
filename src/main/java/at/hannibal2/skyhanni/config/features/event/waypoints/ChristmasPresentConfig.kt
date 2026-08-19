@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.waypoints
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,10 +17,12 @@ class ChristmasPresentConfig {
     @Expose
     @ConfigOption(name = "Entrance Waypoints", desc = "Show helper waypoints.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#allWaypoints")
     var allEntranceWaypoints: Boolean = false
 
     @Expose
     @ConfigOption(name = "Only Closest", desc = "Only show the closest waypoint.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#allWaypoints")
     var onlyClosest: Boolean = false
 }

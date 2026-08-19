@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.motes
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -37,5 +38,6 @@ class RiftInventoryValueConfig {
 
     @Expose
     @ConfigLink(owner = RiftInventoryValueConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(126, 156)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dev
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.test.graph.GraphEditor
 import at.hannibal2.skyhanni.utils.KeyboardManager
@@ -30,23 +31,27 @@ class GraphEditorConfig {
             "Deletes a node if you are only 3 blocks away instead of placing a new one.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_F)
+    @FeatureDependencyRequirement("#enabled")
     var placeKey: Int = GLFW.GLFW_KEY_F
 
     @Expose
     @ConfigOption(name = "Auto Select Node", desc = "Automatically select a node after placing it.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var autoSelectNode: Boolean = false
 
     // TODO rename to selectNearestNodeKey
     @Expose
     @ConfigOption(name = "Select Nearest Node", desc = "Select the nearest node to be active. Double press to unselect.")
     @ConfigEditorKeybind(defaultKey = KeyboardManager.LEFT_MOUSE)
+    @FeatureDependencyRequirement("#enabled")
     var selectKey: Int = KeyboardManager.LEFT_MOUSE
 
     // TODO rename to selectNodeByLookingKey
     @Expose
     @ConfigOption(name = "Select Node by Looking", desc = "Select the node you are pointing your cursor at.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enabled")
     var selectRaycastKey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -55,11 +60,13 @@ class GraphEditorConfig {
         desc = "Connect the nearest node with the active node. If the nodes are already connected removes the connection.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_C)
+    @FeatureDependencyRequirement("#enabled")
     var connectKey: Int = GLFW.GLFW_KEY_C
 
     @Expose
     @ConfigOption(name = "Exit Key", desc = "Exit out of text edit mode. If not in text edit mode, disables the graph editor.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_ENTER)
+    @FeatureDependencyRequirement("#enabled")
     var exitKey: Int = GLFW.GLFW_KEY_ENTER
 
     // TODO rename to nodeMoveKey
@@ -69,11 +76,13 @@ class GraphEditorConfig {
         desc = "While holding the Key, edit the position of the active node or the selection block with the minecraft movement controls.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_TAB)
+    @FeatureDependencyRequirement("#enabled")
     var editKey: Int = GLFW.GLFW_KEY_TAB
 
     @Expose
     @ConfigOption(name = "Text Key", desc = "Start text mode, which allows editing a name of a node.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_Y)
+    @FeatureDependencyRequirement("#enabled")
     var textKey: Int = GLFW.GLFW_KEY_Y
 
     // TODO rename to navigateToNodeKey
@@ -83,16 +92,19 @@ class GraphEditorConfig {
         desc = "On key press, show the shortest path to the active node.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_G)
+    @FeatureDependencyRequirement("#enabled")
     var dijkstraKey: Int = GLFW.GLFW_KEY_G
 
     @Expose
     @ConfigOption(name = "Save Key", desc = "Save the current graph to the clipboard.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_O)
+    @FeatureDependencyRequirement("#enabled")
     var saveKey: Int = GLFW.GLFW_KEY_O
 
     @Expose
     @ConfigOption(name = "Load Key", desc = "Load a graph from clipboard, if valid.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_I)
+    @FeatureDependencyRequirement("#enabled")
     var loadKey: Int = GLFW.GLFW_KEY_I
 
     @Expose
@@ -101,11 +113,13 @@ class GraphEditorConfig {
         desc = "Clear the graph. Also saves the graph to the clipboard, in case of a misclick.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enabled")
     var clearKey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
     @ConfigOption(name = "Vision Key", desc = "Toggle if the graph should render trough blocks.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_M)
+    @FeatureDependencyRequirement("#enabled")
     var throughBlocksKey: Int = GLFW.GLFW_KEY_M
 
     // TODO rename to feedbackKey
@@ -115,6 +129,7 @@ class GraphEditorConfig {
         desc = "Toggle the feedback mode. In this mode, you will get a chat message explaining on everything you do in the Graph Editor.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_K)
+    @FeatureDependencyRequirement("#enabled")
     var tutorialKey: Int = GLFW.GLFW_KEY_K
 
     @Expose
@@ -123,11 +138,13 @@ class GraphEditorConfig {
         desc = "Key for splitting an edge that is between the active and the closest node.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enabled")
     var splitKey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
     @ConfigOption(name = "Dissolve Key", desc = "Dissolve the active node into one edge if it only has two edges.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enabled")
     var dissolveKey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     // TODO rename to oneDirectionalKey
@@ -137,24 +154,29 @@ class GraphEditorConfig {
         desc = "Cycles the direction of the edge that is between the active and the closest node. (Used to make one-directional ways)",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_H)
+    @FeatureDependencyRequirement("#enabled")
     var edgeCycle: Int = GLFW.GLFW_KEY_H
 
     @Expose
     @ConfigLink(owner = GraphEditorConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val infoDisplay: Position = Position(20, 20)
 
     @Expose
     @ConfigLink(owner = GraphEditorConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val namedNodesList: Position = Position(20, 20)
 
     @Expose
     @ConfigOption(name = "Max Node Distance", desc = "Only render nodes below this distance to the player.")
     @ConfigEditorSlider(minValue = 10f, maxValue = 500f, minStep = 10f)
+    @FeatureDependencyRequirement("#enabled")
     var maxNodeDistance: Int = 50
 
     @Expose
     @ConfigOption(name = "Shows Stats", desc = "Show funny extra statistics on save. May lag the game a bit.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showsStats: Boolean = true
 
     @Expose
@@ -163,5 +185,6 @@ class GraphEditorConfig {
         desc = "When saving, use the current edited graph as temporary island area for the current island.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var useAsIslandArea: Boolean = false
 }

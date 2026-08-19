@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.yearofthepig
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -20,6 +21,7 @@ class ShinyOrbTrackerConfig {
     @Expose
     @ConfigOption(name = "Only Holding Items", desc = "Only show the tracker while holding a Shiny Orb or Shiny Rod.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var holdingItems: Boolean = false
 
     @Expose
@@ -32,5 +34,6 @@ class ShinyOrbTrackerConfig {
 
     @Expose
     @ConfigLink(owner = ShinyOrbTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(100, 100)
 }

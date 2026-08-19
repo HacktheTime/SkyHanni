@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -21,11 +22,13 @@ class HoppityUnclaimedEggsConfig {
 
     @Expose
     @ConfigLink(owner = HoppityUnclaimedEggsConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(200, 120)
 
     @Expose
     @ConfigOption(name = "Unclaimed Eggs Order", desc = "Order in which to display unclaimed eggs.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var displayOrder: UnclaimedEggsOrder = UnclaimedEggsOrder.SOONEST_FIRST
 
     enum class UnclaimedEggsOrder(private val displayName: String) {
@@ -82,10 +85,12 @@ class HoppityUnclaimedEggsConfig {
         desc = "Make the eggs ready chat message & unclaimed timer display clickable to warp you to an island.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var warpClickEnabled: Boolean = false
 
     @Expose
     @ConfigOption(name = "Warp Destination", desc = "A custom island to warp to in the above option.")
     @ConfigEditorText
+    @FeatureDependencyRequirement("#warpClickEnabled")
     var warpClickDestination: String = "nucleus"
 }

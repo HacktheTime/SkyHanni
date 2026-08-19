@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.foraging
 
+ import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -21,6 +22,7 @@ class ForagingTrackerConfig {
 
     @Expose
     @ConfigLink(owner = ForagingTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-300, 300)
 
     @Expose
@@ -36,6 +38,7 @@ class ForagingTrackerConfig {
         desc = "Lets you decide what types of bonus drops should be included in Compact Gifts messages."
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#compactGiftChats")
     val compactGiftBonusDropsList: MutableList<TreeGiftBonusDropCategory> = mutableListOf(
         TreeGiftBonusDropCategory.UNCOMMON_DROPS,
         TreeGiftBonusDropCategory.ENCHANTED_BOOKS,
@@ -62,6 +65,7 @@ class ForagingTrackerConfig {
     @Expose
     @ConfigOption(name = "Only Holding Axe", desc = "Only show the tracker while holding an axe.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyHoldingAxe: Boolean = true
 
     @Expose
@@ -70,11 +74,13 @@ class ForagingTrackerConfig {
         desc = "The delay in seconds before the tracker disappears after you stop holding an axe.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 60f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled", "#onlyHoldingAxe")
     var disappearingDelay: Int = 15
 
     @Expose
     @ConfigOption(name = "Show Whole Trees", desc = "Estimate how many full trees you have chopped down, using percentage summing.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showWholeTrees: Boolean = true
 
     @Expose

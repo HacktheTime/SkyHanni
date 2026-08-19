@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.misc.EnchantedClockHelper.SimpleBoostType
 import com.google.gson.annotations.Expose
@@ -21,6 +22,7 @@ class EnchantedClockConfig {
     @Expose
     @ConfigOption(name = "Reminder Boosts", desc = "List of boost types to remind about.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#reminder")
     val reminderBoosts: MutableList<SimpleBoostType> = mutableListOf(
         SimpleBoostType.MINIONS,
         SimpleBoostType.CHOCOLATE_FACTORY,
@@ -37,5 +39,6 @@ class EnchantedClockConfig {
             "§eSet to 0 to disable.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 60f, minStep = 1f)
+    @FeatureDependencyRequirement("#reminder")
     var repeatReminder: Int = 0
 }

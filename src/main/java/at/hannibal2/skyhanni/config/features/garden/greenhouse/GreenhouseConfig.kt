@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.greenhouse
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -24,6 +25,7 @@ class GreenhouseConfig {
         desc = "Only show the timer when it is ready.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#showDisplay")
     var onlyShowWhenOverdue: Boolean = false
 
     @Expose
@@ -46,6 +48,7 @@ class GreenhouseConfig {
 
     @Expose
     @ConfigLink(owner = GreenhouseConfig::class, field = "showDisplay")
+    @FeatureDependencyRequirement("#showDisplay")
     val position: Position = Position(180, 40)
 
     @Expose

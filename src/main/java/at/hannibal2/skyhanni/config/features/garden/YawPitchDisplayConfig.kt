@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -21,11 +22,13 @@ class YawPitchDisplayConfig {
     @Expose
     @ConfigOption(name = "Yaw Precision", desc = "Yaw precision up to specified decimal.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var yawPrecision: Int = 4
 
     @Expose
     @ConfigOption(name = "Pitch Precision", desc = "Pitch precision up to specified decimal.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var pitchPrecision: Int = 4
 
     @Expose
@@ -34,30 +37,36 @@ class YawPitchDisplayConfig {
         desc = "Duration in seconds for which the overlay is being displayed after moving.",
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 20f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var timeout: Int = 5
 
     @Expose
     @ConfigOption(name = "Show Without Tool", desc = "Does not require you to hold a tool for the overlay to show.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showWithoutTool: Boolean = false
 
     @Expose
     @ConfigOption(name = "Show Outside Garden", desc = "The overlay will work outside of the Garden.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showOutsideGarden: Boolean = false
 
     @Expose
     @ConfigOption(name = "Ignore Timeout", desc = "Ignore the timeout after not moving mouse.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showAlways: Boolean = false
 
     // Todo rename to position
     @Expose
     @ConfigLink(owner = YawPitchDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(445, 225)
 
     // Todo rename to positionOutside
     @Expose
     @ConfigLink(owner = YawPitchDisplayConfig::class, field = "showOutsideGarden")
+    @FeatureDependencyRequirement("#showOutsideGarden")
     val posOutside: Position = Position(445, 225)
 }

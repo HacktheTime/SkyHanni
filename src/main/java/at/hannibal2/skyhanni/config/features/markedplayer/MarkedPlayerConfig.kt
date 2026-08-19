@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.markedplayer
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -30,6 +31,7 @@ class MarkedPlayerConfig {
     )
     @Expose
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#highlightInChat")
     var chatColor: LorenzColor = LorenzColor.YELLOW
 
     @ConfigOption(

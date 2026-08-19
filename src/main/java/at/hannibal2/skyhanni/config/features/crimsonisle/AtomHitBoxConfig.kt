@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.nether.AtomHitBox
 import com.google.gson.annotations.Expose
@@ -20,6 +21,7 @@ class AtomHitBoxConfig {
     @Expose
     @ConfigOption(name = "Select Atoms", desc = "Select which atoms you want to show the hitbox for.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val atomsEntries: MutableList<AtomHitBox.AtomType> = mutableListOf(
         AtomHitBox.AtomType.EXE,
         AtomHitBox.AtomType.WAI,

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -25,9 +26,11 @@ class FossilExcavatorSolverConfig {
             "§eThis assumes there is a fossil hidden in the dirt.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showPercentage: Boolean = true
 
     @Expose
     @ConfigLink(owner = FossilExcavatorSolverConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(183, 212)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing.trophyfishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -24,6 +25,7 @@ class ChatMessagesConfig {
             "§fStyle 3: §bYou caught your 2nd §6§lGOLD §5Moldfin§b.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var design: DesignFormat = DesignFormat.STYLE_1
 
     enum class DesignFormat(private val displayName: String) {
@@ -41,6 +43,7 @@ class ChatMessagesConfig {
         desc = "Show total amount of all rarities at the end of the chat message.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var totalAmount: Boolean = false
 
     @Expose
@@ -61,11 +64,13 @@ class ChatMessagesConfig {
     @Expose
     @ConfigOption(name = "Bronze Duplicates", desc = "Hide duplicate messages for bronze Trophy Fishes from chat.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#duplicateHider")
     var bronzeHider: Boolean = false
 
     @Expose
     @ConfigOption(name = "Silver Duplicates", desc = "Hide duplicate messages for silver Trophy Fishes from chat.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#duplicateHider")
     var silverHider: Boolean = false
 
     @Expose
@@ -83,5 +88,7 @@ class ChatMessagesConfig {
     @Expose
     @ConfigOption(name = "Play Sound Alert", desc = "Play a sound effect when rare trophy fishes are caught.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#goldAlert")
+    @FeatureDependencyRequirement("#diamondAlert")
     var playSound: Boolean = true
 }

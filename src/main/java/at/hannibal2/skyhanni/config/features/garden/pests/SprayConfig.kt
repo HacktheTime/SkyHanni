@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -25,6 +26,7 @@ class SprayConfig {
     @ConfigOption(name = "Show If Not Sprayed", desc = "Also show if current plot is not sprayed.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#displayEnabled")
     var showNotSprayed: Boolean = false
 
     @Expose
@@ -44,5 +46,6 @@ class SprayConfig {
 
     @Expose
     @ConfigLink(owner = SprayConfig::class, field = "displayEnabled")
+    @FeatureDependencyRequirement("#displayEnabled")
     val displayPosition: Position = Position(390, 75)
 }

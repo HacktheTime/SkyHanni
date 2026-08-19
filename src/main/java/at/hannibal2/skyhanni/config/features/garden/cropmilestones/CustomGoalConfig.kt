@@ -1,10 +1,13 @@
 package at.hannibal2.skyhanni.config.features.garden.cropmilestones
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("CropMilestonesConfig#progress")
+@FeatureDependencyRequirement("CropMilestonesConfig#hasCustomGoals")
 class CustomGoalConfig {
     @Expose
     @ConfigOption(name = "Wheat", desc = "")

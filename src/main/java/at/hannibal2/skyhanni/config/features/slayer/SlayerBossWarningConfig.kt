@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,6 +17,7 @@ class SlayerBossWarningConfig {
     @Expose
     @ConfigOption(name = "Percent", desc = "The percentage at which the title and sound should be sent.")
     @ConfigEditorSlider(minStep = 1f, minValue = 50f, maxValue = 90f)
+    @FeatureDependencyRequirement("#enabled")
     var percent: Int = 80
 
     @Expose
@@ -24,5 +26,6 @@ class SlayerBossWarningConfig {
         desc = "Resend the title and sound on every kill after reaching the configured percent value.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var repeat: Boolean = false
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.foraging
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,6 +17,7 @@ class HoneyhiveReminderConfig {
     @Expose
     @ConfigOption(name = "Queen Bee Notification", desc = "Show a title when Queen Bee shard procs on a Honeyhive instantly refilling it.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var queenBeeNotification: Boolean = true
 
     @Expose
@@ -24,6 +26,7 @@ class HoneyhiveReminderConfig {
         desc = "Remind when collecting Honeyhives is available even when you are outside the Torrhus Canyon.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var reminderOutsideTorrhus: Boolean = false
 
 }

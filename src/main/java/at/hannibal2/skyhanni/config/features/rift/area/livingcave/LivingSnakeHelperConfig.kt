@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.livingcave
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -25,5 +26,6 @@ class LivingSnakeHelperConfig {
     )
     @SearchTag("snake")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#highlight")
     var solo: Boolean = true
 }

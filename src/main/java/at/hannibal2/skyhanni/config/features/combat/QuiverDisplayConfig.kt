@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -18,16 +19,19 @@ class QuiverDisplayConfig {
 
     @Expose
     @ConfigLink(owner = QuiverDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val quiverDisplayPos: Position = Position(260, -15)
 
     @Expose
     @ConfigOption(name = "Show arrow icon", desc = "Display an icon next to the Quiver Display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     val showIcon: Property<Boolean> = Property.of(true)
 
     @Expose
     @ConfigOption(name = "When to show", desc = "Decide in what conditions to show the display.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     val whenToShow: Property<ShowWhen> = Property.of(ShowWhen.ONLY_BOW_HAND)
 
     enum class ShowWhen(private val displayName: String) {

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -18,5 +19,6 @@ class CorpseLocatorConfig {
         desc = "Automatically send the location and type of the corpse in party chat.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var autoSendLocation: Boolean = false
 }

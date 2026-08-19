@@ -2,6 +2,7 @@ package at.hannibal2.skyhanni.config.features.inventory
 
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import com.google.gson.annotations.Expose
@@ -28,16 +29,19 @@ class HideNotClickableConfig {
             "§eRequires main toggle to be enabled!",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var protectRarelySoldItems: Boolean = false
 
     @Expose
     @ConfigOption(name = "Block Clicks", desc = "Block the clicks on these items.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var itemsBlockClicks: Boolean = true
 
     @Expose
     @ConfigOption(name = "Transparency", desc = "How transparent should the items be?")
     @ConfigEditorSlider(minValue = 0f, maxValue = 255f, minStep = 5f)
+    @FeatureDependencyRequirement("#enabled")
     var transparency: Int = 180
 
     @Expose
@@ -48,11 +52,13 @@ class HideNotClickableConfig {
     )
     @SearchTag("cmd ctrl")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var itemsBypass: Boolean = true
 
     @Expose
     @ConfigOption(name = "Green Line", desc = "Add green line around items that are clickable.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var itemsGreenLine: Boolean = true
 
     @SkyHanniModule

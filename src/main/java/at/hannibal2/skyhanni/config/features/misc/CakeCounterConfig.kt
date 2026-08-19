@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
@@ -43,12 +45,17 @@ class CakeCounterConfig {
         override fun toString() = displayName
     }
 
+    @DependencyDelegate(field = "offlineStatsMode")
+    private val hasOfflineStats: Boolean
+        get() = offlineStatsMode != OfflineStatsMode.DISABLED
+
     @Expose
     @ConfigOption(
         name = "Tracking Mode",
         desc = "Choose how \"Offline Cake Counter\" tracks: Since last leaving or since last joining your Private Island.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#hasOfflineStats")
     var offlineTrackingMode: OfflineTrackingMode = OfflineTrackingMode.SINCE_LAST_LEFT
 
     enum class OfflineTrackingMode(private val displayName: String) {

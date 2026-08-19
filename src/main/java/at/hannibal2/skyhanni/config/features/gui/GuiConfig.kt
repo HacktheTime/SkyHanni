@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.gui
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.NoConfigLink
 import at.hannibal2.skyhanni.config.core.config.Position
@@ -131,15 +132,18 @@ class GuiConfig {
     @Expose
     @ConfigOption(name = "Show Beacon Stat", desc = "Show what stat is being boosted by your beacon.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#beaconPower")
     var beaconPowerStat: Boolean = true
 
     @Expose
     @ConfigOption(name = "Compress Beacon Stat", desc = "Compress the beacon stat display to only show the value.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#beaconPower")
     var beaconPowerCompressStat: Boolean = false
 
     @Expose
     @ConfigLink(owner = GuiConfig::class, field = "beaconPower")
+    @FeatureDependencyRequirement("#beaconPower")
     val beaconPowerPosition: Position = Position(10, 10)
 
     @Expose
@@ -157,15 +161,18 @@ class GuiConfig {
         desc = "Display the current computer time in 12hr Format rather than 24h Format.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#realTime")
     var realTimeFormatToggle: Boolean = false
 
     @Expose
     @ConfigOption(name = "Real Time Show Seconds", desc = "Include the current seconds in the Real Time display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#realTime")
     var realTimeShowSeconds: Boolean = true
 
     @Expose
     @ConfigLink(owner = GuiConfig::class, field = "realTime")
+    @FeatureDependencyRequirement("#realTime")
     val realTimePosition: Position = Position(10, 10)
 
     @Expose
@@ -180,6 +187,7 @@ class GuiConfig {
 
     @Expose
     @ConfigLink(owner = GuiConfig::class, field = "tpsDisplay")
+    @FeatureDependencyRequirement("#tpsDisplay")
     val tpsDisplayPosition: Position = Position(10, 10)
 
     @Expose

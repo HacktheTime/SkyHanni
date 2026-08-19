@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.winter
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -17,9 +18,11 @@ class JyrreTimerConfig {
     @Expose
     @ConfigOption(name = "Show when Inactive", desc = "Show the timer when inactive, rather than removing it.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showInactive: Boolean = true
 
     @Expose
     @ConfigLink(owner = JyrreTimerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(390, 65)
 }

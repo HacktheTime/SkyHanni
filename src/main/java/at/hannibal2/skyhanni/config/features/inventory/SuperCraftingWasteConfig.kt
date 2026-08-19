@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -21,6 +22,7 @@ class SuperCraftingWasteConfig {
     @Expose
     @ConfigOption(name = "Threshold", desc = "Minimum savings (in millions) to trigger warning.")
     @ConfigEditorSlider(minValue = 0.1f, maxValue = 50.0f, minStep = 0.1f)
+    @FeatureDependencyRequirement("#enabled")
     var threshold: Double = 10.0
 
     @Expose
@@ -29,6 +31,7 @@ class SuperCraftingWasteConfig {
         desc = "Minimum savings (in millions) when crafting maximum amount.",
     )
     @ConfigEditorSlider(minValue = 0.1f, maxValue = 50.0f, minStep = 0.1f)
+    @FeatureDependencyRequirement("#enabled")
     var bulkThreshold: Double = 5.0
 
     @Expose

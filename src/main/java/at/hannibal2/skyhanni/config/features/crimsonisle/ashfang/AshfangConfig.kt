@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle.ashfang
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -38,6 +39,7 @@ class AshfangConfig {
 
     @Expose
     @ConfigLink(owner = AshfangConfig::class, field = "freezeCooldown")
+    @FeatureDependencyRequirement("#freezeCooldown")
     val freezeCooldownPos: Position = Position(10, 10)
 
     @Expose
@@ -48,5 +50,6 @@ class AshfangConfig {
 
     @Expose
     @ConfigLink(owner = AshfangConfig::class, field = "nextResetCooldown")
+    @FeatureDependencyRequirement("#nextResetCooldown")
     val nextResetCooldownPos: Position = Position(10, 10)
 }

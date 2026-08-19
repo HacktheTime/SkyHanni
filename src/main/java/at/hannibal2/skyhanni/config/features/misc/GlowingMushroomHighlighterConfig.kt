@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -24,6 +25,7 @@ class GlowingMushroomHighlighterConfig {
         desc = "The color that glowing mushrooms should be highlighted in.",
     )
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var mushroomColor: ChromaColour = LorenzColor.AQUA.toChromaColor(127)
 
 }

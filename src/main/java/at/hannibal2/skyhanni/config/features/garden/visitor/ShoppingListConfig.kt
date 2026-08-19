@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.visitor
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,11 +17,13 @@ class ShoppingListConfig {
 
     @Expose
     @ConfigLink(owner = ShoppingListConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(180, 170)
 
     @Expose
     @ConfigOption(name = "Only when Close", desc = "Only show the shopping list when close to the visitors.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyWhenClose: Boolean = false
 
     @Expose
@@ -30,6 +33,7 @@ class ShoppingListConfig {
             "§eHelps in buying the correct amount when not having a §6Booster Cookie §ebuff active.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var inBazaarAlley: Boolean = true
 
     @Expose
@@ -39,11 +43,13 @@ class ShoppingListConfig {
             "§eHelps in farming the correct amount, especially when in the early game.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var inFarmingAreas: Boolean = false
 
     @Expose
     @ConfigOption(name = "Show Price", desc = "Show the coin price in the shopping list.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showPrice: Boolean = true
 
     @Expose
@@ -53,6 +59,7 @@ class ShoppingListConfig {
             "§eOnly updates on sack change messages.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showSackCount: Boolean = true
 
     @Expose

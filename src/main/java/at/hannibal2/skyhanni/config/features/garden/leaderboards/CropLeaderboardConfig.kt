@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden.leaderboards
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.EliteDisplayGenericConfig
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.EliteLeaderboardGenericConfig
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.generics.MultiTypeRankGoalConfig
@@ -19,6 +20,7 @@ class CropCollectionLeaderboardConfig : EliteLeaderboardGenericConfig<
     { CropCollectionDisplayConfig() }
 )
 
+@FeatureDependencyRequirement("EliteFarmersLeaderboardsConfig#enabled")
 class CropCollectionDisplayConfig : EliteDisplayGenericConfig() {
 
     @Expose
@@ -41,6 +43,7 @@ class CropCollectionDisplayConfig : EliteDisplayGenericConfig() {
     var hideWhenNotFarming: Boolean = true
 }
 
+@FeatureDependencyRequirement("EliteFarmersLeaderboardsConfig#enabled")
 class CropRankGoalConfig : MultiTypeRankGoalConfig<CropType, CropTypeRankGoalsConfig>(
     { CropTypeRankGoalsConfig() }
 ) {

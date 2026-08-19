@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden.cropmilestones
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
@@ -9,6 +10,7 @@ class CropMilestonesOverflowConfig {
     @Expose
     @ConfigOption(name = "Crop Milestone Display", desc = "Show overflow levels in Crop Milestone display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("CropMilestonesConfig#progress")
     val cropMilestoneDisplay: Property<Boolean> = Property.of(false)
 
     @Expose

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.diana
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.event.diana.BurrowWarpHelper
@@ -31,6 +32,7 @@ class DianaConfig {
     @ConfigOption(name = "Rare Diana Mob Highlight", desc = "Color in which Rare Diana Mobs will be highlighted.")
     @SearchTag("inquisitor")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightRareMobs")
     var color: ChromaColour = ChromaColour.fromStaticRGB(85, 255, 255, 127)
 
     @Expose
@@ -48,6 +50,7 @@ class DianaConfig {
         desc = "Min distance to draw beacon, -1 is no beacons.",
     )
     @ConfigEditorSlider(minValue = -1.0F, maxValue = 400.0F, minStep = 1.0F)
+    @FeatureDependencyRequirement("#guess")
     var beaconDistance = 10.0F
 
     @Expose
@@ -56,6 +59,7 @@ class DianaConfig {
         desc = "Text scale.",
     )
     @ConfigEditorSlider(minValue = 0.1F, maxValue = 2.5F, minStep = 0.01F)
+    @FeatureDependencyRequirement("#guess")
     var textScale = 1.0F
 
     @Expose
@@ -64,6 +68,7 @@ class DianaConfig {
         desc = "Remember previous guess locations when guessing to a new location.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var multiGuesses: Boolean = true
 
     @Expose
@@ -82,6 +87,7 @@ class DianaConfig {
             "§eRequires Burrow particle detection.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var lineToNext: Boolean = true
 
     @Expose
@@ -91,6 +97,7 @@ class DianaConfig {
             "It is recommended to use bobby for better results.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var guessFromArrow: Boolean = true
 
     @Expose
@@ -99,6 +106,7 @@ class DianaConfig {
         desc = "Sends \"Use Spade\" title when arrow guess fails.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var warnOnFail: Boolean = true
 
     @Expose
@@ -107,6 +115,7 @@ class DianaConfig {
         desc = "Sends \"Use Spade\" title when you complete a chain and there is not a burrow within 90 blocks.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var warnOnChainComp: Boolean = true
 
     @Expose
@@ -115,6 +124,7 @@ class DianaConfig {
         desc = "If there are multiple possible blocks will render them all in a greyed out chain.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var renderSubGuesses: Boolean = false
 
     @Expose
@@ -123,6 +133,7 @@ class DianaConfig {
         desc = "Clear all guess data on world change.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var clearOnWorldChange: Boolean = false
 
     @Expose
@@ -131,11 +142,13 @@ class DianaConfig {
         desc = "Warp to the nearest warp point on the hub, if closer to the next burrow.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guess")
     var burrowNearestWarp: Boolean = false
 
     @Expose
     @ConfigOption(name = "Warp Key", desc = "Press this key to warp to the nearest burrow waypoint.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#burrowNearestWarp")
     var keyBindWarp: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -144,15 +157,18 @@ class DianaConfig {
         desc = "How much closer a warp needs to be than you to suggest it.",
     )
     @ConfigEditorSlider(minValue = 0.0f, maxValue = 200.0f, minStep = 1.0f)
+    @FeatureDependencyRequirement("#burrowNearestWarp")
     var warpDistanceDifference: Int = 10
 
     @Expose
     @ConfigLink(owner = DianaConfig::class, field = "burrowNearestWarp")
+    @FeatureDependencyRequirement("#burrowNearestWarp")
     val warpGuiPosition: Position = Position(327, 125, scale = 2.6f)
 
     @Expose
     @ConfigOption(name = "Ignored Warps", desc = "Warps listed here will not be suggested.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#burrowNearestWarp")
     val ignoredWarpsList: MutableList<BurrowWarpHelper.WarpPoint> = mutableListOf(BurrowWarpHelper.WarpPoint.TAYLOR)
 
     @Expose

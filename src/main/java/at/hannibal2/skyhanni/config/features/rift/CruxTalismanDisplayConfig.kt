@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -18,6 +19,7 @@ class CruxTalismanDisplayConfig {
     @Expose
     @ConfigOption(name = "Compact", desc = "Show a compacted version of the overlay when the talisman is maxed.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var compactWhenMaxed: Boolean = false
 
     @Expose
@@ -28,5 +30,6 @@ class CruxTalismanDisplayConfig {
 
     @Expose
     @ConfigLink(owner = CruxTalismanDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(144, 139)
 }

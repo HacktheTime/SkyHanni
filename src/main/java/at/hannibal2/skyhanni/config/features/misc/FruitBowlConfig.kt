@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -24,11 +25,13 @@ class FruitBowlConfig {
     @Expose
     @ConfigOption(name = "Can Click", desc = "Color for players you have not yet clicked at.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#playerHighlighter")
     val canColor: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(85, 255, 85, 1))
 
     @Expose
     @ConfigOption(name = "Already Clicked", desc = "Color for players you have already clicked at.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#playerHighlighter")
     val canNotColor: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(76, 76, 76, 1))
 
     @Expose
@@ -39,5 +42,6 @@ class FruitBowlConfig {
 
     @Expose
     @ConfigLink(owner = FruitBowlConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val position: Position = Position(150, 200)
 }

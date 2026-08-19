@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
@@ -20,11 +21,13 @@ class PestWaypointConfig {
     @Expose
     @ConfigOption(name = "Hide Particles", desc = "Hide the particles of the ability.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideParticles: Boolean = true
 
     @Expose
     @ConfigOption(name = "Draw Line", desc = "Draw a line to the waypoint.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var drawLine: Boolean = true
 
     @Expose
@@ -33,10 +36,12 @@ class PestWaypointConfig {
         desc = "Distinguish pest guesses that point to the middle of the plot from actual pest locations.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var differentiatePlotMiddle: Boolean = true
 
     @Expose
     @ConfigOption(name = "Show For Seconds", desc = "The waypoint will disappear after this number of seconds.")
     @ConfigEditorSlider(minValue = 5f, maxValue = 20f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var showForSeconds: Int = 15
 }

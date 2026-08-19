@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.dungeon.DungeonSecretChime
 import at.hannibal2.skyhanni.utils.OSUtils
@@ -23,6 +24,7 @@ class SecretChimeConfig {
     @Accordion
     val muteSecretSound: MuteSecretSoundConfig = MuteSecretSoundConfig()
 
+    @FeatureDependencyRequirement("SecretChimeConfig#enabled")
     class MuteSecretSoundConfig {
 
         @Expose
@@ -41,11 +43,13 @@ class SecretChimeConfig {
     @Expose
     @ConfigOption(name = "Secret Chime Sound", desc = "The sound played for the secret chime.")
     @ConfigEditorText
+    @FeatureDependencyRequirement("#enabled")
     var soundName: String = "entity.experience_orb.pickup"
 
     @Expose
     @ConfigOption(name = "Pitch", desc = "The pitch of the secret chime sound.")
     @ConfigEditorSlider(minValue = 0.5f, maxValue = 2f, minStep = 0.1f)
+    @FeatureDependencyRequirement("#enabled")
     var soundPitch: Float = 1f
 
     @ConfigOption(

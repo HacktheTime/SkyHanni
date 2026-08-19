@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -31,5 +32,6 @@ class QuiverConfig {
     @Expose
     @ConfigOption(name = "Low Quiver Amount", desc = "Amount at which to notify you.")
     @ConfigEditorSlider(minValue = 50f, maxValue = 500f, minStep = 50f)
+    @FeatureDependencyRequirement("#lowQuiverNotification")
     var lowQuiverAmount: Int = 100
 }

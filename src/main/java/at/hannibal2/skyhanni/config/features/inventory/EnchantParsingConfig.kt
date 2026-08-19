@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.features.misc.items.enchants.EnchantParser
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -102,5 +104,10 @@ class EnchantParsingConfig {
             "§eRequires Enchant Parsing to be enabled.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasColorParsing")
     var stackingEnchantProgress: Boolean = true
+
+    @DependencyDelegate(field = "colorParsing")
+    private val hasColorParsing: Boolean
+        get() = colorParsing.get()
 }

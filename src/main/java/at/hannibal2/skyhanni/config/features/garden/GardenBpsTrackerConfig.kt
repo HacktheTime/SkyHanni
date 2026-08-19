@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.timed.TimedGardenIndividualTrackerConfig
@@ -21,6 +22,7 @@ class GardenBpsTrackerConfig {
     @Expose
     @ConfigOption(name = "Stats List", desc = "Drag text to change what displays in the summary card.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#showDisplay")
     val uptimeDisplayText: Property<MutableList<GardenUptimeDisplayText>> = Property.of(GardenUptimeDisplayText.defaultValues)
 
     @Expose
@@ -53,5 +55,6 @@ class GardenBpsTrackerConfig {
 
     @Expose
     @ConfigLink(owner = GardenBpsTrackerConfig::class, field = "showDisplay")
+    @FeatureDependencyRequirement("#showDisplay")
     val pos: Position = Position(5, -180, false, true)
 }

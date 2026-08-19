@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.mining.MineshaftPityDisplay.MineshaftPityLine
@@ -22,6 +23,7 @@ class MineshaftPityDisplayConfig {
     @Expose
     @ConfigOption(name = "Stats List", desc = "Drag text to change the appearance of the display.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val mineshaftPityLines: MutableList<MineshaftPityLine> = mutableListOf(
         MineshaftPityLine.TITLE,
         MineshaftPityLine.COUNTER,
@@ -38,5 +40,6 @@ class MineshaftPityDisplayConfig {
 
     @Expose
     @ConfigLink(owner = MineshaftPityDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(16, 192)
 }

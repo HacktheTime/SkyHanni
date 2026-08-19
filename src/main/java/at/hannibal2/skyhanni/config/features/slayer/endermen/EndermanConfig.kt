@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer.endermen
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -50,5 +51,6 @@ class EndermanConfig {
         desc = "The width of the line pointing to your Voidgloom Seraph.",
     )
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 10f)
+    @FeatureDependencyRequirement("#lineToBoss")
     var slayerLineWidth: Int = 3
 }

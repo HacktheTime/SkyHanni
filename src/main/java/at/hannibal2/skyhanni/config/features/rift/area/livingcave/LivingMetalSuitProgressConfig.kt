@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.livingcave
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -17,9 +18,11 @@ class LivingMetalSuitProgressConfig {
     @Expose
     @ConfigOption(name = "Compact", desc = "Show a compacted version of the overlay when the set is maxed.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var compactWhenMaxed: Boolean = false
 
     @Expose
     @ConfigLink(owner = LivingMetalSuitProgressConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(100, 100)
 }

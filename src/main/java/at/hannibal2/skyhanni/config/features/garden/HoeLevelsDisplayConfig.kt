@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -24,6 +25,7 @@ class HoeLevelsDisplayConfig {
         desc = "Displays overflow levels for level 50 hoes."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var overflow: Boolean = true
 
     @Expose
@@ -37,5 +39,6 @@ class HoeLevelsDisplayConfig {
 
     @Expose
     @ConfigLink(owner = HoeLevelsDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(100, 100, true)
 }

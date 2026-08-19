@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.mirrorverse
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -27,6 +28,7 @@ class UpsideDownParkourConfig {
     @Expose
     @ConfigOption(name = "Outline", desc = "Outline the top edge of the platforms.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var outline: Boolean = true
 
     @Expose

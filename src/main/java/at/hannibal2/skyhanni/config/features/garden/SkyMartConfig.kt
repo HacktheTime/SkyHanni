@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.utils.ItemPriceSource
@@ -20,11 +21,13 @@ class SkyMartConfig {
     @Expose
     @ConfigOption(name = "Item Scale", desc = "Change the size of the items.")
     @ConfigEditorSlider(minValue = 0.3f, maxValue = 5f, minStep = 0.1f)
+    @FeatureDependencyRequirement("#copperPrice")
     var itemScale: Double = 1.0
 
     // TODO move to an accordion for Copper Price Config, rename to position
     @Expose
     @ConfigLink(owner = SkyMartConfig::class, field = "copperPrice")
+    @FeatureDependencyRequirement("#copperPrice")
     val copperPricePos: Position = Position(211, 132)
 
     @Expose
@@ -33,5 +36,6 @@ class SkyMartConfig {
         desc = "Change what price to use: Bazaar (Sell Offer or Buy Order) or NPC.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#copperPrice")
     var priceSource: ItemPriceSource = ItemPriceSource.BAZAAR_INSTANT_SELL
 }

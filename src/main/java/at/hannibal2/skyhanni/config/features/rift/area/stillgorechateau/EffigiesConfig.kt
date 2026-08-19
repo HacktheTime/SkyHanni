@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.stillgorechateau
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -26,6 +27,7 @@ class EffigiesConfig {
     @ConfigOption(name = "Respawning Time", desc = "Time in minutes before effigies respawn to show.")
     @SearchTag("effigy")
     @ConfigEditorSlider(minValue = 1f, maxValue = 15f, minStep = 1f)
+    @FeatureDependencyRequirement("#respawningSoon")
     var respawningSoonTime: Int = 3
 
     @Expose

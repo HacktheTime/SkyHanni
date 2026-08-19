@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.OSUtils
 import com.google.gson.annotations.Expose
@@ -28,11 +29,13 @@ class HoppityCallWarningConfig {
             "§cMust be a .ogg file",
     )
     @ConfigEditorText
+    @FeatureDependencyRequirement("#enabled")
     val hoppityCallSound: Property<String> = Property.of("block.note_block.pling")
 
     @Expose
     @ConfigOption(name = "Flash Color", desc = "Color of the screen when flashing")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var flashColor: ChromaColour = ChromaColour.fromStaticRGB(0, 238, 255, 127)
 
     @ConfigOption(name = "Sounds", desc = "Click to open the list of available sounds.")
@@ -45,6 +48,7 @@ class HoppityCallWarningConfig {
         desc = "Block opening Hoppity's abiphone trade menu if you do not have enough coins in your purse.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var ensureCoins: Boolean = false
 
     @Expose
@@ -53,5 +57,6 @@ class HoppityCallWarningConfig {
         desc = "The amount of coins you need to have in your purse to be able to open Hoppity's abiphone trade menu.",
     )
     @ConfigEditorSlider(minValue = 250000f, maxValue = 5000000f, minStep = 250000f)
+    @FeatureDependencyRequirement("#ensureCoins")
     var coinThreshold: Int = 5000000
 }

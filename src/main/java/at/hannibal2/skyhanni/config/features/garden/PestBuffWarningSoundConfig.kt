@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.features.garden.FarmingFortuneDisplay
 import at.hannibal2.skyhanni.utils.OSUtils
 import com.google.gson.annotations.Expose
@@ -8,6 +9,10 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement(
+    value = ["FarmingFortuneConfig#bonusFortuneChat", "FarmingFortuneConfig#bonusFortuneTitle"],
+    requireAll = false,
+)
 class PestBuffWarningSoundConfig {
     @Expose
     @ConfigOption(name = "Notification Sound", desc = "The sound played for the notification.")

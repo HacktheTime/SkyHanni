@@ -1,6 +1,9 @@
 package at.hannibal2.skyhanni.config.features.event
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.enums.SharePolicy
 import com.google.gson.annotations.Expose
@@ -26,6 +29,7 @@ class HarvestFeastConfig {
         desc = "Display the current in-season Harvest Feast crops outside of the Garden."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#displayCurrentCrops")
     var showOutsideGarden: Boolean = false
 
     @Expose
@@ -34,6 +38,7 @@ class HarvestFeastConfig {
         desc = "Automatically fetch Feast Data from eliteskyblock.com for the current year if they're uploaded already.",
     )
     @ConfigEditorBoolean
+    @ThirdPartyDependency(ThirdParty.FARMING_ELITE)
     var fetchAutomatically: Boolean = true
 
     @Expose
@@ -42,9 +47,11 @@ class HarvestFeastConfig {
         desc = "Share the Harvest Feast data to eliteskyblock.com for everyone else to then fetch automatically.",
     )
     @ConfigEditorDropdown
+    @ThirdPartyDependency(ThirdParty.FARMING_ELITE)
     var sharePolicy: SharePolicy = SharePolicy.ASK
 
     @Expose
     @ConfigLink(owner = HarvestFeastConfig::class, field = "displayCurrentCrops")
+    @FeatureDependencyRequirement("#displayCurrentCrops")
     val position: Position = Position(400, 10)
 }

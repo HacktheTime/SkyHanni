@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,10 +17,12 @@ class HideFarEntitiesConfig {
     @Expose
     @ConfigOption(name = "Min Distance", desc = "Always show mobs that are at least that close to the player.")
     @ConfigEditorSlider(minValue = 3f, maxValue = 30f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var minDistance: Int = 10
 
     @Expose
     @ConfigOption(name = "Max Amount", desc = "Not showing more than this amount of nearest entities.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 150f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var maxAmount: Int = 30
 }

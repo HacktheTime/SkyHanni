@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -47,5 +48,6 @@ class JacobFarmingContestConfig {
         desc = "Use a different indicator for when the Contest happens during Mayor Finnegan.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#medalIcon")
     var finneganIcon: Boolean = true
 }

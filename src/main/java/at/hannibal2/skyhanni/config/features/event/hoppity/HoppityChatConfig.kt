@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -17,6 +18,7 @@ class HoppityChatConfig {
     @Expose
     @ConfigOption(name = "Compacted Rarity", desc = "Show rarity of found rabbit in Compacted chat messages.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#compact")
     var rarityInCompact: CompactRarityTypes = CompactRarityTypes.NEW
 
     enum class CompactRarityTypes(private val displayName: String) {
@@ -37,6 +39,7 @@ class HoppityChatConfig {
             "§cRequires Compact Chat enabled to work.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 29f, minStep = 1f)
+    @FeatureDependencyRequirement("#compact")
     var compactHitmanThreshold: Int = 29
 
     @Expose
@@ -45,6 +48,7 @@ class HoppityChatConfig {
         desc = "Show the number of previous finds of a duplicate Hoppity rabbit in chat messages.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#compact")
     var showDuplicateNumber: Boolean = false
 
     @Expose
@@ -53,6 +57,7 @@ class HoppityChatConfig {
         desc = "Recolor raw chocolate gain from duplicate rabbits while Time Tower is active.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#compact")
     var recolorTTChocolate: Boolean = false
 
     @Expose

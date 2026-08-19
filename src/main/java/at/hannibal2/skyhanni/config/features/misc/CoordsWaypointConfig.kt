@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -18,10 +19,12 @@ class CoordsWaypointConfig {
     @Expose
     @ConfigOption(name = "Color", desc = "Color of the waypoint.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var color: ChromaColour = ChromaColour.fromStaticRGB(75, 197, 64, 194)
 
     @Expose
     @ConfigOption(name = "Duration", desc = "Duration of the waypoint.")
     @ConfigEditorSlider(minStep = 5f, maxValue = 120f, minValue = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var duration: Int = 60
 }

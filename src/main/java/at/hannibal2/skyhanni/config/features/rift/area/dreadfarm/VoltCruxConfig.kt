@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.dreadfarm
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -23,6 +24,7 @@ class VoltCruxConfig {
     @Expose
     @ConfigOption(name = "Volt Range Highlighter Color", desc = "In which color should the Volt range be highlighted?")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#voltRange")
     var voltColor: ChromaColour = ChromaColour.fromStaticRGB(0, 0, 255, 60)
 
     @Expose

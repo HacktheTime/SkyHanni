@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.chat.translation.TranslatableLanguage
 import at.hannibal2.skyhanni.utils.OSUtils.openBrowser
@@ -26,6 +27,7 @@ class TranslatorConfig {
     @ConfigOption(name = "Your Language", desc = "The language that messages should be translated to.")
     @Expose
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#translateOnClick")
     val languageName: Property<TranslatableLanguage> = Property.of(TranslatableLanguage.ENGLISH)
 
     @Expose
@@ -35,6 +37,7 @@ class TranslatorConfig {
             "E.g. 'es' for Spanish or 'de' for German. Empty will use English.",
     )
     @ConfigEditorText
+    @FeatureDependencyRequirement("#translateOnClick")
     val languageCode: Property<String> = Property.of("en")
 
     @ConfigOption(name = "List of Language Codes", desc = "A list of Google Translate's supported language codes.")

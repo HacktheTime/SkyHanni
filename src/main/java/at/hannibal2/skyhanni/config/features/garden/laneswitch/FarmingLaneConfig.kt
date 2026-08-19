@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.laneswitch
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.garden.CropType
 import com.google.gson.annotations.Expose
@@ -35,6 +36,7 @@ class FarmingLaneConfig {
 
     @Expose
     @ConfigLink(owner = FarmingLaneConfig::class, field = "distanceDisplay")
+    @FeatureDependencyRequirement("#distanceDisplay")
     val distanceDisplayPosition: Position = Position(0, 200)
 
     @Expose

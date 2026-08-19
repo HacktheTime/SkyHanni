@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,5 +17,6 @@ class PetCandyDisplayConfig {
     @ConfigOption(name = "Hide On Maxed", desc = "Hide the candy count on pets that are max level.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#showCandy")
     var hideOnMaxed: Boolean = false
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.gui
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -17,6 +18,7 @@ class TextBoxConfig {
     @Expose
     @ConfigOption(name = "Only in GUI", desc = "Only show the textbox while an inventory is open.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyInGui: Boolean = false
 
     @Expose
@@ -27,9 +29,11 @@ class TextBoxConfig {
             "§eUse '\\n' as the line break character.",
     )
     @ConfigEditorText
+    @FeatureDependencyRequirement("#enabled")
     val text: Property<String> = Property.of("&aYour Text Here\\n&bYour new line here")
 
     @Expose
     @ConfigLink(owner = TextBoxConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(10, 80)
 }

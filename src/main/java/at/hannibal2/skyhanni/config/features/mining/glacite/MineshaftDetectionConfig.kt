@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.mining.glacitemineshaft.MineshaftDetection
 import com.google.gson.annotations.Expose
@@ -35,6 +36,7 @@ class MineshaftDetectionConfig {
             "§eNote: Using multiple variables can cause the message to be too long and be cut off."
     )
     @ConfigEditorText
+    @FeatureDependencyRequirement("#mineshaftDetection", "#sendTypeToPartyChat")
     var partyChatFormat: String = "Entered a {type} mineshaft!"
 
     @Expose
@@ -44,6 +46,7 @@ class MineshaftDetectionConfig {
             "Other mineshafts will still have their data tracked, it just won't send stats for them."
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#mineshaftDetection")
     val mineshaftsToTrack: MutableList<MineshaftDetection.MineshaftType> = mutableListOf(
         MineshaftDetection.MineshaftType.FAIR_1,
         MineshaftDetection.MineshaftType.JASP_1,

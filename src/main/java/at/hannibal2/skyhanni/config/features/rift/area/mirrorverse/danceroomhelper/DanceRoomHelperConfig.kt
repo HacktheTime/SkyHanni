@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift.area.mirrorverse.danceroomhelper
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.rift.area.mirrorverse.danceroomhelper.danceroomformatting.DanceRoomFormattingConfig
@@ -23,16 +24,19 @@ class DanceRoomHelperConfig {
     @Expose
     @ConfigOption(name = "Lines to Show", desc = "How many tasks you should see.")
     @ConfigEditorSlider(minStep = 1f, maxValue = 49f, minValue = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var lineToShow: Int = 3
 
     @Expose
     @ConfigOption(name = "Space", desc = "Change the space between each line.")
     @ConfigEditorSlider(minStep = 1f, maxValue = 10f, minValue = -5f)
+    @FeatureDependencyRequirement("#enabled")
     var extraSpace: Int = 0
 
     @Expose
     @ConfigOption(name = "Hide Other Players", desc = "Hide other players inside the dance room.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hidePlayers: Boolean = false
 
     @Expose
@@ -51,5 +55,6 @@ class DanceRoomHelperConfig {
 
     @Expose
     @ConfigLink(owner = DanceRoomHelperConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(442, 239)
 }

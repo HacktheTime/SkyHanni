@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.experimentationtable
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.utils.LorenzColor
@@ -34,6 +35,7 @@ class ExperimentsSuperpairsConfig {
 
     @Expose
     @ConfigLink(owner = ExperimentsSuperpairsConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val displayPosition: Position = Position(-372, 161)
 
     @Expose
@@ -45,21 +47,25 @@ class ExperimentsSuperpairsConfig {
     @Expose
     @ConfigOption(name = "Collected Color", desc = "Color for pairs you have already collected.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightPairs")
     var collectedColor: ChromaColour = LorenzColor.GREEN.toChromaColor(128)
 
     @Expose
     @ConfigOption(name = "Matched Color", desc = "Color for known matches you haven't collected yet.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightPairs")
     var matchedColor: ChromaColour = LorenzColor.GOLD.toChromaColor(128)
 
     @Expose
     @ConfigOption(name = "Seen Color", desc = "Color for cards revealed once whose partner is still unknown.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightPairs")
     var seenColor: ChromaColour = LorenzColor.YELLOW.toChromaColor(128)
 
     @Expose
     @ConfigOption(name = "Powerup Color", desc = "Color for uncovered powerups.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightPairs")
     var powerupColor: ChromaColour = LorenzColor.DARK_PURPLE.toChromaColor(128)
 
     @Expose

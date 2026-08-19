@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -10,6 +12,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("ReputationHelperConfig#hasEnabled")
 class RescueMissionConfig {
     @Expose
     @ConfigOption(
@@ -31,27 +34,39 @@ class RescueMissionConfig {
     @FeatureToggle
     var hostagePath: Boolean = true
 
+    @DependencyDelegate(field = "agentPath")
+    private var hasAnyPath: Boolean
+        get() = agentPath || hostagePath
+        set(value) {
+            agentPath = value
+            hostagePath = value
+        }
+
     @Expose
     @ConfigOption(
         name = "Path Variant",
         desc = "For Barbarian S-tier, there are two variants. If your path seems wrong, change it to the other one.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#hostagePath")
     val variant: Property<PathVariant> = Property.of(PathVariant.ONE)
 
     @Expose
     @ConfigOption(name = "Look Ahead", desc = "Change how many waypoints should be shown in front of you.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#hasAnyPath")
     val lookAhead: Property<Int> = Property.of(2)
 
     @Expose
     @ConfigOption(name = "Rainbow Color", desc = "Show the rainbow color effect.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasAnyPath")
     val chroma: Property<Boolean> = Property.of(true)
 
     @Expose
     @ConfigOption(name = "Single Color", desc = "Make the waypoints an unchanging color for slow computers.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#hasAnyPath")
     val solidColor: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(0, 0, 255, 60))
 
     enum class PathVariant(val displayName: String) {

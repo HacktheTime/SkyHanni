@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -21,6 +22,7 @@ class FlareConfig {
     @Expose
     @ConfigOption(name = "Alert Type", desc = "What type of alert should be sent when a flare is about to expire.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var alertType: AlertType = AlertType.CHAT
 
     enum class AlertType(private val displayName: String) {
@@ -36,6 +38,7 @@ class FlareConfig {
     @Expose
     @ConfigOption(name = "Expire Sound", desc = "Makes a sound when a flare is about to expire.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var expireSound: Boolean = false
 
     @Expose
@@ -44,21 +47,25 @@ class FlareConfig {
         desc = "Select the time in seconds when a flare is about to expire to warn you.",
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 60f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var warnWhenAboutToExpire: Int = 5
 
     @Expose
     @ConfigOption(name = "Flash Screen", desc = "Flashes the screen when a flare is about to expire.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var flashScreen: Boolean = false
 
     @Expose
     @ConfigOption(name = "Flash Color", desc = "Color of the screen when flashing")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var flashColor: ChromaColour = ChromaColour.fromStaticRGB(159, 0, 5, 153)
 
     @Expose
     @ConfigOption(name = "Display Type", desc = "Where to show the timer.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var displayType: DisplayType = DisplayType.GUI
 
     enum class DisplayType(private val displayName: String) {
@@ -75,6 +82,7 @@ class FlareConfig {
     @Expose
     @ConfigOption(name = "Show Effective Area", desc = "Show the effective area of the flare.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var outlineType: OutlineType = OutlineType.NONE
 
     enum class OutlineType(private val displayName: String) {
@@ -91,29 +99,35 @@ class FlareConfig {
     @Expose
     @ConfigOption(name = "Warning Flare Color", desc = "Color for Warning Flare.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var warningColor: ChromaColour = ChromaColour.fromStaticRGB(29, 255, 136, 153)
 
     @Expose
     @ConfigOption(name = "Alert Flare Color", desc = "Color for Alert Flare.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var alertColor: ChromaColour = ChromaColour.fromStaticRGB(0, 159, 137, 153)
 
     @Expose
     @ConfigOption(name = "SOS Flare Color", desc = "Color for SOS Flare.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var sosColor: ChromaColour = ChromaColour.fromStaticRGB(159, 0, 5, 153)
 
     @Expose
     @ConfigLink(owner = FlareConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(150, 200)
 
     @Expose
     @ConfigOption(name = "Show Buff", desc = "Show the mana regen buff next to the flare name.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showManaBuff: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hide particles", desc = "Hide flame particles spawning around the flare.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideParticles: Boolean = false
 }

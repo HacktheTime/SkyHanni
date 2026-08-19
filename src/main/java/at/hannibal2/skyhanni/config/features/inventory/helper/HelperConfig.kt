@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.helper
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -43,6 +44,7 @@ class HelperConfig {
             desc = "In the Harp, show buttons as stack size (intended to be used with the Keybinds).",
         )
         @ConfigEditorBoolean
+        @FeatureDependencyRequirement("#keybinds")
         var showNumbers: Boolean = false
 
         @Expose

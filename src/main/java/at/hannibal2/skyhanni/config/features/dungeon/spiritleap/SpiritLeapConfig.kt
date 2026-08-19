@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon.spiritleap
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -19,6 +20,7 @@ class SpiritLeapConfig {
         desc = "Display the player's Class level in the Spirit Leap overlay.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     @FeatureToggle
     var showDungeonClassLevel: Boolean = false
 

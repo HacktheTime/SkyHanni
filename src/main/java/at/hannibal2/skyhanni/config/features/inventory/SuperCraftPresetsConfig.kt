@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -23,5 +24,6 @@ class SuperCraftPresetsConfig {
 
     @Expose
     @ConfigLink(owner = SuperCraftPresetsConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val signPosition: Position = Position(100, 100)
 }

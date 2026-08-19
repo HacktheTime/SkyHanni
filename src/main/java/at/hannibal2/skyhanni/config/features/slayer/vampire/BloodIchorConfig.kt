@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer.vampire
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -23,6 +24,7 @@ class BloodIchorConfig {
     @Expose
     @ConfigOption(name = "Color", desc = "Highlight color.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlight")
     var color: ChromaColour = ChromaColour.fromStaticRGB(100, 0, 88, 199)
 
     @Expose
@@ -37,5 +39,6 @@ class BloodIchorConfig {
     @Expose
     @ConfigOption(name = "Lines Start Color", desc = "Starting color of the lines.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#showLines")
     var linesColor: ChromaColour = ChromaColour.fromStaticRGB(255, 13, 0, 255)
 }

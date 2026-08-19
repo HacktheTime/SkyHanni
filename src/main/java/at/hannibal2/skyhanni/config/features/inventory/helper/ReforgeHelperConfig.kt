@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.helper
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -10,6 +11,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 class ReforgeHelperConfig {
     @Expose
     @ConfigLink(owner = ReforgeHelperConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(80, 85, centerX = true)
 
     @Expose
@@ -21,12 +23,14 @@ class ReforgeHelperConfig {
     @Expose
     @ConfigOption(name = "Stones Hex Only", desc = "Displays reforge stones only when in Hex.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var reforgeStonesOnlyHex: Boolean = true
 
     @Expose
     @ConfigOption(name = "Block Rare Reforge", desc = "Blocks overwriting non-Blacksmith reforges")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var blockNonBasicReforge: Boolean = true
 
     @Expose
@@ -35,10 +39,12 @@ class ReforgeHelperConfig {
         desc = "Shows the difference of the new reforge to the current one in the selection list.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showDiff: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hide chat", desc = "Hides the vanilla chat messages from reforging.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideChat: Boolean = false
 }

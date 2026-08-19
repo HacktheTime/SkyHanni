@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity.summary
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -7,6 +8,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorInfoText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("HoppityEventSummaryConfig#enabled")
 class HoppityEventSummaryCFReminderConfig {
     @Expose
     @ConfigOption(
@@ -27,6 +29,7 @@ class HoppityEventSummaryCFReminderConfig {
     @Expose
     @ConfigOption(name = "Reminder Interval", desc = "How often to remind you to switch servers, in minutes.")
     @ConfigEditorSlider(minValue = 1f, minStep = 1f, maxValue = 120f)
+    @FeatureDependencyRequirement("#enabled")
     var reminderInterval: Int = 30
 
     @Expose
@@ -35,5 +38,6 @@ class HoppityEventSummaryCFReminderConfig {
         desc = "Only show the reminder for the last X hours of the event.\n0: Off\n30: Entire event",
     )
     @ConfigEditorSlider(minValue = 0f, minStep = 1f, maxValue = 30f)
+    @FeatureDependencyRequirement("#enabled")
     var showForLastXHours: Int = 2
 }

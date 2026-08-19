@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
@@ -18,6 +19,7 @@ class PageScrollingConfig {
         desc = "When the key is held allows you to scroll even though you are over an item.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_LEFT_SHIFT)
+    @FeatureDependencyRequirement("#enable")
     var bypassKey: Int = GLFW.GLFW_KEY_LEFT_SHIFT
 
     @Expose
@@ -27,10 +29,12 @@ class PageScrollingConfig {
             " bypass key blocks scrolling over items instead of allowing it.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var invertBypass: Boolean = false
 
     @Expose
     @ConfigOption(name = "Invert Scroll", desc = "Inverts the direction of the scrolling.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var invertScroll: Boolean = false
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -17,5 +18,6 @@ class ThunderSparkConfig {
     @Expose
     @ConfigOption(name = "Thunder Spark Color", desc = "Color of the Thunder Sparks.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlight")
     var color: ChromaColour = ChromaColour.fromStaticRGB(255, 255, 255, 255)
 }

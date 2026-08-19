@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dev
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.data.ElectionCandidate
 import at.hannibal2.skyhanni.features.misc.update.SkyHanniUpdateSource
@@ -259,6 +260,7 @@ class DebugConfig {
 
     @Expose
     @ConfigLink(owner = DebugConfig::class, field = "addonsDebug")
+    @FeatureDependencyRequirement("#addonsDebug")
     val addonsDebugPosition: Position = Position(300, 300)
 
     @Expose

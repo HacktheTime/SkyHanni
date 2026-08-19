@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.features.dungeon.LowHealthAlert
 import at.hannibal2.skyhanni.utils.OSUtils
 import com.google.gson.annotations.Expose
@@ -8,6 +9,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("LowHealthAlertConfig#enabled")
 class LowHealthAlertSoundConfig {
     @Expose
     @ConfigOption(name = "Alert Sound", desc = "The sound that plays for the alert.")

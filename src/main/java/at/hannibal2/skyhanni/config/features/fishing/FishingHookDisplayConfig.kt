@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -24,6 +25,7 @@ class FishingHookDisplayConfig {
         desc = "Replaces the default §c§l!!! §7Hypixel alert with your own custom one.",
     )
     @ConfigEditorText
+    @FeatureDependencyRequirement("#enabled")
     var customAlertText: String = "&c&l!!!"
 
     @Expose
@@ -32,9 +34,11 @@ class FishingHookDisplayConfig {
         desc = "Hide the original armor stand from Hypixel when the SkyHanni display is enabled.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideArmorStand: Boolean = true
 
     @Expose
     @ConfigLink(owner = FishingHookDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-475, -240, 3.4f, true)
 }

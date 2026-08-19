@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.chocolatefactory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.event.hoppity.HoppityCollectionStats.HighlightRabbitTypes
@@ -9,6 +10,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableLi
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("CFConfig#enabled")
 class HoppityCollectionStatsConfig {
     @Expose
     @ConfigOption(name = "Enabled", desc = "Show info about your Hoppity rabbit collection.")
@@ -18,17 +20,20 @@ class HoppityCollectionStatsConfig {
 
     @Expose
     @ConfigLink(owner = HoppityCollectionStatsConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(163, 160)
 
     @Expose
     @ConfigOption(name = "Highlight Found Rabbits", desc = "Highlight rabbits that have already been found.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var highlightFoundRabbits: Boolean = false
 
     @Expose
     @ConfigOption(name = "Highlight Rabbits", desc = "Highlight specific rabbit types in Hoppity's Collection.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val highlightRabbits: MutableList<HighlightRabbitTypes> = mutableListOf(
         HighlightRabbitTypes.ABI,
         HighlightRabbitTypes.FACTORY,
@@ -44,6 +49,7 @@ class HoppityCollectionStatsConfig {
         desc = "Replace the gray dye in Hoppity's Collection with a color for the rarity of the rabbit.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var rarityDyeRecolor: Boolean = true
 
     @Expose
@@ -52,6 +58,7 @@ class HoppityCollectionStatsConfig {
         desc = "Show a more detailed description of how to unlock a milestone rabbit in Hoppity's Collection.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var descriptiveMilestones: Boolean = true
 
     @Expose
@@ -61,6 +68,7 @@ class HoppityCollectionStatsConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var showLocationRequirementsRabbits: Boolean = false
 
     @Expose
@@ -70,6 +78,7 @@ class HoppityCollectionStatsConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var showResidentSummary: Boolean = false
 
     @Expose
@@ -79,5 +88,6 @@ class HoppityCollectionStatsConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var showHotspotSummary: Boolean = false
 }

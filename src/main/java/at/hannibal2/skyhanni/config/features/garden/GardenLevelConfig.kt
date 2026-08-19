@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -31,5 +32,6 @@ class GardenLevelConfig {
     // Todo rename to position
     @Expose
     @ConfigLink(owner = GardenLevelConfig::class, field = "display")
+    @FeatureDependencyRequirement("#display")
     val pos: Position = Position(390, 40)
 }

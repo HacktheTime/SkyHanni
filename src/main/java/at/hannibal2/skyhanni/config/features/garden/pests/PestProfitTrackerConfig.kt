@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.garden.GardenIndividualItemTrackerConfig
 import com.google.gson.annotations.Expose
@@ -22,6 +23,7 @@ class PestProfitTrackerConfig {
     @Expose
     @ConfigOption(name = "Hide messages", desc = "Hide regular pest drop messages.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideChat: Boolean = true
 
     @Expose
@@ -31,6 +33,7 @@ class PestProfitTrackerConfig {
             "Leave empty to always show.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val onlyWhenHolding: MutableList<HeldItem> = mutableListOf(
         HeldItem.SPRAYONATOR,
         HeldItem.VACUUM,
@@ -51,16 +54,19 @@ class PestProfitTrackerConfig {
     @Expose
     @ConfigOption(name = "Hide while farming", desc = "Hide profit tracker while farming.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideWhileFarming: Boolean = true
 
     @Expose
     @ConfigOption(name = "Time Displayed", desc = "Time displayed after killing a pest.")
     @ConfigEditorSlider(minValue = 5f, maxValue = 60f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var timeDisplayed: Int = 30
 
     @Expose
     @ConfigOption(name = "Include Bits", desc = "Add bits gained from killing pests to the tracker.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     val includeBits: Property<Boolean> = Property.of(false)
 
     @Expose
@@ -78,5 +84,6 @@ class PestProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = PestProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 }

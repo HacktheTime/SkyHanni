@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.broodmother
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.combat.BroodmotherFeatures.StageEntry
@@ -67,5 +68,6 @@ class BroodmotherConfig {
 
     @Expose
     @ConfigLink(owner = BroodmotherConfig::class, field = "countdown")
+    @FeatureDependencyRequirement("#countdown")
     val countdownPosition: Position = Position(10, 10)
 }

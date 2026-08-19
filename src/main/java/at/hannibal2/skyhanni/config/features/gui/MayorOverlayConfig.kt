@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.gui
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.gui.MayorOverlay
 import com.google.gson.annotations.Expose
@@ -18,24 +19,29 @@ class MayorOverlayConfig {
     @Expose
     @ConfigOption(name = "Appearance", desc = "Change the order of appearance of the Mayor Overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val mayorOverlay: MutableList<MayorOverlay> = MayorOverlay.entries.toMutableList()
 
     @Expose
     @ConfigOption(name = "Show Perks", desc = "Show the perks of the mayor.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showPerks: Boolean = true
 
     @Expose
     @ConfigOption(name = "Spacing between UI Elements", desc = "Change the spacing between the UI element entries.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var spacing: Int = 10
 
     @Expose
     @ConfigOption(name = "Spacing between Candidates", desc = "Change the spacing between the candidates.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var candidateSpacing: Int = 3
 
     @Expose
     @ConfigLink(owner = MayorOverlayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(10, 10)
 }

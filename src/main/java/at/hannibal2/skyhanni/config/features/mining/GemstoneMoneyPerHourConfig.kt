@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -19,11 +20,13 @@ class GemstoneMoneyPerHourConfig {
     @Expose
     @ConfigOption(name = "Force NPC", desc = "Force the NPC price of gemstones to be used.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var forceNPC: Boolean = false
 
     @Expose
     @ConfigOption(name = "Gemstone Type", desc = "Which type of gemstone to use for the money per hour calculation.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var gemstoneType: GemstoneType = GemstoneType.FLAWLESS
 
     enum class GemstoneType(val displayName: String) {
@@ -39,6 +42,7 @@ class GemstoneMoneyPerHourConfig {
     @Expose
     @ConfigOption(name = "Timeout Time", desc = "How long the display should wait (in seconds) after your last pristine message to reset.")
     @ConfigEditorSlider(minValue = 10f, maxValue = 30f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var timeoutTime: Float = 15f
 
     @Expose
@@ -48,9 +52,11 @@ class GemstoneMoneyPerHourConfig {
             "§eNote: It will still reset when you enter a non-mining island.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var shouldPause: Boolean = true
 
     @Expose
     @ConfigLink(owner = GemstoneMoneyPerHourConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(189, 52)
 }

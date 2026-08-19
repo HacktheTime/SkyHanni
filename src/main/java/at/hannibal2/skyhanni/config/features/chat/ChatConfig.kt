@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.KeyBind
 import at.hannibal2.skyhanni.config.core.config.Position
@@ -103,6 +104,7 @@ class ChatConfig {
 
     @Expose
     @ConfigLink(owner = ChatConfig::class, field = "currentChatDisplay")
+    @FeatureDependencyRequirement("#currentChatDisplay")
     val currentChatDisplayPos: Position = Position(3, -21)
 
     // TODO jawbus + thunder
@@ -164,6 +166,7 @@ class ChatConfig {
         desc = "Only hide the sack change message in the Garden.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hideSacksChange")
     var onlyHideSacksChangeOnGarden: Boolean = false
 
     @Category(name = "Translator", desc = "Chat translator settings.")

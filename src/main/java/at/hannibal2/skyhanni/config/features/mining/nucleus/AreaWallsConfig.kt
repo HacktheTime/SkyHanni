@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.nucleus
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -17,5 +18,6 @@ class AreaWallsConfig {
     @Expose
     @ConfigOption(name = "In Nucleus", desc = "Also show the walls when inside the Nucleus.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var nucleus: Boolean = false
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.garden.MouseSensitivityReducer.AutoEnableMode
 import com.google.gson.annotations.Expose
@@ -29,11 +30,13 @@ class MouseSensitivityReducerConfig {
     @Expose
     @ConfigOption(name = "Auto Mode", desc = "Decide when the mouse sensitivity should be lowered.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#autoEnable")
     val autoEnableMode: MutableList<AutoEnableMode> = mutableListOf(AutoEnableMode.KEYBIND, AutoEnableMode.TOOL)
 
     @Expose
     @ConfigOption(name = "Keybind", desc = "When selected above, press this key to reduce the mouse sensitivity.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_N)
+    @FeatureDependencyRequirement("#autoEnable")
     var keybind: Int = GLFW.GLFW_KEY_N
 
     @Expose
@@ -59,16 +62,19 @@ class MouseSensitivityReducerConfig {
     @Expose
     @ConfigOption(name = "Unlock on Teleport", desc = "Choose whether teleporting to a plot should unlock your mouse rotation.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#autoEnable")
     var unlockOnTeleport: UnlockOnTeleport = UnlockOnTeleport.ALWAYS
 
     @Expose
     @ConfigOption(name = "Lock on Mousemat", desc = "Lock mouse when snapping to Squeaky Mousemat.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#autoEnable")
     var lockOnMousemat: Boolean = false
 
     @Expose
     @ConfigOption(name = "Only on Ground", desc = "When enabled, lower sensitivity only while on or near the ground.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#autoEnable")
     var onGround: Boolean = true
 
     @Expose
@@ -77,15 +83,18 @@ class MouseSensitivityReducerConfig {
         desc = "How close to ground counts as on ground when 'Only on Ground' is enabled. Useful for farms with small height drops.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 2f, minStep = 1f / 16f)
+    @FeatureDependencyRequirement("#autoEnable")
     var onGroundTolerance: Float = 2f / 16f // dirt to soulsand is 2 pixels
 
     @Expose
     @ConfigOption(name = "Disable in Barn or Greenhouse", desc = "Disable reduced sensitivity in barn and greenhouse plots.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#autoEnable")
     var onlyPlot: Boolean = true
 
     @Expose
     @ConfigLink(owner = MouseSensitivityReducerConfig::class, field = "showGui")
+    @FeatureDependencyRequirement("#showGui")
     val position: Position = Position(400, 200)
 
     enum class UnlockOnTeleport(private val displayName: String, val condition: (String) -> Boolean) {

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.ghostcounter
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -22,6 +23,7 @@ class GhostProfitTrackerConfig {
     @Expose
     @ConfigOption(name = "Display Text", desc = "Drag text to change the appearance of the overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val ghostTrackerText: MutableList<GhostTrackerLines> = mutableListOf(
         GhostTrackerLines.KILLS,
         GhostTrackerLines.GHOSTS_SINCE_SORROW,
@@ -48,5 +50,6 @@ class GhostProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = GhostProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(50, 50)
 }

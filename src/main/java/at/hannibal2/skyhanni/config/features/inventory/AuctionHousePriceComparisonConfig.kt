@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -22,20 +23,24 @@ class AuctionHousePriceComparisonConfig {
     @Expose
     @ConfigOption(name = "Good Color", desc = "What color to highlight good value items with.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var good: ChromaColour = LorenzColor.GREEN.toChromaColor()
 
     @Expose
     @ConfigOption(name = "Very Good Color", desc = "What color to highlight very good value items with.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var veryGood: ChromaColour = ChromaColour.fromStaticRGB(0, 139, 0, 255)
 
     @Expose
     @ConfigOption(name = "Bad Color", desc = "What color to highlight bad items with.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var bad: ChromaColour = LorenzColor.YELLOW.toChromaColor()
 
     @Expose
     @ConfigOption(name = "Very Bad Color", desc = "What color to highlight very bad items with.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var veryBad: ChromaColour = ChromaColour.fromStaticRGB(225, 43, 30, 255)
 }

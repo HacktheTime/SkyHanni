@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.chocolatefactory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -7,6 +8,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("CFConfig#enabled")
 class CFCustomReminderConfig {
     @Expose
     @ConfigOption(
@@ -21,10 +23,11 @@ class CFCustomReminderConfig {
     @Expose
     @ConfigOption(
         name = "Always Custom Reminder",
-        desc = "Always show the display, even outside the chocolate factory."
+        desc = "Always show the display, even outside the chocolate factory.",
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var always: Boolean = false
 
     @Expose
@@ -34,9 +37,11 @@ class CFCustomReminderConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var hideChat: Boolean = true
 
     @Expose
     @ConfigLink(owner = CFConfig::class, field = "customReminder")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(390, 90, 1f, true)
 }

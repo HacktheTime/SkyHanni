@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.customloadout
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -18,20 +19,24 @@ class LoadoutHighlightingConfig {
     @Expose
     @ConfigOption(name = "Currently Equipped", desc = "Highlight the currently equipped loadout in the inventory.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var currentlyEquipped: Boolean = true
 
     @Expose
     @ConfigOption(name = "Currently Equipped Color", desc = "The color used to highlight the currently equipped loadout in the inventory.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled", "#currentlyEquipped")
     var equippedColor: ChromaColour = LorenzColor.GREEN.toChromaColor()
 
     @Expose
     @ConfigOption(name = "Favorites", desc = "Highlight favorite loadouts in the inventory.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var favorites: Boolean = false
 
     @Expose
     @ConfigOption(name = "Favorite Color", desc = "The color used to highlight favorite loadouts in the inventory.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled", "#favorites")
     var favoriteColor: ChromaColour = LorenzColor.YELLOW.toChromaColor()
 }

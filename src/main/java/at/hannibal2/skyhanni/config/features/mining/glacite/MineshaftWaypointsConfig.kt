@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -15,6 +16,7 @@ class MineshaftWaypointsConfig {
     @Expose
     @ConfigOption(name = "Entrance Location", desc = "Mark the location of the entrance with a waypoint.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var entranceLocation: Boolean = false
 
     @Expose
@@ -23,5 +25,6 @@ class MineshaftWaypointsConfig {
         desc = "Mark the location of the ladders at the bottom of the entrance with a waypoint.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var ladderLocation: Boolean = false
 }

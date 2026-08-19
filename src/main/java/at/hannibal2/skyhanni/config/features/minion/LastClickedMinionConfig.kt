@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.minion
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -21,10 +22,12 @@ class LastClickedMinionConfig {
     @Expose
     @ConfigOption(name = "Last Minion Color", desc = "The color in which the last minion should be displayed.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#display")
     var color: ChromaColour = ChromaColour.fromStaticRGB(85, 255, 85, 245)
 
     @Expose
     @ConfigOption(name = "Last Minion Time", desc = "Time in seconds how long the last minion should be displayed.")
     @ConfigEditorSlider(minValue = 3f, maxValue = 120f, minStep = 1f)
+    @FeatureDependencyRequirement("#display")
     var time: Int = 20
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.features.mining.caverns.DeepCavernsGuideConfig
 import at.hannibal2.skyhanni.config.features.mining.dwarves.DarkMonolithConfig
@@ -162,6 +163,7 @@ class MiningConfig {
         desc = "Also makes a line to your goblin. §eNeeds the option above to work.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#highlightYourGoldenGoblin")
     var lineToYourGoldenGoblin: Boolean = false
 
     @Expose

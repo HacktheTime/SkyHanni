@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,10 +17,12 @@ class ColdOverlayConfig {
     @Expose
     @ConfigOption(name = "Cold Threshold", desc = "The threshold at which the cold overlay will be shown.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var coldThreshold: Int = 25
 
     @Expose
     @ConfigOption(name = "Max Alpha", desc = "The maximum alpha value the overlay will reach.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 0.1f)
+    @FeatureDependencyRequirement("#enabled")
     var maxAlpha: Float = 100f
 }

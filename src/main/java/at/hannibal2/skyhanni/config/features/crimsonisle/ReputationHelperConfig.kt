@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -19,28 +21,38 @@ class ReputationHelperConfig {
     @FeatureToggle
     val enabled: Property<Boolean> = Property.of(false)
 
+    @DependencyDelegate(field = "enabled")
+    private var hasEnabled: Boolean
+        get() = enabled.get()
+        set(value) { enabled.set(value) }
+
     @Expose
     @ConfigOption(name = "Hide Completed", desc = "Hide tasks after they've been completed.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasEnabled")
     val hideComplete: Property<Boolean> = Property.of(true)
 
     @Expose
     @ConfigOption(name = "Use Hotkey", desc = "Only show the Reputation Helper while pressing the hotkey.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasEnabled")
     var useHotkey: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hotkey", desc = "Press this hotkey to show the Reputation Helper.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#hasEnabled", "#useHotkey")
     var hotkey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
     @ConfigLink(owner = ReputationHelperConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#hasEnabled")
     val position: Position = Position(10, 10)
 
     @Expose
     @ConfigOption(name = "Show Locations", desc = "Crimson Isles waypoints for locations to get reputation.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#hasEnabled")
     var showLocation: ShowLocationEntry = ShowLocationEntry.ONLY_HOTKEY
 
     @Expose

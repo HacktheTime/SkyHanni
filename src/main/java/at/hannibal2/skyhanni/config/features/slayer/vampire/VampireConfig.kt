@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer.vampire
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -39,6 +40,7 @@ class VampireConfig {
     @Expose
     @ConfigOption(name = "Can use Steak Color", desc = "Color when the boss is below 20% health.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#changeColorWhenCanSteak")
     var steakColor: ChromaColour = ChromaColour.fromStaticRGB(255, 0, 88, 255)
 
     @Expose
@@ -55,11 +57,13 @@ class VampireConfig {
     @Expose
     @ConfigOption(name = "Line Color", desc = "Color of the line.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#drawLine")
     var lineColor: ChromaColour = ChromaColour.fromStaticRGB(255, 0, 88, 255)
 
     @Expose
     @ConfigOption(name = "Line Width", desc = "Width of the line.")
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 10f)
+    @FeatureDependencyRequirement("#drawLine")
     var lineWidth: Int = 1
 
 

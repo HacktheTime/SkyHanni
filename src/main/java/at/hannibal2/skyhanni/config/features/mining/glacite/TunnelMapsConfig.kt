@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.glacite
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -25,6 +26,7 @@ class TunnelMapsConfig {
 
     @Expose
     @ConfigLink(owner = TunnelMapsConfig::class, field = "enable")
+    @FeatureDependencyRequirement("#enable")
     val position: Position = Position(20, 20)
 
     @Expose
@@ -33,6 +35,7 @@ class TunnelMapsConfig {
         desc = "Show landmarks on the path."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var showLandmarks: Boolean = true
 
     @Expose
@@ -42,6 +45,7 @@ class TunnelMapsConfig {
             "also works when completing commissions.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var autoCommission: Boolean = false
 
     @Expose
@@ -50,6 +54,7 @@ class TunnelMapsConfig {
         desc = "Hotkey to warp to the campfire. If the travel scroll is not unlocked, show a path to the campfire instead.",
     )
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enable")
     var campfireKey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -58,16 +63,19 @@ class TunnelMapsConfig {
         desc = "Let SkyHanni know that you have unlocked the §eTravel Scroll to Dwarven Base Camp§7.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var travelScroll: Boolean = false
 
     @Expose
     @ConfigOption(name = "Next Spot Hotkey", desc = "Hotkey to select the next spot.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enable")
     var nextSpotHotkey: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
     @ConfigOption(name = "Left Click Pigeon", desc = "Left click the Royal Pigeon to go to the next spot.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var leftClickPigeon: Boolean = true
 
     @Expose
@@ -76,35 +84,42 @@ class TunnelMapsConfig {
         desc = "Instead of the selected color use the color of the target as line color.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var dynamicPathColor: Boolean = true
 
     @Expose
     @ConfigOption(name = "Path Color", desc = "The color for the paths, if the dynamic color option is turned off.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enable")
     var pathColor: ChromaColour = ChromaColour.fromStaticRGB(0, 255, 0, 255)
 
     @Expose
     @ConfigOption(name = "Text Size", desc = "Size of the waypoint texts.")
     @ConfigEditorSlider(minValue = 0.5f, maxValue = 2.5f, minStep = 0.1f)
+    @FeatureDependencyRequirement("#enable")
     var textSize: Float = 1f
 
     @Expose
     @ConfigOption(name = "Path width", desc = "Size of the path lines.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 15f, minStep = 1f)
+    @FeatureDependencyRequirement("#enable")
     var pathWidth: Float = 4f
 
     @Expose
     @ConfigOption(name = "Distance at First", desc = "Show the distance at the first edge instead of the end.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var distanceFirst: Boolean = false
 
     @Expose
     @ConfigOption(name = "Compact Gemstone", desc = "Only show the icon for gemstones in the selection list.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     val compactGemstone: Property<Boolean> = Property.of(false)
 
     @Expose
     @ConfigOption(name = "Exclude Fairy", desc = "Exclude the fairy soul spots from the selection list.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     val excludeFairy: Property<Boolean> = Property.of(false)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -17,5 +18,6 @@ class HighlightPartyMembersConfig {
     @Expose
     @ConfigOption(name = "Outline Color", desc = "The color to outline party members in.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var outlineColor: ChromaColour = ChromaColour.fromStaticRGB(85, 255, 85, 245)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.hunting
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.foraging.SafariConfig
@@ -41,6 +42,7 @@ class HuntingConfig {
 
     @Expose
     @ConfigLink(owner = HuntingConfig::class, field = "lassoDisplay")
+    @FeatureDependencyRequirement("#lassoDisplay")
     val lassoDisplayPosition: Position = Position(380, 210)
 
     @Expose
@@ -72,6 +74,7 @@ class HuntingConfig {
     @ConfigOption(name = "Show next Shulker", desc = "Press this key to show the route to the next Shulker.")
     @SearchTag("hideonleaf hideonsun")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#shulkerFinder")
     var nextShulkerKeybind: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -82,6 +85,7 @@ class HuntingConfig {
 
     @Expose
     @ConfigLink(owner = HuntingConfig::class, field = "fusionDisplay")
+    @FeatureDependencyRequirement("#fusionDisplay")
     val fusionDisplayPosition: Position = Position(30, 210)
 
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -23,6 +24,7 @@ class SlayerProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = SlayerProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(20, 20)
 
     // TODO move out of slayer profit tracker and into the generic slayer config.

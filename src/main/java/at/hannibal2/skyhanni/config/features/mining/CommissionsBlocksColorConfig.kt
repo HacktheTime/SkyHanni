@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -21,10 +22,12 @@ class CommissionsBlocksColorConfig {
     @Expose
     @ConfigOption(name = "Sneak Toggle", desc = "Quickly disable or enable this feature via sneaking.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     val sneakQuickToggle: Property<Boolean> = Property.of(false)
 
     @Expose
     @ConfigOption(name = "Color", desc = "Change the highlight color.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     val color: Property<LorenzColor> = Property.of(LorenzColor.GREEN)
 }

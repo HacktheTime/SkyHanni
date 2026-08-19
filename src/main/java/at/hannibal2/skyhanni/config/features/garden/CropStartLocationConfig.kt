@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -19,6 +20,7 @@ class CropStartLocationConfig {
         desc = "Whether to show waypoint at start location (set with §e/shcropstartlocation §7) or last farmed location.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var mode: CropLocationMode = CropLocationMode.START
 
     enum class CropLocationMode(private val displayName: String) {

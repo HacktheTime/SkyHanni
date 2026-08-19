@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.customwardrobe
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.storage.Resettable
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -7,6 +8,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorButton
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("CustomWardrobeConfig#enabled")
 class ColorConfig : Resettable {
 
     @ConfigOption(name = "Reset to Default", desc = "Reset all custom wardrobe color settings to the default.")

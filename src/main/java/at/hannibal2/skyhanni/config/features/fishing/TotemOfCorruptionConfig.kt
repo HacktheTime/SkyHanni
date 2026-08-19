@@ -1,7 +1,9 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -24,6 +26,11 @@ class TotemOfCorruptionConfig {
     @FeatureToggle
     val showOverlay: Property<Boolean> = Property.of(true)
 
+    @DependencyDelegate(field = "showOverlay")
+    private var isOverlayShown: Boolean
+        get() = showOverlay.get()
+        set(value) { showOverlay.set(value) }
+
     @Expose
     @ConfigOption(
         name = "Own Totem Only",
@@ -31,6 +38,7 @@ class TotemOfCorruptionConfig {
             "§eMay break if you are nicked!"
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#isOverlayShown")
     var ownTotemOnly: Boolean = true
 
     @Expose
@@ -41,6 +49,7 @@ class TotemOfCorruptionConfig {
             "§cLimited by how far you can see the nametags.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 100f, minStep = 1f)
+    @FeatureDependencyRequirement("#isOverlayShown")
     var distanceThreshold: Int = 16
 
     @Expose
@@ -50,6 +59,7 @@ class TotemOfCorruptionConfig {
             "§eRequires the Overlay to be active.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#isOverlayShown")
     var hideParticles: Boolean = true
 
     @Expose
@@ -58,6 +68,7 @@ class TotemOfCorruptionConfig {
         desc = "Show the effective area (16 blocks) of the Totem of Corruption.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#isOverlayShown")
     var outlineType: OutlineType = OutlineType.FILLED
 
     enum class OutlineType(private val displayName: String) {
@@ -72,6 +83,7 @@ class TotemOfCorruptionConfig {
     @Expose
     @ConfigOption(name = "Color of the area", desc = "The color of the area of the Totem of Corruption.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#isOverlayShown")
     var color: ChromaColour = ChromaColour.fromStaticRGB(18, 159, 85, 153)
 
     @Expose
@@ -81,9 +93,11 @@ class TotemOfCorruptionConfig {
             "Select 0 to disable.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 60f, minStep = 1f)
+    @FeatureDependencyRequirement("#isOverlayShown")
     var warnWhenAboutToExpire: Int = 5
 
     @Expose
     @ConfigLink(owner = TotemOfCorruptionConfig::class, field = "showOverlay")
+    @FeatureDependencyRequirement("#isOverlayShown")
     val position: Position = Position(50, 20)
 }

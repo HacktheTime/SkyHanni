@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -21,6 +22,7 @@ class EnigmaSoulConfig {
     @Expose
     @ConfigOption(name = "Show Path Finder", desc = "Additionally show a pathfind to the Enigma Soul.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showPathFinder: Boolean = true
 
     @ConfigOption(
@@ -34,6 +36,7 @@ class EnigmaSoulConfig {
     @Expose
     @ConfigOption(name = "Color", desc = "Color of the Enigma Souls.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var color: ChromaColour = ChromaColour.fromStaticRGB(219, 27, 198, 245)
 
     @Expose
@@ -42,5 +45,6 @@ class EnigmaSoulConfig {
         desc = "Help find all 56 wooden buttons required for the Buttons soul when tracking it.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showButtonsHelper: Boolean = true
 }

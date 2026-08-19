@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.combat
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.combat.DeployableType
@@ -28,11 +29,13 @@ class DeployableConfig {
             "e.g. Only show Overflux if a Radiant and Overflux are placed.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var highestTierOnly: Boolean = true
 
     @Expose
     @ConfigOption(name = "Deployable Types", desc = "Which types of Deployables to display.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val displayTypes: MutableList<DeployableType> = mutableListOf(
         DeployableType.FLUX,
         DeployableType.LANTERN,
@@ -60,5 +63,6 @@ class DeployableConfig {
 
     @Expose
     @ConfigLink(owner = DeployableConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-160, -70)
 }

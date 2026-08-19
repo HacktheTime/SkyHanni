@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.customwardrobe
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -18,24 +19,29 @@ class CustomWardrobeConfig {
     @Expose
     @ConfigOption(name = "Follow mouse", desc = "Whether the \"players\" follow the movement of the mouse.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var eyesFollowMouse: Boolean = true
 
     @Expose
     @ConfigOption(name = "Hide Empty Slots", desc = "Hide wardrobe slots with no armor.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideEmptySlots: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hide Locked Slots", desc = "Hide locked wardrobe slots.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideLockedSlots: Boolean = false
 
     @Expose
+    @FeatureDependencyRequirement("#enabled")
     var onlyFavorites: Boolean = false
 
     @Expose
     @ConfigOption(name = "Estimated Value", desc = "Show a §2$ §7sign you can hover to see the wardrobe slot value.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var estimatedValue: Boolean = true
 
     @Expose
@@ -44,6 +50,7 @@ class CustomWardrobeConfig {
         desc = "Show a \"§cLoading...§7\" text when the wardrobe page hasn't fully loaded in yet.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var loadingText: Boolean = true
 
     @Expose
@@ -52,16 +59,19 @@ class CustomWardrobeConfig {
         desc = "Only show the lore of the item hovered when holding a keybind.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showTooltipOnlyKeybind: Boolean = false
 
     @Expose
     @ConfigOption(name = "Tooltip Keybind", desc = "Press this key to show the item tooltip.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_LEFT_SHIFT)
+    @FeatureDependencyRequirement("#enabled", "#showTooltipOnlyKeybind")
     var tooltipKeybind: Int = GLFW.GLFW_KEY_LEFT_SHIFT
 
     @Expose
     @ConfigOption(name = "Show REI Items", desc = "Enables showing the REI item list from Firmament while in the custom wardrobe.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showReiItems: Boolean = true
 
     @Expose

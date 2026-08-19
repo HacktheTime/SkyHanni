@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -20,6 +21,7 @@ class SeaCreatureHealthDisplayConfig {
     @Expose
     @ConfigOption(name = "Limit", desc = "The maximum amount of mobs to show.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var limit = 5
 
     @ConfigOption(name = "Custom Health Display Mobs", desc = "This Feature's Mobs can be customized under /shseacreatures!")
@@ -28,5 +30,6 @@ class SeaCreatureHealthDisplayConfig {
 
     @Expose
     @ConfigLink(owner = SeaCreatureHealthDisplayConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos = Position(200, 200, centerX = true)
 }

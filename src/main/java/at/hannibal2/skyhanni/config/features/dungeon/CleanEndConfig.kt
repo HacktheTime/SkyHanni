@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -22,5 +23,6 @@ class CleanEndConfig {
             "sneaking. Makes it easier to kill them after the boss dies. Thanks Hypixel."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var f3IgnoreGuardians: Boolean = false
 }

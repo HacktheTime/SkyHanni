@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -18,6 +19,7 @@ class CreationCooldownConfig {
     @Expose
     @ConfigOption(name = "Show Outside of Dungeons", desc = "Show on other skyblock islands.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showOutside: Boolean = false
 
     @Expose
@@ -26,11 +28,13 @@ class CreationCooldownConfig {
         desc = "Only show the display when in the entrance room of a dungeon.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var entranceOnly: Boolean = true
 
     @Expose
     @ConfigOption(name = "Send Chat Message", desc = "Send a chat message when creation cooldown is over.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var sendChatMessage: Boolean = false
 
     @Expose
@@ -44,5 +48,6 @@ class CreationCooldownConfig {
 
     @Expose
     @ConfigLink(owner = CreationCooldownConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(383, 93)
 }

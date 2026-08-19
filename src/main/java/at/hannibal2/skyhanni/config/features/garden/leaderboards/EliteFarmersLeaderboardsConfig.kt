@@ -1,6 +1,9 @@
 package at.hannibal2.skyhanni.config.features.garden.leaderboards
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
+import at.hannibal2.skyhanni.config.ThirdParty
+import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.core.config.PositionList
 import at.hannibal2.skyhanni.features.garden.leaderboarddisplays.EliteLeaderboards
 import com.google.gson.annotations.Expose
@@ -11,6 +14,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@ThirdPartyDependency(ThirdParty.FARMING_ELITE)
 class EliteFarmersLeaderboardsConfig {
 
     @Expose
@@ -27,12 +31,14 @@ class EliteFarmersLeaderboardsConfig {
             "Leaderboards provided by §eeliteskyblock.com"
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val display: Property<MutableList<EliteLeaderboards>> = Property.of(
         mutableListOf(EliteLeaderboards.PEST, EliteLeaderboards.WEIGHT)
     )
 
     @Expose
     @ConfigLink(owner = EliteFarmersLeaderboardsConfig::class, field = "display")
+    @FeatureDependencyRequirement("#enabled")
     val displayPositions: PositionList = PositionList(EliteLeaderboards.entries.size)
 
     @Expose

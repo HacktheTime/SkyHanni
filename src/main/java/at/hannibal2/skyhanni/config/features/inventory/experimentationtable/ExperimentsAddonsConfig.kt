@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.experimentationtable
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -26,16 +27,19 @@ class ExperimentsAddonsConfig {
         desc = "Highlights the next slot to click in Chronomatron, and shows all items in Ultrasequencer.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var highlightNextClick: Boolean = true
 
     @Expose
     @ConfigOption(name = "Color", desc = "Color that the next slot will be highlighted in.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled", "#highlightNextClick")
     var nextColor: ChromaColour = LorenzColor.GREEN.toChromaColor()
 
     @Expose
     @ConfigOption(name = "Second Color", desc = "Color that the second slot will be highlighted in.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled", "#highlightNextClick")
     var secondColor: ChromaColour = LorenzColor.YELLOW.toChromaColor(128)
 
     @Expose
@@ -45,6 +49,7 @@ class ExperimentsAddonsConfig {
     )
     @ConfigEditorBoolean
     @SearchTag("missclick")
+    @FeatureDependencyRequirement("#enabled")
     var preventMisclicks: Boolean = true
 
     @Expose
@@ -54,6 +59,7 @@ class ExperimentsAddonsConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var maxSequenceAlert: Boolean = true
 
 }

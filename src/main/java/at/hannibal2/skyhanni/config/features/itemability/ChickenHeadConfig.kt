@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.itemability
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -19,6 +20,7 @@ class ChickenHeadConfig {
 
     @Expose
     @ConfigLink(owner = ChickenHeadConfig::class, field = "displayTimer")
+    @FeatureDependencyRequirement("#displayTimer")
     val position: Position = Position(-372, 73)
 
     @Expose

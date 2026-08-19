@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -17,6 +18,7 @@ class PlotMenuHighlightingConfig {
     @Expose
     @ConfigOption(name = "Statuses", desc = "Change which statuses are enabled, and the hierarchy of them.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val deskPlotStatusTypes: MutableList<PlotStatusType> = mutableListOf(
         PlotStatusType.CURRENT,
         PlotStatusType.PESTS,

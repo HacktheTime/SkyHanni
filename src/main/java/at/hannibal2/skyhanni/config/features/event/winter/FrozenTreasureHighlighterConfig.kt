@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.winter
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.utils.LorenzColor
 import com.google.gson.annotations.Expose
@@ -22,6 +23,7 @@ class FrozenTreasureHighlighterConfig {
         desc = "The color that frozen treasures should be highlighted in.",
     )
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var treasureColor: ChromaColour = LorenzColor.GREEN.toChromaColor(191)
 
 }

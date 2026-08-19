@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.hunting
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -18,6 +19,7 @@ class HuntingProfitTrackerConfig {
 
     @Expose
     @ConfigLink(owner = HuntingProfitTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 
     @Expose
@@ -26,6 +28,7 @@ class HuntingProfitTrackerConfig {
         desc = "Show the hunting tracker for a couple of seconds after hunting something.\n§eIgnored if Always Show is enabled."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showWhenPickup: Boolean = true
 
     @Expose
@@ -34,6 +37,7 @@ class HuntingProfitTrackerConfig {
         desc = "Always show the tracker, regardless of what you are holding.\n§eIf enabled, ignore the Show When Pickup setting."
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var alwaysShow: Boolean = false
 
     @Expose

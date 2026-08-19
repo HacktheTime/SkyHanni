@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -35,6 +36,7 @@ class CrystalNucleusConfig {
         desc = "Messages that should be hidden or compacted.\n§cImportant information will still appear§7.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val modifiedMessages: MutableList<CrystalNucleusMessageTypes> = mutableListOf(
         CrystalNucleusMessageTypes.CRYSTAL_COLLECTED,
         CrystalNucleusMessageTypes.CRYSTAL_PLACED,

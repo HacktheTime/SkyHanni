@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -19,9 +20,11 @@ class PlayerTradeConfig {
 
     @Expose
     @ConfigLink(owner = PlayerTradeConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val otherPosition: Position = Position(-300, 140)
 
     @Expose
     @ConfigLink(owner = PlayerTradeConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val yourPosition: Position = Position(212, 140)
 }

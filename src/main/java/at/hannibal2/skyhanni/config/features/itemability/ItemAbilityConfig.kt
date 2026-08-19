@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.itemability
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -21,6 +22,7 @@ class ItemAbilityConfig {
         desc = "Show the cooldown color of item abilities in the background.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#itemAbilityCooldown")
     var itemAbilityCooldownBackground: Boolean = false
 
     @Expose
@@ -33,6 +35,7 @@ class ItemAbilityConfig {
     @Expose
     @ConfigOption(name = "Show When Ready", desc = "Show the R and background (if enabled) when the ability is ready.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#itemAbilityCooldown")
     var itemAbilityShowWhenReady: Boolean = true
 
     @Expose

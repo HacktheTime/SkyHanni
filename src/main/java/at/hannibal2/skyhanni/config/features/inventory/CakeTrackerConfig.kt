@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.utils.LorenzColor
@@ -21,6 +22,7 @@ class CakeTrackerConfig {
 
     @Expose
     @ConfigLink(owner = CakeTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val cakeTrackerPosition: Position = Position(300, 300)
 
     @Expose
@@ -48,6 +50,7 @@ class CakeTrackerConfig {
     @Expose
     @ConfigOption(name = "Price on Hover", desc = "Show the prices of cakes when hovering over them in the tracker.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var priceOnHover: Boolean = true
 
     @Expose
@@ -56,6 +59,7 @@ class CakeTrackerConfig {
         desc = "The color that should be used to highlight unobtained cakes in the Auction House."
     )
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var missingColor: ChromaColour = LorenzColor.RED.toChromaColor(255)
 
     @Expose
@@ -64,6 +68,7 @@ class CakeTrackerConfig {
         desc = "The color that should be used to highlight obtained cakes in the Auction House."
     )
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#enabled")
     var ownedColor: ChromaColour = LorenzColor.GREEN.toChromaColor(255)
 
     @Expose

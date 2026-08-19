@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.features.mining.MiningNotifications.MiningNotificationList
 import com.google.gson.annotations.Expose
@@ -19,6 +20,7 @@ class MiningNotificationsConfig {
     @Expose
     @ConfigOption(name = "Notification List", desc = "Drag text to change which events send a title.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val notifications: MutableList<MiningNotificationList> = mutableListOf(
         MiningNotificationList.MINESHAFT_SPAWN,
         MiningNotificationList.SCRAP,
@@ -30,11 +32,13 @@ class MiningNotificationsConfig {
     @Expose
     @ConfigOption(name = "Play Sound", desc = "Plays a ding when a notification is triggered.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var playSound: Boolean = true
 
     @Expose
     @ConfigOption(name = "Cold Threshold", desc = "Change when the Cold notification gets triggered.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 100f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     val coldThreshold: Property<Int> = Property.of(50)
 
     @Expose
@@ -44,6 +48,7 @@ class MiningNotificationsConfig {
             "§cOnly works if you have an Ascension Rope in your sacks.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var getAscensionRope: Boolean = true
 
     @Expose
@@ -52,5 +57,6 @@ class MiningNotificationsConfig {
         desc = "Customise the amount of Cold you need to have to get the Ascension Rope message.",
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 100f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled", "#getAscensionRope")
     var coldAmount: Int = 90
 }

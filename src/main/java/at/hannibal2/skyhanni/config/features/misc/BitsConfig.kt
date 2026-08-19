@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -37,6 +38,7 @@ class BitsConfig {
     @Expose
     @ConfigOption(name = "Notification Sound", desc = "Play a notification sound when you get a warning.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enableWarning")
     var notificationSound: Boolean = true
 
     @Expose
@@ -48,5 +50,6 @@ class BitsConfig {
     @Expose
     @ConfigOption(name = "Message Threshold", desc = "The amount of bits you need to get to show the message.")
     @ConfigEditorSlider(minValue = 0f, maxValue = 1000f, minStep = 1f)
+    @FeatureDependencyRequirement("#bitsGainChatMessage")
     var messageThreshold: Int = 400
 }

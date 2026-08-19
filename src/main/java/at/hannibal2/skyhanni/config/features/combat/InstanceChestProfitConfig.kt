@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.utils.ItemPriceSource
@@ -25,10 +26,12 @@ class InstanceChestProfitConfig {
         desc = "Change what price to use: Bazaar (Sell Offer or Buy Order) or NPC.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var priceSource: ItemPriceSource = ItemPriceSource.BAZAAR_INSTANT_SELL
 
     @Expose
     @ConfigLink(owner = InstanceChestProfitConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(107, 141)
 
     @Expose
@@ -58,5 +61,6 @@ class InstanceChestProfitConfig {
 
     @Expose
     @ConfigLink(owner = InstanceChestProfitConfig::class, field = "croesusAllChestsOverlay")
+    @FeatureDependencyRequirement("#croesusAllChestsOverlay")
     val croesusPosition: Position = Position(107, 141)
 }

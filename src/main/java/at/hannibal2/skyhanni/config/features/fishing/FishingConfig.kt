@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.fishing
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.fishing.trophyfishing.TrophyFishingConfig
@@ -113,6 +114,7 @@ class FishingConfig {
 
     @Expose
     @ConfigLink(owner = FishingConfig::class, field = "sharkFishCounter")
+    @FeatureDependencyRequirement("#sharkFishCounter")
     val sharkFishCounterPos: Position = Position(10, 10)
 
     @Expose
@@ -141,6 +143,7 @@ class FishingConfig {
     )
     @SearchTag("before after")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#compactDoubleHook")
     var compactDoubleHookPosition: CompactDoubleHookPosition = CompactDoubleHookPosition.LEFT
 
     @Expose
@@ -155,6 +158,7 @@ class FishingConfig {
         desc = "When the Hotspot Radar Guesser feature finds a target, shows a pathfind to that Fishing Hotspot.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#guessHotspotRadar")
     var guessHotspotRadarPathFind: Boolean = true
 
     @Expose
@@ -190,6 +194,7 @@ class FishingConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#seaCreatureKillTimer")
     var seaCreatureKillTimerOwnMobsOnly: Boolean = true
 
     @ConfigOption(name = "Custom Kill Time Mobs", desc = "This Feature can be customized under /shseacreatures!")

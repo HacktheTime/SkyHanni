@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -19,6 +20,7 @@ class PlayerMessagesConfig {
     @Expose
     @ConfigOption(name = "Part Order", desc = "Drag text to change the chat message format order for chat messages.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enable")
     val partsOrder: MutableList<MessagePart> = mutableListOf(
         MessagePart.SKYBLOCK_LEVEL,
         MessagePart.PRIVATE_ISLAND_RANK,
@@ -49,22 +51,26 @@ class PlayerMessagesConfig {
         desc = "Hide the gray brackets in front of and behind the level numbers.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var hideLevelBrackets: Boolean = false
 
     @Expose
     @ConfigOption(name = "Level Color As Name", desc = "Use the color of the SkyBlock level for the player color.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var useLevelColorForName: Boolean = false
 
     @Expose
     @ConfigOption(name = "Player Rank Hider", desc = "Hide player ranks in all chat messages.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enable")
     var playerRankHider: Boolean = false
 
     @Expose
     @ConfigOption(name = "Ignore YouTube Rank", desc = "Do not remove the YouTube rank from chat.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var ignoreYouTube: Boolean = false
 
     @Expose
@@ -74,11 +80,13 @@ class PlayerMessagesConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enable")
     var chatFilter: Boolean = false
 
     @Expose
     @ConfigOption(name = "Same Chat Color", desc = "Make all chat messages white regardless of rank.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enable")
     var sameChatColor: Boolean = true
 }

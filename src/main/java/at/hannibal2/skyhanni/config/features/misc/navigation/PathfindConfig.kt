@@ -1,6 +1,8 @@
 package at.hannibal2.skyhanni.config.features.misc.navigation
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
@@ -29,6 +31,10 @@ class PathfindConfig {
         override fun toString() = displayName
     }
 
+    @DependencyDelegate(field = "feedbackMode")
+    private val hasChatFeedback: Boolean
+        get() = feedbackMode.get() == FeedbackMode.CHAT
+
     @Expose
     @ConfigLink(owner = PathfindConfig::class, field = "feedbackMode")
     val position: Position = Position(200, 200)
@@ -41,6 +47,7 @@ class PathfindConfig {
     )
     @ConfigEditorDropdown
     @SearchTag("navigation pathfind")
+    @FeatureDependencyRequirement("#hasChatFeedback")
     var chatUpdateInterval: UpdateInterval = UpdateInterval.PERFECT
 
     enum class UpdateInterval(private val displayName: String, val duration: Duration) {

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -18,5 +19,6 @@ class CompactPotionConfig {
         desc = "Make the Compact Potion message open the Potion effects menu on click.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var clickableChatMessage: Boolean = true
 }

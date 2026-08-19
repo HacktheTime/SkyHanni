@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.nucleus
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -23,6 +24,7 @@ class MetalDetectorConfig {
     @Expose
     @ConfigOption(name = "Show Time Taken", desc = "Shows how long it took you to find the treasure.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#metalDetectorSolver")
     var showTimeTaken: Boolean = false
 
     @Expose
@@ -34,6 +36,7 @@ class MetalDetectorConfig {
     @Expose
     @ConfigOption(name = "Stop After All Tools", desc = "Stop looking for treasure when you have all the metal detector tools.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#metalDetectorSolver")
     var metalDetectorStopWhenAllTools: Boolean = false
 
     @Expose

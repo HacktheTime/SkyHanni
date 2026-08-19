@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -18,5 +19,6 @@ class MagicalPowerConfig {
     @Expose
     @ConfigOption(name = "Colored", desc = "Whether to make the numbers colored.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var colored: Boolean = false
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.sacks
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -17,5 +18,6 @@ class OutsideSackValueConfig {
 
     @Expose
     @ConfigLink(owner = OutsideSackValueConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(144, 139)
 }

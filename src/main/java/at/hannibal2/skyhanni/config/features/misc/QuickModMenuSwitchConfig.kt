@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -17,6 +18,7 @@ class QuickModMenuSwitchConfig {
     @Expose
     @ConfigOption(name = "Inside Escape Menu", desc = "Show the mod list while inside the Escape menu.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var insideEscapeMenu: Boolean = true
 
     @Expose
@@ -25,9 +27,11 @@ class QuickModMenuSwitchConfig {
         desc = "Show the mod list while inside the player inventory (no chest inventory).",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var insidePlayerInventory: Boolean = false
 
     @Expose
     @ConfigLink(owner = QuickModMenuSwitchConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val pos: Position = Position(-178, 143)
 }

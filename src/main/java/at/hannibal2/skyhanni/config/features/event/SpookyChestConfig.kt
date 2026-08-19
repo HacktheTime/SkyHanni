@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,11 +17,13 @@ class SpookyChestConfig {
     @Expose
     @ConfigOption(name = "Play Sound", desc = "Play a sound when triggering a spooky/party chest.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var playSound: Boolean = true
 
     @Expose
     @ConfigOption(name = "Compact Title", desc = "Only show the name of the chest in the title.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var compactTitle: Boolean = false
 
 }

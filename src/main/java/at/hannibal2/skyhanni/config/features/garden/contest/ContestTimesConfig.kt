@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.contest
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -26,8 +27,10 @@ class ContestTimesConfig {
 
     @Expose
     @ConfigLink(owner = ContestTimesConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(-359, 149)
 
+    @FeatureDependencyRequirement("ContestTimesConfig#enabled")
     class CustomBPSConfig {
         @Expose
         @ConfigOption(
@@ -41,6 +44,7 @@ class ContestTimesConfig {
         @Expose
         @ConfigOption(name = "Custom BPS Value", desc = "Set a custom Blocks per Second value.")
         @ConfigEditorSlider(minValue = 15f, maxValue = 20f, minStep = 0.1f)
+        @FeatureDependencyRequirement("#enabled")
         var value: Double = 19.9
     }
 }

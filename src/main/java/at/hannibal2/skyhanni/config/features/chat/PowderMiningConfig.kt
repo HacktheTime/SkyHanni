@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.chat
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -24,6 +25,7 @@ class PowderMiningConfig {
             "§c60000§7: §cHide all",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 60000f, minStep = 500f)
+    @FeatureDependencyRequirement("#enabled")
     var powderThreshold: Int = 1000
 
     @Expose
@@ -34,6 +36,7 @@ class PowderMiningConfig {
             "§c20§7: §cHide all",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 20f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var essenceThreshold: Int = 5
 
     enum class SimplePowderMiningRewardTypes(val displayName: String) {
@@ -55,6 +58,7 @@ class PowderMiningConfig {
     @Expose
     @ConfigOption(name = "Common Items", desc = "Hide reward messages for listed items.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val simplePowderMiningTypes: MutableList<SimplePowderMiningRewardTypes> = mutableListOf(
         SimplePowderMiningRewardTypes.ASCENSION_ROPE,
         SimplePowderMiningRewardTypes.WISHING_COMPASS,
@@ -68,6 +72,7 @@ class PowderMiningConfig {
     @Expose
     @ConfigOption(name = "Goblin Egg", desc = "Hide Goblin Egg rewards that are below a certain rarity.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var goblinEggs: GoblinEggEntry = GoblinEggEntry.YELLOW_UP
 
     enum class GoblinEggEntry(val displayName: String) {

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -22,5 +23,6 @@ class BlockBreakParticleConfig {
     @SearchTag("breaking")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#hide")
     var onlyInGarden: Boolean = false
 }

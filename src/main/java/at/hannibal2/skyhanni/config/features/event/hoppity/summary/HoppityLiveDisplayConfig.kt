@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity.summary
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -10,6 +11,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import org.lwjgl.glfw.GLFW
 
+@FeatureDependencyRequirement("HoppityEventSummaryConfig#enabled")
 class HoppityLiveDisplayConfig {
     @Expose
     @ConfigOption(name = "Show Display", desc = "Show a hoppity stats card in a GUI element.")
@@ -40,6 +42,7 @@ class HoppityLiveDisplayConfig {
             "§cNote§7: The Next Event option will only appear if Next Event is added here.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val dateTimeDisplay: MutableList<HoppityDateTimeDisplayType> = mutableListOf(
         HoppityDateTimeDisplayType.CURRENT,
     )
@@ -55,6 +58,7 @@ class HoppityLiveDisplayConfig {
     @Expose
     @ConfigOption(name = "Date Time Format", desc = "The format of the date and time.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var dateTimeFormat: HoppityDateTimeFormat = HoppityDateTimeFormat.RELATIVE
 
     @Expose
@@ -63,6 +67,7 @@ class HoppityLiveDisplayConfig {
         desc = "Add a dummy \"All-Time\" entry after the last set of stats, showing the total stats for all recorded events.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showAllTime: Boolean = true
 
     @Expose
@@ -71,11 +76,13 @@ class HoppityLiveDisplayConfig {
         desc = "Hovering over number of meal eggs found will show a tooltip of which eggs were found how many times.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var mealEggHover: Boolean = true
 
     @Expose
     @ConfigOption(name = "Card Toggle Keybind", desc = "Toggle the GUI element with this keybind.")
     @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_UNKNOWN)
+    @FeatureDependencyRequirement("#enabled")
     var toggleKeybind: Int = GLFW.GLFW_KEY_UNKNOWN
 
     @Expose
@@ -85,6 +92,7 @@ class HoppityLiveDisplayConfig {
             "§eIf the list is empty, the card will show in all inventories.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val specificInventories: MutableList<HoppityLiveDisplayInventoryType> = mutableListOf(
         HoppityLiveDisplayInventoryType.NO_INVENTORY,
         HoppityLiveDisplayInventoryType.CHOCOLATE_FACTORY,
@@ -104,11 +112,13 @@ class HoppityLiveDisplayConfig {
     @Expose
     @ConfigOption(name = "Only During Event", desc = "§cOnly§r show the card while Hoppity's Hunt is active.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyDuringEvent: Boolean = true
 
     @Expose
     @ConfigOption(name = "Only Holding Egglocator", desc = "§cOnly§r show the card when holding an Egglocator.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var mustHoldEggLocator: Boolean = false
 
     @Expose
@@ -117,5 +127,6 @@ class HoppityLiveDisplayConfig {
         desc = "§cOnly§r show the card while on Islands that spawn Hoppity Eggs (will not show on Garden, Island, Dungeons etc.).",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyHoppityIslands: Boolean = false
 }

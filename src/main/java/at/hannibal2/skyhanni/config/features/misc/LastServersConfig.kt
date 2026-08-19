@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -19,5 +20,6 @@ class LastServersConfig {
         desc = "Get notified if you rejoin a server within the specified number of seconds.",
     )
     @ConfigEditorSlider(minValue = 5f, maxValue = 300f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var warnTime: Int = 60
 }

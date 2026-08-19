@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer.spider
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -22,6 +23,7 @@ class SpiderConfig {
     @Expose
     @ConfigOption(name = "Invincible Color", desc = "The color used to highlight the invincible phase.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightInvincible")
     val highlightInvincibleColor: Property<ChromaColour> = Property.of(ChromaColour.fromStaticRGB(255, 255, 0, 60))
 
     @Expose
@@ -43,6 +45,7 @@ class SpiderConfig {
     )
     @SearchTag("Spider")
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 10f)
+    @FeatureDependencyRequirement("#lineToBoss")
     var slayerLineWidth: Int = 3
 
     @Expose
@@ -62,5 +65,6 @@ class SpiderConfig {
     )
     @SearchTag("Spider")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#highlightEggSacs")
     var eggSacHighlightColor: ChromaColour = ChromaColour.fromStaticRGB(255, 255, 0, 120)
 }

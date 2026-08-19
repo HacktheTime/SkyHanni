@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.winter
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -19,6 +20,7 @@ class GiftingOpportunitiesConfig {
         desc = "Only highlight players you haven't gifted while holding a gift.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var highlighWithGiftOnly: Boolean = true
 
 
@@ -29,5 +31,6 @@ class GiftingOpportunitiesConfig {
             "§eThis is a bit inaccurate, but it can help with people you gifted before this feature was used.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var useArmorStandDetection: Boolean = false
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.foraging
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
@@ -37,6 +38,7 @@ class TreesConfig {
     @ConfigOption(name = "Also on Galatea", desc = "Also mute tree breaking sounds on Galatea.")
     @SearchTag("fig mangrove helix")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#muteBreaking")
     var muteBreakingOnGalatea = false
 
 }

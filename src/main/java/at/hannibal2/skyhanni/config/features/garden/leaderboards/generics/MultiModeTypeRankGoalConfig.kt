@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden.leaderboards.generics
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.features.garden.leaderboards.PestTypeWithAll.Companion.fromPestType
 import at.hannibal2.skyhanni.data.jsonobjects.elitedev.EliteLeaderboardMode
 import at.hannibal2.skyhanni.data.jsonobjects.elitedev.EliteLeaderboardType
@@ -9,6 +10,9 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 import kotlin.reflect.KProperty0
 
+@FeatureDependencyRequirement(
+    "at.hannibal2.skyhanni.config.features.garden.leaderboards.EliteFarmersLeaderboardsConfig#enabled",
+)
 abstract class MultiModeTypeRankGoalConfig<
     E : Enum<E>,
     Config : TypeRankGoalGenericConfig<E>,

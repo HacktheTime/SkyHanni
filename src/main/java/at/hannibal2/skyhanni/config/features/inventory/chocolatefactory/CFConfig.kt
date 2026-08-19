@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory.chocolatefactory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualTrackerConfig
@@ -24,6 +25,7 @@ class CFConfig {
     @ConfigOption(name = "Chocolate Factory Stats", desc = "Show general info about your chocolate factory.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var statsDisplay: Boolean = true
 
     @Expose
@@ -32,6 +34,7 @@ class CFConfig {
         desc = "Drag text to change what displays in the chocolate factory stats list and what order the text appears in.",
     )
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled", "#statsDisplay")
     val statsDisplayList: MutableList<CFStat> = mutableListOf(
         CFStat.HEADER,
         CFStat.CURRENT,
@@ -88,6 +91,7 @@ class CFConfig {
         desc = "Show additional info as many items in the chocolate menu as the stack size.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showStackSizes: Boolean = true
 
     @Expose
@@ -96,6 +100,7 @@ class CFConfig {
         desc = "Replaces the rabbit names in the rabbit collection menu with SkyHanni contributor names.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var contributorRabbitName: Boolean = false
 
     @Expose
@@ -105,11 +110,13 @@ class CFConfig {
             "The upgrade with a star is the most optimal and the lightest color of green is the most optimal you can afford.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var highlightUpgrades: Boolean = true
 
     @Expose
     @ConfigOption(name = "Use Middle Click", desc = "Click on slots with middle click to speed up interactions.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var useMiddleClick: Boolean = true
 
     @Expose
@@ -118,6 +125,7 @@ class CFConfig {
         desc = "How close should you be to your barn capacity before being warned about needing to upgrade it.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 20f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var barnCapacityThreshold: Int = 6
 
     @Expose
@@ -126,12 +134,14 @@ class CFConfig {
         desc = "Only warn about rabbit crush when the Hoppity event is active.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var rabbitCrushOnlyDuringHoppity: Boolean = false
 
     @Expose
     @ConfigOption(name = "Extra Tooltip Stats", desc = "Show extra information about upgrades in the tooltip.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var extraTooltipStats: Boolean = true
 
     @Expose
@@ -141,12 +151,14 @@ class CFConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var showDuplicateTime: Boolean = false
 
     @Expose
     @ConfigOption(name = "Stray Rabbit Time", desc = "Show the production time of chocolate gained from stray rabbits.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var showStrayTime: Boolean = false
 
     @Expose
@@ -157,6 +169,7 @@ class CFConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var timeTowerWarning: Boolean = false
 
     @Expose
@@ -166,16 +179,19 @@ class CFConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var timeTowerReminder: Boolean = true
 
     @Expose
     @ConfigLink(owner = CFConfig::class, field = "statsDisplay")
+    @FeatureDependencyRequirement("#enabled", "#statsDisplay")
     val position: Position = Position(163, 160)
 
     @Expose
     @ConfigOption(name = "Compact On Click", desc = "Compact the item tooltip when clicking on the chocolate.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var compactOnClick: Boolean = true
 
     @Expose
@@ -184,6 +200,7 @@ class CFConfig {
         desc = "Always compact the item tooltip on the chocolate. Requires the above option to be enabled.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled", "#compactOnClick")
     var compactOnClickAlways: Boolean = false
 
     @Expose
@@ -193,10 +210,12 @@ class CFConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var tooltipMove: Boolean = false
 
     @Expose
     @ConfigLink(owner = CFConfig::class, field = "tooltipMove")
+    @FeatureDependencyRequirement("#enabled", "#tooltipMove")
     val tooltipMovePosition: Position = Position(-380, 150)
 
     @Expose
@@ -207,6 +226,7 @@ class CFConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var leaderboardChange: Boolean = false
 
     @Expose
@@ -216,30 +236,35 @@ class CFConfig {
     )
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var hoppityMenuShortcut: Boolean = true
 
     @Expose
     @ConfigOption(name = "Mythic Rabbit", desc = "Blocks running /cf without a §d§lMythic Rabbit Pet §7equipped.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var mythicRabbitRequirement: Boolean = false
 
     @Expose
     @ConfigOption(name = "Booster Cookie", desc = "Blocks running /cf without a §6§lBooster Cookie §7active.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var boosterCookieRequirement: Boolean = false
 
     @Expose
     @ConfigOption(name = "Hot Chocolate Mixin", desc = "Blocks running /cf without §9Hot Chocolate Mixin §7active.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var hotChocolateMixinRequirement: Boolean = false
 
     @Expose
     @ConfigOption(name = "Stray Tracker", desc = "Track stray rabbits found in the Chocolate Factory menu.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var strayRabbitTracker: Boolean = true
 
     @Expose
@@ -252,16 +277,19 @@ class CFConfig {
 
     @Expose
     @ConfigLink(owner = CFConfig::class, field = "strayRabbitTracker")
+    @FeatureDependencyRequirement("#enabled", "#strayRabbitTracker")
     val strayRabbitTrackerPosition: Position = Position(300, 300)
 
     @Expose
     @ConfigOption(name = "Hitman Costs", desc = "Show the sum cost of remaining hitman slots.")
     @ConfigEditorBoolean
     @FeatureToggle
+    @FeatureDependencyRequirement("#enabled")
     var hitmanCosts: Boolean = true
 
     @Expose
     @ConfigLink(owner = CFConfig::class, field = "hitmanCosts")
+    @FeatureDependencyRequirement("#enabled", "#hitmanCosts")
     val hitmanCostsPosition: Position = Position(300, 300)
 
     @Expose

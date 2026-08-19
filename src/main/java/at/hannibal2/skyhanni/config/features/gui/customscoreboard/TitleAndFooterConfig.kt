@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.gui.customscoreboard
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.utils.RenderUtils
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -7,6 +8,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDropdown
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorText
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 
+@FeatureDependencyRequirement("CustomScoreboardConfig#hasEnabled")
 class TitleAndFooterConfig {
     @Expose
     @ConfigOption(name = "Title Alignment", desc = "Align the title in the scoreboard.")
@@ -21,6 +23,7 @@ class TitleAndFooterConfig {
             "Use \"\\n\" for new line.",
     )
     @ConfigEditorText
+    @FeatureDependencyRequirement("#useCustomTitle")
     var customTitle: String = "&&6&&lSKYBLOCK"
 
     @Expose
@@ -31,6 +34,7 @@ class TitleAndFooterConfig {
     @Expose
     @ConfigOption(name = "Use Custom Title Outside SkyBlock", desc = "Use a custom title outside of SkyBlock.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#useCustomTitle")
     var useCustomTitleOutsideSkyBlock: Boolean = false
 
     @Expose

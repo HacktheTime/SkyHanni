@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.crimsonisle.ashfang
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -18,6 +19,7 @@ class HideAshfangConfig {
         desc = "Hide the names of full health blazes around Ashfang §e(only useful when highlight blazes is enabled)",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("AshfangConfig#highlightBlazes")
     @FeatureToggle
     var fullNames: Boolean = false
 

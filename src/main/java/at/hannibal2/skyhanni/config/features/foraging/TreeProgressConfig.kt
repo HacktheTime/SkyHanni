@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.foraging
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -17,16 +18,19 @@ class TreeProgressConfig {
 
     @Expose
     @ConfigLink(owner = TreeProgressConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(30, -130)
 
     @Expose
     @ConfigOption(name = "Only Holding Axe", desc = "Only show the tracker while holding an axe.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyHoldingAxe: Boolean = true
 
     @Expose
     @ConfigOption(name = "Compact Display", desc = "Shows a compact version of the display.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var compact: Boolean = false
 
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -52,6 +53,7 @@ class BazaarConfig {
     // TODO rename to bestSellMethodPosition
     @Expose
     @ConfigLink(owner = BazaarConfig::class, field = "bestSellMethod")
+    @FeatureDependencyRequirement("#bestSellMethod")
     val bestSellMethodPos: Position = Position(394, 142)
 
     @Expose
@@ -66,6 +68,7 @@ class BazaarConfig {
 
     @Expose
     @ConfigLink(owner = BazaarConfig::class, field = "dailyLimitTracker")
+    @FeatureDependencyRequirement("#dailyLimitTracker")
     val dailyLimitTrackerPosition: Position = Position(550, 150)
 
     @Expose
@@ -98,6 +101,7 @@ class BazaarConfig {
 
     @Expose
     @ConfigLink(owner = BazaarConfig::class, field = "maxPurseItems")
+    @FeatureDependencyRequirement("#maxPurseItems")
     val maxPurseItemsPosition: Position = Position(346, 90, centerX = true, centerY = false)
 
     // TODO rename and move (idk where or what, hanni TODO)
@@ -113,5 +117,6 @@ class BazaarConfig {
 
     @Expose
     @ConfigLink(owner = BazaarConfig::class, field = "craftMaterialsFromBazaar")
+    @FeatureDependencyRequirement("#craftMaterialsFromBazaar")
     val craftMaterialsFromBazaarPosition: Position = Position(50, 50, centerX = true, centerY = false)
 }

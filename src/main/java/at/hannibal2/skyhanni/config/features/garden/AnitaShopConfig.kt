@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -26,5 +27,6 @@ class AnitaShopConfig {
 
     @Expose
     @ConfigLink(owner = AnitaShopConfig::class, field = "medalProfitEnabled")
+    @FeatureDependencyRequirement("#medalProfitEnabled")
     val medalProfitPos: Position = Position(206, 158)
 }

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.combat.end
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualTrackerConfig
@@ -29,11 +30,13 @@ class EnderNodeConfig {
         desc = "Only show the tracker if holding a pickaxe, drill or gauntlet in hand.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyPickaxe: Boolean = false
 
     @Expose
     @ConfigOption(name = "Text Format", desc = "Drag text to change the appearance of the overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val textFormat: Property<MutableList<EnderNodeDisplayEntry>> = Property.of(
         mutableListOf(
             EnderNodeDisplayEntry.TITLE,
@@ -105,5 +108,6 @@ class EnderNodeConfig {
 
     @Expose
     @ConfigLink(owner = EnderNodeConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(10, 80)
 }

@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.dungeon
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.dungeon.spiritleap.SpiritLeapConfig
@@ -40,6 +41,7 @@ class DungeonConfig {
     // Todo rename to "milestoneDisplayPos"
     @Expose
     @ConfigLink(owner = DungeonConfig::class, field = "showMilestonesDisplay")
+    @FeatureDependencyRequirement("#showMilestonesDisplay")
     val showMileStonesDisplayPos: Position = Position(10, 10)
 
     @Expose
@@ -50,6 +52,7 @@ class DungeonConfig {
 
     @Expose
     @ConfigLink(owner = DungeonConfig::class, field = "deathCounterDisplay")
+    @FeatureDependencyRequirement("#deathCounterDisplay")
     val deathCounterPos: Position = Position(10, 10)
 
     @Expose
@@ -239,6 +242,7 @@ class DungeonConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     @ConfigLink(owner = DungeonConfig::class, field = "highlightBestItem")
+    @FeatureDependencyRequirement("#highlightBestItem")
     val groupBestByArmorType: Boolean = false
 
     @ConfigOption(

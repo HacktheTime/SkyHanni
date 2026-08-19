@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.laneswitch
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -24,11 +25,13 @@ class LaneSwitchNotificationConfig {
         desc = "How many seconds before reaching the end of the lane should the warning happen?",
     )
     @ConfigEditorSlider(minValue = 1f, maxValue = 10f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var secondsBefore: Int = 5
 
     @Expose
     @ConfigOption(name = "Text", desc = "The text with color to be displayed as the notification.")
     @ConfigEditorText
+    @FeatureDependencyRequirement("#enabled")
     var text: String = "&eLane Switch incoming."
 
     @Expose

@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.inventory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.features.inventory.attribute.AttributeShardOverlay
@@ -20,36 +21,43 @@ class AttributeShardsConfig {
     @Expose
     @ConfigOption(name = "Hide maxed", desc = "Hide maxed attribute shards.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var hideMaxed: Boolean = true
 
     @Expose
     @ConfigOption(name = "Only not unlocked", desc = "Only show not unlocked shards.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyNotUnlocked: Boolean = false
 
     @Expose
     @ConfigOption(name = "Include Hunting Box", desc = "Accounts for the amount of shards you currently have held in your hunting box.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var includeHuntingBox: Boolean = true
 
     @Expose
     @ConfigOption(name = "Include Bazaar Orders", desc = "Accounts for the shards you currently have on order in the bazaar.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var includeBazaarOrders: Boolean = true
 
     @Expose
     @ConfigOption(name = "Only Current Inventory", desc = "Only show the shards that are in the inventory you currently have open.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var onlyCurrentInventory: Boolean = false
 
     @Expose
     @ConfigOption(name = "Display Sorting Method", desc = "The method used to sort the attribute shards in the overlay.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var displaySortingMethod: AttributeShardOverlay.AttributeShardSorting = AttributeShardOverlay.AttributeShardSorting.PRICE_TO_NEXT_TIER
 
     @Expose
     @ConfigOption(name = "Overlay Price Source", desc = "The price source used for the attribute shard overlay.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     var overlayPriceSource: AttributeShardOverlay.AttributeShardPriceSource = AttributeShardOverlay.AttributeShardPriceSource.INSTANT_BUY
 
     @Expose
@@ -72,10 +80,12 @@ class AttributeShardsConfig {
 
     @Expose
     @ConfigLink(owner = AttributeShardsConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val displayPosition: Position = Position(174, 139)
 
     @Expose
     @ConfigLink(owner = AttributeShardsConfig::class, field = "huntingBoxValue")
+    @FeatureDependencyRequirement("#huntingBoxValue")
     val huntingBoxValuePosition = Position(174, 139)
 
 }

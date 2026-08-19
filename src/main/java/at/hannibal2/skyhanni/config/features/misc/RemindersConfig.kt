@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.misc
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -39,5 +40,6 @@ class RemindersConfig {
 
     @Expose
     @ConfigLink(owner = RemindersConfig::class, field = "showHud")
+    @FeatureDependencyRequirement("#showHud")
     val hudPosition: Position = Position(10, -130)
 }

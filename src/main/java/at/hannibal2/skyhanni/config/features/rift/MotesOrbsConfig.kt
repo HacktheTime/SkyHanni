@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.rift
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -16,6 +17,7 @@ class MotesOrbsConfig {
     @Expose
     @ConfigOption(name = "Highlight Size", desc = "Set render size for highlighted Motes Orbs.")
     @ConfigEditorSlider(minStep = 1f, minValue = 1f, maxValue = 5f)
+    @FeatureDependencyRequirement("#enabled")
     var size: Int = 3
 
     @Expose

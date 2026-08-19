@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.garden.composter
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.utils.ItemPriceSource
@@ -28,6 +29,7 @@ class ComposterConfig {
         desc = "Change what price to use: Bazaar (Sell Offer or Buy Order) or NPC.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#overlay")
     var priceSource: ItemPriceSource = ItemPriceSource.BAZAAR_INSTANT_BUY
 
     @Expose
@@ -36,6 +38,7 @@ class ComposterConfig {
         desc = "Change where to retrieve the materials from in the composter overlay: Bazaar or Sacks.",
     )
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#overlay")
     var retrieveFrom: RetrieveFromEntry = RetrieveFromEntry.SACKS
 
     @Expose
@@ -44,6 +47,7 @@ class ComposterConfig {
         desc = "Change the minimum amount of organic matter items on the organic matter overlay have.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 20_000f, minStep = 1000f)
+    @FeatureDependencyRequirement("#overlay")
     val minimumOrganicMatter: Property<Double> = Property.of(1_000.0)
 
     enum class RetrieveFromEntry(private val displayName: String) {
@@ -56,10 +60,12 @@ class ComposterConfig {
 
     @Expose
     @ConfigLink(owner = ComposterConfig::class, field = "overlay")
+    @FeatureDependencyRequirement("#overlay")
     val overlayOrganicMatterPos: Position = Position(140, 152)
 
     @Expose
     @ConfigLink(owner = ComposterConfig::class, field = "overlay")
+    @FeatureDependencyRequirement("#overlay")
     val overlayFuelExtrasPos: Position = Position(-320, 152)
 
     @Expose
@@ -118,9 +124,11 @@ class ComposterConfig {
 
     @Expose
     @ConfigLink(owner = ComposterConfig::class, field = "displayEnabled")
+    @FeatureDependencyRequirement("#displayEnabled")
     val displayPos: Position = Position(-390, 10)
 
     @Expose
     @ConfigLink(owner = ComposterConfig::class, field = "displayEnabled")
+    @FeatureDependencyRequirement("#displayOutsideGarden")
     val outsideGardenPos: Position = Position(-363, 13)
 }

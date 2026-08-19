@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.config.features.garden.pests
 
 import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -47,4 +48,8 @@ class PestSpawnConfig {
     @ConfigOption(name = "Sound Settings", desc = "")
     @Accordion
     val sound: PestSpawnSoundSettings = PestSpawnSoundSettings()
+
+    @DependencyDelegate(field = "soundMode")
+    private val hasCustomSound: Boolean
+        get() = soundMode == PestSpawnSoundMode.CUSTOM || soundMode == PestSpawnSoundMode.PLUMBER
 }

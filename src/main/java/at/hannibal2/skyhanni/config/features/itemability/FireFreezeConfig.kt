@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.itemability
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.ChromaColour
@@ -43,6 +44,7 @@ class FireFreezeConfig {
     @Expose
     @ConfigOption(name = "Freeze Circle Color", desc = "Changes the color of the Custom Circle.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#customCircle")
     var displayColor: ChromaColour = ChromaColour.fromStaticRGB(0, 0, 0, 245)
 
 }

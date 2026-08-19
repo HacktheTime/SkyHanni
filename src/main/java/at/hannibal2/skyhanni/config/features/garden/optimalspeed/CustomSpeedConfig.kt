@@ -1,10 +1,15 @@
 package at.hannibal2.skyhanni.config.features.garden.optimalspeed
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement(
+    value = ["OptimalSpeedConfig#showOnHUD", "OptimalSpeedConfig#warning", "OptimalSpeedConfig#signEnabled"],
+    requireAll = false,
+)
 class CustomSpeedConfig {
     @Expose
     @ConfigOption(

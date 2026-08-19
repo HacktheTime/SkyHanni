@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.mining.nucleus
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import at.hannibal2.skyhanni.config.features.misc.tracker.individual.IndividualItemTrackerConfig
@@ -21,16 +22,19 @@ class CrystalNucleusTrackerConfig {
 
     @Expose
     @ConfigLink(owner = CrystalNucleusTrackerConfig::class, field = "enabled")
+    @FeatureDependencyRequirement("#enabled")
     val position: Position = Position(20, 20)
 
     @Expose
     @ConfigOption(name = "Show Outside of Nucleus", desc = "Show the tracker anywhere in the Crystal Hollows.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showOutsideNucleus: Boolean = false
 
     @Expose
     @ConfigOption(name = "Profit Per", desc = "Show profit summary message for the completed nucleus run.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var profitPer: Boolean = true
 
     @Expose
@@ -39,11 +43,13 @@ class CrystalNucleusTrackerConfig {
         desc = "Only show items above this coin amount in the summary message hover.",
     )
     @ConfigEditorSlider(minValue = 0f, maxValue = 1000000f, minStep = 5000f)
+    @FeatureDependencyRequirement("#enabled", "#profitPer")
     var profitPerMinimum: Int = 20000
 
     @Expose
     @ConfigOption(name = "Professor Usage", desc = "Determine how cost for Sapphire Crystal is calculated.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#enabled")
     val professorUsage: Property<ProfessorUsageType> = Property.of(ProfessorUsageType.ROBOT_PARTS)
 
     enum class ProfessorUsageType(private val displayName: String) {

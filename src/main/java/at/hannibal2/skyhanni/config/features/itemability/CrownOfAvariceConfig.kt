@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.itemability
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -22,11 +23,13 @@ class CrownOfAvariceConfig {
         desc = "Have the crown of avarice counter as short format instead of every digit.",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var shortFormat: Boolean = true
 
     @Expose
     @ConfigOption(name = "Coins Per Hour format", desc = "Shows the coins per hour gained as short format i.e. 7.3M.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var shortFormatCPH: Boolean = true
 
     @Expose
@@ -35,6 +38,7 @@ class CrownOfAvariceConfig {
         desc = "Pauses the timer if no coins are added after this amount of time in seconds."
     )
     @ConfigEditorSlider(minValue = 5F, maxValue = 180F, minStep = 5F)
+    @FeatureDependencyRequirement("#enable")
     var afkTimeout: Int = 120
 
     @Expose
@@ -43,17 +47,20 @@ class CrownOfAvariceConfig {
         desc = "Waits the duration (in seconds) before session statistics are displayed after loading in.",
     )
     @ConfigEditorSlider(minValue = 0F, maxValue = 10F, minStep = 1F)
+    @FeatureDependencyRequirement("#enable")
     var sessionActiveTime: Int = 10
 
     @Expose
     @ConfigOption(name = "Reset on World Change", desc = "Resets your session on world change if enabled.")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enable")
     var resetOnWorldChange = false
 
     // TODO rename enum names with _ and use config migration
     @Expose
     @ConfigOption(name = "Tracker Text", desc = "Drag the text to change the appearance of the overlay.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enable")
     val text: MutableList<CrownOfAvariceLines> = mutableListOf(
         CrownOfAvariceLines.COINSPERHOUR,
         CrownOfAvariceLines.TIMEUNTILMAX,
@@ -68,13 +75,15 @@ class CrownOfAvariceConfig {
         TIMEUNTILMAX("§aTime until Max: §61234y 56d 7h 8m 9s"),
         COINDIFFERENCE("§aLast coins gained: §61234"),
         SESSIONCOINS("§aCoins this session: §6123,456,789"),
-        SESSIONTIME("§aSession Time: §612m 34s"),
-        ;override fun toString() = displayName
+        SESSIONTIME("§aSession Time: §612m 34s");
+
+        override fun toString() = displayName
     }
 
 
 
     @Expose
     @ConfigLink(owner = CrownOfAvariceConfig::class, field = "enable")
+    @FeatureDependencyRequirement("#enable")
     val position: Position = Position(20, 20)
 }

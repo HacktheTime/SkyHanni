@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.event.hoppity.summary
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
@@ -29,11 +30,13 @@ class HoppityEventSummaryConfig {
 
     @Expose
     @ConfigLink(owner = HoppityEventSummaryConfig::class, field = "liveDisplay")
+    @FeatureDependencyRequirement("HoppityEventSummaryConfig#enabled", "HoppityLiveDisplayConfig#enabled")
     val liveDisplayPosition: Position = Position(0, 0)
 
     @Expose
     @ConfigOption(name = "Stats List", desc = "Drag text to change what displays in the summary card.")
     @ConfigEditorDraggableList
+    @FeatureDependencyRequirement("#enabled")
     val statDisplayList: Property<MutableList<HoppityStat>> = Property.of(
         mutableListOf(
             HoppityStat.MEAL_EGGS_FOUND,
@@ -80,5 +83,6 @@ class HoppityEventSummaryConfig {
             ".e.g. §7Unique Rabbits: §f5 §7(270 -> 275)",
     )
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#enabled")
     var showCountDiff: Boolean = false
 }

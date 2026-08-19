@@ -1,5 +1,6 @@
 package at.hannibal2.skyhanni.config.features.slayer
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import com.google.gson.annotations.Expose
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
@@ -19,5 +20,6 @@ class ItemsOnGroundConfig {
     @Expose
     @ConfigOption(name = "Minimum Price", desc = "Items below this price will be ignored.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 1000000f, minStep = 1f)
+    @FeatureDependencyRequirement("#enabled")
     var minimumPrice: Int = 50000
 }

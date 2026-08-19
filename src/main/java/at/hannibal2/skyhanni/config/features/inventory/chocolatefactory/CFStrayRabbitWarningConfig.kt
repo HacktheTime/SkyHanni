@@ -1,5 +1,7 @@
 package at.hannibal2.skyhanni.config.features.inventory.chocolatefactory
 
+import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.OSUtils
 import com.google.gson.annotations.Expose
@@ -14,6 +16,7 @@ import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
 import io.github.notenoughupdates.moulconfig.annotations.SearchTag
 import io.github.notenoughupdates.moulconfig.observer.Property
 
+@FeatureDependencyRequirement("CFConfig#enabled")
 class CFStrayRabbitWarningConfig {
     @Expose
     @ConfigOption(name = "Warning Level", desc = "Warn when stray rabbits of a certain tier appear.")
@@ -23,6 +26,7 @@ class CFStrayRabbitWarningConfig {
     @Expose
     @ConfigOption(name = "Highlight Color", desc = "Choose the color that stray rabbits should be highlighted as.")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#hasWarningLevel")
     var inventoryHighlightColor: ChromaColour = LorenzColor.RED.toChromaColor()
 
     @Expose
@@ -33,6 +37,7 @@ class CFStrayRabbitWarningConfig {
     )
     @SearchTag("prevent close")
     @ConfigEditorBoolean
+    @FeatureDependencyRequirement("#hasWarningLevel")
     var blockClosing: Boolean = false
 
     @Expose
@@ -49,12 +54,28 @@ class CFStrayRabbitWarningConfig {
     @Expose
     @ConfigOption(name = "Repeat Sound", desc = "How many times the sound should be repeated.")
     @ConfigEditorSlider(minValue = 1f, maxValue = 20f, minStep = 1f)
+    @FeatureDependencyRequirement("#hasWarningLevel")
     var repeatSound: Int = 20
 
     @Expose
     @ConfigOption(name = "Flash Screen", desc = "Choose the stray rabbit type to flash the screen for.")
     @ConfigEditorDropdown
+    @FeatureDependencyRequirement("#hasWarningLevel")
     var flashScreenLevel: StrayTypeEntry = StrayTypeEntry.SPECIAL
+
+    @DependencyDelegate(field = "rabbitWarningLevel")
+    private var hasWarningLevel: Boolean
+        get() = rabbitWarningLevel != StrayTypeEntry.NONE
+        set(value) {
+            rabbitWarningLevel = if (value) StrayTypeEntry.ALL else StrayTypeEntry.NONE
+        }
+
+    @DependencyDelegate(field = "flashScreenLevel")
+    private var hasFlashScreen: Boolean
+        get() = flashScreenLevel != StrayTypeEntry.NONE
+        set(value) {
+            flashScreenLevel = if (value) StrayTypeEntry.SPECIAL else StrayTypeEntry.NONE
+        }
 
     enum class StrayTypeEntry(private val displayName: String) {
         SPECIAL("Special Only"),
@@ -72,6 +93,7 @@ class CFStrayRabbitWarningConfig {
     @Expose
     @ConfigOption(name = "Flash Color", desc = "Color of the screen when flashing")
     @ConfigEditorColour
+    @FeatureDependencyRequirement("#hasWarningLevel", "#hasFlashScreen")
     var flashColor: ChromaColour = ChromaColour.fromStaticRGB(0, 238, 255, 127)
 
     @ConfigOption(name = "Sounds", desc = "Click to open the list of available sounds.")
