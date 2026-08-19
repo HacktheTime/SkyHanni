@@ -157,8 +157,30 @@ object ConfigUtils {
 
     private fun MoulConfigEditor<*>.jumpToOption(option: ProcessedOption): Boolean {
         searchForJump((option as? ProcessedOption.HasField)?.field)
-        if (!goToOption(option)) return false
+        if (!goToOptionPreservingScroll(option)) return false
         openEditor(this)
+        return true
+    }
+
+    /**
+     * Like MoulConfigEditor.goToOption, but without resetting the options scroll to the top when the
+     * option is in the already-selected category. MoulConfigEditor.goToOption always calls
+     * setSelectedCategory, which resets the scroll to 0, so the jump animation always starts at the
+     * top and scrolls down. Preserving the current scroll lets the animation start from the current
+     * position and scroll up when the target is above the current viewport.
+     */
+    private fun MoulConfigEditor<*>.goToOptionPreservingScroll(option: ProcessedOption): Boolean {
+        val category = option.getCategory()
+        if (getSelectedCategory() != category.getIdentifier()) {
+            if (!setSelectedCategory(category)) {
+                search("")
+                if (!setSelectedCategory(category)) return false
+            }
+        }
+        if (!scrollOptionIntoView(option, 200)) {
+            search("")
+            if (!scrollOptionIntoView(option, 200)) return false
+        }
         return true
     }
 
@@ -185,7 +207,7 @@ object ConfigUtils {
         val option = editor.getOptionFromField(field) ?: return
         ConfigJumpHighlight.highlight(field)
         editor.searchForJump(field)
-        if (!editor.goToOption(option)) return
+        if (!editor.goToOptionPreservingScroll(option)) return
         openEditor(editor, reuseOpenScreen = true)
     }
 
@@ -199,7 +221,7 @@ object ConfigUtils {
         val option = editor.getOptionFromField(field) ?: return
         ConfigJumpHighlight.highlight(field)
         editor.searchForJump(field)
-        if (!editor.goToOption(option)) return
+        if (!editor.goToOptionPreservingScroll(option)) return
         openEditor(editor, reuseOpenScreen = true)
     }
 

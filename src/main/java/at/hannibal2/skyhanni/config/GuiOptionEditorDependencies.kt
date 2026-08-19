@@ -13,6 +13,8 @@ import io.github.notenoughupdates.moulconfig.gui.MouseEvent
 import io.github.notenoughupdates.moulconfig.common.text.StructuredText
 import java.lang.reflect.Field
 import kotlin.math.max
+import kotlin.math.min
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
 /**
@@ -39,7 +41,6 @@ class GuiOptionEditorDependencies(
         bannerHeight + dependencyListHeight + ((base as? ConfigBannerProvider)?.bannerOffset() ?: 0)
 
     private val buttons = mutableListOf<ButtonHitbox>()
-    // private val bannerButtons = mutableListOf<ButtonHitbox>() // bannerButtons removed; we only use rowButtons now
     private val rowButtons = mutableListOf<ButtonHitbox>()
     private var bannerHeight = MIN_BANNER_HEIGHT
     private var hoverTooltip: List<String>? = null
@@ -107,7 +108,7 @@ class GuiOptionEditorDependencies(
             val font = IMinecraft.INSTANCE.defaultFontRenderer
             val pad = (base.height * 0.08f).toInt().coerceAtLeast(3)
             val loadingText = "§eLoading requirements..."
-            val loadingH = max(font.height + pad * 2, MIN_BANNER_HEIGHT)
+            val loadingH = max(font.height + BANNER_PADDING * 2, MIN_BANNER_HEIGHT)
             val bannerBottom = y + loadingH
             context.drawColoredRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), bannerBottom.toFloat(), 0x33333300)
             val ty = y + (loadingH - font.height) / 2
@@ -140,7 +141,7 @@ class GuiOptionEditorDependencies(
         blocked = !satisfiedAnyGroup
 
         // Always reserve space for the requirements banner (collapsed + neutral when satisfied)
-        val bannerH = max(font.height + pad * 2, MIN_BANNER_HEIGHT)
+        val bannerH = max(font.height + BANNER_PADDING * 2, MIN_BANNER_HEIGHT)
         bannerHeight = bannerH
         val bannerBottom = y + bannerH
         val bannerText = if (blocked) {
@@ -166,9 +167,13 @@ class GuiOptionEditorDependencies(
         }
         val contentY = bodyY + dependencyListHeight
         base.render(context, x, contentY, width)
-        // draw overlay to visually block interaction with base content
+        // draw overlay to visually block interaction with base content.
+        // the overlay is drawn below the requirement info header (banner + dependency rows) and is
+        // extended downwards by that header offset so blocked options look clearly dimmed, while
+        // staying capped so very tall editors (e.g. draggable lists) don't show a giant red area.
         if (blocked) {
-            context.drawColoredRect(x.toFloat(), contentY.toFloat(), (x + width).toFloat(), (contentY + base.height).toFloat(), OVERLAY_BG)
+            val overlayHeight = min(base.height, bannerHeight + dependencyListHeight + BLOCKED_OVERLAY_MAX_HEIGHT)
+            context.drawColoredRect(x.toFloat(), contentY.toFloat(), (x + width).toFloat(), (contentY + overlayHeight).toFloat(), OVERLAY_BG)
         }
     }
 
@@ -229,11 +234,9 @@ class GuiOptionEditorDependencies(
              group.dependencies.forEach { dep ->
                  val rowHeight = font.height + padList * 2
                  val rowTop = cursorY
-                 // Only actionable rows get a button: satisfied/enabled dependencies show no
-                 // button (no reserved space, no tooltip, no click action). Third-party main
-                 // toggles get no enable button either (so a server integration can't be
-                 // enabled unknowingly), but the row itself stays clickable to jump to the
-                 // main toggle.
+                 // Every row stays clickable to jump to the option, even when satisfied.
+                 // The Enable button is only offered for unsatisfied non-third-party dependencies
+                 // (a server integration's main toggle can't be enabled unknowingly).
                  if (!isSatisfied(dep) && thirdPartyOf(dep) == null) {
                      val label = "§fEnable"
                      val btnW = font.getStringWidth(label) + 8
@@ -245,7 +248,7 @@ class GuiOptionEditorDependencies(
                      hb.rowY1 = rowTop
                      hb.rowY2 = rowTop + rowHeight
                      rowButtons.add(hb)
-                 } else if (thirdPartyOf(dep) != null) {
+                 } else {
                      val hb = ButtonHitbox(dep.label, 0, 0, 0, 0, "", hasButton = false)
                      hb.rowY1 = rowTop
                      hb.rowY2 = rowTop + rowHeight
@@ -258,14 +261,26 @@ class GuiOptionEditorDependencies(
          dependencyListHeight = (cursorY - y).coerceAtLeast(0)
     }
 
-    private fun buildDependencyLabel(dep: FeatureDependencyResolver.Dependency): String {
-        val state = if (isSatisfied(dep)) "§aEnabled" else "§cDisabled"
-        return when (val source = dep.source) {
-            is FeatureDependencyResolver.DependencySource.ThirdParty -> "§c⚠ Third-Party: ${source.value.displayName} - $state"
-            is FeatureDependencyResolver.DependencySource.BooleanField ->
-                thirdPartyOf(dep)?.let { "§c⚠ Third-Party: ${it.displayName} - $state" } ?: "${dep.label} - $state"
-        }
+private fun buildDependencyLabel(dep: FeatureDependencyResolver.Dependency): String {
+    val state = if (isSatisfied(dep)) "§aEnabled" else "§cDisabled"
+    return when (val source = dep.source) {
+        is FeatureDependencyResolver.DependencySource.ThirdParty -> "§c⚠ Third-Party: ${source.value.displayName}"
+        is FeatureDependencyResolver.DependencySource.BooleanField ->
+            thirdPartyOf(dep)?.let { "§c⚠ Third-Party: ${it.displayName}" }
+                ?: if (isMainToggleField(source)) "§7requires \"Main toggle - $state\""
+                else "${dep.label} - $state"
     }
+}
+
+/**
+ * True when the dependency is a feature's main toggle (a boolean field annotated with
+ * [FeatureToggle]). For those the generic "Main toggle" label is shown instead of the config
+ * option name, which is often just "Enabled" and reads confusingly next to the state.
+ */
+private fun isMainToggleField(source: FeatureDependencyResolver.DependencySource.BooleanField): Boolean {
+    val field = runCatching { source.owner.getDeclaredField(source.effectiveFieldName) }.getOrNull() ?: return false
+    return field.getAnnotation(FeatureToggle::class.java) != null
+}
 
     /**
      * A requirement group counts as met only when every third-party main toggle in it is
@@ -438,7 +453,8 @@ class GuiOptionEditorDependencies(
 
     private fun jumpToDependency(dep: FeatureDependencyResolver.Dependency) {
         when (val s = dep.source) {
-            is FeatureDependencyResolver.DependencySource.BooleanField -> ConfigUtils.openEditorForField(s.owner, s.fieldName)
+            is FeatureDependencyResolver.DependencySource.BooleanField ->
+                ConfigUtils.openEditorForField(s.owner, s.effectiveFieldName)
             is FeatureDependencyResolver.DependencySource.ThirdParty -> {
                 // try to jump to the third party's main toggle field if exists
                 s.value.mainToggleField?.javaField?.let { field ->
@@ -473,12 +489,22 @@ class GuiOptionEditorDependencies(
     }
 
     private fun enableBooleanField(source: FeatureDependencyResolver.DependencySource.BooleanField): Boolean {
+        source.enabler?.let { enabler ->
+            val instance = runCatching { source.owner.kotlin.objectInstance ?: findExistingInstance(source.owner) }.getOrNull()
+            if (instance != null) {
+                return runCatching {
+                    enabler(instance)
+                    true
+                }.getOrElse { false }
+            }
+        }
         val property = source.property
         if (property != null) {
             val instance = source.owner.kotlin.objectInstance
                 ?: runCatching { findExistingInstance(source.owner) }.getOrNull()
             if (instance != null) {
                 return runCatching {
+                    property.isAccessible = true
                     property.set(instance, true)
                     true
                 }.getOrElse { false }
@@ -531,12 +557,11 @@ class GuiOptionEditorDependencies(
         }
         frameSatisfied.clear()
         val font = IMinecraft.INSTANCE.defaultFontRenderer
-        val pad = (base.height * 0.08f).toInt().coerceAtLeast(3)
         val satisfiedAnyGroup = currentRequirements.groups.any { group ->
             isGroupMet(group)
         }
         blocked = !satisfiedAnyGroup
-        bannerHeight = max(font.height + pad * 2, MIN_BANNER_HEIGHT)
+        bannerHeight = max(font.height + BANNER_PADDING * 2, MIN_BANNER_HEIGHT)
         rowButtons.clear()
         buttons.clear()
         if (blocked || requirementsExpanded) {
@@ -694,6 +719,8 @@ class GuiOptionEditorDependencies(
 
     companion object {
         private const val MIN_BANNER_HEIGHT = 16
+        /** Fixed vertical padding of the requirements banner, independent of the base editor height. */
+        private const val BANNER_PADDING = 3
         private const val BLOCKED_BG = 0x33FF8888
         private const val SATISFIED_BG = 0x3323A55A
         private const val TEXT_COLOR = -0x1
@@ -703,6 +730,8 @@ class GuiOptionEditorDependencies(
         private const val BUTTON_BORDER = 0xFF1B5E20.toInt()
         private const val BUTTON_HIGHLIGHT = 0xFF66BB6A.toInt()
         private const val BUTTON_HOVER_OVERLAY = 0x44333333
+        /** Maximum height of the red "blocked" overlay drawn over a tall editor. */
+        private const val BLOCKED_OVERLAY_MAX_HEIGHT = 30
         // Debugging: when true, draw hitboxes for enable buttons
         private const val DEBUG_HITBOX = false
     }

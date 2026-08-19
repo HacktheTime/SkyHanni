@@ -3,6 +3,8 @@ package at.hannibal2.skyhanni.config
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetConfig
 import at.hannibal2.skyhanni.config.features.event.bingo.BingoNetworksConfig
+import at.hannibal2.skyhanni.config.features.garden.leaderboards.EliteFarmersLeaderboardsConfig
+import at.hannibal2.skyhanni.config.features.mining.MiningEventConfig
 import kotlin.reflect.KMutableProperty1
 
 /**
@@ -93,6 +95,56 @@ enum class ThirdParty(
         override fun setEnabled(enabled: Boolean) {
             try {
                 SkyHanniMod.feature.event.bingo.bingoNetworks.useBSC = enabled
+            } catch (_: Throwable) { /* ignore in case of early init */
+            }
+        }
+    },
+    SOOPY(
+        id = "soopy",
+        displayName = "Soopy",
+        description = "External services provided by Soopy, e.g. the Mining Event data API (api.soopy.dev).",
+        termsOfServiceUrl = null,
+        privacyPolicyUrl = null,
+        websiteUrl = "https://soopy.dev",
+        serverAccess = false,
+        sourceAccess = false,
+        mainToggleField = MiningEventConfig::enabled
+    ) {
+        override fun isEnabled(): Boolean =
+            try {
+                SkyHanniMod.feature.mining.miningEvent.enabled
+            } catch (_: Throwable) {
+                false
+            }
+
+        override fun setEnabled(enabled: Boolean) {
+            try {
+                SkyHanniMod.feature.mining.miningEvent.enabled = enabled
+            } catch (_: Throwable) { /* ignore in case of early init */
+            }
+        }
+    },
+    FARMING_ELITE(
+        id = "farming_elite",
+        displayName = "Farming Elite",
+        description = "Farming leaderboards and contest data provided by eliteskyblock.com.",
+        termsOfServiceUrl = "https://eliteskyblock.com/privacy",
+        privacyPolicyUrl = "https://eliteskyblock.com/privacy",
+        websiteUrl = "https://eliteskyblock.com",
+        serverAccess = false,
+        sourceAccess = false,
+        mainToggleField = EliteFarmersLeaderboardsConfig::enabled
+    ) {
+        override fun isEnabled(): Boolean =
+            try {
+                SkyHanniMod.feature.garden.eliteFarmersLeaderboards.enabled
+            } catch (_: Throwable) {
+                false
+            }
+
+        override fun setEnabled(enabled: Boolean) {
+            try {
+                SkyHanniMod.feature.garden.eliteFarmersLeaderboards.enabled = enabled
             } catch (_: Throwable) { /* ignore in case of early init */
             }
         }
