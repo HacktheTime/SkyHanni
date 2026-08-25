@@ -115,7 +115,7 @@ object CityProjectFeatures {
 
         if (config.showMaterials) {
             // internal name -> amount
-            val materials = mutableMapOf<NeuInternalName, Int>()
+            val materials = mutableMapOf<NeuInternalName, Long>()
             for ((_, item) in event.inventoryItems) {
                 if (item.hoverName.string != "Contribute this component!") continue
                 fetchMaterials(item, materials)
@@ -165,7 +165,7 @@ object CityProjectFeatures {
         return true
     }
 
-    private fun buildDisplay(materials: MutableMap<NeuInternalName, Int>) = Renderable.vertical {
+    private fun buildDisplay(materials: Map<NeuInternalName, Long>) = Renderable.vertical {
         addString("§7City Project Materials")
 
         if (materials.isEmpty()) {
@@ -178,7 +178,7 @@ object CityProjectFeatures {
 
     }
 
-    private fun materialRow(internalName: NeuInternalName, amount: Int): Renderable {
+    private fun materialRow(internalName: NeuInternalName, amount: Long): Renderable {
         val stack = internalName.getItemStack()
         val name = internalName.repoItemName
         val price = internalName.getPrice() * amount
@@ -191,7 +191,7 @@ object CityProjectFeatures {
         }
     }
 
-    private fun materialLink(name: String, amount: Int): Renderable = Renderable.optionalLink(
+    private fun materialLink(name: String, amount: Long): Renderable = Renderable.optionalLink(
         "$name §ex${amount.addSeparators()}",
         {
             if (MinecraftCompat.screen is SignEditScreen) {
@@ -202,13 +202,13 @@ object CityProjectFeatures {
         },
     ) { inInventory }
 
-    private fun fetchMaterials(item: SafeItemStack, materials: MutableMap<NeuInternalName, Int>) {
+    private fun fetchMaterials(item: SafeItemStack, materials: MutableMap<NeuInternalName, Long>) {
         val completed = item.getLore().lastOrNull()?.let { completedPattern.matches(it) } ?: false
         if (completed) return
 
         for ((internalName, amount) in item.readLoreCosts()) {
             if (internalName == SkyblockCurrency.BITS.internalName) continue
-            materials.addOrPut(internalName, amount.toInt())
+            materials.addOrPut(internalName, amount)
         }
     }
 

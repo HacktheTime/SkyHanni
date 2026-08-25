@@ -21,7 +21,7 @@ class EliteFarmersLeaderboardsConfig {
     @ConfigOption(name = "Enabled", desc = "Enable leaderboard features.")
     @ConfigEditorBoolean
     @FeatureToggle
-    var enabled: Boolean = true
+    val enabled: Property<Boolean> = Property.of(true)
 
     @Expose
     @ConfigOption(
