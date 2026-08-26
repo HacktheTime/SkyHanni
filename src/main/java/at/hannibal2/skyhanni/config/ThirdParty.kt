@@ -133,18 +133,18 @@ enum class ThirdParty(
         websiteUrl = "https://eliteskyblock.com",
         serverAccess = false,
         sourceAccess = false,
-        mainToggleField = EliteFarmersLeaderboardsConfig::enabled
+        mainToggleField = EliteFarmersLeaderboardsConfig::isEnabled
     ) {
         override fun isEnabled(): Boolean =
             try {
-                SkyHanniMod.feature.garden.eliteFarmersLeaderboards.enabled
+                SkyHanniMod.feature.garden.eliteFarmersLeaderboards.isEnabled
             } catch (_: Throwable) {
                 false
             }
 
         override fun setEnabled(enabled: Boolean) {
             try {
-                SkyHanniMod.feature.garden.eliteFarmersLeaderboards.enabled = enabled
+                SkyHanniMod.feature.garden.eliteFarmersLeaderboards.isEnabled = enabled
             } catch (_: Throwable) { /* ignore in case of early init */
             }
         }

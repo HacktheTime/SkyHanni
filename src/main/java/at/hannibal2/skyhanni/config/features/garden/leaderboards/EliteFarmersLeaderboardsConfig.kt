@@ -1,7 +1,8 @@
 package at.hannibal2.skyhanni.config.features.garden.leaderboards
 
-import at.hannibal2.skyhanni.config.FeatureToggle
+import at.hannibal2.skyhanni.config.DependencyDelegate
 import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
+import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.ThirdParty
 import at.hannibal2.skyhanni.config.ThirdPartyDependency
 import at.hannibal2.skyhanni.config.core.config.PositionList
@@ -22,6 +23,12 @@ class EliteFarmersLeaderboardsConfig {
     @ConfigEditorBoolean
     @FeatureToggle
     val enabled: Property<Boolean> = Property.of(true)
+
+    @DependencyDelegate("#enabled")
+    var isEnabled: Boolean get() = enabled.get()
+        set(value) {
+            enabled.set(value)
+        }
 
     @Expose
     @ConfigOption(
