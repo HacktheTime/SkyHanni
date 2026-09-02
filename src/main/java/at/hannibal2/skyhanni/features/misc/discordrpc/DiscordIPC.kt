@@ -24,7 +24,7 @@ import java.util.concurrent.TimeoutException
  * @param onDebugInfo Called with diagnostic key-value pairs if pipe discovery fails.
  */
 class DiscordIPC(
-    private val clientId: Long,
+    clientId: Long,
     private val onDebugInfo: (Map<String, String>) -> Unit = {},
 ) : Closeable {
 

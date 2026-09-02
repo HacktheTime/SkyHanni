@@ -1,7 +1,6 @@
 package at.hannibal2.skyhanni.mixins.transformers;
 
 import at.hannibal2.skyhanni.data.EntityData;
-import at.hannibal2.skyhanni.events.entity.EntityRemovedEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.level.entity.EntityAccess;
@@ -15,16 +14,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TransientEntitySectionManager.Callback.class)
 public abstract class MixinTransientEntitySectionManager$Callback<T extends EntityAccess> {
-
     @Shadow
     @Final
     private T entity;
 
     @Inject(method = "onRemove", at = @At("HEAD"))
     private void remove(RemovalReason reason, CallbackInfo ci) {
-        if (entity instanceof Entity entity) {
-            EntityData.despawnEntity(entity);
-            new EntityRemovedEvent(entity).post();
+        if (entity instanceof Entity typedEntity) {
+            EntityData.despawnEntity(typedEntity);
         }
     }
 }
