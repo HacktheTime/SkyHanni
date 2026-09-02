@@ -202,7 +202,7 @@ object EnoughUpdatesManager {
         val convertedItem = ComponentUtils.convertMinecraftIdToModern(itemId, damage ?: 0)
         val baseItem = convertedItem.getVanillaItem() ?: return SafeItemStack.EMPTY
 
-        return buildDeferredStack(baseItem, count ?: 1, useReplacements).also { if (usingCache) itemStackCache[internalName] = it }.copy()
+        return buildDeferredStack(baseItem, (count ?: 1).coerceAtLeast(1), useReplacements).also { if (usingCache) itemStackCache[internalName] = it }.copy()
     }
 
     private fun NeuItemJson.buildDeferredStack(baseItem: Item, countVal: Int, useReplacements: Boolean): SafeItemStack {

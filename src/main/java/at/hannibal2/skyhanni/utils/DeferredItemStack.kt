@@ -21,13 +21,17 @@ internal class DeferredItemStack private constructor(
     private var isBuilt = false
     private val removedComponents = mutableSetOf<DataComponentType<*>>()
 
-    override fun isEmpty() = super.isEmpty()
-
     internal fun bindComponentsIfReady() {
         if (isBuilt) return
         if (!SafeItemStackUtils.canBindComponents(sourceItem)) return
         val pendingPatch = pendingComponentsPatch()
-        val real = factory().create()
+        val real = try {
+            factory().create()
+        } catch (_: IllegalStateException) {
+            count = 0
+            isBuilt = true
+            return
+        }
         if (real.isEmpty) {
             count = 0
             isBuilt = true

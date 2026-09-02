@@ -95,7 +95,7 @@ object CurrentEquipmentApi {
         val category = item.getItemCategoryOrNull() ?: return
         if (category !in ItemCategory.equipment) return
         val slot = EquipmentSlot.entries.find { category in it.categories } ?: return
-        lastClickedEquipment = item to slot
+        lastClickedEquipment = item.copy() to slot
         lastClickedEquipmentTime = SimpleTimeMark.now()
     }
 
@@ -106,6 +106,7 @@ object CurrentEquipmentApi {
             val chatItem = group("item").removeColor()
             val (item, slot) = lastClickedEquipment ?: return@matchMatcher
             if (item.cleanName != chatItem) return@matchMatcher
+            if (item.isEmpty) return@matchMatcher
             setEquipment(slot, item)
             lastClickedEquipment = null
         }
@@ -147,7 +148,7 @@ object CurrentEquipmentApi {
     }
 
     private fun handleInventoryItem(slot: EquipmentSlot, itemStack: SafeItemStack?) {
-        val item = if (itemStack != null && !itemStack.isStainedGlassPane()) itemStack else null
+        val item = if (itemStack != null && !itemStack.isEmpty && !itemStack.isStainedGlassPane()) itemStack else null
         setEquipment(slot, item)
     }
 
