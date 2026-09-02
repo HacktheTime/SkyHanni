@@ -3,7 +3,9 @@ package at.hannibal2.skyhanni.config.features.combat
 import at.hannibal2.skyhanni.config.FeatureDependencyRequirement
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.KeyBind
+import at.hannibal2.skyhanni.config.features.misc.HighlightLootShareCarryConfig
 import com.google.gson.annotations.Expose
+import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorSlider
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
@@ -147,10 +149,12 @@ class MobsConfig {
     val arachneOtherEntitiesOpacity: Int = 100
 
     @Expose
+    @ConfigOption(name = "Highlight Loot Share Carry", desc = "")
+    @Accordion
+    val highlightLootShareCarry: HighlightLootShareCarryConfig = HighlightLootShareCarryConfig()
+    @Expose
     @ConfigOption(name = "Witch Highlighter", desc = "Highlight witches on Private Islands.")
     @ConfigEditorBoolean
     @FeatureToggle
     val privateIslandWitchHighlight: Boolean = true
-
-
 }
