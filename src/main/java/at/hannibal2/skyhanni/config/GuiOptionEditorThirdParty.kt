@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
 import at.hannibal2.skyhanni.utils.renderables.RenderableTooltips
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 import io.github.notenoughupdates.moulconfig.common.RenderContext
+import io.github.notenoughupdates.moulconfig.gui.GuiContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.KeyboardEvent
 import io.github.notenoughupdates.moulconfig.gui.MouseEvent
@@ -208,6 +209,10 @@ class GuiOptionEditorThirdParty(
     override fun getHeight(): Int {
         val top = warningBannerHeightCache
         return base.height + top
+    }
+
+    override fun setGuiContext(guiContext: GuiContext) {
+        base.setGuiContext(guiContext)
     }
 
     private fun resolveState(): UiState {

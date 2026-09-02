@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.utils.renderables.RenderableTooltips
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 import io.github.notenoughupdates.moulconfig.common.RenderContext
 import io.github.notenoughupdates.moulconfig.common.IMinecraft
+import io.github.notenoughupdates.moulconfig.gui.GuiContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.MouseEvent
 import io.github.notenoughupdates.moulconfig.common.text.StructuredText
@@ -531,6 +532,10 @@ private fun isMainToggleField(source: FeatureDependencyResolver.DependencySource
         frameSatisfied.clear()
         ownerInstanceCache.clear()
         hoverTooltip = listOf("§aEnabled ${dep.label}", "§7Click to jump to this option")
+    }
+
+    override fun setGuiContext(guiContext: GuiContext) {
+        base.setGuiContext(guiContext)
     }
 
     // Ensure parent layout reserves space for our banner + dependency list

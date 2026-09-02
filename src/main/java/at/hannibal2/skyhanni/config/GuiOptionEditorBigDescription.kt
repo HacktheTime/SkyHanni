@@ -5,6 +5,7 @@ import at.hannibal2.skyhanni.utils.ConfigJumpHighlight
 import at.hannibal2.skyhanni.utils.ConfigUtils.asStructuredText
 import io.github.notenoughupdates.moulconfig.common.IMinecraft
 import io.github.notenoughupdates.moulconfig.common.RenderContext
+import io.github.notenoughupdates.moulconfig.gui.GuiContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.KeyboardEvent
 import io.github.notenoughupdates.moulconfig.gui.MouseEvent
@@ -127,6 +128,10 @@ class GuiOptionEditorBigDescription(
     override fun keyboardInput(event: KeyboardEvent?): Boolean = base.keyboardInput(event)
 
     override fun getHeight(): Int = base.height
+
+    override fun setGuiContext(guiContext: GuiContext) {
+        base.setGuiContext(guiContext)
+    }
 
     companion object {
         private const val MAX_LINE_CHARS = 48

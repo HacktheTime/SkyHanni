@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.utils.renderables.RenderableTooltips
 import at.hannibal2.skyhanni.utils.renderables.primitives.StringRenderable
 import io.github.notenoughupdates.moulconfig.common.IMinecraft
 import io.github.notenoughupdates.moulconfig.common.RenderContext
+import io.github.notenoughupdates.moulconfig.gui.GuiContext
 import io.github.notenoughupdates.moulconfig.gui.GuiOptionEditor
 import io.github.notenoughupdates.moulconfig.gui.KeyboardEvent
 import io.github.notenoughupdates.moulconfig.gui.MouseEvent
@@ -156,6 +157,10 @@ class GuiOptionEditorThirdPartyMainToggle(
     override fun keyboardInput(event: KeyboardEvent?): Boolean = base.keyboardInput(event)
 
     override fun getHeight(): Int = base.height + bannerHeight + panelHeight
+
+    override fun setGuiContext(guiContext: GuiContext) {
+        base.setGuiContext(guiContext)
+    }
 
     override fun renderOverlay(context: RenderContext, x: Int, y: Int, width: Int) {
         val mx = IMinecraft.INSTANCE.mouseX
