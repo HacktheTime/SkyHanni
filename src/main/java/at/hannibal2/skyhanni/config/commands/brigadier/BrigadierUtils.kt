@@ -59,6 +59,7 @@ object BrigadierUtils {
             val remaining = builder.remainingLowerCase
             val useContain = useContainSuggestion
             val ignoreCase = ignoreCaseSuggestion
+            val isEscaped = remaining.firstOrNull() == DOUBLE_QUOTE
             for (option in supplier()) {
                 val pass = if (useContain) {
                     option.contains(remaining, ignoreCase)
@@ -66,7 +67,11 @@ object BrigadierUtils {
                     option.startsWith(remaining, ignoreCase)
                 }
                 if (pass) {
-                    builder.suggest(option)
+                    if (isEscaped || option.hasWhitespace()) {
+                        builder.suggest("$DOUBLE_QUOTE$option$DOUBLE_QUOTE")
+                    } else {
+                        builder.suggest(option)
+                    }
                 }
             }
             builder.buildFuture()
