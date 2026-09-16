@@ -89,7 +89,7 @@ object BingoSplashBrewerHelpers {
     @HandleEvent(onlyOnIsland = IslandType.PRIVATE_ISLAND)
     fun onBlockClick(event: BlockClickEvent) {
         if (event.blockState.block is BrewingStandBlock) {
-            if (config.requireWitchPet) {
+            if (config.requireWitchPet && !SkyBlockUtils.isBingoProfile) {
                 val currentPet = CurrentPetApi.currentPet
                 val isWitchPet = currentPet?.fauxInternalName?.internalName?.matches("WITCH;[3-9]".toRegex()) == true
                 if ((currentPet?.level != 100 || !isWitchPet) && !GLFW.GLFW_KEY_LEFT_CONTROL.isKeyHeld()) {
