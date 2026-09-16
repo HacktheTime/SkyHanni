@@ -33,6 +33,7 @@ import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
 import at.hannibal2.skyhanni.utils.SafeItemStack
+import at.hannibal2.skyhanni.utils.SkyBlockUtils
 import at.hannibal2.skyhanni.utils.compat.WorldCompat
 import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.render.WorldRenderUtils.drawWaypointFilled
@@ -152,7 +153,7 @@ object BingoSplashBrewerHelpers {
             val potion = lastChestClick?.getItemFrame { it.getInternalNameOrNull()?.isPotion()==true }?:return
             val xpBoost = potion.internalName.contains("_XP_BOOST")
             val potionType = potion.internalName.split(";").first()
-            InventoryUtils.getItemsInOpenChest().forEach {
+            InventoryUtils.getAllItems().forEach {
                 val internalName = it.item.getInternalNameOrNull()?:return@forEach
                 var color :Color? = null
                 if (xpBoost){

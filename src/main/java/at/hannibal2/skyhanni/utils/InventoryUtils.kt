@@ -4,8 +4,6 @@ import at.hannibal2.skyhanni.data.OtherInventoryData
 import at.hannibal2.skyhanni.data.SackApi.getAmountInSacks
 import at.hannibal2.skyhanni.events.MouseClickType
 import at.hannibal2.skyhanni.utils.EntityUtils.getArmorInventory
-import at.hannibal2.skyhanni.utils.InventoryUtils.clickSlot
-import at.hannibal2.skyhanni.utils.InventoryUtils.mouseClickSlot
 import at.hannibal2.skyhanni.utils.ItemUtils.getInternalNameOrNull
 import at.hannibal2.skyhanni.utils.ItemUtils.takeUnlessEmpty
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedSet
@@ -81,6 +79,17 @@ object InventoryUtils {
         val guiChest = MinecraftCompat.screen as? ContainerScreen ?: return emptyList()
         return guiChest.slots()
             .filter { it.container !is Inventory }
+    }
+
+    fun getAllItemsWithNull(): List<Slot> {
+        val screen = MinecraftCompat.screen
+        val guiChest = screen as? ContainerScreen
+        val inventory = screen as? SkyHanniGuiContainer
+        return guiChest?.slots().orEmpty()+(inventory?.slots().orEmpty())
+    }
+
+    fun getAllItems(): List<Slot> {
+        return getAllItemsWithNull().filter { it.item.isNotEmpty() }
     }
 
     fun getItemIdsInOpenChest(): Set<NeuInternalName> {

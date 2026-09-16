@@ -261,4 +261,9 @@ class DungeonConfig {
     @ConfigEditorBoolean
     @SearchTag("Dialogue Message Title")
     var bloodCampTimer: Boolean = false
+
+    @Expose
+    @ConfigOption(name = "Boss Dialogue Detector", desc = "")
+    @Accordion
+    val bossDialogueDetector: BossDialogueDetectorConfig = BossDialogueDetectorConfig()
 }

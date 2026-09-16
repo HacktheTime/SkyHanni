@@ -3,7 +3,6 @@ package at.hannibal2.skyhanni.features.dungeon
 import at.hannibal2.skyhanni.SkyHanniMod
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.events.GuiContainerEvent
-import at.hannibal2.skyhanni.events.minecraft.ToolTipEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.InventoryUtils
 import at.hannibal2.skyhanni.utils.ItemUtils.getItemRarityOrCommon
@@ -20,7 +19,7 @@ object DungeonLootQualityHighlighting {
     @HandleEvent
     fun showQualityText(event: GuiContainerEvent.ForegroundDrawnEvent) {
         if (!config.showQualityText) return
-        InventoryUtils.getItemsInOpenChest().forEach {
+        InventoryUtils.getAllItems().forEach {
             val quality = it.item.getDungeonQuality() ?: return@forEach
             event.drawSlotText(it.x+18, it.y, "$quality", 1.0f)
         }

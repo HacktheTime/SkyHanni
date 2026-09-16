@@ -25,7 +25,6 @@ import at.hannibal2.skyhanni.utils.LorenzVec
 import at.hannibal2.skyhanni.utils.RegexUtils.groupOrNull
 import at.hannibal2.skyhanni.utils.RegexUtils.matchMatcher
 import at.hannibal2.skyhanni.utils.RenderUtils.highlight
-import at.hannibal2.skyhanni.utils.StringUtils
 import at.hannibal2.skyhanni.utils.SafeItemStack
 import at.hannibal2.skyhanni.utils.StringUtils.subMapOfStringsStartingWith
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.removeIf
@@ -35,10 +34,6 @@ import net.minecraft.world.level.block.ChestBlock
 import java.util.NavigableMap
 import java.util.TreeMap
 import java.util.UUID
-import kotlin.collections.drop
-import kotlin.collections.forEachIndexed
-import kotlin.collections.map
-import kotlin.collections.toList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
 
@@ -370,7 +365,7 @@ object StorageApi {
         if (currentInventoryResults.isEmpty()) return
         val offSet = currentInventoryResults.first().category.indexOffSet
         val slots = currentInventoryResults.map { it.slotIndex + offSet }.toHashSet()
-        InventoryUtils.getItemsInOpenChestWithNull().forEachIndexed { index, slot ->
+        InventoryUtils.getAllItemsWithNull().forEachIndexed { index, slot ->
             if (slots.contains(index)) {
                 slot.highlight(LorenzColor.YELLOW)
             }
