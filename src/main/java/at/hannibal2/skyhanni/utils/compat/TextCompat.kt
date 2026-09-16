@@ -2,16 +2,18 @@ package at.hannibal2.skyhanni.utils.compat
 
 import at.hannibal2.skyhanni.data.ChatManager
 import at.hannibal2.skyhanni.test.command.ErrorManager
+import at.hannibal2.skyhanni.utils.ChatUtils
 import at.hannibal2.skyhanni.utils.ChatUtils.skyhanniCreated
+import at.hannibal2.skyhanni.utils.ClipboardUtils
 import at.hannibal2.skyhanni.utils.ColorUtils
 import at.hannibal2.skyhanni.utils.DelayedRun
 import at.hannibal2.skyhanni.utils.LorenzColor
 import at.hannibal2.skyhanni.utils.SafeItemStack
 import at.hannibal2.skyhanni.utils.chat.TextHelper.asComponent
 import at.hannibal2.skyhanni.utils.collection.TimeLimitedCache
-import at.hannibal2.skyhanni.utils.compat.MinecraftCompat
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.screens.inventory.BookViewScreen
 import net.minecraft.client.multiplayer.chat.GuiMessageSource
 import net.minecraft.client.multiplayer.chat.GuiMessageTag
 import net.minecraft.network.chat.ClickEvent
@@ -23,8 +25,11 @@ import net.minecraft.network.chat.Style
 import net.minecraft.network.chat.TextColor
 import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.network.chat.contents.TranslatableContents
+import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStackTemplate
+import java.awt.Desktop
+import java.io.File
 import java.net.URI
 import java.util.Optional
 import kotlin.concurrent.atomics.AtomicBoolean
@@ -307,14 +312,71 @@ fun ClickEvent.value(): String {
         ClickEvent.Action.OPEN_URL -> (this as ClickEvent.OpenUrl).uri.toString()
         ClickEvent.Action.RUN_COMMAND -> (this as ClickEvent.RunCommand).command
         ClickEvent.Action.SUGGEST_COMMAND -> (this as ClickEvent.SuggestCommand).command
-        // we don't use these bottom 3 but might as well have them here
         ClickEvent.Action.CHANGE_PAGE -> (this as ClickEvent.ChangePage).page.toString()
         ClickEvent.Action.COPY_TO_CLIPBOARD -> (this as ClickEvent.CopyToClipboard).value
         ClickEvent.Action.OPEN_FILE -> (this as ClickEvent.OpenFile).path
-        // todo use error manager here probably, not doing it now because it doesn't compile on 1.21
-        else -> ""
+        ClickEvent.Action.SHOW_DIALOG -> (this as ClickEvent.ShowDialog).dialog().toString()
+        ClickEvent.Action.CUSTOM -> (this as ClickEvent.Custom).id().toString()
     }
+}
 
+fun ClickEvent.execute() {
+    when (this.action()) {
+        OPEN_URL -> {
+            val url = (this as ClickEvent.OpenUrl).uri.toString()
+            runCatching {
+                Desktop.getDesktop().browse(URI(url))
+            }.onFailure {
+                ErrorManager.logErrorWithData(
+                    it,
+                    "Failed to open URL",
+                    "url" to url,
+                )
+            }
+        }
+
+        RUN_COMMAND -> {
+            ChatUtils.sendMessageToServer((this as ClickEvent.RunCommand).command.let { if (it.startsWith("/")) it else "/$it" })
+        }
+
+        SUGGEST_COMMAND -> {
+            Minecraft.getInstance().gui.openChatAndAddText(COMMAND,(this as ClickEvent.SuggestCommand).command)
+        }
+
+        CHANGE_PAGE -> {
+            val screen =
+                (Minecraft.getInstance().gui.screen() as? BookViewScreen)
+                    ?: error("ClickEvent.Action.CHANGE_PAGE was executed but the current screen is not a BookViewScreen")
+            screen.setPage((this as ClickEvent.ChangePage).page)
+        }
+
+        COPY_TO_CLIPBOARD -> {
+            ClipboardUtils.copyToClipboardAsync((this as ClickEvent.CopyToClipboard).value).start()
+        }
+
+        OPEN_FILE -> {
+            val path = (this as ClickEvent.OpenFile).path
+            runCatching {
+               Desktop.getDesktop().open(File(path))
+            }.onFailure {
+                ErrorManager.logErrorWithData(
+                    it,
+                    "Failed to open file",
+                    "file" to path,
+                )
+            }
+        }
+        SHOW_DIALOG ->  {
+            val player = Minecraft.getInstance().player ?: return
+            val dialog = (this as ClickEvent.ShowDialog).dialog()
+            player.connection.showDialog(dialog, MinecraftCompat.screen)
+        }
+        ClickEvent.Action.CUSTOM ->  {
+            val player = Minecraft.getInstance().player ?: return
+            val custom = this as ClickEvent.Custom
+            player.connection.send(ServerboundCustomClickActionPacket(custom.id(), custom.payload()))
+        }
+    }
 }
 
 fun HoverEvent.value(): Component = when (action()) {
