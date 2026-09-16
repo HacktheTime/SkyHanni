@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.data
 
 import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.SkyHanniMod.launch
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigFileType
 import at.hannibal2.skyhanni.config.commands.CommandCategory
@@ -38,8 +39,10 @@ import at.hannibal2.skyhanni.utils.StringUtils.removeNonAsciiNonColorCode
 import at.hannibal2.skyhanni.utils.collection.CollectionUtils.editCopy
 import at.hannibal2.skyhanni.utils.compat.formattedTextCompatLeadingWhiteLessResets
 import at.hannibal2.skyhanni.utils.compat.hover
+import at.hannibal2.skyhanni.utils.coroutines.CoroutineSettings
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.gson.annotations.Expose
+import kotlin.time.Duration.Companion.seconds
 
 private typealias GemstoneQuality = SkyBlockItemModifierUtils.GemstoneQuality
 private typealias GemstoneType = SkyBlockItemModifierUtils.GemstoneType
@@ -325,36 +328,37 @@ object SackApi {
     @HandleEvent
     fun onChat(event: SkyHanniChatEvent.Allow) {
         if (!event.cleanMessage.startsWith("[Sacks]")) return
+        CoroutineSettings("SackApi.onChat", 5.seconds).launch {
+            val sackAddText = event.chatComponent.siblings.firstNotNullOfOrNull { sibling ->
+                sibling.hover?.string?.removeColor()?.takeIf {
+                    it.startsWith("Added")
+                }
+            }.orEmpty()
+            val sackRemoveText = event.chatComponent.siblings.firstNotNullOfOrNull { sibling ->
+                sibling.hover?.string?.removeColor()?.takeIf {
+                    it.startsWith("Removed")
+                }
+            }.orEmpty()
 
-        val sackAddText = event.chatComponent.siblings.firstNotNullOfOrNull { sibling ->
-            sibling.hover?.string?.removeColor()?.takeIf {
-                it.startsWith("Added")
+            val sackChangeText = sackAddText + sackRemoveText
+            if (sackChangeText.isEmpty()) return@launch
+
+            val otherItemsAdded = sackAddText.contains("other items")
+            val otherItemsRemoved = sackRemoveText.contains("other items")
+
+            val sackChanges = ArrayList<SackChange>()
+            for (match in sackChangeRegex.findAll(sackChangeText)) {
+                val delta = match.groups[1]!!.value.formatInt()
+                val item = match.groups[2]!!.value
+                val sacks = match.groups[3]!!.value.split(", ")
+
+                val internalName = NeuInternalName.fromItemName(item)
+                sackChanges.add(SackChange(delta, internalName, sacks))
             }
-        }.orEmpty()
-        val sackRemoveText = event.chatComponent.siblings.firstNotNullOfOrNull { sibling ->
-            sibling.hover?.string?.removeColor()?.takeIf {
-                it.startsWith("Removed")
-            }
-        }.orEmpty()
-
-        val sackChangeText = sackAddText + sackRemoveText
-        if (sackChangeText.isEmpty()) return
-
-        val otherItemsAdded = sackAddText.contains("other items")
-        val otherItemsRemoved = sackRemoveText.contains("other items")
-
-        val sackChanges = ArrayList<SackChange>()
-        for (match in sackChangeRegex.findAll(sackChangeText)) {
-            val delta = match.groups[1]!!.value.formatInt()
-            val item = match.groups[2]!!.value
-            val sacks = match.groups[3]!!.value.split(", ")
-
-            val internalName = NeuInternalName.fromItemName(item)
-            sackChanges.add(SackChange(delta, internalName, sacks))
+            val sackEvent = SackChangeEvent(sackChanges, otherItemsAdded, otherItemsRemoved)
+            updateSacks(sackEvent)
+            sackEvent.post()
         }
-        val sackEvent = SackChangeEvent(sackChanges, otherItemsAdded, otherItemsRemoved)
-        updateSacks(sackEvent)
-        sackEvent.post()
         if (chatConfig.hideSacksChange) {
             if (chatConfig.hideSacksChange && (!chatConfig.onlyHideSacksChangeOnGarden || IslandType.GARDEN.isInIsland())) {
                 event.blockedReason = "sacks_change"
