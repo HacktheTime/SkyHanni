@@ -67,7 +67,7 @@ class PestTimerConfig {
     @Expose
     @ConfigOption(
         name = "Repeat Warning",
-        desc = "Repeats the warning sound and title until the wardrobe is opened or the pest cooldown expires."
+        desc = "Repeats the warning sound and title until the loadouts or wardrobe menu is opened, or the pest cooldown expires.",
     )
     @ConfigEditorBoolean
     @FeatureDependencyRequirement("#cooldownOverWarning")

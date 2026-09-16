@@ -35,8 +35,7 @@ allprojects {
                 maven("https://maven.fabricmc.net")
             }
             filter {
-                includeGroup("net.fabricmc")
-                includeGroup("net.fabricmc.fabric-api")
+                includeGroupAndSubgroups("net.fabricmc")
             }
         }
 
@@ -60,7 +59,7 @@ allprojects {
             }
         }
 
-        // libautoupdate and shots
+        // libautoupdate
         exclusiveContent {
             forRepository {
                 maven("https://repo.nea.moe/releases")
@@ -70,19 +69,18 @@ allprojects {
             }
         }
 
-        // moulconfig and a few detekt rules
+        // MoulConfig and a few Detekt rules
         exclusiveContent {
             forRepositories(
                 repositories.mavenLocal(),
                 repositories.maven("https://maven.notenoughupdates.org/releases"),
             )
             filter {
-                includeGroup("org.notenoughupdates")
-                includeGroup("org.notenoughupdates.moulconfig")
+                includeGroupAndSubgroups("org.notenoughupdates")
             }
         }
 
-        // Hypixel mod api
+        // Hypixel Mod API
         exclusiveContent {
             forRepository {
                 maven("https://repo.hypixel.net/repository/Hypixel")
@@ -102,22 +100,14 @@ allprojects {
             }
         }
 
-        // Rei for compat plugin
+        // REI for compat plugin
         exclusiveContent {
             forRepository {
                 maven("https://maven.shedaniel.me")
             }
             filter {
-                includeGroup("me.shedaniel")
                 includeGroup("dev.architectury")
-                includeGroup("me.shedaniel.cloth")
-            }
-        }
-
-        maven("https://jitpack.io") {
-            // NotEnoughUpdates (compiled against), Changelog builder, Preprocessor, Discord IPC
-            content {
-                includeGroupByRegex("(com|io)\\.github\\..*")
+                includeGroupAndSubgroups("me.shedaniel")
             }
         }
 

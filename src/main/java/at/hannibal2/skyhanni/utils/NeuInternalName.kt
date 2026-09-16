@@ -76,6 +76,8 @@ open class NeuInternalName private constructor(internalName: String) : BNNEUItem
         val SKYBLOCK_BRONZE_MEDAL = "SKYBLOCK_BRONZE_MEDAL".toInternalName()
         val SKYBLOCK_COPPER = "SKYBLOCK_COPPER".toInternalName()
         val SKYBLOCK_MOTE = "SKYBLOCK_MOTE".toInternalName()
+        val SKYBLOCK_KERNEL = "SKYBLOCK_KERNEL".toInternalName()
+
         val WISP_POTION = "WISP_POTION".toInternalName()
         val ENCHANTED_HAY_BLOCK = "ENCHANTED_HAY_BLOCK".toInternalName()
         val TIGHTLY_TIED_HAY_BALE = "TIGHTLY_TIED_HAY_BALE".toInternalName()

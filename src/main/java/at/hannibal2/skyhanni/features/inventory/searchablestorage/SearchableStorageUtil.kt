@@ -114,7 +114,7 @@ object SearchableStorageUtil {
 
     fun SearchableStorageGui.StorageRenderData.handleIslandChestClick() {
         SearchableStorage.waypoints = with(this.inventoryContainer) {
-            SoundUtils.createSound("random.orb", 1.0f).playSound()
+            SoundUtils.createSound("random.orb", 1.0f, isWarning = false).playSound()
             ChatUtils.chat("Set waypoint to $displayName!")
             SearchableStorage.inventoryName = "Chest"
 

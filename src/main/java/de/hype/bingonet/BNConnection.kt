@@ -677,7 +677,7 @@ object BNConnection {
     }
 
     fun onPlaySoundPacket(packet: PlaySoundPacket) {
-        if (!packet.isStreamFromUrl) createSound(packet.soundId, 1F).playSound()
+        if (!packet.isStreamFromUrl) createSound(packet.soundId, 1F, isWarning = false).playSound()
     }
 
     fun onWantedSearchPacket(packet: WantedSearchPacket) {

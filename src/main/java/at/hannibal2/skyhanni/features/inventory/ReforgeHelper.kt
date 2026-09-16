@@ -164,7 +164,7 @@ object ReforgeHelper {
             waitDelay = true
             event.cancel()
         } else {
-            if (event.clickedButton == 2) return true
+            if (event.mouseType.isMiddleClick()) return true
             if (waitDelay) {
                 waitDelay = false
             } else {

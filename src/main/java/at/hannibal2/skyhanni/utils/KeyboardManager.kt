@@ -161,12 +161,7 @@ object KeyboardManager {
         lockedKeys.remove(key)
     }
 
-    object WasdInputMatrix : Iterable<KeyMapping> {
-        operator fun contains(keyBinding: KeyMapping) = when (keyBinding) {
-            w, a, s, d, up, down -> true
-            else -> false
-        }
-
+    object WasdInputMatrix {
         val w get() = Minecraft.getInstance().options.keyUp
         val a get() = Minecraft.getInstance().options.keyLeft
         val s get() = Minecraft.getInstance().options.keyDown
@@ -175,34 +170,8 @@ object KeyboardManager {
         val up get() = Minecraft.getInstance().options.keyJump
         val down get() = Minecraft.getInstance().options.keyShift
 
-        override fun iterator(): Iterator<KeyMapping> =
-            object : Iterator<KeyMapping> {
+        private val all get() = listOf(w, a, s, d, up, down)
 
-                var current = w
-                var finished = false
-
-                override fun hasNext(): Boolean =
-                    !finished
-
-                override fun next(): KeyMapping {
-                    if (!hasNext()) throw NoSuchElementException()
-
-                    return current.also {
-                        current = when (it) {
-                            w -> a
-                            a -> s
-                            s -> d
-                            d -> up
-                            up -> down
-                            else -> {
-                                finished = true
-                                throw NoSuchElementException()
-                            }
-                        }
-                    }
-                }
-
-            }
-
+        operator fun contains(keyBinding: KeyMapping) = keyBinding in all
     }
 }
