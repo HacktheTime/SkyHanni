@@ -340,12 +340,14 @@ fun ClickEvent.execute() {
         }
 
         SUGGEST_COMMAND -> {
-            Minecraft.getInstance().gui.openChatAndAddText(COMMAND,(this as ClickEvent.SuggestCommand).command)
+            //? if >= 26.2 {
+             Minecraft.getInstance().gui.openChatAndAddText(COMMAND,(this as ClickEvent.SuggestCommand).command)
+            //?}
         }
 
         CHANGE_PAGE -> {
             val screen =
-                (Minecraft.getInstance().gui.screen() as? BookViewScreen)
+                (MinecraftCompat.screen as? BookViewScreen)
                     ?: error("ClickEvent.Action.CHANGE_PAGE was executed but the current screen is not a BookViewScreen")
             screen.setPage((this as ClickEvent.ChangePage).page)
         }
