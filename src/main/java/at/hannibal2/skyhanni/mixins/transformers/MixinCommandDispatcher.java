@@ -42,7 +42,8 @@ public abstract class MixinCommandDispatcher<S> {
         String[] additional = tabCompletionEvent.intoSuggestionArray();
         if (additional == null) return null;
 
-        SuggestionsBuilder suggestionsBuilder = new SuggestionsBuilder(beforeCursor, start);
+        int lastWordStart = beforeCursor.lastIndexOf(' ') + 1;
+        SuggestionsBuilder suggestionsBuilder = new SuggestionsBuilder(beforeCursor, lastWordStart);
 
         for (String s : additional) {
             suggestionsBuilder.suggest(s);
