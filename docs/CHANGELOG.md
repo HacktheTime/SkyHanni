@@ -4,7 +4,9 @@ The following List may not include Bug Fixes. If empty may be only Bug Fixes.
 
 ## Bingo Net Changes:
 
-- SH merges only
+- fixed an issue with npc chat prompts
+- fixed item highlighting not working in own inventory (in some cases at least)
+- changed it so splasher require witch pet is ignored on bingo profiles 
 
 ## Static Info for modrinth:
 
