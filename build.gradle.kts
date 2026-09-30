@@ -136,6 +136,8 @@ dependencies {
     implementation(libs.fabricLanguageKotlin)
     "productionRuntimeMods"(libs.fabricLanguageKotlin)
 
+    implementation("de.hype.hypixeltools:hypixeltools:0.1-ALPHA-SNAPSHOT")
+
     implementation("maven.modrinth:modmenu:${target.modMenuVersion}")
 
     runtimeOnly(libs.devauth)

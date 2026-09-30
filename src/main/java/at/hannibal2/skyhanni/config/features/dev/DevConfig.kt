@@ -38,6 +38,11 @@ class DevConfig {
     val neuRepo: NeuRepositoryConfig = NeuRepositoryConfig()
 
     @Expose
+    @ConfigOption(name = "HypixelTools Repository", desc = "")
+    @Accordion
+    val hypixelTools: HypixelToolsConfig = HypixelToolsConfig()
+
+    @Expose
     @ConfigOption(name = "Debug", desc = "")
     @Accordion
     val debug: DebugConfig = DebugConfig()

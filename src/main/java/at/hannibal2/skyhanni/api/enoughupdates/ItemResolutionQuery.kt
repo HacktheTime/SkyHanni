@@ -31,6 +31,9 @@ import at.hannibal2.skyhanni.utils.compat.getIntOrDefault
 import at.hannibal2.skyhanni.utils.compat.getStringOrDefault
 import at.hannibal2.skyhanni.utils.ensureComponentsBound
 import at.hannibal2.skyhanni.utils.itemType
+import at.hannibal2.skyhanni.api.hypixeltools.HypixelToolsRepository
+import at.hannibal2.skyhanni.api.hypixeltools.ItemId
+import de.hype.hypixeltools.data.SkyblockItemReference
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
 import com.google.gson.JsonObject
 import net.minecraft.client.gui.screens.Screen
@@ -399,7 +402,24 @@ class ItemResolutionQuery {
     private fun resolveFromSkyblock(): NeuInternalName? {
         val internalName = getExtraAttributes().getStringOrDefault("id")
         if (internalName.isEmpty()) return null
-        return internalName.uppercase().replace(":", "-").toInternalName()
+        val normalized = internalName.uppercase().replace(":", "-")
+        val resolved = normalized.toInternalName()
+        val displayName = ItemUtils.getDisplayName(compound)
+        if (!HypixelToolsRepository.isKnownItem(normalized)) {
+            HypixelToolsRepository.observeItem(normalized, displayName ?: normalized)
+        }
+        return resolved
+    }
+
+    /**
+     * Canonical identity for migrated callers. This is the preferred API; the
+     * NEU-shaped resolver below remains only for legacy feature compatibility.
+     */
+    fun resolveItemReference(): SkyblockItemReference? {
+        val id = getExtraAttributes().getStringOrDefault("id")
+            .takeIf { it.isNotEmpty() }
+            ?: return null
+        return HypixelToolsRepository.findById(ItemId(id))
     }
 
     private fun resolveToItemJson(): NeuItemJson? {

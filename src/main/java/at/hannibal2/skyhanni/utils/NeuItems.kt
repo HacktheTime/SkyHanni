@@ -30,6 +30,9 @@ import at.hannibal2.skyhanni.utils.collection.TimeLimitedCache
 import at.hannibal2.skyhanni.utils.compat.getVanillaItem
 import at.hannibal2.skyhanni.utils.json.fromJsonOrNull
 import at.hannibal2.skyhanni.utils.repopatterns.RepoPattern
+import at.hannibal2.skyhanni.api.hypixeltools.ItemId
+import at.hannibal2.skyhanni.api.hypixeltools.HypixelToolsRepository
+import de.hype.hypixeltools.data.SkyblockItemReference
 import com.google.gson.JsonPrimitive
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
@@ -235,6 +238,14 @@ object NeuItems {
         .withCurrentGuiContext()
         .withItemStack(itemStack)
         .resolveInternalName()
+
+    fun getItemReference(itemStack: SafeItemStack): SkyblockItemReference? {
+        val query = ItemResolutionQuery()
+            .withCurrentGuiContext()
+            .withItemStack(itemStack)
+        return query.resolveItemReference()
+            ?: getInternalName(itemStack)?.let { HypixelToolsRepository.findById(ItemId(it.asString())) }
+    }
 
     fun getInternalNameFromHypixelIdOrNull(hypixelId: String): NeuInternalName? {
         val internalName = hypixelId.replace(':', '-')

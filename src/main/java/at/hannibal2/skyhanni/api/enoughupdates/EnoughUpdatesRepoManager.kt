@@ -8,6 +8,7 @@ import at.hannibal2.skyhanni.data.repo.AbstractRepoManager
 import at.hannibal2.skyhanni.data.repo.ChatProgressUpdates
 import at.hannibal2.skyhanni.events.NeuRepositoryReloadEvent
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import de.hype.hypixeltools.canonical.CanonicalRepositoryClient
 
 @SkyHanniModule
 object EnoughUpdatesRepoManager : AbstractRepoManager<NeuRepositoryReloadEvent>() {
@@ -29,5 +30,12 @@ object EnoughUpdatesRepoManager : AbstractRepoManager<NeuRepositoryReloadEvent>(
         reportItemStatus()
         reportRecipeStatus()
     }
-    override suspend fun extraReloadCoroutineWork(progress: ChatProgressUpdates) = EnoughUpdatesManager.reloadItemsFromRepo(progress)
+    override suspend fun extraReloadCoroutineWork(progress: ChatProgressUpdates) {
+        EnoughUpdatesManager.reloadItemsFromRepo(progress)
+        if (SkyHanniMod.feature.dev.hypixelTools.enabled) {
+            CanonicalRepositoryClient(
+                repositoryDirectory = java.io.File(SkyHanniMod.feature.dev.hypixelTools.repositoryDirectory),
+            ).importNeu(EnoughUpdatesManager.repoDirectory)
+        }
+    }
 }
