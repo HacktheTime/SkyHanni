@@ -63,6 +63,7 @@ import de.hype.bingonet.shared.packets.network.SystemMessagePacket
 import de.hype.bingonet.shared.packets.network.WantedSearchPacket
 import de.hype.bingonet.shared.packets.network.WantedSearchPacket.WantedSearchPacketReply
 import de.hype.bingonet.shared.packets.network.WelcomeClientPacket
+import jdk.net.ExtendedSocketOptions
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -156,9 +157,18 @@ object BNConnection {
             val sslSocketFactory = sslContext.socketFactory
 
             socket = sslSocketFactory.createSocket(serverIP, serverPort).also { socket ->
-                socket.soTimeout = 0
                 socket.tcpNoDelay = true
                 socket.keepAlive = true
+                try {
+                    // Probe after 60s idle, then every 30s, 6 failed probes (~4min to detect a dead connection)
+                    socket.setOption(ExtendedSocketOptions.TCP_KEEPIDLE, 60)
+                    socket.setOption(ExtendedSocketOptions.TCP_KEEPINTERVAL, 30)
+                    socket.setOption(ExtendedSocketOptions.TCP_KEEPCOUNT, 6)
+                } catch (_: Exception) {
+                    // Fallback: OS default keepalive (typically 2h first probe)
+                }
+                // Liveness comes from the kernel keepalive probes, not from a read timeout
+                socket.soTimeout = 0
             }
 
             messageQueue = LinkedBlockingQueue()
@@ -761,7 +771,21 @@ object BNConnection {
 
     fun disconnect(silent: Boolean = false) {
         if (!silent && socket?.isConnected == true) ChatUtils.chat("Disconnected from Bingo Net Server")
-        socket?.close()
+        try {
+            // Try to orderly shutdown the socket so the OS sends a FIN to the server and
+            // the server can detect the closed connection promptly.
+            try {
+                socket?.shutdownOutput()
+            } catch (_: Exception) {
+            }
+            try {
+                socket?.shutdownInput()
+            } catch (_: Exception) {
+            }
+        } catch (_: Exception) {
+        } finally {
+            socket?.close()
+        }
         reader = null
         writer = null
         messageQueue?.clear()
