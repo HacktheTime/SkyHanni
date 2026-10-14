@@ -1,6 +1,7 @@
 package at.hannibal2.skyhanni.test
 
 import at.hannibal2.skyhanni.api.enoughupdates.EnoughUpdatesManager
+import at.hannibal2.skyhanni.api.enoughupdates.EnoughUpdatesRepoManager
 import at.hannibal2.skyhanni.api.event.HandleEvent
 import at.hannibal2.skyhanni.config.ConfigUpdaterMigrator
 import at.hannibal2.skyhanni.events.InventoryUpdatedEvent
@@ -320,7 +321,7 @@ object TestCopyBestiaryValues {
             obj.bracket = it.substringAfter("Capped at Tier").removeColor().trim().toIntOrNull() ?: 0
         }
 
-        val bestiaryJsonFile = File(EnoughUpdatesManager.repoDirectory, "constants/bestiary.json")
+        val bestiaryJsonFile = File(EnoughUpdatesRepoManager.repoDirectory, "constants/bestiary.json")
         val gson = GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create()
         val root = if (bestiaryJsonFile.exists()) gson.fromJson(bestiaryJsonFile.readText(), JsonObject::class.java) else null
 
@@ -530,7 +531,7 @@ object TestCopyBestiaryValues {
     }
 
     private fun updateBestiaryJson(categoryPath: String, newMobs: List<MobEntry>, groupData: BestiaryObject) {
-        val file = File(EnoughUpdatesManager.repoDirectory, "constants/bestiary.json")
+        val file = File(EnoughUpdatesRepoManager.repoDirectory, "constants/bestiary.json")
         if (!file.exists()) return
         try {
             val gson = GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create()
@@ -605,7 +606,7 @@ object TestCopyBestiaryValues {
     private fun updateRepoFile(cleanTitle: String, newRecipes: List<MobRecipe>, categoryName: String) {
         val repoItems = EnoughUpdatesManager.getItemInformation()
         val existingFiles = repoItems.filter { it.value.displayName?.removeColor()?.trim() == categoryName.removeColor().trim() }
-            .map { File(EnoughUpdatesManager.repoDirectory, "items/${it.key.internalName}.json") }.toMutableSet()
+            .map { File(EnoughUpdatesRepoManager.repoDirectory, "items/${it.key.internalName}.json") }.toMutableSet()
 
         var finalFiles = existingFiles
         if (finalFiles.isEmpty()) {
@@ -613,7 +614,7 @@ object TestCopyBestiaryValues {
             val match = repoItems.entries.find { (key, value) ->
                 key.internalName.uppercase().contains(nameUpper) && value.recipes.isNotEmpty()
             }
-            if (match != null) finalFiles = mutableSetOf(File(EnoughUpdatesManager.repoDirectory, "items/${match.key.internalName}.json"))
+            if (match != null) finalFiles = mutableSetOf(File(EnoughUpdatesRepoManager.repoDirectory, "items/${match.key.internalName}.json"))
         }
         if (finalFiles.isEmpty()) {
             val allTags = newRecipes.flatMap { it.mobTypes }.toSet()
@@ -627,7 +628,7 @@ object TestCopyBestiaryValues {
             } else {
                 generateRepoId(cleanTitle, suffix)
             }
-            finalFiles = mutableSetOf(File(EnoughUpdatesManager.repoDirectory, "items/$repoId.json"))
+            finalFiles = mutableSetOf(File(EnoughUpdatesRepoManager.repoDirectory, "items/$repoId.json"))
         }
 
         val allTags = newRecipes.flatMap { it.mobTypes }.toSet()
