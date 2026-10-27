@@ -89,7 +89,8 @@ class FlareConfig {
         NONE("No Outline"),
         FILLED("Filled"),
         WIREFRAME("Wireframe"),
-        CIRCLE("Circle");
+        CIRCLE("Circle"),
+        ;
 
         override fun toString(): String {
             return displayName

@@ -34,7 +34,8 @@ class FrogMaskWarningConfig {
     enum class WarningType(private val displayName: String) {
         NEVER("§cNever"),
         BEING("§eWhile in Park"),
-        FORAGING("§aWhile actively foraging");
+        FORAGING("§aWhile actively foraging"),
+        ;
 
         override fun toString() = displayName
     }

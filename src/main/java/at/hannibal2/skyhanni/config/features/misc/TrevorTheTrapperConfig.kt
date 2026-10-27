@@ -132,7 +132,7 @@ class TrevorTheTrapperConfig {
     val acceptQuestKeybind =  KeyBind()
 
     @Expose
-    @ConfigOption(name = "Trapper Cooldown", desc = "Change the color of Trevor and adds a cooldown over his head.")
+    @ConfigOption(name = "Trapper Cooldown", desc = "Changes the color of Trevor and adds a cooldown over his head.")
     @ConfigEditorBoolean
     @FeatureToggle
     var cooldown: Boolean = true

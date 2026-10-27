@@ -54,7 +54,7 @@ open class EliteLeaderboardGenericConfig<RankGoal : RankGoalGenericConfig, Displ
 enum class Gamemode(val apiMode: String?, val displayName: String, val renderableName: String) {
     ALL(null, "All", ""),
     IRONMAN("ironman", "Ironman", " Ironman"),
-    STRANDED("island", "Stranded", " Stranded")
+    STRANDED("island", "Stranded", " Stranded"),
     ;
 
     override fun toString(): String {

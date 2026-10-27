@@ -26,7 +26,8 @@ class CrystalHighlighterConfig {
 
     enum class BoundingBoxType(private val displayName: String) {
         FILLED("Filled"),
-        OUTLINE("Outline");
+        OUTLINE("Outline"),
+        ;
 
         override fun toString() = displayName
     }

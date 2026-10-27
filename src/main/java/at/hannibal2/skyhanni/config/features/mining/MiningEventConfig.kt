@@ -66,7 +66,8 @@ class MiningEventConfig {
         ALL("All Mining Islands"),
         CRYSTAL("Crystal Hollows Only"),
         DWARVEN("Dwarven Mines Only"),
-        CURRENT("Current Island Only");
+        CURRENT("Current Island Only"),
+        ;
 
         override fun toString() = displayName
     }
